@@ -1,0 +1,26 @@
+name: Bug report
+description: Something in the game or engine isn't working as expected.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you see instead?
+    validations:
+      required: true
+  - type: input
+    id: world-case
+    attributes:
+      label: World / case
+      description: Which world and boss/case were you playing, if applicable?
+  - type: textarea
+    id: code
+    attributes:
+      label: Code you typed
+      description: The pandas/SQL you ran when this happened, if relevant.
+      render: python
+  - type: input
+    id: browser
+    attributes:
+      label: Browser / OS

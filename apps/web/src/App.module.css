@@ -1,0 +1,15 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dcq-color-bg);
+  color: var(--dcq-color-fg);
+  font-family: var(--dcq-font-mono);
+  text-align: center;
+  padding: var(--dcq-space-4);
+}
+
+.title {
+  color: var(--dcq-color-accent);
+}

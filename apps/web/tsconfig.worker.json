@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "WebWorker"],
+    "types": [],
+    "outDir": "./dist-worker",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*.worker.ts"],
+  "references": [
+    { "path": "../../packages/content-schema" },
+    { "path": "../../packages/engine-adapters" }
+  ]
+}

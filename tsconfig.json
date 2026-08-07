@@ -1,0 +1,9 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/content-schema" },
+    { "path": "./packages/engine-adapters" },
+    { "path": "./packages/ui-kit" },
+    { "path": "./apps/web" }
+  ]
+}

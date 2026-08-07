@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.worker.ts"],
+  "references": [
+    { "path": "../../packages/content-schema" },
+    { "path": "../../packages/engine-adapters" },
+    { "path": "../../packages/ui-kit" },
+    { "path": "./tsconfig.worker.json" }
+  ]
+}

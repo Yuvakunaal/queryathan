@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+build/
+*.tsbuildinfo
+
+# Pyodide runtime — fetched via scripts/fetch-pyodide.mjs, never committed
+apps/web/public/pyodide/
+
+# test / e2e artifacts
+coverage/
+playwright-report/
+test-results/
+
+# graphify — GRAPH_REPORT.md is committed, the raw graph data is not
+graphify-out/graph.json
+graphify-out/graph.html
+
+# editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# env
+.env
+.env.local
+
+# deploy
+.vercel/

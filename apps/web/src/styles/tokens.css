@@ -1,0 +1,21 @@
+/*
+  Global tokens only. Each world defines and overrides its own palette
+  locally, in its own theme.css under src/worlds/ — this file must stay
+  world-agnostic.
+*/
+:root {
+  --dcq-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --dcq-font-display: "IBM Plex Mono", ui-monospace, monospace;
+
+  --dcq-color-bg: #0a0a0a;
+  --dcq-color-fg: #e6e6e6;
+  --dcq-color-accent: #39ff14;
+  --dcq-color-danger: #ff4d4d;
+  --dcq-color-success: #39ff14;
+
+  --dcq-space-1: 4px;
+  --dcq-space-2: 8px;
+  --dcq-space-3: 16px;
+  --dcq-space-4: 24px;
+  --dcq-space-5: 40px;
+}

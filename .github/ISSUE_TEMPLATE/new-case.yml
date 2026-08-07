@@ -1,0 +1,30 @@
+name: New case / boss proposal
+description: Propose a new boss, puzzle, or dataset for an existing world.
+labels: ["content"]
+body:
+  - type: dropdown
+    id: world
+    attributes:
+      label: World
+      options:
+        - Boss Fights (World 1 — nulls, duplicates, casing, dtypes, outliers, dates)
+        - The Vault (World 2 — regex/extraction)
+        - The Twins (World 3 — joins/relational)
+        - The Architect (World 4 — reshaping/pivoting)
+        - The Foundry (World 5 — performance/production-grade)
+    validations:
+      required: true
+  - type: textarea
+    id: technique
+    attributes:
+      label: What technique does this case teach?
+      description: e.g. "COALESCE vs fillna for imputation strategy" — see docs/content-authoring-guide.md
+    validations:
+      required: true
+  - type: textarea
+    id: dataset
+    attributes:
+      label: Dataset source & license
+      description: Must be CC0, public-domain, or synthetic. Scraped/unclear-provenance data will not be accepted.
+    validations:
+      required: true
