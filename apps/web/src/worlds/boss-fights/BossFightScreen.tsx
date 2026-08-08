@@ -1,0 +1,505 @@
+import { useEffect, useRef, useState } from "react";
+import { RpcRunError } from "@dcq/engine-adapters";
+import type { ResultGrid } from "@dcq/engine-adapters";
+import type { Case } from "@dcq/content-schema";
+import { PyodideClient } from "../../engines/pyodide-client";
+import { loadCase } from "../../lib/load-case";
+import { diffGrids } from "../../lib/diff";
+import type { CellChange } from "../../lib/diff";
+import { countNulls } from "../../lib/afflictions";
+import { evaluateWinCondition } from "../../lib/evaluate-win-condition";
+import { classNames } from "../../lib/classNames";
+import { getPrimaryNullColumn, formatWinCondition } from "./caseFormat";
+import { formatCellValue } from "./formatCellValue";
+import { markJustCleared } from "./afflictionDom";
+import { playBossHitRecoil } from "../../anim/world1/battlefieldRecoil";
+import { playDiffFlashBatch } from "../../anim/world1/diffFlash";
+import type { DiffCellRefs } from "../../anim/world1/diffFlash";
+import { mountCrtIdle } from "../../anim/world1/crtIdle";
+import BootSequence from "./BootSequence";
+import BriefingPanel from "./BriefingPanel";
+import HpHeatmap from "./HpHeatmap";
+import DataframeGrid from "./DataframeGrid";
+import type { DataframeGridHandle } from "./DataframeGrid";
+import CodeEditor from "./CodeEditor";
+import type { CodeEditorHandle } from "./CodeEditor";
+import RunBar from "./RunBar";
+import DiffConsole from "./DiffConsole";
+import type { ConsoleEntry } from "./DiffConsole";
+import styles from "./BossFightScreen.module.css";
+
+const CASE_PATH = "/content/cases/world-1/w1-01-nul-sentinel.json";
+const TEXT_SCALES = [0.875, 1, 1.125, 1.25];
+const A11Y_STORAGE_KEY = "dcq.a11y";
+
+interface A11yState {
+  textScaleIndex: number;
+  crtReduced: boolean;
+  highContrast: boolean;
+}
+
+function defaultA11y(): A11yState {
+  const reduceIntensity =
+    typeof window !== "undefined" &&
+    (window.matchMedia("(prefers-contrast: more)").matches ||
+      window.matchMedia("(prefers-reduced-transparency: reduce)").matches);
+  return { textScaleIndex: 1, crtReduced: reduceIntensity, highContrast: false };
+}
+
+function loadA11yState(): A11yState {
+  if (typeof window === "undefined") return defaultA11y();
+  try {
+    const raw = window.localStorage.getItem(A11Y_STORAGE_KEY);
+    if (!raw) return defaultA11y();
+    const parsed = JSON.parse(raw) as Partial<A11yState>;
+    const fallback = defaultA11y();
+    return {
+      textScaleIndex: parsed.textScaleIndex ?? fallback.textScaleIndex,
+      crtReduced: parsed.crtReduced ?? fallback.crtReduced,
+      highContrast: parsed.highContrast ?? fallback.highContrast,
+    };
+  } catch {
+    return defaultA11y();
+  }
+}
+
+interface PendingReconciliation {
+  changes: CellChange[];
+  clearedThisTurn: number;
+}
+
+export default function BossFightScreen() {
+  const [caseData, setCaseData] = useState<Case | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [phase, setPhase] = useState<"loading" | "boot" | "fight">("loading");
+  const [grid, setGrid] = useState<ResultGrid | null>(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([]);
+  const [hasWon, setHasWon] = useState(false);
+  const [narrowNoticeDismissed, setNarrowNoticeDismissed] = useState(false);
+  const [liveMessage, setLiveMessage] = useState("");
+  const [liveErrorMessage, setLiveErrorMessage] = useState("");
+  const liveMessageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [a11y, setA11y] = useState<A11yState>(loadA11yState);
+
+  const clientRef = useRef<PyodideClient | null>(null);
+  clientRef.current ??= new PyodideClient();
+
+  const gridRef = useRef<DataframeGridHandle>(null);
+  const codeEditorRef = useRef<CodeEditorHandle>(null);
+  const battlefieldRef = useRef<HTMLDivElement>(null);
+  const crtRef = useRef<HTMLDivElement>(null);
+  const rollBarRef = useRef<HTMLDivElement>(null);
+  const runButtonRef = useRef<HTMLButtonElement>(null);
+  const initialAfflictionRef = useRef<number | null>(null);
+  const justClearedRef = useRef<{ rowIndex: number; column: string }[]>([]);
+  const entryIdRef = useRef(0);
+  const pendingRef = useRef<PendingReconciliation | null>(null);
+
+  const afflictedColumn = caseData ? getPrimaryNullColumn(caseData.winCondition) : null;
+
+  useEffect(() => {
+    const html = document.documentElement;
+    html.style.setProperty("--dcq-text-scale", String(TEXT_SCALES[a11y.textScaleIndex]));
+    if (a11y.crtReduced) html.dataset.dcqIntensity = "reduced";
+    else delete html.dataset.dcqIntensity;
+    if (a11y.highContrast) html.dataset.dcqContrast = "high";
+    else delete html.dataset.dcqContrast;
+    window.localStorage.setItem(A11Y_STORAGE_KEY, JSON.stringify(a11y));
+  }, [a11y]);
+
+  useEffect(() => {
+    if (phase !== "fight" || !crtRef.current) return;
+    return mountCrtIdle(crtRef.current, rollBarRef.current);
+  }, [phase]);
+
+  useEffect(() => {
+    // A plain boolean (even boxed in a ref) gets narrowed to a literal by
+    // TS's control-flow analysis after the first early-return check, which
+    // makes every later check look "always false" to no-unnecessary-condition
+    // — even though the cleanup below can flip it between awaits at runtime.
+    // Routing the read through a function call sidesteps that narrowing.
+    let cancelled = false;
+    const isCancelled = (): boolean => cancelled;
+    const client = clientRef.current;
+    if (!client) return;
+
+    async function boot(activeClient: PyodideClient): Promise<void> {
+      try {
+        const loadedCase = await loadCase(CASE_PATH);
+        if (isCancelled()) return;
+        setCaseData(loadedCase);
+
+        activeClient.spawn();
+        await activeClient.ready();
+        if (isCancelled()) return;
+        const result = await activeClient.initCase(loadedCase.datasetPath);
+        if (isCancelled()) return;
+
+        setGrid(result.resultGrid);
+        const column = getPrimaryNullColumn(loadedCase.winCondition);
+        initialAfflictionRef.current = column ? countNulls(result.resultGrid, column) : 0;
+        setPhase("boot");
+      } catch (err) {
+        if (!isCancelled())
+          setLoadError(err instanceof Error ? err.message : String(err));
+      }
+    }
+
+    void boot(client);
+
+    return () => {
+      cancelled = true;
+      client.terminate();
+    };
+  }, []);
+
+  // Post-run reconciliation: populate diff spans + fire the flash/recoil once
+  // the grid has re-rendered with new values (DOM already shows new values;
+  // this fills in the "old" side and lets the animation reveal the change).
+  useEffect(() => {
+    const pending = pendingRef.current;
+    if (!pending || !afflictedColumn || !grid) return;
+    pendingRef.current = null;
+
+    for (const { rowIndex, column } of justClearedRef.current) {
+      const el = gridRef.current?.getCellElement(rowIndex, column);
+      if (el) markJustCleared(el, false);
+    }
+    justClearedRef.current = [];
+
+    const cellRefs: DiffCellRefs[] = [];
+    for (const change of pending.changes) {
+      const cellEl = gridRef.current?.getCellElement(change.rowIndex, change.column);
+      if (!cellEl) continue;
+
+      const gutterEl = cellEl.querySelector<HTMLElement>('[data-role="gutter"]');
+      const oldEl = cellEl.querySelector<HTMLElement>('[data-role="old"]');
+      const newEl = cellEl.querySelector<HTMLElement>('[data-role="new"]');
+      if (!gutterEl || !oldEl || !newEl) continue;
+
+      oldEl.textContent = formatCellValue(change.before);
+      cellRefs.push({ cellEl, gutterEl, oldEl, newEl });
+
+      if (
+        change.column === afflictedColumn &&
+        change.before === null &&
+        change.after !== null
+      ) {
+        markJustCleared(cellEl, true);
+        justClearedRef.current.push({ rowIndex: change.rowIndex, column: change.column });
+      }
+    }
+
+    if (cellRefs.length > 0) playDiffFlashBatch(cellRefs);
+
+    if (battlefieldRef.current) {
+      playBossHitRecoil({
+        battlefieldEl: battlefieldRef.current,
+        crtEl: crtRef.current,
+        clearedThisTurn: pending.clearedThisTurn,
+        totalAffliction: initialAfflictionRef.current ?? 1,
+      });
+    }
+  }, [grid, afflictedColumn]);
+
+  /** Debounced per spec §3.6 — a fast series of runs shouldn't queue up a stack of polite announcements. */
+  function announcePolite(message: string): void {
+    if (liveMessageTimeoutRef.current) clearTimeout(liveMessageTimeoutRef.current);
+    liveMessageTimeoutRef.current = setTimeout(() => {
+      setLiveMessage(message);
+    }, 400);
+  }
+
+  async function handleRun(): Promise<void> {
+    const client = clientRef.current;
+    if (!client || !grid || !caseData || isRunning || !afflictedColumn) return;
+    const code = codeEditorRef.current?.getValue() ?? "";
+    if (!code.trim()) return;
+
+    setIsRunning(true);
+    try {
+      const result = await client.run(code);
+      const nextGrid = result.resultGrid;
+      const changes = diffGrids(grid, nextGrid);
+      const beforeAfflicted = countNulls(grid, afflictedColumn);
+      const afterAfflicted = countNulls(nextGrid, afflictedColumn);
+      const clearedThisTurn = Math.max(0, beforeAfflicted - afterAfflicted);
+
+      const output = result.output;
+      if (output) {
+        const outputEntryId = `output-${String(entryIdRef.current++)}`;
+        setConsoleEntries((prev) => [
+          ...prev,
+          { kind: "info", id: outputEntryId, text: output },
+        ]);
+      }
+
+      if (changes.length > 0) {
+        const entryId = `run-${String(entryIdRef.current++)}`;
+        setConsoleEntries((prev) => [
+          ...prev,
+          {
+            kind: "diff",
+            id: entryId,
+            lines: changes.map((c) => ({
+              rowIndex: c.rowIndex,
+              column: c.column,
+              before: formatCellValue(c.before),
+              after: formatCellValue(c.after),
+            })),
+          },
+        ]);
+      } else {
+        const entryId = `info-${String(entryIdRef.current++)}`;
+        setConsoleEntries((prev) => [
+          ...prev,
+          {
+            kind: "info",
+            id: entryId,
+            text: `no change — ${String(afterAfflicted).padStart(3, "0")} afflicted cells remain`,
+          },
+        ]);
+      }
+
+      pendingRef.current = { changes, clearedThisTurn };
+      setGrid(nextGrid);
+      announcePolite(
+        `Run complete. ${String(changes.length)} cells changed. ${String(afterAfflicted)} afflicted cells remaining.`,
+      );
+
+      if (evaluateWinCondition(nextGrid, caseData.winCondition)) {
+        setHasWon(true);
+      }
+    } catch (err) {
+      if (err instanceof RpcRunError) {
+        const entryId = `err-${String(entryIdRef.current++)}`;
+        setConsoleEntries((prev) => [
+          ...prev,
+          { kind: "error", id: entryId, message: err.message },
+        ]);
+        setLiveErrorMessage(`Run failed. ${err.message.split("\n")[0] ?? ""}`);
+      } else {
+        throw err;
+      }
+    } finally {
+      setIsRunning(false);
+    }
+  }
+
+  if (loadError) {
+    return (
+      <div className={styles.fightRoot} data-world="boss-fights">
+        <div className={styles.loadingScreen} role="alert">
+          <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
+          <span className={classNames(styles.loadingLine, styles.loadingError)}>
+            engine failed to start — {loadError}
+          </span>
+          <span className={styles.loadingLine}>reload the page to try again</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "loading" || !caseData || !grid) {
+    return (
+      <div className={styles.fightRoot} data-world="boss-fights">
+        <div className={styles.loadingScreen} role="status" aria-live="polite">
+          <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
+          <span className={styles.loadingLine}>
+            mounting engine ......... pyodide/wasm
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!afflictedColumn) {
+    // World 1's battlefield (HP heatmap, sigil decay) is built around a
+    // no_nulls predicate specifically — a schema-valid no_duplicates-only
+    // case is real content this world doesn't render yet (that's Phase 2's
+    // duplicate-affliction UI), so this says so instead of a blank screen.
+    return (
+      <div className={styles.fightRoot} data-world="boss-fights">
+        <div className={styles.loadingScreen} role="alert">
+          <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
+          <span className={classNames(styles.loadingLine, styles.loadingError)}>
+            case &quot;{caseData.id}&quot; has no no_nulls predicate — this build of World
+            1
+          </span>
+          <span className={classNames(styles.loadingLine, styles.loadingError)}>
+            only renders the nulls affliction (Phase 2 adds the rest)
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "boot") {
+    return (
+      <div className={styles.fightRoot} data-world="boss-fights">
+        <BootSequence
+          bossName={caseData.strings.title}
+          datasetFileName={caseData.datasetPath.split("/").pop() ?? "dataset.csv"}
+          datasetShape={`${String(grid.rows.length)}x${String(grid.columns.length)}`}
+          afflictionCount={initialAfflictionRef.current ?? 0}
+          onEngage={() => {
+            setPhase("fight");
+          }}
+        />
+      </div>
+    );
+  }
+
+  const remaining = countNulls(grid, afflictedColumn);
+
+  return (
+    <div className={styles.fightRoot} data-world="boss-fights">
+      <div className={styles.statusRail}>
+        <span>
+          BOSS-FIGHTS // W1-01{" "}
+          <span className={styles.statusRailBoss}>{caseData.strings.title}</span>
+        </span>
+        <div className={styles.a11yControls}>
+          <button
+            type="button"
+            className={styles.a11yButton}
+            aria-label="Decrease text size"
+            onClick={() => {
+              setA11y((s) => ({
+                ...s,
+                textScaleIndex: Math.max(0, s.textScaleIndex - 1),
+              }));
+            }}
+          >
+            A-
+          </button>
+          <button
+            type="button"
+            className={styles.a11yButton}
+            aria-label="Reset text size"
+            onClick={() => {
+              setA11y((s) => ({ ...s, textScaleIndex: 1 }));
+            }}
+          >
+            A
+          </button>
+          <button
+            type="button"
+            className={styles.a11yButton}
+            aria-label="Increase text size"
+            onClick={() => {
+              setA11y((s) => ({
+                ...s,
+                textScaleIndex: Math.min(TEXT_SCALES.length - 1, s.textScaleIndex + 1),
+              }));
+            }}
+          >
+            A+
+          </button>
+          <button
+            type="button"
+            className={styles.a11yButton}
+            aria-label="Toggle CRT effect"
+            aria-pressed={a11y.crtReduced}
+            onClick={() => {
+              setA11y((s) => ({ ...s, crtReduced: !s.crtReduced }));
+            }}
+          >
+            CRT
+          </button>
+          <button
+            type="button"
+            className={styles.a11yButton}
+            aria-label="High contrast mode"
+            aria-pressed={a11y.highContrast}
+            onClick={() => {
+              setA11y((s) => ({ ...s, highContrast: !s.highContrast }));
+            }}
+          >
+            HC
+          </button>
+        </div>
+      </div>
+      {narrowNoticeDismissed ? null : (
+        <div className={styles.narrowNotice}>
+          <span>NARROW DISPLAY // EDITOR IS CRAMPED BELOW 720PX</span>
+          <button
+            type="button"
+            className={styles.narrowNoticeDismiss}
+            aria-label="Dismiss narrow display notice"
+            onClick={() => {
+              setNarrowNoticeDismissed(true);
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+      <div className={styles.stage}>
+        <div className={styles.commandRail}>
+          <div className={styles.briefingPane}>
+            <BriefingPanel
+              title={caseData.strings.title}
+              subtitle={caseData.strings.subtitle}
+              briefing={caseData.strings.briefing}
+              objectiveLabel={formatWinCondition(caseData.winCondition)}
+              remaining={remaining}
+              initial={initialAfflictionRef.current ?? remaining}
+            />
+          </div>
+          <div className={styles.editorPane}>
+            <CodeEditor
+              ref={codeEditorRef}
+              initialValue={caseData.starterCode}
+              onRun={() => {
+                void handleRun();
+              }}
+              onEscape={() => {
+                runButtonRef.current?.focus();
+              }}
+            />
+          </div>
+          <div className={styles.runBarPane}>
+            <RunBar
+              isRunning={isRunning}
+              onRun={() => {
+                void handleRun();
+              }}
+              buttonRef={runButtonRef}
+            />
+          </div>
+          <div className={styles.consolePane}>
+            <DiffConsole entries={consoleEntries} />
+          </div>
+        </div>
+        <div className={styles.battlefield} ref={battlefieldRef}>
+          <HpHeatmap grid={grid} column={afflictedColumn} />
+          <div className={styles.gridWrap}>
+            <DataframeGrid
+              ref={gridRef}
+              grid={grid}
+              afflictedColumn={afflictedColumn}
+              textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
+              columnHints={caseData.columnHints}
+            />
+          </div>
+        </div>
+      </div>
+      <div ref={crtRef} className={styles.crt} aria-hidden="true">
+        <div ref={rollBarRef} className={styles.crtRoll} />
+      </div>
+      <div aria-live="polite" className={styles.srOnly}>
+        {liveMessage}
+      </div>
+      <div aria-live="assertive" className={styles.srOnly}>
+        {liveErrorMessage}
+      </div>
+      {hasWon ? (
+        <div className={styles.winOverlay} role="status">
+          Boss defeated — {caseData.strings.title} neutralized.
+        </div>
+      ) : null}
+    </div>
+  );
+}

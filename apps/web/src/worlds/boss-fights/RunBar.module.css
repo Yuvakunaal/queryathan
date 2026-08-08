@@ -1,0 +1,44 @@
+.runBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 12px;
+  background: var(--w1-bg-panel-2);
+  border-top: 1px solid var(--w1-rule-strong);
+}
+
+.runButton {
+  flex: 1;
+  height: 32px;
+  background: transparent;
+  border: 1px solid var(--w1-green-500);
+  color: var(--w1-green-500);
+  font: 600 12px / 1 var(--w1-font-display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 90ms linear;
+  transition-property: background-color, color;
+}
+.runButton:hover:not(:disabled) {
+  background: var(--w1-green-500);
+  color: var(--w1-text-inverse);
+}
+.runButton:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.runButton:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}
+.runButton[data-running] {
+  border-color: var(--w1-amber-500);
+  color: var(--w1-amber-500);
+  cursor: default;
+}
+
+.hint {
+  font: 400 11px / 1 var(--w1-font-text);
+  color: var(--w1-text-dim);
+}

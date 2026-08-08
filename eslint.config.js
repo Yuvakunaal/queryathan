@@ -9,6 +9,7 @@ export default tseslint.config(
   {
     ignores: [
       "**/dist/**",
+      "**/dist-worker/**",
       "**/build/**",
       "**/node_modules/**",
       "**/public/pyodide/**",

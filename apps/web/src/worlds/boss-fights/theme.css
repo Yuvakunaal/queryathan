@@ -1,0 +1,132 @@
+/*
+  World 1 (Boss Fights) tokens. Scoped to [data-world="boss-fights"] —
+  never added to styles/tokens.css, which stays world-agnostic.
+  See docs/design/world-1-visual-spec.md for the full rationale.
+*/
+
+[data-world="boss-fights"] {
+  /* --- surfaces: near-black, cool cast, stepped not shadowed --- */
+  --w1-bg-void: #06080a;
+  --w1-bg-panel: #0c1110;
+  --w1-bg-panel-2: #131a18;
+  --w1-bg-row-a: #080c0b;
+  --w1-bg-row-b: #0a0f0e;
+  --w1-bg-row-hover: #101917;
+
+  /* --- phosphor green (P31) --- */
+  --w1-green-300: #9dffc0;
+  --w1-green-500: #35f06b;
+  --w1-green-700: #1f8f42;
+
+  /* --- phosphor amber (P3) --- */
+  --w1-amber-300: #ffd37a;
+  --w1-amber-500: #ffb000;
+  --w1-amber-700: #a66e00;
+
+  /* --- text --- */
+  --w1-text-primary: #d8e6de;
+  --w1-text-secondary: #8fa79b;
+  --w1-text-dim: #5e7268;
+  --w1-text-inverse: #06080a;
+
+  /* --- rules / borders --- */
+  --w1-rule-strong: #2a3a33;
+  --w1-rule: #1b2622;
+  --w1-rule-faint: #121a17;
+  --w1-focus: #ffb000;
+
+  /* --- affliction status palette (only "null" ships in Phase 1) --- */
+  --w1-status-null: #c77dff;
+  --w1-status-null-rgb: 199 125 255;
+  --w1-status-dup: #6fc8ff;
+  --w1-status-dtype: #f0e442;
+  --w1-status-ws: #5dd9c1;
+  --w1-status-outlier: #ff9e4a;
+  --w1-status-date: #f58fd0;
+
+  --w1-null-ramp-1: #3a2649;
+  --w1-null-ramp-2: #5b3a73;
+  --w1-null-ramp-3: #8e56ad;
+  --w1-null-ramp-4: #c77dff;
+
+  /* --- diff palette --- */
+  --w1-diff-del: #ff6b3d;
+  --w1-diff-del-rgb: 255 107 61;
+  --w1-diff-add: #35f06b;
+  --w1-diff-add-rgb: 53 240 107;
+  --w1-diff-peak: 0.3;
+
+  /* --- CRT --- */
+  --w1-crt-scanline-a: 0.28;
+  --w1-crt-grille-a: 0.03;
+  --w1-crt-vignette-a: 0.45;
+  --w1-crt-opacity: 1;
+
+  /* --- typography --- */
+  --w1-font-display:
+    "Martian Mono Variable", "Martian Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --w1-font-text:
+    "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --w1-fs-boot: calc(13px * var(--dcq-text-scale, 1));
+  --w1-fs-title: calc(26px * var(--dcq-text-scale, 1));
+  --w1-fs-subtitle: calc(11px * var(--dcq-text-scale, 1));
+  --w1-fs-brief: calc(14px * var(--dcq-text-scale, 1));
+  --w1-fs-objective: calc(13px * var(--dcq-text-scale, 1));
+  --w1-fs-code: calc(14px * var(--dcq-text-scale, 1));
+  --w1-fs-colhead: calc(11px * var(--dcq-text-scale, 1));
+  --w1-fs-cell: calc(13px * var(--dcq-text-scale, 1));
+  --w1-fs-gutter: calc(12px * var(--dcq-text-scale, 1));
+  --w1-fs-hudlabel: calc(11px * var(--dcq-text-scale, 1));
+  --w1-fs-hudnum: calc(18px * var(--dcq-text-scale, 1));
+  --w1-fs-console: calc(12px * var(--dcq-text-scale, 1));
+  --w1-fs-rail: calc(10px * var(--dcq-text-scale, 1));
+  --w1-fs-sigil: calc(11px * var(--dcq-text-scale, 1));
+
+  --w1-row-h: calc(28px * var(--dcq-text-scale, 1));
+  --w1-head-h: calc(32px * var(--dcq-text-scale, 1));
+}
+
+[data-dcq-contrast="high"] [data-world="boss-fights"] {
+  --w1-bg-void: #000000;
+  --w1-bg-panel: #000000;
+  --w1-bg-panel-2: #0a0a0a;
+  --w1-bg-row-a: #000000;
+  --w1-bg-row-b: #0a0a0a;
+  --w1-text-primary: #ffffff;
+  --w1-text-secondary: #d8e6de;
+  --w1-text-dim: #a9bdb3;
+  --w1-green-500: #6bff9b;
+  --w1-amber-500: #ffc53d;
+  --w1-status-null: #e0a8ff;
+  --w1-rule-strong: #4e6459;
+  --w1-rule: #3a4c44;
+  --w1-rule-faint: #2a3a33;
+  --w1-crt-scanline-a: 0;
+  --w1-crt-grille-a: 0;
+  --w1-crt-vignette-a: 0;
+}
+
+/* Global frame rules (spec §3.1) */
+[data-world="boss-fights"],
+[data-world="boss-fights"] * {
+  border-radius: 0;
+}
+
+[data-world="boss-fights"] {
+  font-variant-ligatures: none;
+  font-feature-settings: "zero" 1;
+}
+
+[data-world="boss-fights"] * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--w1-rule-strong) transparent;
+}
+[data-world="boss-fights"] *::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-world="boss-fights"] *::-webkit-scrollbar-thumb {
+  background: var(--w1-rule-strong);
+  border-radius: 0;
+}

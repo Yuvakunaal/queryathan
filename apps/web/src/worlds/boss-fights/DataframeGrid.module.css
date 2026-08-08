@@ -1,0 +1,215 @@
+.gridScroll {
+  background: var(--w1-bg-void);
+  overflow: auto;
+  position: relative;
+}
+
+.headerRow {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--w1-head-h);
+  background: var(--w1-bg-panel-2);
+  border-bottom: 1px solid var(--w1-rule-strong);
+}
+
+.indexHeaderCell {
+  position: sticky;
+  left: 0;
+  z-index: 11;
+  width: 56px;
+  flex: 0 0 56px;
+  background: var(--w1-bg-panel-2);
+  border-right: 1px solid var(--w1-rule);
+}
+
+.headerCell {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font: 600 var(--w1-fs-colhead) / var(--w1-head-h) var(--w1-font-display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--w1-text-secondary);
+  border-right: 1px solid var(--w1-rule-faint);
+}
+
+.body {
+  position: relative;
+  width: 100%;
+}
+
+.row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+}
+.rowA {
+  background: var(--w1-bg-row-a);
+}
+.rowB {
+  background: var(--w1-bg-row-b);
+}
+.row:hover {
+  background: var(--w1-bg-row-hover);
+}
+.ledger {
+  border-bottom: 1px solid var(--w1-rule);
+}
+
+.indexCell {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  width: 56px;
+  flex: 0 0 56px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 10px;
+  font: 400 var(--w1-fs-gutter) / var(--w1-row-h) var(--w1-font-text);
+  color: var(--w1-text-dim);
+  background: var(--w1-bg-panel-2);
+  border-right: 1px solid var(--w1-rule);
+}
+
+.cell {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font: 400 var(--w1-fs-cell) / var(--w1-row-h) var(--w1-font-text);
+  color: var(--w1-text-primary);
+  border-right: 1px solid var(--w1-rule-faint);
+  background-color: rgb(var(--w1-diff-color, 0 0 0) / var(--w1-diff-alpha, 0));
+  overflow: hidden;
+  white-space: nowrap;
+}
+.cell:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+/*
+  Absolutely stacked (spec §7) so the old/new cross-fade overlaps in place
+  instead of shifting layout — an invisible .diffOld with reserved flex
+  space was pushing the visible value sideways for the rest of the session.
+*/
+.diffOld,
+.diffNew {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 0;
+  line-height: var(--w1-row-h);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cell.numeric .diffOld,
+.cell.numeric .diffNew {
+  text-align: right;
+}
+
+.diffGutter {
+  position: absolute;
+  left: 2px;
+  width: 8px;
+  font: 500 var(--w1-fs-gutter) / var(--w1-row-h) var(--w1-font-text);
+  opacity: 0;
+  color: rgb(var(--w1-diff-color, 0 0 0));
+}
+
+.diffOld {
+  opacity: 0;
+  text-decoration-line: line-through;
+  text-decoration-color: var(--w1-diff-del);
+}
+
+.diffNew {
+  opacity: 1;
+}
+
+/* --- affliction rest state (spec §5.2) --- */
+.cell[data-affliction="null"] {
+  color: var(--w1-status-null);
+  font-weight: 500;
+  border: 1px dashed rgb(var(--w1-status-null-rgb) / 0.55);
+}
+
+.cell[data-affliction="null"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(var(--w1-status-null-rgb) / 1);
+  opacity: 0.1;
+  animation: w1-affliction-pulse 2200ms cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation-delay: calc(var(--w1-cell-seed, 0) * -137ms);
+  pointer-events: none;
+}
+
+.cell[data-affliction="null"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent 0 5px,
+    rgb(var(--w1-status-null-rgb) / 0.3) 5px 6px
+  );
+  pointer-events: none;
+}
+
+@keyframes w1-affliction-pulse {
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.26;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell[data-affliction="null"]::before {
+    animation: none;
+    opacity: 0.2;
+  }
+}
+
+[data-dcq-contrast="high"] .cell[data-affliction="null"] {
+  border: 2px solid var(--w1-status-null);
+}
+[data-dcq-contrast="high"] .cell[data-affliction="null"]::before {
+  opacity: 0.14;
+}
+[data-dcq-contrast="high"] .cell[data-affliction="null"]::after {
+  display: none;
+}
+
+/*
+  Windows High Contrast / forced-colors mode strips all author backgrounds,
+  so the hatch/wash/violet signals vanish outright — identity falls back to
+  the literal NaN text (already there) plus a system-color border, per
+  spec §4.2.
+*/
+@media (forced-colors: active) {
+  .cell[data-affliction="null"] {
+    border: 2px dashed CanvasText;
+  }
+  .cell[data-affliction="null"]::before,
+  .cell[data-affliction="null"]::after {
+    display: none;
+  }
+}
+
+.cell[data-just-cleared="true"] {
+  outline: 1px solid rgb(var(--w1-diff-add-rgb) / 0.35);
+  outline-offset: -1px;
+}

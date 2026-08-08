@@ -1,0 +1,80 @@
+.briefing {
+  background: var(--w1-bg-panel);
+  padding: 20px 16px;
+  overflow-y: auto;
+  border-bottom: 1px solid var(--w1-rule-strong);
+}
+.briefing:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: -2px;
+}
+
+.header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.sigil {
+  flex: 0 0 88px;
+  width: 88px;
+  height: 66px;
+  margin: 0;
+  font: 500 var(--w1-fs-sigil) / 11px var(--w1-font-text);
+  letter-spacing: 0;
+  color: var(--w1-green-700);
+  white-space: pre;
+}
+
+.titleBlock {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font: 700 var(--w1-fs-title) / 28px var(--w1-font-display);
+  font-variation-settings:
+    "wdth" 87.5,
+    "wght" 700;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--w1-status-null);
+}
+
+.subtitle {
+  margin-top: 2px;
+  font: 500 var(--w1-fs-subtitle) / 16px var(--w1-font-text);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--w1-text-secondary);
+}
+
+.body {
+  margin-top: 18px;
+  font: 400 var(--w1-fs-brief) / 22px var(--w1-font-text);
+  color: var(--w1-text-primary);
+}
+.body p {
+  margin: 0 0 12px;
+}
+.body p:last-child {
+  margin-bottom: 0;
+}
+.body code {
+  font: inherit;
+  color: var(--w1-status-null);
+}
+
+.objective {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--w1-rule-faint);
+  font: 600 var(--w1-fs-objective) / 20px var(--w1-font-text);
+  letter-spacing: 0.02em;
+  color: var(--w1-amber-500);
+}
+
+.objectiveValue {
+  color: var(--w1-text-primary);
+}

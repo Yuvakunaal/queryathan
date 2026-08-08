@@ -19,6 +19,7 @@
     "test": "pnpm -r test",
     "validate-content": "tsx scripts/validate-content.mjs",
     "fetch-pyodide": "node scripts/fetch-pyodide.mjs",
+    "postinstall": "node scripts/fetch-pyodide.mjs",
     "prepare": "husky"
   },
   "devDependencies": {

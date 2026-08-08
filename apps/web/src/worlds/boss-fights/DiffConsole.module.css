@@ -1,0 +1,33 @@
+.console {
+  background: var(--w1-bg-panel);
+  border-top: 1px solid var(--w1-rule-strong);
+  padding: 10px 16px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font: 400 var(--w1-fs-console) / 18px var(--w1-font-text);
+}
+.console:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: -2px;
+}
+
+.del {
+  color: var(--w1-diff-del);
+}
+.add {
+  color: var(--w1-diff-add);
+  margin-bottom: 6px;
+}
+.strike {
+  text-decoration: line-through;
+}
+.tracebackHeader {
+  color: var(--w1-text-dim);
+}
+.info {
+  color: var(--w1-text-secondary);
+  margin-bottom: 6px;
+}
+.errorBlock {
+  margin-bottom: 6px;
+}

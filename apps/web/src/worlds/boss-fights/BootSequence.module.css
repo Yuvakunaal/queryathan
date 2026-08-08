@@ -1,0 +1,50 @@
+.boot {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  background: var(--w1-bg-void);
+  padding: 12vh 0 0 8vw;
+}
+
+.line {
+  max-width: 62ch;
+  font: 400 var(--w1-fs-boot) / 20px var(--w1-font-text);
+  white-space: pre;
+}
+
+.secondary {
+  color: var(--w1-text-secondary);
+}
+.ok {
+  color: var(--w1-green-500);
+}
+.status {
+  color: var(--w1-status-null);
+}
+.prompt {
+  color: var(--w1-amber-500);
+}
+
+.spacer {
+  height: 20px;
+}
+
+.cursor {
+  color: var(--w1-green-500);
+  margin-left: 2px;
+}
+
+.enterButton {
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  cursor: pointer;
+  font: 400 var(--w1-fs-boot) / 20px var(--w1-font-text);
+}
+.enterButton:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}

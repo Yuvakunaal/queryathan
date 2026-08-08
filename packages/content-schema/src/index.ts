@@ -1,2 +1,9 @@
-export { caseSchema, predicateSchema, winConditionSchema } from "./case";
-export type { Case, Predicate, WinCondition } from "./case";
+export {
+  caseSchema,
+  predicateSchema,
+  winConditionSchema,
+  datasetLicenseSchema,
+  columnHintSchema,
+  columnHintsSchema,
+} from "./case";
+export type { Case, Predicate, WinCondition, DatasetLicense, ColumnHints } from "./case";

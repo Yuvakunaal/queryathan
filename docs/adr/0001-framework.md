@@ -30,8 +30,18 @@ React 19 + TypeScript.
 
 1. All GSAP lives in `apps/web/src/anim/`, driving the DOM via refs — never
    through React state.
-2. `DataframeBattlefield` is virtualized and memoized; affliction highlighting
-   applies via direct DOM/CSS-variable mutation, not re-render.
+2. **Per-frame animation state** — anything an active GSAP timeline mutates
+   on every tick (diff-flash opacity/position, HP-shatter transforms, boss
+   recoil) — is applied via direct DOM/CSS-variable mutation, never
+   `setState`, since that's the path that would actually cost 60fps.
+   **Amended in Phase 1**: this guardrail does not extend to state that
+   changes once per turn, not per frame. `DataframeGrid`'s
+   `data-affliction`/`aria-label` are derived from props in the normal React
+   render path — at ~20–30 visible virtualized rows, updating those once
+   per run is not the cost this guardrail exists to prevent, and routing it
+   through direct DOM mutation instead (as Phase 1 originally scaffolded in
+   `afflictionDom.ts`) was unused dead code by the time of the Phase 1
+   completeness review. Removed rather than wired up for its own sake.
 3. A Lighthouse/interaction performance budget lands in CI (Phase 7) so a
    regression here is caught mechanically.
 

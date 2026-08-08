@@ -13,12 +13,21 @@ Full product vision, world designs, and architecture rationale:
 
 ## Status
 
-**Phase 1 in progress — repo scaffold stage.** No playable build yet.
+**Phase 1 complete — the core loop is real and playable.** Open the app,
+engage `NUL_SENTINEL`, and you're editing real pandas against a real
+Pyodide worker: type `df['temp_c'] = df['temp_c'].fillna(0)`, run it, and
+watch the actual dataframe change — HP heatmap drops, cells flash a
+git-diff-style red/green, the boss's ASCII sigil decays as the affliction
+clears. Real Python errors (e.g. a `KeyError` from a bad column reference)
+surface as an unmodified traceback, exactly as they would in a notebook.
 
-See [`data-cleaning-quest-master-plan.md`](./data-cleaning-quest-master-plan.md#14-build-roadmap)
-Section 14 for the full 9-phase roadmap. Architecture decisions made so far
-(framework, hosting, content-schema win-condition model) are recorded in
-[`docs/adr/`](./docs/adr/).
+No save system yet (progress resets on refresh), no SQL path, no other
+worlds, no sandbox mode, no offline caching, no Playwright/Lighthouse CI —
+all explicitly later phases. See
+[`data-cleaning-quest-master-plan.md`](./data-cleaning-quest-master-plan.md#14-build-roadmap)
+Section 14 for the full 9-phase roadmap. Architecture decisions are recorded
+in [`docs/adr/`](./docs/adr/); World 1's visual/motion design spec is in
+[`docs/design/world-1-visual-spec.md`](./docs/design/world-1-visual-spec.md).
 
 For a structural map of the codebase, see
 [`graphify-out/GRAPH_REPORT.md`](./graphify-out/GRAPH_REPORT.md) (generated —
@@ -27,23 +36,35 @@ read this before diving into the source).
 ## Stack
 
 - **React 19 + TypeScript (strict)** — UI
-- **Pyodide** (WASM Python/pandas) in a dedicated Web Worker
-- **sql.js** (WASM SQLite) in a dedicated Web Worker
+- **Pyodide** (WASM Python/pandas) in a dedicated Web Worker — interpreter
+  self-hosted and checksum-verified, pandas/numpy wheels from a pinned
+  jsdelivr CDN path (see [ADR 0004](./docs/adr/0004-pyodide-package-delivery.md))
 - **CodeMirror 6** — real syntax highlighting, real error surfacing
 - **GSAP** — all animation, driven imperatively outside React's render cycle
-- **Vite** — build/dev, per-world code-splitting
-- **Vitest** / **Playwright** — unit / e2e tests
+  (see [ADR 0001](./docs/adr/0001-framework.md))
+- **TanStack Virtual** — the dataframe grid
+- **Vite** — build/dev
+- **Vitest** — unit tests (36 passing across the workspace)
 - **pnpm workspaces** monorepo, no Turborepo yet
+
+Not yet integrated: **sql.js** (SQL path is Phase 3), **Playwright**
+(e2e is Phase 7), per-world code-splitting (nothing to split until a second
+world exists).
 
 ## Repository layout
 
 ```
 apps/web/              the game — Vite + React app
+  src/engines/            pyodide.worker.ts (dedicated Web Worker) + main-thread client
+  src/worlds/boss-fights/ World 1: all React components + theme.css
+  src/anim/world1/        GSAP choreography (recoil, diff-flash, HP shatter, CRT, boot type)
+  src/lib/                pure game logic: diff, afflictions, win-condition eval
+  public/datasets/        seed CSVs, license-tagged per world
 packages/content-schema/   shared TS types + Zod schema for case JSON
-packages/engine-adapters/  typed worker RPC protocol + Pyodide/sql.js helpers
+packages/engine-adapters/  typed worker RPC protocol (protocol.ts, rpc.ts)
 packages/ui-kit/           shared design-system primitives (grows on 2nd use)
 content/cases/          community-contributable boss/case JSON, per world
-docs/                   architecture, security, content-authoring guide, ADRs
+docs/                   architecture, security, content-authoring guide, ADRs, design specs
 ```
 
 ## Getting started
@@ -61,9 +82,11 @@ pnpm test
 pnpm build
 ```
 
-`pnpm fetch-pyodide` downloads the pinned, checksum-verified Pyodide runtime
-into `apps/web/public/pyodide/` (gitignored). Not wired to `postinstall` yet
-— nothing consumes it until the Phase 1 worker lands.
+`pnpm install` runs `postinstall` automatically, which fetches the pinned,
+checksum-verified Pyodide runtime into `apps/web/public/pyodide/`
+(gitignored, ~14MB) — the worker depends on it being present, so `pnpm dev`
+will fail without it. Re-run manually any time with `pnpm fetch-pyodide`; it's
+a no-op if the pinned version is already present.
 
 ## Contributing
 

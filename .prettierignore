@@ -1,4 +1,5 @@
 dist
+dist-worker
 build
 node_modules
 data-cleaning-quest-master-plan.md

@@ -3,6 +3,18 @@
  * shape. Both sides import this — never redeclare it independently.
  */
 
+export interface ResultGrid {
+  columns: string[];
+  rows: Record<string, string | number | boolean | null>[];
+}
+
+export interface InitCaseRequest {
+  type: "init-case";
+  requestId: string;
+  /** Fetched inside the worker and loaded into the `df` namespace variable. */
+  datasetUrl: string;
+}
+
 export interface RunCodeRequest {
   type: "run-code";
   requestId: string;
@@ -14,20 +26,29 @@ export interface CancelRequest {
   requestId: string;
 }
 
-export type WorkerRequest = RunCodeRequest | CancelRequest;
+export type WorkerRequest = InitCaseRequest | RunCodeRequest | CancelRequest;
 
 export interface EngineReadyResponse {
   type: "ready";
+}
+
+/** Posted if the engine fails to initialize (e.g. Pyodide/package load failure). */
+export interface EngineErrorResponse {
+  type: "engine-error";
+  message: string;
 }
 
 export interface RunResultResponse {
   type: "run-result";
   requestId: string;
   /** Serializable snapshot of the resulting dataframe/table, engine-agnostic. */
-  resultGrid: {
-    columns: string[];
-    rows: Record<string, string | number | boolean | null>[];
-  };
+  resultGrid: ResultGrid;
+  /**
+   * Captured stdout (print()) plus the last expression's repr, like a real
+   * notebook cell — null when the run produced neither (e.g. a bare
+   * assignment). Never fabricated; verbatim from the interpreter.
+   */
+  output: string | null;
 }
 
 export interface RunErrorResponse {
@@ -37,4 +58,5 @@ export interface RunErrorResponse {
   message: string;
 }
 
-export type WorkerResponse = EngineReadyResponse | RunResultResponse | RunErrorResponse;
+export type WorkerResponse =
+  EngineReadyResponse | EngineErrorResponse | RunResultResponse | RunErrorResponse;

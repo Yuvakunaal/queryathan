@@ -1,0 +1,95 @@
+.hpBand {
+  display: grid;
+  grid-template-columns: 1fr minmax(210px, auto);
+  grid-template-rows: auto auto;
+  grid-template-areas: "label readout" "strip readout";
+  align-items: end;
+  column-gap: 20px;
+  row-gap: 6px;
+  background: var(--w1-bg-panel);
+  border-bottom: 1px solid var(--w1-rule-strong);
+  padding: 14px 16px 12px;
+}
+
+.hpLabel {
+  grid-area: label;
+  font: 600 var(--w1-fs-hudlabel) / 14px var(--w1-font-display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--w1-amber-500);
+}
+
+.hpStrip {
+  grid-area: strip;
+  display: flex;
+  gap: 1px;
+  height: 18px;
+  align-items: flex-end;
+}
+
+.hpReadout {
+  grid-area: readout;
+  text-align: right;
+  align-self: end;
+}
+
+.hpSeg {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 2px;
+  transform-origin: bottom center;
+  background: var(--seg-color, var(--w1-rule-faint));
+}
+/*
+  Theme-token-driven, not inline-set, so [data-dcq-contrast="high"]'s
+  redefined ramp/rule-faint tokens actually reach the strip. hpShatter.ts's
+  color tween clears its inline --seg-color override on completion
+  (clearProps) so the resting state always falls back to these.
+*/
+.hpSeg[data-level="0"] {
+  --seg-color: var(--w1-rule-faint);
+}
+.hpSeg[data-level="1"] {
+  --seg-color: var(--w1-null-ramp-2);
+}
+.hpSeg[data-level="2"] {
+  --seg-color: var(--w1-null-ramp-3);
+}
+.hpSeg[data-level="3"] {
+  --seg-color: var(--w1-null-ramp-4);
+}
+
+.shard {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 34%;
+  background: var(--seg-color, var(--w1-rule-faint));
+  visibility: hidden;
+}
+.shard:nth-child(1) {
+  top: 0;
+}
+.shard:nth-child(2) {
+  top: 33%;
+}
+.shard:nth-child(3) {
+  top: 66%;
+}
+
+.hpNum {
+  font: 600 var(--w1-fs-hudnum) / 20px var(--w1-font-text);
+  letter-spacing: 0.02em;
+  color: var(--w1-status-null);
+}
+.hpNumZero {
+  color: var(--w1-green-500);
+}
+
+.hpDenom {
+  font: 400 var(--w1-fs-hudlabel) / 14px var(--w1-font-display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--w1-text-dim);
+  margin-left: 8px;
+}
