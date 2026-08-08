@@ -1,4 +1,9 @@
 {
   "world": "boss-fights",
-  "caseIds": ["w1-01-nul-sentinel"]
+  "caseIds": [
+    "w1-01-nul-sentinel",
+    "w1-02-double-take",
+    "w1-03-case-shift",
+    "w1-04-the-reckoning"
+  ]
 }
