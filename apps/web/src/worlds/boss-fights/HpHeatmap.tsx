@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import type { ResultGrid } from "@dcq/engine-adapters";
 import type { WinCondition } from "@dcq/content-schema";
 import {
+  afflictableColumns,
   afflictionCellMap,
   afflictionCountsByKind,
   afflictionKindsByRow,
@@ -23,7 +24,10 @@ export interface HpHeatmapProps {
 
 export default function HpHeatmap({ grid, winCondition }: HpHeatmapProps) {
   const kindOrder = useMemo(() => predicateKindOrder(winCondition), [winCondition]);
-  const predicateCount = winCondition.all.length;
+  const columnCapacity = useMemo(
+    () => afflictableColumns(winCondition).length,
+    [winCondition],
+  );
 
   const cellMap = useMemo(
     () => afflictionCellMap(grid, winCondition),
@@ -37,16 +41,16 @@ export default function HpHeatmap({ grid, winCondition }: HpHeatmapProps) {
       computeHpSegments(
         grid.rows.length,
         kindsByRow,
-        predicateCount,
+        columnCapacity,
         MAX_SEGMENTS,
         kindOrder,
       ),
-    [grid.rows.length, kindsByRow, predicateCount, kindOrder],
+    [grid.rows.length, kindsByRow, columnCapacity, kindOrder],
   );
 
   const afflictedTotal = cellMap.size;
   const rowTotal = grid.rows.length;
-  const maxPossible = rowTotal * Math.max(1, predicateCount);
+  const maxPossible = rowTotal * Math.max(1, columnCapacity);
 
   const segRefs = useRef<(HTMLElement | null)[]>([]);
   const shardRefs = useRef<HTMLElement[][]>([]);
@@ -141,7 +145,7 @@ export default function HpHeatmap({ grid, winCondition }: HpHeatmapProps) {
         >
           {String(afflictedTotal).padStart(3, "0")}
         </span>
-        <span className={styles.hpDenom}>/ {rowTotal} ROWS</span>
+        <span className={styles.hpDenom}>CELLS / {rowTotal} ROWS</span>
       </div>
       {showBreakdown ? (
         <div className={styles.hpBreakdown} aria-hidden="true">

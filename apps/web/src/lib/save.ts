@@ -95,11 +95,19 @@ interface RankTier {
 }
 
 /**
- * World 1 (Boss Fights) has 6 distinct techniques (nulls, duplicates,
- * whitespace, casing, dtype, outliers) — ranks are tied to how many are
- * mastered, not how many cases are cleared, per plan §6. Worlds beyond
- * World 1 aren't built yet (Phase 2 scope is "Full World 1" only), so they
- * fall back to a single-tier rank until their own techniques exist.
+ * World 1 (Boss Fights) has 6 distinct predicate types
+ * (no_nulls/no_duplicates/no_whitespace/consistent_casing/valid_dtype/
+ * no_outliers — see recordCaseWin's predicateKinds() argument) — ranks are
+ * tied to how many are mastered, not how many cases are cleared, per plan
+ * §6. Note this is predicate-type count, not affliction-*kind* count:
+ * `valid_dtype` covers both "wrong dtype" and "bad dates" content
+ * (dtype: "datetime" renders as its own visual kind, per
+ * docs/content-authoring-guide.md, but is the same predicate type for
+ * mastery-tracking purposes) — so a case that's the player's first
+ * `valid_dtype("datetime")` win doesn't award a 7th technique, it's still
+ * `valid_dtype`. Worlds beyond World 1 aren't built yet (Phase 2 scope is
+ * "Full World 1" only), so they fall back to a single-tier rank until
+ * their own techniques exist.
  */
 const RANK_TIERS: Record<WorldId, RankTier[]> = {
   "boss-fights": [
@@ -122,4 +130,10 @@ export function rankForWorld(world: WorldId, masteredTechniqueCount: number): st
     if (masteredTechniqueCount >= tier.minTechniques) label = tier.label;
   }
   return label;
+}
+
+/** The top rank tier's threshold — how many distinct techniques a world's roster screen should show as the "/ N techniques" denominator, instead of a hardcoded number that would silently go stale for a world with a different technique count. */
+export function maxTechniquesForWorld(world: WorldId): number {
+  const tiers = RANK_TIERS[world];
+  return tiers.reduce((max, tier) => Math.max(max, tier.minTechniques), 0);
 }

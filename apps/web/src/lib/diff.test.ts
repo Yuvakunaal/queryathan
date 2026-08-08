@@ -125,4 +125,27 @@ describe("diffGrids", () => {
     };
     expect(diffGrids(before, after)).toEqual([]);
   });
+
+  it("documents current behavior on a colliding (non-unique) index value: last write wins", () => {
+    // The worker's hidden row-id column (ADR 0006) is assigned fresh
+    // 0..N-1 values and never duplicated in practice, but diffGrids itself
+    // doesn't enforce uniqueness — if two "before" rows ever shared an
+    // index value, the second silently overwrites the first in the lookup
+    // rather than crashing. Documented, not (yet) a case that can occur.
+    const before: ResultGrid = {
+      columns: ["a"],
+      rows: [{ a: 1 }, { a: 2 }],
+      dtypes: {},
+      index: [0, 0],
+    };
+    const after: ResultGrid = {
+      columns: ["a"],
+      rows: [{ a: 99 }],
+      dtypes: {},
+      index: [0],
+    };
+    expect(diffGrids(before, after)).toEqual([
+      { rowIndex: 0, column: "a", before: 2, after: 99 },
+    ]);
+  });
 });

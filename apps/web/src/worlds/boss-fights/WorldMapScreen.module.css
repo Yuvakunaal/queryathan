@@ -5,9 +5,17 @@
   padding: 10vh 8vw 4vh;
 }
 
-.rosterHeading {
+.rosterHeader {
   max-width: 900px;
-  margin: 0 0 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.rosterHeading {
+  margin: 0;
   font: 700 var(--w1-fs-title) / 28px var(--w1-font-display);
   letter-spacing: -0.02em;
   text-transform: uppercase;
@@ -160,4 +168,20 @@
 }
 .importStatusError {
   color: var(--w1-diff-del);
+}
+
+/*
+  Windows High Contrast strips the status-color coding from rosterStatus/
+  rosterTag — the button/span aria-labels already carry the same
+  information, but sighted forced-colors users still get a real system
+  border to distinguish rows by, matching the fight screen's own
+  forced-colors treatment (DataframeGrid.module.css).
+*/
+@media (forced-colors: active) {
+  .rosterRow {
+    border-bottom: 1px solid CanvasText;
+  }
+  .rosterRow[data-status="locked"] {
+    border-style: dashed;
+  }
 }

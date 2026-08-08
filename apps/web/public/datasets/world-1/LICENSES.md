@@ -58,9 +58,11 @@
   `status`, `opened_at`, `first_response_hours`).
 - **Afflictions:** all six World 1 techniques at once — 22 duplicate tickets
   (a sync/idempotency bug), 17 missing and 14 whitespace-padded emails, 30
-  inconsistent-casing `status` values, and `first_response_hours` carrying
-  three independent problems on one column (24 non-numeric entries forcing
-  `object` dtype, 16 genuinely empty cells, 9 out-of-range outliers) —
-  deliberately requiring a dtype fix before the nulls and outliers
-  underneath it can be addressed.
+  inconsistent-casing `status` values, `opened_at` stored as plain CSV text
+  (`object` dtype) rather than parsed dates — the "bad dates" content area,
+  fixed with `pd.to_datetime()` exactly as the master plan's technique
+  table describes — and `first_response_hours` carrying three independent
+  problems on one column (24 non-numeric entries forcing `object` dtype, 16
+  genuinely empty cells, 9 out-of-range outliers) — deliberately requiring
+  a dtype fix before the nulls and outliers underneath it can be addressed.
 - Regenerate with `node scripts/generate-the-reckoning.mjs`.

@@ -39,10 +39,49 @@ describe("computeHpSegments", () => {
     );
   });
 
-  it("normalizes the ratio against predicateCount, not just afflicted-cell count", () => {
-    // 4 rows, 1 predicate hit per row out of 2 active predicates -> ratio 0.5 -> level 2
-    const segments = computeHpSegments(4, kindsByRowOf([0, 1, 2, 3]), 2, 1, ["null"]);
+  it("treats an exact 1/3 ratio as level 1, not level 2 (regression: 0.33 decimal literal rounded this wrong)", () => {
+    // 1 afflicted column out of 3 capacity, every row — CASE_SHIFT's exact
+    // baseline shape before the player has typed anything.
+    const segments = computeHpSegments(3, kindsByRowOf([0, 1, 2]), 3, 1, ["null"]);
+    expect(segments[0]?.level).toBe(1);
+  });
+
+  it("treats an exact 2/3 ratio as level 2, not level 3", () => {
+    const kindsByRow = new Map<number, AfflictionKind[]>([
+      [0, ["null", "ws"]],
+      [1, ["null", "ws"]],
+      [2, ["null", "ws"]],
+    ]);
+    const segments = computeHpSegments(3, kindsByRow, 3, 1, ["null"]);
     expect(segments[0]?.level).toBe(2);
+  });
+
+  it("normalizes against column capacity, not predicate count — a multi-column no_duplicates predicate needs its full column span as capacity", () => {
+    // Mirrors DOUBLE_TAKE's shape: 1 predicate (no_nulls) contributes 1
+    // column, another (no_duplicates) spans 3 columns -> capacity 4, not
+    // "2 predicates". A row afflicted on all 4 columns should hit level 3,
+    // not be diluted by counting predicates instead of columns.
+    const kindsByRow = new Map<number, AfflictionKind[]>([
+      [0, ["null", "dup", "dup", "dup"]],
+    ]);
+    const segments = computeHpSegments(1, kindsByRow, 4, 1, ["null", "dup"]);
+    expect(segments[0]?.level).toBe(3);
+  });
+
+  it("reaches level 3 on a THE_RECKONING-shaped win condition (4 afflictable columns, 7 predicates) — regression for the unreachable-top-tier bug", () => {
+    // The bug: normalizing against predicateCount (7) instead of column
+    // capacity (4) made the max achievable ratio 4/7 ≈ 0.57, capping every
+    // segment at level 2 regardless of how afflicted a row actually was.
+    const kindsByRow = new Map<number, AfflictionKind[]>([
+      [0, ["null", "ws", "dup", "dtype"]],
+    ]);
+    const segments = computeHpSegments(1, kindsByRow, 4, 1, [
+      "null",
+      "ws",
+      "dup",
+      "dtype",
+    ]);
+    expect(segments[0]?.level).toBe(3);
   });
 
   it("picks the dominant kind by cell count within a bin", () => {

@@ -27,6 +27,7 @@
       { "predicate": "no_whitespace", "column": "customer_email" },
       { "predicate": "no_duplicates", "columns": ["ticket_id"] },
       { "predicate": "consistent_casing", "column": "status", "case": "lower" },
+      { "predicate": "valid_dtype", "column": "opened_at", "dtype": "datetime" },
       { "predicate": "valid_dtype", "column": "first_response_hours", "dtype": "float" },
       { "predicate": "no_nulls", "column": "first_response_hours" },
       {

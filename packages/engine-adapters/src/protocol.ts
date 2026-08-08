@@ -9,11 +9,13 @@ export interface ResultGrid {
   /** Each column's real pandas dtype (`str(dataframe[col].dtype)`) — e.g. "int64", "float64", "object", "datetime64[ns]". */
   dtypes: Record<string, string>;
   /**
-   * The real pandas index value for each row, in display order — e.g.
-   * `dataframe.index.tolist()`. Default RangeIndex values survive
-   * operations like `drop_duplicates()`/`dropna()` unless the code calls
-   * `.reset_index()`, so this is what lets a row-count-changing run be
-   * diffed by row identity instead of position (lib/diff.ts).
+   * A stable per-row identity value, in display order — an engine-assigned
+   * value independent of both array position and the underlying engine's
+   * own row index/rowid, so it survives operations a player might run that
+   * would otherwise reset it (e.g. pandas' `.reset_index(drop=True)`, the
+   * idiomatic follow-up to `drop_duplicates()`). This is what lets a
+   * row-count-changing run be diffed by row identity instead of position
+   * (lib/diff.ts) — see docs/adr/0006-row-identity-diffing.md.
    */
   index: (string | number)[];
 }

@@ -16,6 +16,8 @@ import {
 import type { AfflictionKind } from "../../lib/affliction-cells";
 import { evaluateWinCondition } from "../../lib/evaluate-win-condition";
 import { classNames } from "../../lib/classNames";
+import { TEXT_SCALES } from "../../lib/a11y";
+import type { A11yState } from "../../lib/a11y";
 import { formatWinCondition, predicateKinds } from "./caseFormat";
 import { formatCellValue } from "./formatCellValue";
 import { markJustCleared } from "./afflictionDom";
@@ -35,41 +37,8 @@ import type { CodeEditorHandle } from "./CodeEditor";
 import RunBar from "./RunBar";
 import DiffConsole from "./DiffConsole";
 import type { ConsoleEntry } from "./DiffConsole";
+import A11yControls from "./A11yControls";
 import styles from "./BossFightScreen.module.css";
-
-const TEXT_SCALES = [0.875, 1, 1.125, 1.25];
-const A11Y_STORAGE_KEY = "dcq.a11y";
-
-interface A11yState {
-  textScaleIndex: number;
-  crtReduced: boolean;
-  highContrast: boolean;
-}
-
-function defaultA11y(): A11yState {
-  const reduceIntensity =
-    typeof window !== "undefined" &&
-    (window.matchMedia("(prefers-contrast: more)").matches ||
-      window.matchMedia("(prefers-reduced-transparency: reduce)").matches);
-  return { textScaleIndex: 1, crtReduced: reduceIntensity, highContrast: false };
-}
-
-function loadA11yState(): A11yState {
-  if (typeof window === "undefined") return defaultA11y();
-  try {
-    const raw = window.localStorage.getItem(A11Y_STORAGE_KEY);
-    if (!raw) return defaultA11y();
-    const parsed = JSON.parse(raw) as Partial<A11yState>;
-    const fallback = defaultA11y();
-    return {
-      textScaleIndex: parsed.textScaleIndex ?? fallback.textScaleIndex,
-      crtReduced: parsed.crtReduced ?? fallback.crtReduced,
-      highContrast: parsed.highContrast ?? fallback.highContrast,
-    };
-  } catch {
-    return defaultA11y();
-  }
-}
 
 interface PendingReconciliation {
   changes: CellChange[];
@@ -80,6 +49,8 @@ interface PendingReconciliation {
 export interface BossFightScreenProps {
   casePath: string;
   rankLabel: string;
+  a11y: A11yState;
+  onA11yChange: (next: A11yState) => void;
   onWin: (caseId: string, techniqueKinds: string[]) => void;
   onExitToRoster: () => void;
 }
@@ -87,6 +58,8 @@ export interface BossFightScreenProps {
 export default function BossFightScreen({
   casePath,
   rankLabel,
+  a11y,
+  onA11yChange,
   onWin,
   onExitToRoster,
 }: BossFightScreenProps) {
@@ -101,7 +74,6 @@ export default function BossFightScreen({
   const [liveMessage, setLiveMessage] = useState("");
   const [liveErrorMessage, setLiveErrorMessage] = useState("");
   const liveMessageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [a11y, setA11y] = useState<A11yState>(loadA11yState);
 
   const clientRef = useRef<PyodideClient | null>(null);
   clientRef.current ??= new PyodideClient();
@@ -127,16 +99,6 @@ export default function BossFightScreen({
         : new Map<string, AfflictionKind>(),
     [grid, caseData],
   );
-
-  useEffect(() => {
-    const html = document.documentElement;
-    html.style.setProperty("--dcq-text-scale", String(TEXT_SCALES[a11y.textScaleIndex]));
-    if (a11y.crtReduced) html.dataset.dcqIntensity = "reduced";
-    else delete html.dataset.dcqIntensity;
-    if (a11y.highContrast) html.dataset.dcqContrast = "high";
-    else delete html.dataset.dcqContrast;
-    window.localStorage.setItem(A11Y_STORAGE_KEY, JSON.stringify(a11y));
-  }, [a11y]);
 
   useEffect(() => {
     if (phase !== "fight" || !crtRef.current) return;
@@ -394,66 +356,9 @@ export default function BossFightScreen({
           </button>{" "}
           BOSS-FIGHTS // <span className={bossNameStyles}>{caseData.strings.title}</span>
         </span>
-        <div className={styles.a11yControls}>
+        <div className={styles.a11yRow}>
           <span className={styles.rankBadge}>{rankLabel}</span>
-          <button
-            type="button"
-            className={styles.a11yButton}
-            aria-label="Decrease text size"
-            onClick={() => {
-              setA11y((s) => ({
-                ...s,
-                textScaleIndex: Math.max(0, s.textScaleIndex - 1),
-              }));
-            }}
-          >
-            A-
-          </button>
-          <button
-            type="button"
-            className={styles.a11yButton}
-            aria-label="Reset text size"
-            onClick={() => {
-              setA11y((s) => ({ ...s, textScaleIndex: 1 }));
-            }}
-          >
-            A
-          </button>
-          <button
-            type="button"
-            className={styles.a11yButton}
-            aria-label="Increase text size"
-            onClick={() => {
-              setA11y((s) => ({
-                ...s,
-                textScaleIndex: Math.min(TEXT_SCALES.length - 1, s.textScaleIndex + 1),
-              }));
-            }}
-          >
-            A+
-          </button>
-          <button
-            type="button"
-            className={styles.a11yButton}
-            aria-label="Toggle CRT effect"
-            aria-pressed={a11y.crtReduced}
-            onClick={() => {
-              setA11y((s) => ({ ...s, crtReduced: !s.crtReduced }));
-            }}
-          >
-            CRT
-          </button>
-          <button
-            type="button"
-            className={styles.a11yButton}
-            aria-label="High contrast mode"
-            aria-pressed={a11y.highContrast}
-            onClick={() => {
-              setA11y((s) => ({ ...s, highContrast: !s.highContrast }));
-            }}
-          >
-            HC
-          </button>
+          <A11yControls a11y={a11y} onChange={onA11yChange} />
         </div>
       </div>
       {narrowNoticeDismissed ? null : (

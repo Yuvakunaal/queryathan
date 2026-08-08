@@ -30,15 +30,36 @@ const RUNTIME_WHEELS = [
   "pandas-3.0.2-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
 ].map((fileName) => `${PACKAGE_CDN_BASE}/${fileName}`);
 
+const ROW_ID_COLUMN = "__dcq_row_id__";
+
+/**
+ * Row identity for diffing (lib/diff.ts, lib/affliction-cells.ts#clearedCells)
+ * used to be dataframe.index directly — but a player calling
+ * .reset_index(drop=True) (the single most idiomatic way to finish off a
+ * drop_duplicates() fix) re-labels every row back to a fresh 0..N-1 range,
+ * which can numerically collide with unrelated rows' old index values and
+ * silently corrupt the identity match. A real hidden data column survives
+ * every row-preserving pandas operation .reset_index() included, since it's
+ * not the index at all — it rides along as an ordinary column and is
+ * stripped back out before the grid is serialized, so the player never sees
+ * it. See docs/adr/0006-row-identity-diffing.md.
+ */
 const SERIALIZE_HELPER_PY = `
 import json
 
+def __dcq_ensure_row_id(dataframe):
+    if "${ROW_ID_COLUMN}" not in dataframe.columns:
+        dataframe["${ROW_ID_COLUMN}"] = range(len(dataframe))
+    return dataframe
+
 def __dcq_serialize_df(dataframe):
-    columns = list(dataframe.columns)
-    rows = json.loads(dataframe.to_json(orient="records"))
-    dtypes = {col: str(dtype) for col, dtype in dataframe.dtypes.items()}
-    index = dataframe.index.tolist()
-    return json.dumps({"columns": columns, "rows": rows, "dtypes": dtypes, "index": index})
+    dataframe = __dcq_ensure_row_id(dataframe)
+    row_ids = dataframe["${ROW_ID_COLUMN}"].tolist()
+    visible = dataframe.drop(columns=["${ROW_ID_COLUMN}"])
+    columns = list(visible.columns)
+    rows = json.loads(visible.to_json(orient="records", date_format="iso"))
+    dtypes = {col: str(dtype) for col, dtype in visible.dtypes.items()}
+    return json.dumps({"columns": columns, "rows": rows, "dtypes": dtypes, "index": row_ids})
 `;
 
 let stdoutBuffer: string[] = [];

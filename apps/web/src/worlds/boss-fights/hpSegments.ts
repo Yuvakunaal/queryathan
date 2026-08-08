@@ -37,15 +37,22 @@ export const HP_LEVEL_COLORS: Record<
  * width regardless of the exact count, so no viewport-width measurement is
  * needed here.
  *
- * A segment's ratio is normalized against `predicateCount` (design spec
- * §3.1) so a bin's height reflects "how much of the total possible damage
- * landed here," not just "how many cells" — a bin fully hit by 1 of 3
- * active predicates reads as partially afflicted, not maxed out.
+ * A segment's ratio is normalized against `columnCapacity` — the number of
+ * distinct columns the win condition could ever flag on a single row
+ * (`lib/affliction-cells.ts#afflictableColumns`), not the number of
+ * predicates. Those aren't the same thing: `afflictionCellMap` collapses
+ * overlapping predicates onto one cell, so predicate count overstates
+ * capacity when two predicates share a column, and a `no_duplicates`
+ * predicate spanning 3 columns understates it if treated as "1 predicate."
+ * An earlier version used predicate count directly and got both wrong —
+ * on THE_RECKONING (4 afflictable columns, 7 predicates) the max possible
+ * ratio was 4/7 ≈ 0.57, meaning the top severity level could never render
+ * at all. Fixed and covered by a regression test.
  */
 export function computeHpSegments(
   rowCount: number,
   kindsByRow: Map<number, AfflictionKind[]>,
-  predicateCount: number,
+  columnCapacity: number,
   maxSegments: number,
   kindOrder: AfflictionKind[],
 ): HpSegment[] {
@@ -78,7 +85,7 @@ export function computeHpSegments(
   }
 
   segments.forEach((segment, i) => {
-    const denom = segment.rowCount * Math.max(1, predicateCount);
+    const denom = segment.rowCount * Math.max(1, columnCapacity);
     const ratio = denom > 0 ? segment.afflictedCount / denom : 0;
     segment.level = levelForRatio(ratio);
     segment.dominantKind = pickDominantKind(kindCounts[i], kindOrder);
@@ -105,9 +112,16 @@ function pickDominantKind(
   return best;
 }
 
+/**
+ * Exact thirds (1/3, 2/3), not the decimal literals 0.33/0.66 an earlier
+ * version used. That rounding error mattered in practice: a ratio computed
+ * as exactly 1/3 (e.g. 1 afflicted column out of 3 capacity — CASE_SHIFT's
+ * baseline before the player types anything) is 0.3333... > 0.33, so every
+ * segment landed one level too high before any code had run.
+ */
 function levelForRatio(ratio: number): 0 | 1 | 2 | 3 {
   if (ratio <= 0) return 0;
-  if (ratio <= 0.33) return 1;
-  if (ratio <= 0.66) return 2;
+  if (ratio <= 1 / 3) return 1;
+  if (ratio <= 2 / 3) return 2;
   return 3;
 }

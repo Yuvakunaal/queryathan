@@ -133,6 +133,24 @@ export function afflictionKindsByRow(
   return byRow;
 }
 
+/**
+ * Every distinct column any predicate in a win condition could ever flag —
+ * the real per-row "capacity" for affliction, used to normalize the HP
+ * heatmap's severity ratio (design spec §3.1). This is deliberately NOT
+ * `winCondition.all.length`: `afflictionCellMap` collapses overlapping
+ * predicates onto one cell (§2.5), so predicate count overstates capacity
+ * whenever two predicates share a column, and a `no_duplicates` predicate
+ * spanning multiple columns understates it — a duplicate row's real
+ * capacity is however many columns are in its composite key, not 1.
+ */
+export function afflictableColumns(winCondition: WinCondition): string[] {
+  const seen = new Set<string>();
+  for (const predicate of winCondition.all) {
+    for (const column of columnsForPredicate(predicate)) seen.add(column);
+  }
+  return Array.from(seen);
+}
+
 /** Distinct affliction kinds in winCondition.all's declared order — the deterministic tie-break order used for both overlapping-cell priority (§2.5) and HP segment dominant-kind ties (design spec §3.2). */
 export function predicateKindOrder(winCondition: WinCondition): AfflictionKind[] {
   const seen = new Set<AfflictionKind>();
@@ -150,8 +168,8 @@ export function predicateKindOrder(winCondition: WinCondition): AfflictionKind[]
 /**
  * Every cell that was afflicted in `beforeGrid` and is no longer afflicted
  * in `afterGrid` — the set the "just cleared" ledger-mark outline (spec
- * §5.5) is built from. Matches rows by their real pandas index value
- * (`grid.index`), not array position, for the same reason lib/diff.ts
+ * §5.5) is built from. Matches rows by their stable identity (`grid.index`
+ * — see ADR 0006), not array position, for the same reason lib/diff.ts
  * does: a run that drops rows (drop_duplicates()) shifts every later row's
  * position without changing its identity, and a naive positional
  * comparison would either miss real clears or invent phantom ones.

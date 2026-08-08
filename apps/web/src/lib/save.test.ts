@@ -6,6 +6,7 @@ import {
   importSaveFromJson,
   loadSave,
   persistSave,
+  maxTechniquesForWorld,
   rankForWorld,
   recordCaseWin,
 } from "./save";
@@ -87,6 +88,16 @@ describe("rankForWorld", () => {
 
   it("falls back to a single Recruit tier for worlds without techniques defined yet", () => {
     expect(rankForWorld("the-vault", 0)).toBe("Recruit");
+  });
+});
+
+describe("maxTechniquesForWorld", () => {
+  it("returns 6 for boss-fights", () => {
+    expect(maxTechniquesForWorld("boss-fights")).toBe(6);
+  });
+
+  it("returns 0 for a world with only the fallback Recruit tier", () => {
+    expect(maxTechniquesForWorld("the-vault")).toBe(0);
   });
 });
 

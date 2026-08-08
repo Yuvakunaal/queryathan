@@ -110,6 +110,78 @@ errors): world map → tutorial fight → win → rank/XP update → roster
 reflects cleared/unlocked state → 2-stack mid-boss → 3-stack mid-boss →
 5-distinct-kind final boss → save export/import.
 
+### Fixed (Phase 2 completeness review)
+
+A structured self-critique against the master plan and every non-negotiable
+found real defects before Phase 2 was called done — all fixed and
+re-verified, including against the real production build under the actual
+CSP headers (not just `vite dev`):
+
+- **P0 — the HP heatmap's severity math was wrong, and the final boss's top
+  severity tier could never render.** The ratio powering each segment's
+  level was normalized against predicate _count_, not the number of
+  distinct columns a win condition could actually flag — on THE_RECKONING
+  (7 predicates, 4 affictable columns at the time) the max achievable ratio
+  was 4/7 ≈ 0.57, capping every segment below the top tier regardless of
+  how afflicted a row really was. Fixed with a proper
+  `afflictableColumns()` capacity calculation, plus a second bug in the
+  same function: level boundaries used the decimal literals `0.33`/`0.66`
+  instead of exact `1/3`/`2/3`, so an exact-thirds ratio (CASE_SHIFT's own
+  baseline) rounded into the wrong band. Both traced back to an error in
+  the (Sonnet-authored, Opus-unreviewed) design spec's own formula, not
+  just the implementation — the spec was corrected too.
+- **Bad-dates content was entirely missing** despite three places (this
+  changelog, `LICENSES.md`, a code comment) claiming World 1's full six
+  content areas were covered. Added `valid_dtype(opened_at, "datetime")`
+  to `THE_RECKONING` — its `opened_at` column was already realistic "bad
+  dates" content (plain CSV text, not yet parsed), it just had no predicate
+  checking it.
+- **Datetime columns would have rendered as raw epoch-millisecond
+  integers** once a player fixed the above — `to_json()`'s default
+  `date_format="epoch"` in the worker's serializer. Fixed with
+  `date_format="iso"`; verified a `pd.to_datetime()` fix now shows real
+  ISO datetime strings in both the grid and the console output.
+- **`.reset_index(drop=True)` — the single most idiomatic way to finish a
+  `drop_duplicates()` fix — could re-corrupt the row-identity diffing
+  fixed earlier this phase.** Pandas' default index survives
+  `drop_duplicates()` but not an explicit reset, which re-labels rows back
+  to a fresh range that can collide with old identities. Replaced
+  index-based tracking with a hidden, hand-maintained data column
+  (`__dcq_row_id__`, stripped from the grid before it's ever sent to the
+  UI) that survives every row-preserving operation, `.reset_index()`
+  included. See the updated [ADR 0006](./docs/adr/0006-row-identity-diffing.md).
+- **A11y preferences (text scale, CRT intensity, high contrast) were
+  silently ignored on the world map** — the app's actual landing screen
+  since this phase, but the only code applying them still lived inside
+  `BossFightScreen`. Lifted to `App.tsx` (`lib/a11y.ts`) and rendered via a
+  new shared `A11yControls` component on both screens.
+- **Save import/export status was invisible to screen readers** — the
+  `aria-live` region only existed once there was something to announce,
+  which most screen readers don't reliably pick up. Made it always-mounted
+  (empty when idle), matching the pattern `BossFightScreen` already used
+  for its own live regions; added an announcement for export too (there
+  was none).
+- **The world map's initial bundle pulled in CodeMirror and GSAP before a
+  player had picked a fight** — an unsplit route boundary introduced by
+  this phase's own new navigation. Route-split via `React.lazy`; the
+  landing screen's JS dropped from ~279 KB gzip to ~79 KB gzip.
+- Smaller fixes: the roster's "/ 6 techniques" denominator was hardcoded
+  instead of derived from the world's actual rank tiers; the roster's
+  affliction-kind glyph preview had no accessible-name equivalent for
+  screen reader users (folded into each case button's `aria-label`); the
+  save-export download anchor wasn't appended to the document before
+  `.click()` (fragile outside Chromium) and revoked its object URL
+  synchronously instead of after the click had a chance to start;
+  `hpSegments.test.ts` had a test that positively certified the P0 bug as
+  correct behavior — replaced with regression tests for the fixed formula;
+  added a `clearedCells` test exercising the after-position remap branch
+  the review flagged as uncovered.
+
+Re-verified end-to-end after all of the above, including a full pass
+against the production build served with the real `vercel.json` CSP
+headers (not `vite dev`) — same lesson Phase 1's own review learned: dev
+mode doesn't catch CSP-only or MIME-type-only failures.
+
 ## Phase 1 — Prove the core loop — 2026-08-08
 
 The nulls-only tutorial boss, `NUL_SENTINEL`, is real and playable

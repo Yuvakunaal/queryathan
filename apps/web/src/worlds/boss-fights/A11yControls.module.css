@@ -1,0 +1,28 @@
+.a11yControls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.a11yButton {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--w1-rule-strong);
+  color: var(--w1-text-secondary);
+  font: 600 10px / 1 var(--w1-font-display);
+  cursor: pointer;
+}
+.a11yButton:hover,
+.a11yButton:focus-visible,
+.a11yButton[aria-pressed="true"] {
+  border-color: var(--w1-amber-500);
+  color: var(--w1-amber-500);
+}
+.a11yButton:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  afflictableColumns,
   afflictionCellMap,
   afflictionCountsByKind,
   afflictionKindAt,
@@ -257,6 +258,45 @@ describe("clearedCells", () => {
     expect(clearedCells(before, beforeMap, after, afterMap)).toEqual([]);
   });
 
+  it("finds a clear on a row that ALSO shifted position (exercises the after-position remap)", () => {
+    // index 0 is a duplicate of index 1 and gets dropped, shifting index 2
+    // from position 2 to position 1. Index 2's own email is null in
+    // "before" and gets fixed in "after" — a real clear on a row whose
+    // position changed for an unrelated reason (someone else's drop).
+    const winCondition: WinCondition = {
+      all: [
+        { predicate: "no_nulls", column: "email" },
+        { predicate: "no_duplicates", columns: ["email"] },
+      ],
+    };
+    const before: ResultGrid = {
+      columns: ["email"],
+      rows: [{ email: "a@b.com" }, { email: "a@b.com" }, { email: null }],
+      dtypes: {},
+      index: [0, 1, 2],
+    };
+    const after: ResultGrid = {
+      columns: ["email"],
+      rows: [{ email: "a@b.com" }, { email: "fixed@example.com" }],
+      dtypes: {},
+      index: [1, 2],
+    };
+    const beforeMap = afflictionCellMap(before, winCondition);
+    const afterMap = afflictionCellMap(after, winCondition);
+    // Two real clears: index 1's duplicate flag lifts as a side effect of
+    // its pair (index 0) being dropped (now at after-position 0), and
+    // index 2's null is genuinely fixed (now at after-position 1) — the
+    // one that also demonstrates the position shift the test is for.
+    expect(
+      clearedCells(before, beforeMap, after, afterMap).sort(
+        (a, b) => a.rowIndex - b.rowIndex,
+      ),
+    ).toEqual([
+      { rowIndex: 0, column: "email" },
+      { rowIndex: 1, column: "email" },
+    ]);
+  });
+
   it("returns nothing when nothing was cleared", () => {
     const winCondition: WinCondition = {
       all: [{ predicate: "no_nulls", column: "email" }],
@@ -269,6 +309,52 @@ describe("clearedCells", () => {
     };
     const map = afflictionCellMap(grid, winCondition);
     expect(clearedCells(grid, map, grid, map)).toEqual([]);
+  });
+});
+
+describe("afflictableColumns", () => {
+  it("counts a multi-column no_duplicates predicate as its full column span, not 1", () => {
+    const winCondition: WinCondition = {
+      all: [
+        { predicate: "no_nulls", column: "email" },
+        { predicate: "no_duplicates", columns: ["email", "item_sku", "submitted_at"] },
+      ],
+    };
+    expect(afflictableColumns(winCondition).sort()).toEqual([
+      "email",
+      "item_sku",
+      "submitted_at",
+    ]);
+  });
+
+  it("deduplicates a column two predicates both target", () => {
+    const winCondition: WinCondition = {
+      all: [
+        { predicate: "no_nulls", column: "age" },
+        { predicate: "no_outliers", column: "age", min: 0, max: 120 },
+      ],
+    };
+    expect(afflictableColumns(winCondition)).toEqual(["age"]);
+  });
+
+  it("matches THE_RECKONING's real shape: 7 predicates, 4 distinct columns", () => {
+    const winCondition: WinCondition = {
+      all: [
+        { predicate: "no_nulls", column: "customer_email" },
+        { predicate: "no_whitespace", column: "customer_email" },
+        { predicate: "no_duplicates", columns: ["ticket_id"] },
+        { predicate: "consistent_casing", column: "status", case: "lower" },
+        { predicate: "valid_dtype", column: "first_response_hours", dtype: "float" },
+        { predicate: "no_nulls", column: "first_response_hours" },
+        { predicate: "no_outliers", column: "first_response_hours", min: 0, max: 336 },
+      ],
+    };
+    expect(afflictableColumns(winCondition).sort()).toEqual([
+      "customer_email",
+      "first_response_hours",
+      "status",
+      "ticket_id",
+    ]);
   });
 });
 
