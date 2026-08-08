@@ -7,11 +7,13 @@ specific technical decisions.
 
 ## Current state
 
-**Phase 1 complete.** One playable boss (World 1, `NUL_SENTINEL`,
-nulls-only) running against a real Pyodide/pandas Web Worker, with real
-diff feedback and win detection. See [`README.md`](../README.md#status) for
-the up-to-date phase marker and [`CHANGELOG.md`](../CHANGELOG.md) for what
-shipped in each phase.
+**Phase 2 complete.** World 1 (Boss Fights) has four playable bosses
+(tutorial → two mid-bosses with stacked afflictions → a final boss
+stacking all six World 1 techniques) running against a real Pyodide/pandas
+Web Worker, with real diff feedback, win detection, a world-map front door,
+and a `localStorage` save/XP/rank system. See
+[`README.md`](../README.md#status) for the up-to-date phase marker and
+[`CHANGELOG.md`](../CHANGELOG.md) for what shipped in each phase.
 
 ## Monorepo layout
 
@@ -26,6 +28,7 @@ packages/content-schema/   Zod schema + inferred TS types for case JSON
 packages/engine-adapters/  typed protocol (protocol.ts) + RPC client (rpc.ts) shared between main thread & worker
 packages/ui-kit/           shared design-system primitives (grows on 2nd use — still empty)
 content/cases/          community-contributable case JSON, one dir per world
+content/rosters/        <world>.json — the world's boss sequence (fight order), one file per world
 ```
 
 Packages resolve each other via `workspace:*` + package `main`/`types`
@@ -77,30 +80,67 @@ for why. `scripts/validate-content.mjs` checks every file under
 
 Case JSON lives under `content/` (its own workspace package, so it's a
 clean single source of truth reviewable independent of engine code) but is
-consumed by the running app via `content/cases/w1-01-nul-sentinel.json` at
-runtime, not bundled at compile time — `apps/web/vite.config.ts` has a small
-custom plugin (`dcq-content-cases`) that serves it in dev and copies it into
-`dist/` at build time. (An earlier attempt used `vite-plugin-static-copy`;
-it didn't serve files during `vite dev`, so it was replaced with this
-in-house plugin for reliability.)
+consumed by the running app via
+`content/cases/boss-fights/w1-01-nul-sentinel.json` at runtime, not bundled
+at compile time — `apps/web/vite.config.ts` has a small custom plugin
+(`dcq-content-cases`) that serves the whole `content/` directory (cases and
+rosters) in dev and copies it into `dist/` at build time. (An earlier
+attempt used `vite-plugin-static-copy`; it didn't serve files during
+`vite dev`, so it was replaced with this in-house plugin for reliability.)
+The content directory name for a world is its `WorldId` value exactly
+(`boss-fights`, not `world-1`) — the two diverged briefly during Phase 2
+until the mismatch broke roster loading in a real-browser check; keeping
+them identical avoids needing a separate directory-slug mapping.
 
 ## Rendering: the dataframe is the battlefield
 
 `DataframeGrid.tsx` virtualizes the real dataframe (TanStack Virtual) —
-there is no separate boss sprite. Affliction state is applied via direct DOM
-mutation (`afflictionDom.ts`), not React re-renders, per the animation rule
-below. The HP "bar" (`HpHeatmap.tsx`) is a per-row auto-binned heatmap of
-where afflictions cluster, not an aggregate gauge — see
+there is no separate boss sprite. Affliction state (`data-affliction`,
+`aria-label`, the per-kind badge glyph) is derived from React props each
+render, not direct DOM mutation — see ADR 0001's amended guardrail 2, which
+scopes the "GSAP/DOM, never React state" rule to per-frame _animation_
+state specifically; once-per-turn structural state like "which cell is
+afflicted" is fine as props. `afflictionDom.ts` only handles the one thing
+that's genuinely turn-scoped and not itself an animation: the
+`data-just-cleared` ledger-mark outline. Which cell maps to which affliction
+_kind_ (null/duplicate/whitespace/wrong-dtype/outlier/bad-date) comes from
+`lib/affliction-cells.ts`'s `afflictionCellMap`, built from a case's full
+`winCondition.all`, not a single hardcoded column (Phase 2). The HP "bar"
+(`HpHeatmap.tsx`) is a per-row auto-binned heatmap of where afflictions
+cluster, not an aggregate gauge — see
 [`docs/design/world-1-visual-spec.md`](./design/world-1-visual-spec.md) §6
-for why an aggregate bar was rejected during design.
+for why an aggregate bar was rejected during design; Phase 2 extended it to
+color each bin by its dominant affliction kind rather than blending hues,
+per [`docs/design/world-1-phase-2-visual-spec.md`](./design/world-1-phase-2-visual-spec.md) §3.
 
 Diff feedback appears in two synchronized places driven by one change list
-(`lib/diff.ts`'s positional cell diff — valid while row count/order stay
-stable, which Phase 1's `.fillna()`-style edits guarantee; revisit when
-Phase 2 introduces `drop_duplicates`/`dropna`): the grid's per-cell
-red/green flash (`anim/world1/diffFlash.ts`) and the console's `-`/`+` log
+(`lib/diff.ts`): the grid's per-cell red/green flash
+(`anim/world1/diffFlash.ts`) and the console's `-`/`+` log
 (`DiffConsole.tsx`) — the latter is the durable, transferable-skill record
-after the flash decays.
+after the flash decays. `diffGrids` matches rows by their real pandas index
+value (`ResultGrid.index`), not array position — a Phase 1 positional
+version was explicitly scoped to "revisit once `drop_duplicates`/`dropna`
+can change row count," and Phase 2's duplicate-dropping content needed
+exactly that fix (a naive positional diff would misattribute values across
+every row after a drop). See
+[`docs/adr/0006-row-identity-diffing.md`](./adr/0006-row-identity-diffing.md).
+
+## Progression: save data, XP, and ranks
+
+`apps/web/src/lib/save.ts` owns the entire save format — a single
+`localStorage` key (`dcq.save`), versioned (`version: 1`) so a future
+schema change can migrate rather than silently discarding old saves.
+Per-world progress is `{ clearedCaseIds, masteredTechniques, xp }`;
+`App.tsx` is the only component that reads/writes it, passing derived
+values (rank label, save data) down as props — `BossFightScreen` and
+`WorldMapScreen` never touch `localStorage` directly. Export/import is
+plain JSON via `Blob`/`<input type="file">`, validated through the same
+Zod schema on the way back in, so a hand-edited or corrupted file fails
+closed (`importSaveFromJson` returns `null`) instead of crashing the app.
+Ranks are computed from _distinct techniques mastered_, not cases
+cleared or XP — see plan §6 — with per-world tier tables in `save.ts`;
+only `boss-fights` has real tiers so far, every other `WorldId` falls back
+to a single `"Recruit"` tier until that world exists.
 
 ## Styling
 

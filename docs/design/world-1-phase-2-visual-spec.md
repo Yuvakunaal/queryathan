@@ -639,9 +639,9 @@ apps/web/public/datasets/world-1/the-reckoning.csv   (final boss)
 scripts/generate-double-take.mjs
 scripts/generate-case-shift.mjs
 scripts/generate-the-reckoning.mjs
-content/cases/world-1/w1-02-double-take.json
-content/cases/world-1/w1-03-case-shift.json
-content/cases/world-1/w1-04-the-reckoning.json
+content/cases/boss-fights/w1-02-double-take.json
+content/cases/boss-fights/w1-03-case-shift.json
+content/cases/boss-fights/w1-04-the-reckoning.json
 content/rosters/boss-fights.json                     updated with all 4 case ids
 ```
 

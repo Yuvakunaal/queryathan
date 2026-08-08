@@ -23,12 +23,13 @@ regenerable and its provenance auditable.
 Case files live in `content/cases/<world>/<case-id>.json` and must conform to
 the schema in `packages/content-schema/src/case.ts`. Here's the real,
 shipped World 1 tutorial case as a working reference
-(`content/cases/world-1/w1-01-nul-sentinel.json`, trimmed):
+(`content/cases/boss-fights/w1-01-nul-sentinel.json`, trimmed):
 
 ```json
 {
   "id": "w1-01-nul-sentinel",
   "world": "boss-fights",
+  "tier": "tutorial",
   "datasetPath": "/datasets/world-1/nul-sentinel.csv",
   "datasetLicense": {
     "license": "CC0-1.0",
@@ -50,6 +51,9 @@ shipped World 1 tutorial case as a working reference
 ```
 
 - `id` — lowercase, hyphenated, unique within its world.
+- `tier` — required: `"tutorial"`, `"mid-boss"`, or `"final-boss"`. Drives
+  the roster display and, for `final-boss`, the "no hints" framing — see
+  §4 below before writing a final-boss case.
 - `datasetLicense` — required. `license` is a short identifier (e.g.
   `CC0-1.0`, `synthetic`); `provenance` is a one-line source description.
   This is the machine-checkable copy of what the world's `LICENSES.md`
@@ -59,31 +63,72 @@ shipped World 1 tutorial case as a working reference
   behavior.
 - `starterCode` — required. The buffer the code editor seeds when a player
   enters the boss — write it as real, runnable code against your dataset's
-  actual columns, not a placeholder.
+  actual columns, not a placeholder. **Except** for `final-boss` cases —
+  see §4.
 - `columnHints` — optional. Per-column `widthPx`/`numeric` display hints; a
   column with no hint falls back to a default width and left-alignment.
   Only worth setting for columns where the default looks wrong (e.g. a
   numeric column you want right-aligned).
 - `winCondition.all` — a list of declarative predicates from the fixed
-  vocabulary in `packages/content-schema` (currently `no_nulls` and
-  `no_duplicates`). **Not executable code** — see
+  vocabulary in `packages/content-schema`. **Not executable code** — see
   [`docs/adr/0003-win-condition-contract.md`](./adr/0003-win-condition-contract.md)
   for why. If the predicate you need doesn't exist yet, propose adding it to
-  the schema in your PR description rather than working around it. **World 1
-  currently only renders `no_nulls` cases** — a `no_duplicates`-only case is
-  schema-valid but the duplicate-affliction UI is Phase 2 work, not built
-  yet.
+  the schema in your PR description rather than working around it.
 
-## 3. Validate
+### Available predicates (World 1)
+
+| Predicate           | Shape                                                             | Renders as                                                                                                                                                         |
+| ------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `no_nulls`          | `{ column }`                                                      | violet `NaN`, 45° hatch                                                                                                                                            |
+| `no_duplicates`     | `{ columns: [...] }`                                              | blue `=` badge, horizontal bands — flags every listed column on every row beyond the first occurrence in its group (mirrors `.drop_duplicates()`'s `keep="first"`) |
+| `no_whitespace`     | `{ column }`                                                      | teal `_` badge, edge tick marks                                                                                                                                    |
+| `consistent_casing` | `{ column, case: "lower"\|"upper"\|"title" }`                     | teal `_` badge (same visual kind as whitespace — the master plan groups casing/whitespace as one content area)                                                     |
+| `valid_dtype`       | `{ column, dtype: "int"\|"float"\|"bool"\|"string"\|"datetime" }` | yellow `#` badge + dotted underline (`datetime` target renders as pink `@` instead — this is how "bad dates" content is authored, not a separate predicate)        |
+| `no_outliers`       | `{ column, min, max }`                                            | orange `^` badge, 135° hatch, inclusive bounds                                                                                                                     |
+
+Stack multiple predicates in `winCondition.all` to build a mid/final boss —
+see `content/cases/boss-fights/w1-04-the-reckoning.json` for a case
+combining all six. Where two predicates could claim the same cell, the
+**first one listed wins** — a deterministic, author-controlled rule, not
+an accident (see `lib/affliction-cells.ts`'s `afflictionCellMap`).
+
+## 3. Add your case to the world's roster
+
+Every case must be listed in `content/rosters/<world>.json`
+(`{ "world": "...", "caseIds": [...] }`) or it's unreachable from the world
+map — `validate-content` checks that every roster entry resolves to a real
+case file, but it does **not** require every case file to be listed (so you
+can stage a case before deciding its place in the sequence). Roster order
+is fight order: the first case is always unlocked, and each later one
+unlocks once the case before it is cleared.
+
+## 4. Writing a final-boss case
+
+`tier: "final-boss"` triggers plan §6's "no hints, one shot" framing:
+
+- The objective line is replaced with `[ NOT DISCLOSED — READ THE DATA ]`
+  in the UI — don't write `starterCode` that hints at the win condition
+  either. The convention is a flat `"# df is loaded."` with nothing else.
+- This is an honest tone/framing choice, not an anti-cheat mechanism —
+  nothing about `tier` stops a player from running `df.isna().sum()` or
+  `df.dtypes` themselves, nor should it. Don't design content that assumes
+  otherwise.
+- A final boss should exercise most or all of the world's technique
+  vocabulary and be meaningfully harder/larger than any mid-boss in the
+  same world — it's meant to feel like a real messy dataset with nothing
+  flagged for you.
+
+## 5. Validate
 
 ```bash
 pnpm validate-content
 ```
 
-This runs every file under `content/cases/` through the schema and is the
-same check CI runs on your PR — fix anything it flags before opening one.
+This runs every file under `content/cases/` and `content/rosters/` through
+their schemas (and cross-checks roster references) — the same check CI
+runs on your PR — fix anything it flags before opening one.
 
-## 4. Open a PR
+## 6. Open a PR
 
 Use the "New case / boss proposal" issue template first if you want design
 feedback before writing the JSON. Otherwise, open a PR directly — see the PR

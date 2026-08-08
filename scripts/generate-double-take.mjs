@@ -75,7 +75,17 @@ for (const sourceIndex of sourceIndices) {
   nextOrderId++;
 }
 
-const nullIndices = sampleDistinct(range(0, rows.length - 1), NULL_EMAIL_COUNT);
+// Excludes the duplicate-source rows and their copies — nulling an email
+// on one half of a duplicate pair would break the composite-key match and
+// silently shrink the intended duplicate count below DUPLICATE_COUNT.
+const duplicateInvolvedIndices = new Set([
+  ...sourceIndices,
+  ...range(rows.length - DUPLICATE_COUNT, rows.length - 1),
+]);
+const nullEligiblePool = range(0, rows.length - 1).filter(
+  (i) => !duplicateInvolvedIndices.has(i),
+);
+const nullIndices = sampleDistinct(nullEligiblePool, NULL_EMAIL_COUNT);
 for (const index of nullIndices) {
   rows[index].customer_email = "";
 }

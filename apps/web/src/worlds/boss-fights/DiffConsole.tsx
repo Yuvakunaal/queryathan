@@ -28,48 +28,61 @@ export default function DiffConsole({ entries }: DiffConsoleProps) {
   }, [entries]);
 
   return (
-    <div className={styles.console} ref={scrollRef} aria-live="off" tabIndex={0}>
-      {entries.map((entry) => {
-        if (entry.kind === "diff") {
+    <div className={styles.console}>
+      <div className={styles.header}>
+        <span className={styles.headerLabel}>OUTPUT</span>
+        {entries.length > 0 ? (
+          <span className={styles.headerCount}>
+            {entries.length} {entries.length === 1 ? "ENTRY" : "ENTRIES"}
+          </span>
+        ) : null}
+      </div>
+      <div className={styles.body} ref={scrollRef} aria-live="off" tabIndex={0}>
+        {entries.length === 0 ? (
+          <div className={styles.empty}>// run code to see diff output here</div>
+        ) : null}
+        {entries.map((entry) => {
+          if (entry.kind === "diff") {
+            return (
+              <div key={entry.id}>
+                {entry.lines.map((line, i) => (
+                  <div key={i}>
+                    <div className={styles.del}>
+                      - [{line.rowIndex}] {line.column}{" "}
+                      <span className={styles.strike}>{line.before}</span>
+                    </div>
+                    <div className={styles.add}>
+                      + [{line.rowIndex}] {line.column} {line.after}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          }
+          if (entry.kind === "error") {
+            const lines = entry.message.split("\n");
+            return (
+              <div key={entry.id} className={styles.errorBlock}>
+                {lines.map((line, i) => (
+                  <div
+                    key={i}
+                    className={
+                      line.startsWith("Traceback") ? styles.tracebackHeader : styles.del
+                    }
+                  >
+                    {line}
+                  </div>
+                ))}
+              </div>
+            );
+          }
           return (
-            <div key={entry.id}>
-              {entry.lines.map((line, i) => (
-                <div key={i}>
-                  <div className={styles.del}>
-                    - [{line.rowIndex}] {line.column}{" "}
-                    <span className={styles.strike}>{line.before}</span>
-                  </div>
-                  <div className={styles.add}>
-                    + [{line.rowIndex}] {line.column} {line.after}
-                  </div>
-                </div>
-              ))}
+            <div key={entry.id} className={styles.info}>
+              {entry.text}
             </div>
           );
-        }
-        if (entry.kind === "error") {
-          const lines = entry.message.split("\n");
-          return (
-            <div key={entry.id} className={styles.errorBlock}>
-              {lines.map((line, i) => (
-                <div
-                  key={i}
-                  className={
-                    line.startsWith("Traceback") ? styles.tracebackHeader : styles.del
-                  }
-                >
-                  {line}
-                </div>
-              ))}
-            </div>
-          );
-        }
-        return (
-          <div key={entry.id} className={styles.info}>
-            {entry.text}
-          </div>
-        );
-      })}
+        })}
+      </div>
     </div>
   );
 }

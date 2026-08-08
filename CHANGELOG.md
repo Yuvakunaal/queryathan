@@ -5,6 +5,111 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## Phase 2 — Full World 1 — 2026-08-08
+
+World 1 is now four bosses deep instead of one, with a real front door,
+real progression, and real save data — no more hardcoded single fight.
+
+### Added
+
+- **Three new bosses**: `DOUBLE_TAKE` (mid-boss — nulls + duplicates
+  stacked), `CASE_SHIFT` (mid-boss — whitespace + casing + wrong dtype,
+  three afflictions on one table), `THE_RECKONING` (final boss — all six
+  World 1 techniques stacked on one 500-row support-ticket dataset,
+  including a deliberate sequencing trap: one column needs a dtype fix
+  before its nulls and outliers can be addressed). Each ships with a
+  synthetic, CC0, seeded-PRNG dataset and generator script, same pattern
+  as Phase 1's `NUL_SENTINEL`. Datasets are styled after realistic messy
+  data rather than literally sourced from Kaggle — a deliberate scoping
+  decision documented in `apps/web/public/datasets/world-1/LICENSES.md`
+  for the same licensing/offline-availability reasons as
+  [ADR 0004](./docs/adr/0004-pyodide-package-delivery.md).
+- **Four new win-condition predicates** (`no_whitespace`,
+  `consistent_casing`, `valid_dtype`, `no_outliers`) covering all six of
+  World 1's content areas from the master plan — Phase 1 only implemented
+  `no_nulls`/`no_duplicates`. `valid_dtype` targeting `datetime` covers
+  "bad dates" rather than a bespoke predicate.
+- **Multi-affliction rendering**: every cell's affliction kind (null,
+  duplicate, whitespace/casing, wrong dtype, outlier, bad date) now comes
+  from a real per-cell map (`apps/web/src/lib/affliction-cells.ts`),
+  each with its own colorblind-safe badge glyph, fill pattern, and
+  `aria-label`, extending Phase 1's single-hue-plus-pattern system rather
+  than replacing it. The HP heatmap aggregates severity across kinds with
+  a dominant-color-per-bin rule (never blends hues — that would break the
+  CVD-safety the ramp exists for) plus a glyph-count breakdown row for
+  stacked cases.
+- **World map** (`WorldMapScreen.tsx`) — the "front door" Phase 1 never
+  needed (it had exactly one hardcoded fight): a boss roster with
+  locked/unlocked/cleared state (straight linear gate on roster order),
+  a rank/XP readout, and save export/import.
+- **localStorage save system** (`apps/web/src/lib/save.ts`) — per-world
+  cleared-case tracking, mastered-technique tracking, and XP, exported/
+  imported as portable JSON (no login, per plan §6). XP is awarded once
+  per technique on a case's first clear only, so re-running a solved case
+  can't be grinded. Ranks are tied to distinct techniques mastered, not
+  cases cleared, also per plan §6.
+- **Case tiers** (`tutorial`/`mid-boss`/`final-boss`) drive both the
+  roster display and the final boss's "no hints, one shot" framing — an
+  honest tone/framing choice (withheld objective line, no starter-code
+  scaffold), not a fake anti-cheat mechanism; nothing stops a determined
+  player from inspecting `df` themselves, nor should it.
+- **World rosters** (`content/rosters/<world>.json`) declare a world's
+  boss sequence explicitly as reviewable content, not an inferred
+  directory listing; `validate-content.mjs` now cross-checks every
+  roster's case IDs actually resolve to a case file.
+- `docs/design/world-1-phase-2-visual-spec.md` — the Phase 2 visual/motion
+  spec. **Authored by Sonnet, not Opus** — a documented, user-approved
+  one-time deviation from this project's normal process, forced by an
+  Opus session-quota block mid-phase. Extends rather than replaces Phase 1's
+  spec: the six-status affliction palette (colors/glyphs/patterns) was
+  already fully designed by Opus in Phase 1 specifically so Phase 2
+  wouldn't need to reopen it.
+
+### Fixed
+
+- **`lib/diff.ts` was positional-only** — a documented Phase 1 scoping
+  assumption explicitly flagged as needing revisiting "once
+  drop_duplicates()/dropna() cases (Phase 2) can change row count." That's
+  exactly what `DOUBLE_TAKE` and `THE_RECKONING` require. `ResultGrid` now
+  carries each row's real pandas index value; `diffGrids` and the new
+  `clearedCells` helper match rows by that identity instead of array
+  position, so a run that drops rows no longer produces a wall of spurious
+  diffs on every row after the drop. Caught via real-browser testing, not
+  code review.
+- **Content-directory naming mismatch**: case JSON lived under
+  `content/cases/world-1/` (a Phase 1 naming artifact) while every other
+  Phase 2 concept keys off the `WorldId` value `"boss-fights"` — silently
+  broke roster loading (`fetch` 404 → SPA fallback → JSON parse error).
+  Renamed the directory to match `WorldId` exactly, and documented the
+  convention in `docs/ARCHITECTURE.md` so it can't drift again.
+- **Boot sequence hardcoded "NUL" as the scan label** regardless of a
+  case's actual affliction mix — a stacked case like `THE_RECKONING` now
+  reads `scanning for affliction .. NUL+WS+DUP+TYPE+OOR`, not a
+  misleading `NUL`.
+- **Console output had no dedicated, labeled panel** — an unlabeled blank
+  scroll region below the run button read as dead space, especially
+  before any code had run. `DiffConsole` now has an `OUTPUT` header with
+  an entry count and an explicit empty state
+  (`// run code to see diff output here`), flagged during a mid-session
+  UI pass as genuinely incomplete rather than polish-optional.
+- **The fight screen had no entrance** — `setPhase("fight")` was a hard
+  React state swap with zero transition. Added a GSAP entrance
+  (`anim/world1/fightReveal.ts`): the status rail and command rail fade
+  in plainly, but the battlefield (HP band + dataframe grid) gets its own
+  distinct slide-down — "the dataframe IS the battlefield" earns the more
+  deliberate reveal.
+- **`DOUBLE_TAKE`'s generator could silently undercount its own stated
+  duplicate count** — nulling an email on one half of a duplicate pair
+  (composite key `[email, item_sku, submitted_at]`) breaks the match,
+  since the two rows no longer share a key. Fixed by excluding
+  duplicate-involved rows from the null-email sampling pool, so the
+  generated dataset always has exactly the documented counts.
+
+Verified end-to-end in a real browser (headless Chrome, zero console
+errors): world map → tutorial fight → win → rank/XP update → roster
+reflects cleared/unlocked state → 2-stack mid-boss → 3-stack mid-boss →
+5-distinct-kind final boss → save export/import.
+
 ## Phase 1 — Prove the core loop — 2026-08-08
 
 The nulls-only tutorial boss, `NUL_SENTINEL`, is real and playable

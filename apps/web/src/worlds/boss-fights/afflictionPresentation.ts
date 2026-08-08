@@ -11,6 +11,16 @@ export const BADGE_GLYPH: Record<AfflictionKind, string> = {
   date: "@",
 };
 
+/** Short boot-sequence scan code per kind — e.g. "scanning for affliction .. NUL+DUP" for a case stacking nulls and duplicates. */
+export const SCAN_CODE: Record<AfflictionKind, string> = {
+  null: "NUL",
+  dup: "DUP",
+  ws: "WS",
+  dtype: "TYPE",
+  outlier: "OOR",
+  date: "DATE",
+};
+
 /** Accessible label per kind (design spec §2.4). `null` matches Phase 1's exact wording; the other five follow the same "{column}, row {n}, {problem}[, value {value}]" shape. */
 export function ariaLabelForAffliction(
   kind: AfflictionKind,

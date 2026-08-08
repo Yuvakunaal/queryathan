@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useGSAP } from "@gsap/react";
 import { RpcRunError } from "@dcq/engine-adapters";
 import type { ResultGrid } from "@dcq/engine-adapters";
 import type { Case } from "@dcq/content-schema";
@@ -10,6 +11,7 @@ import {
   afflictionCellMap,
   clearedCells,
   countTotalAffliction,
+  predicateKindOrder,
 } from "../../lib/affliction-cells";
 import type { AfflictionKind } from "../../lib/affliction-cells";
 import { evaluateWinCondition } from "../../lib/evaluate-win-condition";
@@ -17,7 +19,9 @@ import { classNames } from "../../lib/classNames";
 import { formatWinCondition, predicateKinds } from "./caseFormat";
 import { formatCellValue } from "./formatCellValue";
 import { markJustCleared } from "./afflictionDom";
+import { SCAN_CODE } from "./afflictionPresentation";
 import { playBossHitRecoil } from "../../anim/world1/battlefieldRecoil";
+import { playFightReveal } from "../../anim/world1/fightReveal";
 import { playDiffFlashBatch } from "../../anim/world1/diffFlash";
 import type { DiffCellRefs } from "../../anim/world1/diffFlash";
 import { mountCrtIdle } from "../../anim/world1/crtIdle";
@@ -104,6 +108,9 @@ export default function BossFightScreen({
 
   const gridRef = useRef<DataframeGridHandle>(null);
   const codeEditorRef = useRef<CodeEditorHandle>(null);
+  const fightRootRef = useRef<HTMLDivElement>(null);
+  const statusRailRef = useRef<HTMLDivElement>(null);
+  const commandRailRef = useRef<HTMLDivElement>(null);
   const battlefieldRef = useRef<HTMLDivElement>(null);
   const crtRef = useRef<HTMLDivElement>(null);
   const rollBarRef = useRef<HTMLDivElement>(null);
@@ -135,6 +142,21 @@ export default function BossFightScreen({
     if (phase !== "fight" || !crtRef.current) return;
     return mountCrtIdle(crtRef.current, rollBarRef.current);
   }, [phase]);
+
+  // The fight layout's entrance — previously a hard cut straight from the
+  // boot sequence with no reveal at all. Runs once per case (StrictMode's
+  // double-invoke just restarts the same fromTo timeline harmlessly).
+  useGSAP(
+    () => {
+      if (phase !== "fight") return;
+      playFightReveal({
+        railEl: statusRailRef.current,
+        commandRailEl: commandRailRef.current,
+        battlefieldEl: battlefieldRef.current,
+      });
+    },
+    { scope: fightRootRef, dependencies: [phase] },
+  );
 
   useEffect(() => {
     // A plain boolean (even boxed in a ref) gets narrowed to a literal by
@@ -346,6 +368,9 @@ export default function BossFightScreen({
           datasetFileName={caseData.datasetPath.split("/").pop() ?? "dataset.csv"}
           datasetShape={`${String(grid.rows.length)}x${String(grid.columns.length)}`}
           afflictionCount={initialAfflictionRef.current ?? 0}
+          scanLabel={predicateKindOrder(caseData.winCondition)
+            .map((kind) => SCAN_CODE[kind])
+            .join("+")}
           onEngage={() => {
             setPhase("fight");
           }}
@@ -361,8 +386,8 @@ export default function BossFightScreen({
   );
 
   return (
-    <div className={styles.fightRoot} data-world="boss-fights">
-      <div className={styles.statusRail}>
+    <div className={styles.fightRoot} data-world="boss-fights" ref={fightRootRef}>
+      <div className={styles.statusRail} ref={statusRailRef}>
         <span>
           <button type="button" className={styles.rosterLink} onClick={onExitToRoster}>
             &lt; ROSTER
@@ -447,7 +472,7 @@ export default function BossFightScreen({
         </div>
       )}
       <div className={styles.stage}>
-        <div className={styles.commandRail}>
+        <div className={styles.commandRail} ref={commandRailRef}>
           <div className={styles.briefingPane}>
             <BriefingPanel
               title={caseData.strings.title}

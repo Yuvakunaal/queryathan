@@ -8,6 +8,8 @@ export interface BootSequenceProps {
   datasetFileName: string;
   datasetShape: string;
   afflictionCount: number;
+  /** e.g. "NUL" or "NUL+DUP" for a stacked case — the actual predicate kinds being scanned for, never hardcoded (design spec §4.2's escalation principle: the state itself is the signal). */
+  scanLabel: string;
   onEngage: () => void;
 }
 
@@ -16,6 +18,7 @@ export default function BootSequence({
   datasetFileName,
   datasetShape,
   afflictionCount,
+  scanLabel,
   onEngage,
 }: BootSequenceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -79,7 +82,7 @@ export default function BootSequence({
           { text: "OK", el: l3b },
         ]),
         makeBootLine([
-          { text: "scanning for affliction .. NUL   ", el: l4a },
+          { text: `scanning for affliction .. ${scanLabel}   `, el: l4a },
           { text: `${countStr} CELLS  DETECTED`, el: l4b },
         ]),
         makeBootLine([{ text: `[ ENTER ]  engage ${bossName}`, el: l5 }]),
@@ -101,7 +104,7 @@ export default function BootSequence({
     },
     {
       scope: containerRef,
-      dependencies: [afflictionCount, bossName, datasetFileName, datasetShape],
+      dependencies: [afflictionCount, bossName, datasetFileName, datasetShape, scanLabel],
     },
   );
 

@@ -13,21 +13,26 @@ Full product vision, world designs, and architecture rationale:
 
 ## Status
 
-**Phase 1 complete — the core loop is real and playable.** Open the app,
-engage `NUL_SENTINEL`, and you're editing real pandas against a real
-Pyodide worker: type `df['temp_c'] = df['temp_c'].fillna(0)`, run it, and
-watch the actual dataframe change — HP heatmap drops, cells flash a
-git-diff-style red/green, the boss's ASCII sigil decays as the affliction
-clears. Real Python errors (e.g. a `KeyError` from a bad column reference)
-surface as an unmodified traceback, exactly as they would in a notebook.
+**Phase 2 complete — World 1 (Boss Fights) is fully playable, four bosses
+deep.** Open the app to a boss roster (locked/unlocked/cleared state, rank,
+XP), pick a fight, and edit real pandas against a real Pyodide worker —
+watch the HP heatmap drop, cells flash a git-diff-style red/green, the
+boss's ASCII sigil decay as afflictions clear. All six of World 1's content
+areas are live (nulls, duplicates, whitespace/casing, wrong dtypes,
+outliers, bad dates), stacked 1–6 at a time depending on the boss. Real
+Python errors surface as an unmodified traceback, exactly as they would in
+a notebook. Progress (cleared bosses, XP, rank) persists in `localStorage`
+and is exportable/importable as JSON — no login, no server.
 
-No save system yet (progress resets on refresh), no SQL path, no other
-worlds, no sandbox mode, no offline caching, no Playwright/Lighthouse CI —
-all explicitly later phases. See
+No SQL path yet, no other worlds, no sandbox mode, no offline caching, no
+Playwright/Lighthouse CI — all explicitly later phases. See
 [`data-cleaning-quest-master-plan.md`](./data-cleaning-quest-master-plan.md#14-build-roadmap)
 Section 14 for the full 9-phase roadmap. Architecture decisions are recorded
-in [`docs/adr/`](./docs/adr/); World 1's visual/motion design spec is in
-[`docs/design/world-1-visual-spec.md`](./docs/design/world-1-visual-spec.md).
+in [`docs/adr/`](./docs/adr/); World 1's visual/motion design specs are in
+[`docs/design/world-1-visual-spec.md`](./docs/design/world-1-visual-spec.md)
+(Phase 1) and
+[`docs/design/world-1-phase-2-visual-spec.md`](./docs/design/world-1-phase-2-visual-spec.md)
+(Phase 2).
 
 For a structural map of the codebase, see
 [`graphify-out/GRAPH_REPORT.md`](./graphify-out/GRAPH_REPORT.md) (generated —
