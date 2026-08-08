@@ -5,6 +5,11 @@ export function getPrimaryNullColumn(winCondition: WinCondition): string | null 
   return predicate?.predicate === "no_nulls" ? predicate.column : null;
 }
 
+/** The distinct techniques a case's win condition exercises — the unit XP/rank tracking is keyed on. */
+export function predicateKinds(winCondition: WinCondition): string[] {
+  return Array.from(new Set(winCondition.all.map((p) => p.predicate)));
+}
+
 export function formatWinCondition(winCondition: WinCondition): string {
   return winCondition.all.map(formatPredicate).join(" AND ");
 }

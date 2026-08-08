@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { caseSchema } from "./case";
+import { caseSchema, worldRosterSchema } from "./case";
 
 const validCase = {
   id: "tutorial-nulls",
   world: "boss-fights",
+  tier: "tutorial",
   datasetPath: "/datasets/world-1/tutorial-nulls.csv",
   datasetLicense: {
     license: "CC0-1.0",
@@ -59,6 +60,22 @@ describe("caseSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it("rejects a case missing tier", () => {
+    const { tier: _unused, ...caseWithoutTier } = validCase;
+    const result = caseSchema.safeParse(caseWithoutTier);
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an unknown tier", () => {
+    const result = caseSchema.safeParse({ ...validCase, tier: "mini-boss" });
+    expect(result.success).toBe(false);
+  });
+
+  it.each(["tutorial", "mid-boss", "final-boss"] as const)("accepts tier %s", (tier) => {
+    const result = caseSchema.safeParse({ ...validCase, tier });
+    expect(result.success).toBe(true);
+  });
+
   it("accepts a stacked win condition combining multiple predicate kinds", () => {
     const result = caseSchema.safeParse({
       ...validCase,
@@ -92,6 +109,29 @@ describe("caseSchema", () => {
       winCondition: {
         all: [{ predicate: "valid_dtype", column: "age", dtype: "complex128" }],
       },
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("worldRosterSchema", () => {
+  it("accepts a valid roster", () => {
+    const result = worldRosterSchema.safeParse({
+      world: "boss-fights",
+      caseIds: ["w1-01-nul-sentinel", "w1-02-double-take"],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an empty caseIds list", () => {
+    const result = worldRosterSchema.safeParse({ world: "boss-fights", caseIds: [] });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an unknown world", () => {
+    const result = worldRosterSchema.safeParse({
+      world: "the-underworld",
+      caseIds: ["x"],
     });
     expect(result.success).toBe(false);
   });

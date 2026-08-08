@@ -1,6 +1,7 @@
 {
   "id": "w1-01-nul-sentinel",
   "world": "boss-fights",
+  "tier": "tutorial",
   "datasetPath": "/datasets/world-1/nul-sentinel.csv",
   "datasetLicense": {
     "license": "CC0-1.0",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatWinCondition, getPrimaryNullColumn } from "./caseFormat";
+import { formatWinCondition, getPrimaryNullColumn, predicateKinds } from "./caseFormat";
 import type { WinCondition } from "@dcq/content-schema";
 
 describe("getPrimaryNullColumn", () => {
@@ -53,5 +53,27 @@ describe("formatWinCondition", () => {
     expect(formatWinCondition(winCondition)).toBe(
       "no_nulls(email) AND no_duplicates(id)",
     );
+  });
+});
+
+describe("predicateKinds", () => {
+  it("returns the distinct predicate kinds in a win condition", () => {
+    const winCondition: WinCondition = {
+      all: [
+        { predicate: "no_nulls", column: "email" },
+        { predicate: "no_whitespace", column: "email" },
+      ],
+    };
+    expect(predicateKinds(winCondition)).toEqual(["no_nulls", "no_whitespace"]);
+  });
+
+  it("deduplicates repeated predicate kinds across multiple columns", () => {
+    const winCondition: WinCondition = {
+      all: [
+        { predicate: "no_nulls", column: "email" },
+        { predicate: "no_nulls", column: "phone" },
+      ],
+    };
+    expect(predicateKinds(winCondition)).toEqual(["no_nulls"]);
   });
 });

@@ -5,17 +5,14 @@ import { defineConfig } from "vite";
 import type { Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 
-const CONTENT_CASES_DIR = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../content/cases",
-);
-const DEV_URL_PREFIX = "/content/cases/";
+const CONTENT_DIR = join(dirname(fileURLToPath(import.meta.url)), "../../content");
+const DEV_URL_PREFIX = "/content/";
 
 /**
- * content/cases/ is the single source of truth (validated by
- * pnpm validate-content, contributable via PR without touching engine code)
- * — this serves it in dev and copies it into dist/ at build time, rather
- * than duplicating it under public/.
+ * content/ (cases + world rosters) is the single source of truth (validated
+ * by pnpm validate-content, contributable via PR without touching engine
+ * code) — this serves it in dev and copies it into dist/ at build time,
+ * rather than duplicating it under public/.
  */
 function contentCasesPlugin(): Plugin {
   return {
@@ -24,8 +21,8 @@ function contentCasesPlugin(): Plugin {
       server.middlewares.use((req, res, next) => {
         if (!req.url?.startsWith(DEV_URL_PREFIX)) return next();
         const relPath = decodeURIComponent(req.url.slice(DEV_URL_PREFIX.length));
-        const filePath = join(CONTENT_CASES_DIR, relPath);
-        if (!filePath.startsWith(CONTENT_CASES_DIR)) return next();
+        const filePath = join(CONTENT_DIR, relPath);
+        if (!filePath.startsWith(CONTENT_DIR)) return next();
         try {
           const contents = readFileSync(filePath);
           res.setHeader("Content-Type", "application/json");
@@ -36,8 +33,8 @@ function contentCasesPlugin(): Plugin {
       });
     },
     closeBundle() {
-      const outDir = join(dirname(fileURLToPath(import.meta.url)), "dist/content/cases");
-      copyJsonRecursive(CONTENT_CASES_DIR, outDir);
+      const outDir = join(dirname(fileURLToPath(import.meta.url)), "dist/content");
+      copyJsonRecursive(CONTENT_DIR, outDir);
     },
   };
 }
