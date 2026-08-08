@@ -32,7 +32,7 @@ class FakeTransport implements RpcTransport {
   }
 }
 
-const sampleGrid = { columns: ["a"], rows: [{ a: 1 }] };
+const sampleGrid = { columns: ["a"], rows: [{ a: 1 }], dtypes: { a: "int64" } };
 
 describe("EngineRpcClient", () => {
   it("resolves ready() once a ready message arrives", async () => {

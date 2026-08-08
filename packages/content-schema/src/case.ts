@@ -4,11 +4,34 @@ import { z } from "zod";
  * Win conditions are declarative predicates evaluated by trusted engine
  * code — case JSON never contains executable code (docs/adr/0003).
  */
+export const dtypeSchema = z.enum(["int", "float", "bool", "string", "datetime"]);
+export type Dtype = z.infer<typeof dtypeSchema>;
+
+export const casingSchema = z.enum(["lower", "upper", "title"]);
+export type Casing = z.infer<typeof casingSchema>;
+
 export const predicateSchema = z.discriminatedUnion("predicate", [
   z.object({ predicate: z.literal("no_nulls"), column: z.string() }),
   z.object({
     predicate: z.literal("no_duplicates"),
     columns: z.array(z.string()).min(1),
+  }),
+  z.object({ predicate: z.literal("no_whitespace"), column: z.string() }),
+  z.object({
+    predicate: z.literal("consistent_casing"),
+    column: z.string(),
+    case: casingSchema,
+  }),
+  z.object({
+    predicate: z.literal("valid_dtype"),
+    column: z.string(),
+    dtype: dtypeSchema,
+  }),
+  z.object({
+    predicate: z.literal("no_outliers"),
+    column: z.string(),
+    min: z.number(),
+    max: z.number(),
   }),
 ]);
 export type Predicate = z.infer<typeof predicateSchema>;

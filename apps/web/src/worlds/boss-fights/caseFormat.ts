@@ -10,6 +10,18 @@ export function formatWinCondition(winCondition: WinCondition): string {
 }
 
 function formatPredicate(predicate: Predicate): string {
-  if (predicate.predicate === "no_nulls") return `no_nulls(${predicate.column})`;
-  return `no_duplicates(${predicate.columns.join(",")})`;
+  switch (predicate.predicate) {
+    case "no_nulls":
+      return `no_nulls(${predicate.column})`;
+    case "no_duplicates":
+      return `no_duplicates(${predicate.columns.join(",")})`;
+    case "no_whitespace":
+      return `no_whitespace(${predicate.column})`;
+    case "consistent_casing":
+      return `consistent_casing(${predicate.column}, ${predicate.case})`;
+    case "no_outliers":
+      return `no_outliers(${predicate.column}, ${String(predicate.min)}..${String(predicate.max)})`;
+    case "valid_dtype":
+      return `valid_dtype(${predicate.column}, ${predicate.dtype})`;
+  }
 }

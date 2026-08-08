@@ -7,10 +7,12 @@ describe("diffGrids", () => {
     const before: ResultGrid = {
       columns: ["email"],
       rows: [{ email: null }, { email: "a@b.com" }],
+      dtypes: {},
     };
     const after: ResultGrid = {
       columns: ["email"],
       rows: [{ email: "unknown@example.com" }, { email: "a@b.com" }],
+      dtypes: {},
     };
 
     expect(diffGrids(before, after)).toEqual([
@@ -19,7 +21,7 @@ describe("diffGrids", () => {
   });
 
   it("returns no changes for identical grids", () => {
-    const grid: ResultGrid = { columns: ["a"], rows: [{ a: 1 }] };
+    const grid: ResultGrid = { columns: ["a"], rows: [{ a: 1 }], dtypes: {} };
     expect(diffGrids(grid, grid)).toEqual([]);
   });
 
@@ -30,6 +32,7 @@ describe("diffGrids", () => {
         { a: null, b: 1 },
         { a: 2, b: null },
       ],
+      dtypes: {},
     };
     const after: ResultGrid = {
       columns: ["a", "b"],
@@ -37,6 +40,7 @@ describe("diffGrids", () => {
         { a: 0, b: 1 },
         { a: 2, b: 0 },
       ],
+      dtypes: {},
     };
 
     expect(diffGrids(before, after)).toEqual([
@@ -46,8 +50,8 @@ describe("diffGrids", () => {
   });
 
   it("only compares up to the shorter grid's row count", () => {
-    const before: ResultGrid = { columns: ["a"], rows: [{ a: 1 }, { a: 2 }] };
-    const after: ResultGrid = { columns: ["a"], rows: [{ a: 1 }] };
+    const before: ResultGrid = { columns: ["a"], rows: [{ a: 1 }, { a: 2 }], dtypes: {} };
+    const after: ResultGrid = { columns: ["a"], rows: [{ a: 1 }], dtypes: {} };
     expect(diffGrids(before, after)).toEqual([]);
   });
 });

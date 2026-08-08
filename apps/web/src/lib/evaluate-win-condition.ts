@@ -1,6 +1,13 @@
 import type { Predicate, WinCondition } from "@dcq/content-schema";
 import type { ResultGrid } from "@dcq/engine-adapters";
-import { countNulls, countDuplicates } from "./afflictions";
+import {
+  countNulls,
+  countDuplicates,
+  countWhitespace,
+  countCasing,
+  countOutliers,
+  dtypeMatches,
+} from "./afflictions";
 
 function evaluatePredicate(grid: ResultGrid, predicate: Predicate): boolean {
   switch (predicate.predicate) {
@@ -8,6 +15,14 @@ function evaluatePredicate(grid: ResultGrid, predicate: Predicate): boolean {
       return countNulls(grid, predicate.column) === 0;
     case "no_duplicates":
       return countDuplicates(grid, predicate.columns) === 0;
+    case "no_whitespace":
+      return countWhitespace(grid, predicate.column) === 0;
+    case "consistent_casing":
+      return countCasing(grid, predicate.column, predicate.case) === 0;
+    case "no_outliers":
+      return countOutliers(grid, predicate.column, predicate.min, predicate.max) === 0;
+    case "valid_dtype":
+      return dtypeMatches(grid, predicate.column, predicate.dtype);
   }
 }
 

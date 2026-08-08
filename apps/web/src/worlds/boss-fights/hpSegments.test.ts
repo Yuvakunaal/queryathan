@@ -3,7 +3,11 @@ import { computeHpSegments } from "./hpSegments";
 import type { ResultGrid } from "@dcq/engine-adapters";
 
 function gridOf(values: (number | null)[]): ResultGrid {
-  return { columns: ["temp_c"], rows: values.map((v) => ({ temp_c: v })) };
+  return {
+    columns: ["temp_c"],
+    rows: values.map((v) => ({ temp_c: v })),
+    dtypes: { temp_c: "float64" },
+  };
 }
 
 describe("computeHpSegments", () => {

@@ -58,4 +58,41 @@ describe("caseSchema", () => {
     const result = caseSchema.safeParse(caseWithoutStarter);
     expect(result.success).toBe(false);
   });
+
+  it("accepts a stacked win condition combining multiple predicate kinds", () => {
+    const result = caseSchema.safeParse({
+      ...validCase,
+      winCondition: {
+        all: [
+          { predicate: "no_nulls", column: "email" },
+          { predicate: "no_whitespace", column: "email" },
+          { predicate: "consistent_casing", column: "email", case: "lower" },
+          { predicate: "valid_dtype", column: "signup_year", dtype: "int" },
+          { predicate: "no_outliers", column: "age", min: 0, max: 120 },
+          { predicate: "no_duplicates", columns: ["email"] },
+        ],
+      },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a consistent_casing predicate with an invalid case value", () => {
+    const result = caseSchema.safeParse({
+      ...validCase,
+      winCondition: {
+        all: [{ predicate: "consistent_casing", column: "email", case: "sentence" }],
+      },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects a valid_dtype predicate with an unknown dtype", () => {
+    const result = caseSchema.safeParse({
+      ...validCase,
+      winCondition: {
+        all: [{ predicate: "valid_dtype", column: "age", dtype: "complex128" }],
+      },
+    });
+    expect(result.success).toBe(false);
+  });
 });

@@ -5,7 +5,11 @@ import type { WinCondition } from "@dcq/content-schema";
 
 describe("evaluateWinCondition", () => {
   it("is satisfied when a single no_nulls predicate has no remaining nulls", () => {
-    const grid: ResultGrid = { columns: ["email"], rows: [{ email: "a@b.com" }] };
+    const grid: ResultGrid = {
+      columns: ["email"],
+      rows: [{ email: "a@b.com" }],
+      dtypes: {},
+    };
     const winCondition: WinCondition = {
       all: [{ predicate: "no_nulls", column: "email" }],
     };
@@ -13,7 +17,7 @@ describe("evaluateWinCondition", () => {
   });
 
   it("is not satisfied while a no_nulls predicate still has nulls", () => {
-    const grid: ResultGrid = { columns: ["email"], rows: [{ email: null }] };
+    const grid: ResultGrid = { columns: ["email"], rows: [{ email: null }], dtypes: {} };
     const winCondition: WinCondition = {
       all: [{ predicate: "no_nulls", column: "email" }],
     };
@@ -27,6 +31,7 @@ describe("evaluateWinCondition", () => {
         { email: "a@b.com", id: 1 },
         { email: "c@d.com", id: 1 },
       ],
+      dtypes: {},
     };
     const winCondition: WinCondition = {
       all: [
@@ -45,6 +50,7 @@ describe("evaluateWinCondition", () => {
         { email: "a@b.com", id: 1 },
         { email: "c@d.com", id: 2 },
       ],
+      dtypes: {},
     };
     const winCondition: WinCondition = {
       all: [
@@ -53,5 +59,50 @@ describe("evaluateWinCondition", () => {
       ],
     };
     expect(evaluateWinCondition(grid, winCondition)).toBe(true);
+  });
+
+  it("evaluates no_whitespace, consistent_casing, no_outliers, and valid_dtype predicates", () => {
+    const grid: ResultGrid = {
+      columns: ["email", "age"],
+      rows: [{ email: "a@b.com", age: 30 }],
+      dtypes: { email: "object", age: "int64" },
+    };
+    const winCondition: WinCondition = {
+      all: [
+        { predicate: "no_whitespace", column: "email" },
+        { predicate: "consistent_casing", column: "email", case: "lower" },
+        { predicate: "no_outliers", column: "age", min: 0, max: 120 },
+        { predicate: "valid_dtype", column: "age", dtype: "int" },
+      ],
+    };
+    expect(evaluateWinCondition(grid, winCondition)).toBe(true);
+  });
+
+  it("fails a stacked win condition when only one of several predicates is unmet", () => {
+    const grid: ResultGrid = {
+      columns: ["email", "age"],
+      rows: [{ email: " a@b.com", age: 30 }],
+      dtypes: { email: "object", age: "int64" },
+    };
+    const winCondition: WinCondition = {
+      all: [
+        { predicate: "no_whitespace", column: "email" },
+        { predicate: "no_outliers", column: "age", min: 0, max: 120 },
+      ],
+    };
+    // no_outliers passes, no_whitespace fails (leading space) -> overall false.
+    expect(evaluateWinCondition(grid, winCondition)).toBe(false);
+  });
+
+  it("fails valid_dtype when the column's real dtype does not match", () => {
+    const grid: ResultGrid = {
+      columns: ["signup_year"],
+      rows: [{ signup_year: "2020" }],
+      dtypes: { signup_year: "object" },
+    };
+    const winCondition: WinCondition = {
+      all: [{ predicate: "valid_dtype", column: "signup_year", dtype: "int" }],
+    };
+    expect(evaluateWinCondition(grid, winCondition)).toBe(false);
   });
 });

@@ -6,6 +6,8 @@
 export interface ResultGrid {
   columns: string[];
   rows: Record<string, string | number | boolean | null>[];
+  /** Each column's real pandas dtype (`str(dataframe[col].dtype)`) — e.g. "int64", "float64", "object", "datetime64[ns]". */
+  dtypes: Record<string, string>;
 }
 
 export interface InitCaseRequest {
