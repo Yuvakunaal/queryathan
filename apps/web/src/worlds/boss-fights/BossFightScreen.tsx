@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { RpcRunError } from "@dcq/engine-adapters";
 import type { ResultGrid } from "@dcq/engine-adapters";
 import type { Case } from "@dcq/content-schema";
@@ -6,10 +6,15 @@ import { PyodideClient } from "../../engines/pyodide-client";
 import { loadCase } from "../../lib/load-case";
 import { diffGrids } from "../../lib/diff";
 import type { CellChange } from "../../lib/diff";
-import { countNulls } from "../../lib/afflictions";
+import {
+  afflictionCellMap,
+  clearedCells,
+  countTotalAffliction,
+} from "../../lib/affliction-cells";
+import type { AfflictionKind } from "../../lib/affliction-cells";
 import { evaluateWinCondition } from "../../lib/evaluate-win-condition";
 import { classNames } from "../../lib/classNames";
-import { getPrimaryNullColumn, formatWinCondition } from "./caseFormat";
+import { formatWinCondition, predicateKinds } from "./caseFormat";
 import { formatCellValue } from "./formatCellValue";
 import { markJustCleared } from "./afflictionDom";
 import { playBossHitRecoil } from "../../anim/world1/battlefieldRecoil";
@@ -28,7 +33,6 @@ import DiffConsole from "./DiffConsole";
 import type { ConsoleEntry } from "./DiffConsole";
 import styles from "./BossFightScreen.module.css";
 
-const CASE_PATH = "/content/cases/world-1/w1-01-nul-sentinel.json";
 const TEXT_SCALES = [0.875, 1, 1.125, 1.25];
 const A11Y_STORAGE_KEY = "dcq.a11y";
 
@@ -66,9 +70,22 @@ function loadA11yState(): A11yState {
 interface PendingReconciliation {
   changes: CellChange[];
   clearedThisTurn: number;
+  justCleared: { rowIndex: number; column: string }[];
 }
 
-export default function BossFightScreen() {
+export interface BossFightScreenProps {
+  casePath: string;
+  rankLabel: string;
+  onWin: (caseId: string, techniqueKinds: string[]) => void;
+  onExitToRoster: () => void;
+}
+
+export default function BossFightScreen({
+  casePath,
+  rankLabel,
+  onWin,
+  onExitToRoster,
+}: BossFightScreenProps) {
   const [caseData, setCaseData] = useState<Case | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [phase, setPhase] = useState<"loading" | "boot" | "fight">("loading");
@@ -96,7 +113,13 @@ export default function BossFightScreen() {
   const entryIdRef = useRef(0);
   const pendingRef = useRef<PendingReconciliation | null>(null);
 
-  const afflictedColumn = caseData ? getPrimaryNullColumn(caseData.winCondition) : null;
+  const cellMap = useMemo(
+    () =>
+      grid && caseData
+        ? afflictionCellMap(grid, caseData.winCondition)
+        : new Map<string, AfflictionKind>(),
+    [grid, caseData],
+  );
 
   useEffect(() => {
     const html = document.documentElement;
@@ -126,7 +149,7 @@ export default function BossFightScreen() {
 
     async function boot(activeClient: PyodideClient): Promise<void> {
       try {
-        const loadedCase = await loadCase(CASE_PATH);
+        const loadedCase = await loadCase(casePath);
         if (isCancelled()) return;
         setCaseData(loadedCase);
 
@@ -137,8 +160,10 @@ export default function BossFightScreen() {
         if (isCancelled()) return;
 
         setGrid(result.resultGrid);
-        const column = getPrimaryNullColumn(loadedCase.winCondition);
-        initialAfflictionRef.current = column ? countNulls(result.resultGrid, column) : 0;
+        initialAfflictionRef.current = countTotalAffliction(
+          result.resultGrid,
+          loadedCase.winCondition,
+        );
         setPhase("boot");
       } catch (err) {
         if (!isCancelled())
@@ -152,21 +177,26 @@ export default function BossFightScreen() {
       cancelled = true;
       client.terminate();
     };
-  }, []);
+  }, [casePath]);
 
   // Post-run reconciliation: populate diff spans + fire the flash/recoil once
   // the grid has re-rendered with new values (DOM already shows new values;
   // this fills in the "old" side and lets the animation reveal the change).
   useEffect(() => {
     const pending = pendingRef.current;
-    if (!pending || !afflictedColumn || !grid) return;
+    if (!pending || !grid) return;
     pendingRef.current = null;
 
     for (const { rowIndex, column } of justClearedRef.current) {
       const el = gridRef.current?.getCellElement(rowIndex, column);
       if (el) markJustCleared(el, false);
     }
-    justClearedRef.current = [];
+    justClearedRef.current = pending.justCleared;
+
+    for (const { rowIndex, column } of pending.justCleared) {
+      const el = gridRef.current?.getCellElement(rowIndex, column);
+      if (el) markJustCleared(el, true);
+    }
 
     const cellRefs: DiffCellRefs[] = [];
     for (const change of pending.changes) {
@@ -180,15 +210,6 @@ export default function BossFightScreen() {
 
       oldEl.textContent = formatCellValue(change.before);
       cellRefs.push({ cellEl, gutterEl, oldEl, newEl });
-
-      if (
-        change.column === afflictedColumn &&
-        change.before === null &&
-        change.after !== null
-      ) {
-        markJustCleared(cellEl, true);
-        justClearedRef.current.push({ rowIndex: change.rowIndex, column: change.column });
-      }
     }
 
     if (cellRefs.length > 0) playDiffFlashBatch(cellRefs);
@@ -201,7 +222,7 @@ export default function BossFightScreen() {
         totalAffliction: initialAfflictionRef.current ?? 1,
       });
     }
-  }, [grid, afflictedColumn]);
+  }, [grid]);
 
   /** Debounced per spec §3.6 — a fast series of runs shouldn't queue up a stack of polite announcements. */
   function announcePolite(message: string): void {
@@ -213,7 +234,7 @@ export default function BossFightScreen() {
 
   async function handleRun(): Promise<void> {
     const client = clientRef.current;
-    if (!client || !grid || !caseData || isRunning || !afflictedColumn) return;
+    if (!client || !grid || !caseData || isRunning) return;
     const code = codeEditorRef.current?.getValue() ?? "";
     if (!code.trim()) return;
 
@@ -222,9 +243,11 @@ export default function BossFightScreen() {
       const result = await client.run(code);
       const nextGrid = result.resultGrid;
       const changes = diffGrids(grid, nextGrid);
-      const beforeAfflicted = countNulls(grid, afflictedColumn);
-      const afterAfflicted = countNulls(nextGrid, afflictedColumn);
+      const beforeAfflicted = cellMap.size;
+      const nextCellMap = afflictionCellMap(nextGrid, caseData.winCondition);
+      const afterAfflicted = nextCellMap.size;
       const clearedThisTurn = Math.max(0, beforeAfflicted - afterAfflicted);
+      const justCleared = clearedCells(grid, cellMap, nextGrid, nextCellMap);
 
       const output = result.output;
       if (output) {
@@ -262,7 +285,7 @@ export default function BossFightScreen() {
         ]);
       }
 
-      pendingRef.current = { changes, clearedThisTurn };
+      pendingRef.current = { changes, clearedThisTurn, justCleared };
       setGrid(nextGrid);
       announcePolite(
         `Run complete. ${String(changes.length)} cells changed. ${String(afterAfflicted)} afflicted cells remaining.`,
@@ -270,6 +293,7 @@ export default function BossFightScreen() {
 
       if (evaluateWinCondition(nextGrid, caseData.winCondition)) {
         setHasWon(true);
+        onWin(caseData.id, predicateKinds(caseData.winCondition));
       }
     } catch (err) {
       if (err instanceof RpcRunError) {
@@ -314,27 +338,6 @@ export default function BossFightScreen() {
     );
   }
 
-  if (!afflictedColumn) {
-    // World 1's battlefield (HP heatmap, sigil decay) is built around a
-    // no_nulls predicate specifically — a schema-valid no_duplicates-only
-    // case is real content this world doesn't render yet (that's Phase 2's
-    // duplicate-affliction UI), so this says so instead of a blank screen.
-    return (
-      <div className={styles.fightRoot} data-world="boss-fights">
-        <div className={styles.loadingScreen} role="alert">
-          <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
-          <span className={classNames(styles.loadingLine, styles.loadingError)}>
-            case &quot;{caseData.id}&quot; has no no_nulls predicate — this build of World
-            1
-          </span>
-          <span className={classNames(styles.loadingLine, styles.loadingError)}>
-            only renders the nulls affliction (Phase 2 adds the rest)
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   if (phase === "boot") {
     return (
       <div className={styles.fightRoot} data-world="boss-fights">
@@ -351,16 +354,23 @@ export default function BossFightScreen() {
     );
   }
 
-  const remaining = countNulls(grid, afflictedColumn);
+  const remaining = cellMap.size;
+  const bossNameStyles = classNames(
+    styles.statusRailBoss,
+    caseData.tier === "final-boss" && styles.statusRailBossFinal,
+  );
 
   return (
     <div className={styles.fightRoot} data-world="boss-fights">
       <div className={styles.statusRail}>
         <span>
-          BOSS-FIGHTS // W1-01{" "}
-          <span className={styles.statusRailBoss}>{caseData.strings.title}</span>
+          <button type="button" className={styles.rosterLink} onClick={onExitToRoster}>
+            &lt; ROSTER
+          </button>{" "}
+          BOSS-FIGHTS // <span className={bossNameStyles}>{caseData.strings.title}</span>
         </span>
         <div className={styles.a11yControls}>
+          <span className={styles.rankBadge}>{rankLabel}</span>
           <button
             type="button"
             className={styles.a11yButton}
@@ -446,6 +456,7 @@ export default function BossFightScreen() {
               objectiveLabel={formatWinCondition(caseData.winCondition)}
               remaining={remaining}
               initial={initialAfflictionRef.current ?? remaining}
+              tier={caseData.tier}
             />
           </div>
           <div className={styles.editorPane}>
@@ -474,12 +485,12 @@ export default function BossFightScreen() {
           </div>
         </div>
         <div className={styles.battlefield} ref={battlefieldRef}>
-          <HpHeatmap grid={grid} column={afflictedColumn} />
+          <HpHeatmap grid={grid} winCondition={caseData.winCondition} />
           <div className={styles.gridWrap}>
             <DataframeGrid
               ref={gridRef}
               grid={grid}
-              afflictedColumn={afflictedColumn}
+              afflictionCellMap={cellMap}
               textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
               columnHints={caseData.columnHints}
             />

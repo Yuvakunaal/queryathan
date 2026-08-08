@@ -37,7 +37,8 @@ def __dcq_serialize_df(dataframe):
     columns = list(dataframe.columns)
     rows = json.loads(dataframe.to_json(orient="records"))
     dtypes = {col: str(dtype) for col, dtype in dataframe.dtypes.items()}
-    return json.dumps({"columns": columns, "rows": rows, "dtypes": dtypes})
+    index = dataframe.index.tolist()
+    return json.dumps({"columns": columns, "rows": rows, "dtypes": dtypes, "index": index})
 `;
 
 let stdoutBuffer: string[] = [];

@@ -1,0 +1,163 @@
+.roster {
+  height: 100dvh;
+  overflow: auto;
+  background: var(--w1-bg-void);
+  padding: 10vh 8vw 4vh;
+}
+
+.rosterHeading {
+  max-width: 900px;
+  margin: 0 0 24px;
+  font: 700 var(--w1-fs-title) / 28px var(--w1-font-display);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--w1-text-secondary);
+}
+
+.loading,
+.loadError {
+  max-width: 900px;
+  font: 400 var(--w1-fs-brief) / 22px var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.loadError {
+  color: var(--w1-diff-del);
+}
+
+.rosterRow {
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: 40px 1fr 100px 1fr 90px;
+  align-items: center;
+  column-gap: 16px;
+  height: 40px;
+  border-bottom: 1px solid var(--w1-rule-faint);
+  font: 400 var(--w1-fs-cell) / 1 var(--w1-font-text);
+}
+.rosterRow:first-child {
+  border-top: 1px solid var(--w1-rule);
+}
+
+.rosterStatus {
+  font: 600 var(--w1-fs-cell) / 1 var(--w1-font-text);
+}
+.rosterStatus[data-status="cleared"] {
+  color: var(--w1-green-500);
+}
+.rosterStatus[data-status="unlocked"] {
+  color: var(--w1-amber-500);
+}
+.rosterStatus[data-status="locked"] {
+  color: var(--w1-text-dim);
+}
+
+.rosterName {
+  font: 600 var(--w1-fs-colhead) / 1 var(--w1-font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--w1-text-primary);
+}
+.rosterNameButton {
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.rosterNameButton:hover,
+.rosterNameButton:focus-visible {
+  color: var(--w1-amber-500);
+}
+.rosterNameButton:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}
+.rosterRow[data-status="locked"] .rosterName {
+  color: var(--w1-text-dim);
+}
+
+.rosterTier {
+  font: 400 12px/1 var(--w1-font-text);
+  color: var(--w1-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rosterGlyphs {
+  font: 500 12px/1 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+  letter-spacing: 0.3em;
+}
+
+.rosterTag {
+  font: 600 10px/1 var(--w1-font-display);
+  letter-spacing: 0.1em;
+  color: var(--w1-text-dim);
+  text-align: right;
+}
+
+.rankReadout {
+  max-width: 900px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--w1-rule-strong);
+}
+.rankLabel {
+  font: 600 var(--w1-fs-hudlabel) / 14px var(--w1-font-display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--w1-amber-500);
+}
+.rankValue {
+  font: 600 var(--w1-fs-hudnum) / 20px var(--w1-font-text);
+  color: var(--w1-text-primary);
+  margin-left: 8px;
+}
+.rankProgress {
+  font: 400 12px/1 var(--w1-font-text);
+  color: var(--w1-text-dim);
+  margin-left: 6px;
+}
+
+.saveControls {
+  max-width: 900px;
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+.saveButton {
+  height: 28px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid var(--w1-rule-strong);
+  color: var(--w1-text-secondary);
+  font: 600 11px/1 var(--w1-font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.saveButton:hover,
+.saveButton:focus-visible {
+  border-color: var(--w1-amber-500);
+  color: var(--w1-amber-500);
+}
+.saveButton:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}
+.hiddenFileInput {
+  display: none;
+}
+
+.importStatus {
+  max-width: 900px;
+  margin-top: 10px;
+  font: 500 12px/1 var(--w1-font-text);
+  color: var(--w1-green-500);
+}
+.importStatusError {
+  color: var(--w1-diff-del);
+}

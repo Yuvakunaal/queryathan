@@ -4,6 +4,9 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import type { ResultGrid } from "@dcq/engine-adapters";
 import type { ColumnHints } from "@dcq/content-schema";
 import { formatCellValue } from "./formatCellValue";
+import { afflictionKindAt } from "../../lib/affliction-cells";
+import type { AfflictionKind } from "../../lib/affliction-cells";
+import { ariaLabelForAffliction, BADGE_GLYPH } from "./afflictionPresentation";
 import { classNames } from "../../lib/classNames";
 import styles from "./DataframeGrid.module.css";
 
@@ -20,7 +23,8 @@ export interface DataframeGridHandle {
 
 export interface DataframeGridProps {
   grid: ResultGrid;
-  afflictedColumn: string;
+  /** Every currently-afflicted cell, keyed and looked up via affliction-cells.ts helpers — one win condition can stack multiple affliction kinds at once (Phase 2 spec §2). */
+  afflictionCellMap: Map<string, AfflictionKind>;
   /** Mirrors --dcq-text-scale (spec §2.1) — row height must track it exactly. */
   textScale: number;
   /** Per-column display hints from the case JSON; a column with no hint falls back to sane defaults. */
@@ -28,7 +32,7 @@ export interface DataframeGridProps {
 }
 
 const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
-  function DataframeGrid({ grid, afflictedColumn, textScale, columnHints }, ref) {
+  function DataframeGrid({ grid, afflictionCellMap, textScale, columnHints }, ref) {
     const scrollRef = useRef<HTMLDivElement>(null);
     // Roving tabindex (spec §3.6): exactly one cell is tab-stoppable at a
     // time; arrow keys move it and re-focus the new target.
@@ -169,7 +173,7 @@ const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
                 </div>
                 {grid.columns.map((column, columnIndex) => {
                   const value = row[column];
-                  const isAfflicted = column === afflictedColumn && value === null;
+                  const kind = afflictionKindAt(afflictionCellMap, item.index, column);
                   const isRoving =
                     item.index === focusedCell.rowIndex &&
                     columnIndex === focusedCell.columnIndex;
@@ -190,13 +194,23 @@ const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
                       }
                       data-row-index={item.index}
                       data-column={column}
-                      data-affliction={isAfflicted ? "null" : undefined}
+                      data-affliction={kind}
                       aria-label={
-                        isAfflicted
-                          ? `${column}, row ${String(item.index)}, missing value`
+                        kind
+                          ? ariaLabelForAffliction(
+                              kind,
+                              column,
+                              item.index,
+                              value ?? null,
+                            )
                           : undefined
                       }
                     >
+                      {kind && kind !== "null" ? (
+                        <span className={styles.afflictionBadge} aria-hidden="true">
+                          {BADGE_GLYPH[kind]}
+                        </span>
+                      ) : null}
                       <span className={styles.diffGutter} data-role="gutter" />
                       <span className={styles.diffOld} data-role="old" />
                       <span className={styles.diffNew} data-role="new">

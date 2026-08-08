@@ -1,28 +1,52 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { ResultGrid } from "@dcq/engine-adapters";
+import type { WinCondition } from "@dcq/content-schema";
+import {
+  afflictionCellMap,
+  afflictionCountsByKind,
+  afflictionKindsByRow,
+  predicateKindOrder,
+} from "../../lib/affliction-cells";
 import { computeHpSegments, HP_LEVEL_COLORS, HP_SEGMENT_HEIGHTS_PX } from "./hpSegments";
 import { playHpShatterBatch, tweenHpCounter } from "../../anim/world1/hpShatter";
 import type { SegmentShatterOptions } from "../../anim/world1/hpShatter";
 import { classNames } from "../../lib/classNames";
+import { BADGE_GLYPH } from "./afflictionPresentation";
 import styles from "./HpHeatmap.module.css";
 
 const MAX_SEGMENTS = 200;
 
 export interface HpHeatmapProps {
   grid: ResultGrid;
-  column: string;
+  winCondition: WinCondition;
 }
 
-export default function HpHeatmap({ grid, column }: HpHeatmapProps) {
+export default function HpHeatmap({ grid, winCondition }: HpHeatmapProps) {
+  const kindOrder = useMemo(() => predicateKindOrder(winCondition), [winCondition]);
+  const predicateCount = winCondition.all.length;
+
+  const cellMap = useMemo(
+    () => afflictionCellMap(grid, winCondition),
+    [grid, winCondition],
+  );
+  const kindsByRow = useMemo(() => afflictionKindsByRow(cellMap), [cellMap]);
+  const countsByKind = useMemo(() => afflictionCountsByKind(cellMap), [cellMap]);
+
   const segments = useMemo(
-    () => computeHpSegments(grid, column, MAX_SEGMENTS),
-    [grid, column],
+    () =>
+      computeHpSegments(
+        grid.rows.length,
+        kindsByRow,
+        predicateCount,
+        MAX_SEGMENTS,
+        kindOrder,
+      ),
+    [grid.rows.length, kindsByRow, predicateCount, kindOrder],
   );
-  const afflictedTotal = useMemo(
-    () => segments.reduce((sum, s) => sum + s.afflictedCount, 0),
-    [segments],
-  );
+
+  const afflictedTotal = cellMap.size;
   const rowTotal = grid.rows.length;
+  const maxPossible = rowTotal * Math.max(1, predicateCount);
 
   const segRefs = useRef<(HTMLElement | null)[]>([]);
   const shardRefs = useRef<HTMLElement[][]>([]);
@@ -41,12 +65,13 @@ export default function HpHeatmap({ grid, column }: HpHeatmapProps) {
         const prev = prevSegments[i];
         const segEl = segRefs.current[i];
         if (prev && segEl && seg.level < prev.level) {
+          const colorKind = seg.dominantKind ?? prev.dominantKind ?? "null";
           shattering.push({
             segEl,
             shardEls: shardRefs.current[i] ?? [],
             oldHeightPx: HP_SEGMENT_HEIGHTS_PX[prev.level],
             newHeightPx: HP_SEGMENT_HEIGHTS_PX[seg.level],
-            newColor: HP_LEVEL_COLORS[seg.level],
+            newColor: HP_LEVEL_COLORS[colorKind][seg.level],
           });
         }
       });
@@ -69,9 +94,10 @@ export default function HpHeatmap({ grid, column }: HpHeatmapProps) {
   }, [segments, afflictedTotal]);
 
   const restored = afflictedTotal === 0;
+  const showBreakdown = countsByKind.size > 1;
 
   return (
-    <div className={styles.hpBand}>
+    <div className={styles.hpBand} data-breakdown={showBreakdown ? "true" : undefined}>
       <div className={styles.hpLabel}>
         {restored ? "HULL INTEGRITY  RESTORED" : "HULL INTEGRITY"}
       </div>
@@ -79,7 +105,7 @@ export default function HpHeatmap({ grid, column }: HpHeatmapProps) {
         className={styles.hpStrip}
         role="meter"
         aria-valuemin={0}
-        aria-valuemax={rowTotal}
+        aria-valuemax={maxPossible}
         aria-valuenow={afflictedTotal}
         aria-label="Afflicted cells remaining"
         ref={meterRef}
@@ -89,6 +115,7 @@ export default function HpHeatmap({ grid, column }: HpHeatmapProps) {
             key={`seg-${String(i)}`}
             className={styles.hpSeg}
             data-level={seg.level}
+            data-kind={seg.dominantKind ?? "none"}
             style={{ height: `${String(HP_SEGMENT_HEIGHTS_PX[seg.level])}px` }}
             ref={(el) => {
               segRefs.current[i] = el;
@@ -116,6 +143,19 @@ export default function HpHeatmap({ grid, column }: HpHeatmapProps) {
         </span>
         <span className={styles.hpDenom}>/ {rowTotal} ROWS</span>
       </div>
+      {showBreakdown ? (
+        <div className={styles.hpBreakdown} aria-hidden="true">
+          {kindOrder.map((kind) => {
+            const count = countsByKind.get(kind);
+            if (!count) return null;
+            return (
+              <span key={kind} className={styles.hpBreakdownItem} data-kind={kind}>
+                {BADGE_GLYPH[kind]} <b>{count}</b>
+              </span>
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }

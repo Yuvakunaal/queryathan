@@ -25,9 +25,40 @@
 .statusRailBoss {
   color: var(--w1-status-null);
 }
+.statusRailBossFinal {
+  color: var(--w1-diff-del);
+}
+
+.rosterLink {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--w1-text-secondary);
+  cursor: pointer;
+}
+.rosterLink:hover,
+.rosterLink:focus-visible {
+  color: var(--w1-amber-500);
+}
+.rosterLink:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}
+
+.rankBadge {
+  font: 600 var(--w1-fs-rail) / 12px var(--w1-font-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--w1-amber-500);
+  padding: 2px 8px;
+  border: 1px solid var(--w1-rule-strong);
+  margin-right: 16px;
+}
 
 .a11yControls {
   display: flex;
+  align-items: center;
   gap: 6px;
 }
 

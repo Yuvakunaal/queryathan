@@ -1,6 +1,7 @@
 import type { ResultGrid } from "@dcq/engine-adapters";
 
 export interface CellChange {
+  /** Position in `after.rows` — what DataframeGrid actually renders, and what the flash animation needs to locate the DOM cell. */
   rowIndex: number;
   column: string;
   before: string | number | boolean | null;
@@ -8,18 +9,29 @@ export interface CellChange {
 }
 
 /**
- * Positional diff: matches rows by index, not identity. Correct for Phase 1
- * (fillna-style edits that preserve row count/order). Revisit once
- * drop_duplicates/dropna cases (Phase 2) can change row count.
+ * Matches rows by their real pandas index value, not by array position.
+ * Default RangeIndex values survive `drop_duplicates()`/`dropna()` unless
+ * the code calls `.reset_index()`, so a run that drops rows (Phase 2:
+ * no_duplicates cases) still diffs correctly — a retained row is compared
+ * against its own prior values, not whatever row happens to now sit at the
+ * same array position. A dropped row simply produces no CellChange entries
+ * (nothing to flash — the row is just gone); a row with no counterpart in
+ * `before` is skipped rather than treated as a wall of "added" cells, since
+ * no World 1 case adds rows.
  */
 export function diffGrids(before: ResultGrid, after: ResultGrid): CellChange[] {
   const changes: CellChange[] = [];
-  const rowCount = Math.min(before.rows.length, after.rows.length);
+  const beforeByIndex = new Map<string | number, ResultGrid["rows"][number]>();
+  before.rows.forEach((row, i) => {
+    const indexValue = before.index[i];
+    if (indexValue !== undefined) beforeByIndex.set(indexValue, row);
+  });
 
-  for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-    const beforeRow = before.rows[rowIndex];
-    const afterRow = after.rows[rowIndex];
-    if (!beforeRow || !afterRow) continue;
+  after.rows.forEach((afterRow, rowIndex) => {
+    const indexValue = after.index[rowIndex];
+    if (indexValue === undefined) return;
+    const beforeRow = beforeByIndex.get(indexValue);
+    if (!beforeRow) return;
 
     for (const column of after.columns) {
       const beforeVal = beforeRow[column] ?? null;
@@ -28,7 +40,7 @@ export function diffGrids(before: ResultGrid, after: ResultGrid): CellChange[] {
         changes.push({ rowIndex, column, before: beforeVal, after: afterVal });
       }
     }
-  }
+  });
 
   return changes;
 }

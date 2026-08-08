@@ -18,6 +18,7 @@ describe("countNulls", () => {
       columns: ["email"],
       rows: [{ email: null }, { email: "a@b.com" }, { email: null }],
       dtypes: {},
+      index: [0, 1, 2],
     };
     expect(countNulls(grid, "email")).toBe(2);
   });
@@ -27,12 +28,13 @@ describe("countNulls", () => {
       columns: ["email"],
       rows: [{ email: "a@b.com" }],
       dtypes: {},
+      index: [0],
     };
     expect(countNulls(grid, "email")).toBe(0);
   });
 
   it("returns 0 for an empty grid", () => {
-    const grid: ResultGrid = { columns: ["email"], rows: [], dtypes: {} };
+    const grid: ResultGrid = { columns: ["email"], rows: [], dtypes: {}, index: [] };
     expect(countNulls(grid, "email")).toBe(0);
   });
 });
@@ -43,6 +45,7 @@ describe("countDuplicates", () => {
       columns: ["id"],
       rows: [{ id: 1 }, { id: 1 }, { id: 2 }, { id: 1 }],
       dtypes: {},
+      index: [0, 1, 2, 3],
     };
     // id=1 appears 3 times -> 2 extras beyond the first occurrence.
     expect(countDuplicates(grid, ["id"])).toBe(2);
@@ -57,6 +60,7 @@ describe("countDuplicates", () => {
         { first: "A", last: "C" },
       ],
       dtypes: {},
+      index: [0, 1, 2],
     };
     expect(countDuplicates(grid, ["first", "last"])).toBe(1);
   });
@@ -72,6 +76,7 @@ describe("countDuplicates", () => {
         { a: "x", b: "y|z" },
       ],
       dtypes: {},
+      index: [0, 1],
     };
     expect(countDuplicates(grid, ["a", "b"])).toBe(0);
   });
@@ -81,6 +86,7 @@ describe("countDuplicates", () => {
       columns: ["a"],
       rows: [{ a: null }, { a: "null" }],
       dtypes: {},
+      index: [0, 1],
     };
     expect(countDuplicates(grid, ["a"])).toBe(0);
   });
@@ -90,6 +96,7 @@ describe("countDuplicates", () => {
       columns: ["id"],
       rows: [{ id: 1 }, { id: 2 }],
       dtypes: {},
+      index: [0, 1],
     };
     expect(countDuplicates(grid, ["id"])).toBe(0);
   });
@@ -99,6 +106,7 @@ describe("countDuplicates", () => {
       columns: ["id"],
       rows: [{ id: 1 }, { id: 1 }, { id: 1 }],
       dtypes: {},
+      index: [0, 1, 2],
     };
     expect(duplicateRowIndices(grid, ["id"])).toEqual([1, 2]);
   });
@@ -110,17 +118,28 @@ describe("countWhitespace", () => {
       columns: ["name"],
       rows: [{ name: " Ada" }, { name: "Ada" }, { name: "Ada " }],
       dtypes: {},
+      index: [0, 1, 2],
     };
     expect(countWhitespace(grid, "name")).toBe(2);
   });
 
   it("does not flag null cells", () => {
-    const grid: ResultGrid = { columns: ["name"], rows: [{ name: null }], dtypes: {} };
+    const grid: ResultGrid = {
+      columns: ["name"],
+      rows: [{ name: null }],
+      dtypes: {},
+      index: [0],
+    };
     expect(countWhitespace(grid, "name")).toBe(0);
   });
 
   it("does not flag non-string cells", () => {
-    const grid: ResultGrid = { columns: ["age"], rows: [{ age: 30 }], dtypes: {} };
+    const grid: ResultGrid = {
+      columns: ["age"],
+      rows: [{ age: 30 }],
+      dtypes: {},
+      index: [0],
+    };
     expect(countWhitespace(grid, "age")).toBe(0);
   });
 });
@@ -131,6 +150,7 @@ describe("countCasing", () => {
       columns: ["email"],
       rows: [{ email: "a@b.com" }, { email: "A@B.com" }],
       dtypes: {},
+      index: [0, 1],
     };
     expect(countCasing(grid, "email", "lower")).toBe(1);
   });
@@ -140,6 +160,7 @@ describe("countCasing", () => {
       columns: ["code"],
       rows: [{ code: "US" }, { code: "us" }],
       dtypes: {},
+      index: [0, 1],
     };
     expect(countCasing(grid, "code", "upper")).toBe(1);
   });
@@ -149,12 +170,18 @@ describe("countCasing", () => {
       columns: ["city"],
       rows: [{ city: "New York" }, { city: "new york" }, { city: "NEW YORK" }],
       dtypes: {},
+      index: [0, 1, 2],
     };
     expect(countCasing(grid, "city", "title")).toBe(2);
   });
 
   it("does not flag null cells", () => {
-    const grid: ResultGrid = { columns: ["email"], rows: [{ email: null }], dtypes: {} };
+    const grid: ResultGrid = {
+      columns: ["email"],
+      rows: [{ email: null }],
+      dtypes: {},
+      index: [0],
+    };
     expect(countCasing(grid, "email", "lower")).toBe(0);
   });
 });
@@ -165,6 +192,7 @@ describe("countOutliers", () => {
       columns: ["age"],
       rows: [{ age: 30 }, { age: -5 }, { age: 200 }, { age: 45 }],
       dtypes: {},
+      index: [0, 1, 2, 3],
     };
     expect(countOutliers(grid, "age", 0, 120)).toBe(2);
   });
@@ -174,6 +202,7 @@ describe("countOutliers", () => {
       columns: ["age"],
       rows: [{ age: 0 }, { age: 120 }],
       dtypes: {},
+      index: [0, 1],
     };
     expect(countOutliers(grid, "age", 0, 120)).toBe(0);
   });
@@ -183,6 +212,7 @@ describe("countOutliers", () => {
       columns: ["age"],
       rows: [{ age: null }, { age: "unknown" }],
       dtypes: {},
+      index: [0, 1],
     };
     expect(countOutliers(grid, "age", 0, 120)).toBe(0);
   });
@@ -213,6 +243,7 @@ describe("dtypeMatches / dtypeMismatchRowIndices", () => {
       columns: ["age"],
       rows: [{ age: 30 }],
       dtypes: { age: "int64" },
+      index: [0],
     };
     expect(dtypeMatches(grid, "age", "int")).toBe(true);
     expect(dtypeMismatchRowIndices(grid, "age", "int")).toEqual([]);
@@ -223,6 +254,7 @@ describe("dtypeMatches / dtypeMismatchRowIndices", () => {
       columns: ["age"],
       rows: [{ age: "30" }, { age: "unknown" }],
       dtypes: { age: "object" },
+      index: [0, 1],
     };
     expect(dtypeMatches(grid, "age", "int")).toBe(false);
     expect(dtypeMismatchRowIndices(grid, "age", "int")).toEqual([0, 1]);

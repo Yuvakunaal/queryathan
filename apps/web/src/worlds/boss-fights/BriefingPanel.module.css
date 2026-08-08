@@ -78,3 +78,22 @@
 .objectiveValue {
   color: var(--w1-text-primary);
 }
+.objectiveWithheld {
+  color: var(--w1-diff-del);
+}
+
+.tierTag {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 1px 6px;
+  font: 600 10px/14px var(--w1-font-display);
+  letter-spacing: 0.12em;
+  vertical-align: middle;
+  border: 1px solid currentColor;
+}
+.tierTag[data-tier="mid-boss"] {
+  color: var(--w1-amber-500);
+}
+.tierTag[data-tier="final-boss"] {
+  color: var(--w1-diff-del);
+}

@@ -133,6 +133,65 @@ export function afflictionKindsByRow(
   return byRow;
 }
 
+/** Distinct affliction kinds in winCondition.all's declared order — the deterministic tie-break order used for both overlapping-cell priority (§2.5) and HP segment dominant-kind ties (design spec §3.2). */
+export function predicateKindOrder(winCondition: WinCondition): AfflictionKind[] {
+  const seen = new Set<AfflictionKind>();
+  const order: AfflictionKind[] = [];
+  for (const predicate of winCondition.all) {
+    const kind = kindForPredicate(predicate);
+    if (!seen.has(kind)) {
+      seen.add(kind);
+      order.push(kind);
+    }
+  }
+  return order;
+}
+
+/**
+ * Every cell that was afflicted in `beforeGrid` and is no longer afflicted
+ * in `afterGrid` — the set the "just cleared" ledger-mark outline (spec
+ * §5.5) is built from. Matches rows by their real pandas index value
+ * (`grid.index`), not array position, for the same reason lib/diff.ts
+ * does: a run that drops rows (drop_duplicates()) shifts every later row's
+ * position without changing its identity, and a naive positional
+ * comparison would either miss real clears or invent phantom ones.
+ * Returned rowIndex values are positions in `afterGrid` (what's actually
+ * rendered, and what DataframeGrid.getCellElement needs).
+ */
+export function clearedCells(
+  beforeGrid: ResultGrid,
+  beforeCellMap: Map<string, AfflictionKind>,
+  afterGrid: ResultGrid,
+  afterCellMap: Map<string, AfflictionKind>,
+): { rowIndex: number; column: string }[] {
+  const identityKey = (indexValue: string | number, column: string): string =>
+    JSON.stringify([indexValue, column]);
+
+  const afterIdentities = new Set<string>();
+  for (const key of afterCellMap.keys()) {
+    const { rowIndex, column } = parseCellKey(key);
+    const indexValue = afterGrid.index[rowIndex];
+    if (indexValue !== undefined) afterIdentities.add(identityKey(indexValue, column));
+  }
+
+  const afterPositionByIndexValue = new Map<string | number, number>();
+  afterGrid.index.forEach((indexValue, position) => {
+    afterPositionByIndexValue.set(indexValue, position);
+  });
+
+  const cleared: { rowIndex: number; column: string }[] = [];
+  for (const key of beforeCellMap.keys()) {
+    const { rowIndex, column } = parseCellKey(key);
+    const indexValue = beforeGrid.index[rowIndex];
+    if (indexValue === undefined) continue;
+    if (afterIdentities.has(identityKey(indexValue, column))) continue;
+
+    const afterPosition = afterPositionByIndexValue.get(indexValue);
+    if (afterPosition !== undefined) cleared.push({ rowIndex: afterPosition, column });
+  }
+  return cleared;
+}
+
 /** Total afflicted-cell count per kind, for the HP band's glyph-count breakdown (design spec §3.3). */
 export function afflictionCountsByKind(
   cellMap: Map<string, AfflictionKind>,

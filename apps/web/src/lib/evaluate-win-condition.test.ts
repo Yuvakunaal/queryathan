@@ -9,6 +9,7 @@ describe("evaluateWinCondition", () => {
       columns: ["email"],
       rows: [{ email: "a@b.com" }],
       dtypes: {},
+      index: [0],
     };
     const winCondition: WinCondition = {
       all: [{ predicate: "no_nulls", column: "email" }],
@@ -17,7 +18,12 @@ describe("evaluateWinCondition", () => {
   });
 
   it("is not satisfied while a no_nulls predicate still has nulls", () => {
-    const grid: ResultGrid = { columns: ["email"], rows: [{ email: null }], dtypes: {} };
+    const grid: ResultGrid = {
+      columns: ["email"],
+      rows: [{ email: null }],
+      dtypes: {},
+      index: [0],
+    };
     const winCondition: WinCondition = {
       all: [{ predicate: "no_nulls", column: "email" }],
     };
@@ -32,6 +38,7 @@ describe("evaluateWinCondition", () => {
         { email: "c@d.com", id: 1 },
       ],
       dtypes: {},
+      index: [0, 1],
     };
     const winCondition: WinCondition = {
       all: [
@@ -51,6 +58,7 @@ describe("evaluateWinCondition", () => {
         { email: "c@d.com", id: 2 },
       ],
       dtypes: {},
+      index: [0, 1],
     };
     const winCondition: WinCondition = {
       all: [
@@ -66,6 +74,7 @@ describe("evaluateWinCondition", () => {
       columns: ["email", "age"],
       rows: [{ email: "a@b.com", age: 30 }],
       dtypes: { email: "object", age: "int64" },
+      index: [0],
     };
     const winCondition: WinCondition = {
       all: [
@@ -83,6 +92,7 @@ describe("evaluateWinCondition", () => {
       columns: ["email", "age"],
       rows: [{ email: " a@b.com", age: 30 }],
       dtypes: { email: "object", age: "int64" },
+      index: [0],
     };
     const winCondition: WinCondition = {
       all: [
@@ -99,6 +109,7 @@ describe("evaluateWinCondition", () => {
       columns: ["signup_year"],
       rows: [{ signup_year: "2020" }],
       dtypes: { signup_year: "object" },
+      index: [0],
     };
     const winCondition: WinCondition = {
       all: [{ predicate: "valid_dtype", column: "signup_year", dtype: "int" }],

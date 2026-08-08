@@ -10,6 +10,10 @@
   border-bottom: 1px solid var(--w1-rule-strong);
   padding: 14px 16px 12px;
 }
+.hpBand[data-breakdown="true"] {
+  grid-template-rows: auto auto auto;
+  grid-template-areas: "label readout" "strip readout" "breakdown breakdown";
+}
 
 .hpLabel {
   grid-area: label;
@@ -44,19 +48,66 @@
   Theme-token-driven, not inline-set, so [data-dcq-contrast="high"]'s
   redefined ramp/rule-faint tokens actually reach the strip. hpShatter.ts's
   color tween clears its inline --seg-color override on completion
-  (clearProps) so the resting state always falls back to these.
+  (clearProps) so the resting state always falls back to these. Level 0
+  (clean) is the same --w1-rule-faint regardless of dominant kind — an
+  unafflicted bin has no kind to tint (design spec §3.2).
 */
 .hpSeg[data-level="0"] {
   --seg-color: var(--w1-rule-faint);
 }
-.hpSeg[data-level="1"] {
+.hpSeg[data-kind="null"][data-level="1"] {
   --seg-color: var(--w1-null-ramp-2);
 }
-.hpSeg[data-level="2"] {
+.hpSeg[data-kind="null"][data-level="2"] {
   --seg-color: var(--w1-null-ramp-3);
 }
-.hpSeg[data-level="3"] {
+.hpSeg[data-kind="null"][data-level="3"] {
   --seg-color: var(--w1-null-ramp-4);
+}
+.hpSeg[data-kind="dup"][data-level="1"] {
+  --seg-color: var(--w1-dup-ramp-2);
+}
+.hpSeg[data-kind="dup"][data-level="2"] {
+  --seg-color: var(--w1-dup-ramp-3);
+}
+.hpSeg[data-kind="dup"][data-level="3"] {
+  --seg-color: var(--w1-dup-ramp-4);
+}
+.hpSeg[data-kind="dtype"][data-level="1"] {
+  --seg-color: var(--w1-dtype-ramp-2);
+}
+.hpSeg[data-kind="dtype"][data-level="2"] {
+  --seg-color: var(--w1-dtype-ramp-3);
+}
+.hpSeg[data-kind="dtype"][data-level="3"] {
+  --seg-color: var(--w1-dtype-ramp-4);
+}
+.hpSeg[data-kind="ws"][data-level="1"] {
+  --seg-color: var(--w1-ws-ramp-2);
+}
+.hpSeg[data-kind="ws"][data-level="2"] {
+  --seg-color: var(--w1-ws-ramp-3);
+}
+.hpSeg[data-kind="ws"][data-level="3"] {
+  --seg-color: var(--w1-ws-ramp-4);
+}
+.hpSeg[data-kind="outlier"][data-level="1"] {
+  --seg-color: var(--w1-outlier-ramp-2);
+}
+.hpSeg[data-kind="outlier"][data-level="2"] {
+  --seg-color: var(--w1-outlier-ramp-3);
+}
+.hpSeg[data-kind="outlier"][data-level="3"] {
+  --seg-color: var(--w1-outlier-ramp-4);
+}
+.hpSeg[data-kind="date"][data-level="1"] {
+  --seg-color: var(--w1-date-ramp-2);
+}
+.hpSeg[data-kind="date"][data-level="2"] {
+  --seg-color: var(--w1-date-ramp-3);
+}
+.hpSeg[data-kind="date"][data-level="3"] {
+  --seg-color: var(--w1-date-ramp-4);
 }
 
 .shard {
@@ -92,4 +143,37 @@
   text-transform: uppercase;
   color: var(--w1-text-dim);
   margin-left: 8px;
+}
+
+.hpBreakdown {
+  grid-area: breakdown;
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+  font: 500 11px/14px var(--w1-font-text);
+}
+.hpBreakdownItem {
+  color: var(--w1-text-secondary);
+}
+.hpBreakdownItem b {
+  font-weight: 600;
+  margin-left: 3px;
+}
+.hpBreakdownItem[data-kind="null"] {
+  color: var(--w1-status-null);
+}
+.hpBreakdownItem[data-kind="dup"] {
+  color: var(--w1-status-dup);
+}
+.hpBreakdownItem[data-kind="dtype"] {
+  color: var(--w1-status-dtype);
+}
+.hpBreakdownItem[data-kind="ws"] {
+  color: var(--w1-status-ws);
+}
+.hpBreakdownItem[data-kind="outlier"] {
+  color: var(--w1-status-outlier);
+}
+.hpBreakdownItem[data-kind="date"] {
+  color: var(--w1-status-date);
 }

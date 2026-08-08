@@ -35,19 +35,39 @@
   --w1-rule-faint: #121a17;
   --w1-focus: #ffb000;
 
-  /* --- affliction status palette (only "null" ships in Phase 1) --- */
+  /* --- affliction status palette --- */
   --w1-status-null: #c77dff;
   --w1-status-null-rgb: 199 125 255;
   --w1-status-dup: #6fc8ff;
+  --w1-status-dup-rgb: 111 200 255;
   --w1-status-dtype: #f0e442;
+  --w1-status-dtype-rgb: 240 228 66;
   --w1-status-ws: #5dd9c1;
+  --w1-status-ws-rgb: 93 217 193;
   --w1-status-outlier: #ff9e4a;
+  --w1-status-outlier-rgb: 255 158 74;
   --w1-status-date: #f58fd0;
+  --w1-status-date-rgb: 245 143 208;
 
-  --w1-null-ramp-1: #3a2649;
+  /* per-kind 4-step lightness ramps for the HP heatmap (design spec §3.2) — level 1 (clean) shares --w1-rule-faint regardless of kind */
   --w1-null-ramp-2: #5b3a73;
   --w1-null-ramp-3: #8e56ad;
   --w1-null-ramp-4: #c77dff;
+  --w1-dup-ramp-2: #2a4a5c;
+  --w1-dup-ramp-3: #4a7a94;
+  --w1-dup-ramp-4: #6fc8ff;
+  --w1-dtype-ramp-2: #4a4a1f;
+  --w1-dtype-ramp-3: #8a842f;
+  --w1-dtype-ramp-4: #f0e442;
+  --w1-ws-ramp-2: #1f4a42;
+  --w1-ws-ramp-3: #3a8a78;
+  --w1-ws-ramp-4: #5dd9c1;
+  --w1-outlier-ramp-2: #5c341a;
+  --w1-outlier-ramp-3: #a4602c;
+  --w1-outlier-ramp-4: #ff9e4a;
+  --w1-date-ramp-2: #5c2a4a;
+  --w1-date-ramp-3: #a4527f;
+  --w1-date-ramp-4: #f58fd0;
 
   /* --- diff palette --- */
   --w1-diff-del: #ff6b3d;

@@ -8,6 +8,14 @@ export interface ResultGrid {
   rows: Record<string, string | number | boolean | null>[];
   /** Each column's real pandas dtype (`str(dataframe[col].dtype)`) — e.g. "int64", "float64", "object", "datetime64[ns]". */
   dtypes: Record<string, string>;
+  /**
+   * The real pandas index value for each row, in display order — e.g.
+   * `dataframe.index.tolist()`. Default RangeIndex values survive
+   * operations like `drop_duplicates()`/`dropna()` unless the code calls
+   * `.reset_index()`, so this is what lets a row-count-changing run be
+   * diffed by row identity instead of position (lib/diff.ts).
+   */
+  index: (string | number)[];
 }
 
 export interface InitCaseRequest {

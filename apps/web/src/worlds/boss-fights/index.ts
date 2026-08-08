@@ -10,3 +10,5 @@ import "@fontsource/ibm-plex-mono/latin-600.css";
 import "./theme.css";
 
 export { default as BossFightScreen } from "./BossFightScreen";
+export type { BossFightScreenProps } from "./BossFightScreen";
+export { default as WorldMapScreen } from "./WorldMapScreen";
