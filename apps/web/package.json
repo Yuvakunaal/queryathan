@@ -24,7 +24,7 @@
     "@tanstack/react-virtual": "^3.14.9",
     "codemirror": "^6.0.2",
     "gsap": "^3.15.0",
-    "pyodide": "314.0.4",
+    "pyodide": "314.0.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "zod": "^3.25.76"
