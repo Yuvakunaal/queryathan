@@ -93,8 +93,8 @@ importers:
         specifier: ^3.15.0
         version: 3.15.0
       pyodide:
-        specifier: 314.0.4
-        version: 314.0.4
+        specifier: 314.0.6
+        version: 314.0.6
       react:
         specifier: ^19.0.0
         version: 19.2.8
@@ -1280,6 +1280,7 @@ packages:
   eslint@9.39.5:
     resolution: {integrity: sha512-DgZS62aPLXKlnxILS/AYCoRvHaZeXceIzlXPkkGGzJWSow1aEk0lbTlxUSlyjC8jcaKxAdOnTDz+o1JFSBsyjw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -1677,8 +1678,8 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  pyodide@314.0.4:
-    resolution: {integrity: sha512-fMexKS5P/s8iTjczevLUv/aWq9i5yaGvBTpBW6gM+nzDNelfPpREma/xdDK2AAGebAuKnBJk7fyVP6RBlz4btg==}
+  pyodide@314.0.6:
+    resolution: {integrity: sha512-BKDTJyIqFxC4BExLqeRS3f5xvXZIjOt8C3zGLN/Cc7tFxSwvKVhVkchQQ2AGLOtR4YrVOIFxbV8poyDOOmWwxQ==}
     engines: {node: '>=18.0.0'}
 
   react-dom@19.2.8:
@@ -1995,6 +1996,18 @@ packages:
 
   ws@8.21.2:
     resolution: {integrity: sha512-54dMVAo4WIe6SKy3vBgN+9bJZqqQ8IMRevAkOLQALhi49qkkQDQfWdAZ8KQlXiEabw88ARXXdUrlvtbKQX+aKw==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  ws@8.21.3:
+    resolution: {integrity: sha512-201TZ/kPWxoPr/OKWjquZR1SWKXcvxdH+e1xrx89b3YbmzLMFCLfnaG1HFIgWzJOEWZ7MvpK++odZufgYR50Rw==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -3433,10 +3446,10 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  pyodide@314.0.4:
+  pyodide@314.0.6:
     dependencies:
       '@types/emscripten': 1.41.5
-      ws: 8.21.2
+      ws: 8.21.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -3743,6 +3756,8 @@ snapshots:
       strip-ansi: 7.2.0
 
   ws@8.21.2: {}
+
+  ws@8.21.3: {}
 
   xml-name-validator@5.0.0: {}
 
