@@ -21,7 +21,7 @@
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@gsap/react": "^2.1.2",
     "@lezer/highlight": "^1.2.3",
-    "@tanstack/react-virtual": "^3.14.9",
+    "@tanstack/react-virtual": "^3.14.11",
     "codemirror": "^6.0.2",
     "gsap": "^3.15.0",
     "pyodide": "314.0.4",
