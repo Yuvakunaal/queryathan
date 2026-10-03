@@ -103,11 +103,29 @@
 .hpSeg[data-kind="date"][data-level="1"] {
   --seg-color: var(--w1-date-ramp-2);
 }
+.hpSeg[data-kind="pattern"][data-level="1"] {
+  --seg-color: var(--w1-pattern-ramp-2);
+}
+.hpSeg[data-kind="encoding"][data-level="1"] {
+  --seg-color: var(--w1-encoding-ramp-2);
+}
 .hpSeg[data-kind="date"][data-level="2"] {
   --seg-color: var(--w1-date-ramp-3);
 }
+.hpSeg[data-kind="pattern"][data-level="2"] {
+  --seg-color: var(--w1-pattern-ramp-3);
+}
+.hpSeg[data-kind="encoding"][data-level="2"] {
+  --seg-color: var(--w1-encoding-ramp-3);
+}
 .hpSeg[data-kind="date"][data-level="3"] {
   --seg-color: var(--w1-date-ramp-4);
+}
+.hpSeg[data-kind="pattern"][data-level="3"] {
+  --seg-color: var(--w1-pattern-ramp-4);
+}
+.hpSeg[data-kind="encoding"][data-level="3"] {
+  --seg-color: var(--w1-encoding-ramp-4);
 }
 
 .shard {
@@ -176,4 +194,10 @@
 }
 .hpBreakdownItem[data-kind="date"] {
   color: var(--w1-status-date);
+}
+.hpBreakdownItem[data-kind="pattern"] {
+  color: var(--w1-status-pattern);
+}
+.hpBreakdownItem[data-kind="encoding"] {
+  color: var(--w1-status-encoding);
 }

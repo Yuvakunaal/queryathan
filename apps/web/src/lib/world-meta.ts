@@ -1,0 +1,85 @@
+import type { WorldId } from "@dcq/content-schema";
+
+export interface WorldMeta {
+  id: WorldId;
+  number: number;
+  name: string;
+  tagline: string;
+  lede: string;
+  /** Singular noun for one case in this world, used in UI copy. */
+  caseNoun: string;
+  /** Verb phrase on the call-to-action of a ready case. */
+  startLabel: string;
+  clearedLabel: string;
+  statusRailName: string;
+  available: boolean;
+}
+
+export const WORLDS: readonly WorldMeta[] = [
+  {
+    id: "boss-fights",
+    number: 1,
+    name: "Boss Fights",
+    tagline: "Nulls, duplicates, casing, types, outliers and dates.",
+    lede: "Every boss is a messy table. Write real pandas or SQL, run it in your browser, and watch the afflicted cells clear.",
+    caseNoun: "boss",
+    startLabel: "Start fight",
+    clearedLabel: "Boss cleared",
+    statusRailName: "BOSS-FIGHTS",
+    available: true,
+  },
+  {
+    id: "the-vault",
+    number: 2,
+    name: "The Vault",
+    tagline: "Regular expressions, extraction and broken encodings.",
+    lede: "Every lock is a pattern. Use regular expressions and decoders in pandas or SQL until each column fits the shape it should have.",
+    caseNoun: "lock",
+    startLabel: "Pick the lock",
+    clearedLabel: "Lock opened",
+    statusRailName: "THE-VAULT",
+    available: true,
+  },
+  {
+    id: "the-twins",
+    number: 3,
+    name: "The Twins",
+    tagline: "Joins, key mismatches and fuzzy matching.",
+    lede: "",
+    caseNoun: "pair",
+    startLabel: "Start",
+    clearedLabel: "Cleared",
+    statusRailName: "THE-TWINS",
+    available: false,
+  },
+  {
+    id: "the-architect",
+    number: 4,
+    name: "The Architect",
+    tagline: "Pivoting, melting and nested data.",
+    lede: "",
+    caseNoun: "blueprint",
+    startLabel: "Start",
+    clearedLabel: "Cleared",
+    statusRailName: "THE-ARCHITECT",
+    available: false,
+  },
+  {
+    id: "the-foundry",
+    number: 5,
+    name: "The Foundry",
+    tagline: "Performance, scale and validation.",
+    lede: "",
+    caseNoun: "job",
+    startLabel: "Start",
+    clearedLabel: "Cleared",
+    statusRailName: "THE-FOUNDRY",
+    available: false,
+  },
+];
+
+export function worldMeta(id: WorldId): WorldMeta {
+  const meta = WORLDS.find((w) => w.id === id);
+  if (!meta) throw new Error(`Unknown world: ${id}`);
+  return meta;
+}

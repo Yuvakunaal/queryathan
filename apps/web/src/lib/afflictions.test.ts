@@ -9,6 +9,8 @@ import {
   normalizeDtype,
   dtypeMatches,
   dtypeMismatchRowIndices,
+  patternMismatchRowIndices,
+  mojibakeRowIndices,
 } from "./afflictions";
 import type { ResultGrid } from "@dcq/engine-adapters";
 
@@ -258,5 +260,40 @@ describe("dtypeMatches / dtypeMismatchRowIndices", () => {
     };
     expect(dtypeMatches(grid, "age", "int")).toBe(false);
     expect(dtypeMismatchRowIndices(grid, "age", "int")).toEqual([0, 1]);
+  });
+});
+
+describe("patternMismatchRowIndices", () => {
+  const grid: ResultGrid = {
+    columns: ["code"],
+    rows: [{ code: "AB-123" }, { code: "ab123" }, { code: null }, { code: 42 }],
+    dtypes: {},
+    index: [0, 1, 2, 3],
+  };
+
+  it("flags non-null cells that do not match, skipping nulls", () => {
+    expect(patternMismatchRowIndices(grid, "code", "^[A-Z]{2}-\\d{3}$")).toEqual([1, 3]);
+  });
+
+  it("compares numbers as strings", () => {
+    expect(patternMismatchRowIndices(grid, "code", "^\\d+$")).toEqual([0, 1]);
+  });
+});
+
+describe("mojibakeRowIndices", () => {
+  it("flags UTF-8 read as Latin-1 and leaves clean accents alone", () => {
+    const grid: ResultGrid = {
+      columns: ["name"],
+      rows: [
+        { name: "JosÃ©" },
+        { name: "José" },
+        { name: "itâ€™s" },
+        { name: "plain" },
+        { name: null },
+      ],
+      dtypes: {},
+      index: [0, 1, 2, 3, 4],
+    };
+    expect(mojibakeRowIndices(grid, "name")).toEqual([0, 2]);
   });
 });

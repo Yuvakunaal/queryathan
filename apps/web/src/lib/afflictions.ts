@@ -137,3 +137,43 @@ export function dtypeMismatchRowIndices(
   if (dtypeMatches(grid, column, dtype)) return [];
   return grid.rows.map((_, i) => i);
 }
+
+/** Non-null cells that do not match the pattern. Cells are compared as strings, so a numeric result column is still checked. */
+export function patternMismatchRowIndices(
+  grid: ResultGrid,
+  column: string,
+  pattern: string,
+): number[] {
+  const regex = new RegExp(pattern);
+  const indices: number[] = [];
+  grid.rows.forEach((row, i) => {
+    const value = row[column];
+    if (value === null || value === undefined) return;
+    if (!regex.test(String(value))) indices.push(i);
+  });
+  return indices;
+}
+
+export function countPatternMismatches(
+  grid: ResultGrid,
+  column: string,
+  pattern: string,
+): number {
+  return patternMismatchRowIndices(grid, column, pattern).length;
+}
+
+/** UTF-8 bytes decoded as Latin-1/Windows-1252: a lead byte (Ã, Â) or the "â€" prefix of smart punctuation. */
+const MOJIBAKE = /[ÃÂ][\u0080-\u00BF\u2018-\u203A\u20AC\u0160-\u017E]|â€/;
+
+export function mojibakeRowIndices(grid: ResultGrid, column: string): number[] {
+  const indices: number[] = [];
+  grid.rows.forEach((row, i) => {
+    const value = row[column];
+    if (typeof value === "string" && MOJIBAKE.test(value)) indices.push(i);
+  });
+  return indices;
+}
+
+export function countMojibake(grid: ResultGrid, column: string): number {
+  return mojibakeRowIndices(grid, column).length;
+}

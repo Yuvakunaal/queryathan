@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { WorldMapScreen } from "./worlds/boss-fights";
+import { WorldMapScreen, WorldSelectScreen } from "./worlds/boss-fights";
+import type { WorldId } from "@dcq/content-schema";
 import {
   getWorldProgress,
   loadSave,
@@ -18,9 +19,10 @@ import type { A11yState } from "./lib/a11y";
 // those.
 const BossFightScreen = lazy(() => import("./worlds/boss-fights/BossFightScreen"));
 
-const WORLD = "boss-fights" as const;
-
-type Screen = { name: "roster" } | { name: "fight"; casePath: string };
+type Screen =
+  | { name: "hub" }
+  | { name: "roster"; world: WorldId }
+  | { name: "fight"; world: WorldId; casePath: string };
 
 /**
  * Only visible for the code-split chunk's fetch time — near-instant on a
@@ -43,14 +45,14 @@ function FightScreenFallback() {
         font: "13px/20px ui-monospace, monospace",
       }}
     >
-      mounting engine ......... pyodide/wasm
+      loading ...
     </div>
   );
 }
 
 export default function App() {
   const [saveData, setSaveData] = useState<SaveData>(loadSave);
-  const [screen, setScreen] = useState<Screen>({ name: "roster" });
+  const [screen, setScreen] = useState<Screen>({ name: "hub" });
   const [a11y, setA11y] = useState<A11yState>(loadA11yState);
 
   // Applied here, above the roster/fight switch, so a player's saved
@@ -68,34 +70,53 @@ export default function App() {
   }
 
   if (screen.name === "fight") {
-    const progress = getWorldProgress(saveData, WORLD);
-    const rankLabel = rankForWorld(WORLD, progress.masteredTechniques.length);
+    const world = screen.world;
+    const progress = getWorldProgress(saveData, world);
+    const rankLabel = rankForWorld(world, progress.masteredTechniques.length);
     return (
       <Suspense fallback={<FightScreenFallback />}>
         <BossFightScreen
+          world={world}
           casePath={screen.casePath}
           rankLabel={rankLabel}
           a11y={a11y}
           onA11yChange={setA11y}
           onExitToRoster={() => {
-            setScreen({ name: "roster" });
+            setScreen({ name: "roster", world });
           }}
           onWin={(caseId, techniqueKinds) => {
-            updateSave(recordCaseWin(saveData, WORLD, caseId, techniqueKinds));
+            updateSave(recordCaseWin(saveData, world, caseId, techniqueKinds));
           }}
         />
       </Suspense>
     );
   }
 
+  if (screen.name === "hub") {
+    return (
+      <WorldSelectScreen
+        saveData={saveData}
+        a11y={a11y}
+        onA11yChange={setA11y}
+        onSelectWorld={(world) => {
+          setScreen({ name: "roster", world });
+        }}
+      />
+    );
+  }
+
+  const rosterWorld = screen.world;
   return (
     <WorldMapScreen
-      world={WORLD}
+      world={rosterWorld}
       saveData={saveData}
       a11y={a11y}
       onA11yChange={setA11y}
+      onBack={() => {
+        setScreen({ name: "hub" });
+      }}
       onSelectCase={(casePath) => {
-        setScreen({ name: "fight", casePath });
+        setScreen({ name: "fight", world: rosterWorld, casePath });
       }}
       onImportSave={updateSave}
     />

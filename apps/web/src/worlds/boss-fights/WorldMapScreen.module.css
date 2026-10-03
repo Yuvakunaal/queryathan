@@ -339,3 +339,21 @@
     border-style: dashed;
   }
 }
+
+.backLink {
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+.backLink:hover,
+.backLink:focus-visible {
+  color: var(--w1-amber-500);
+}
+.backLink:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 3px;
+}

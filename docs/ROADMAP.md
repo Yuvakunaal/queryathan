@@ -6,13 +6,14 @@ tests pass. The roster screen was redesigned in this pass.
 
 ## Next, in order
 
-1. **Phase 3.5: polish World 1 (mostly done: roster, victory panel, hints, mobile fixes; first-time tutorial overlay and keyboard shortcut help remain).**
+1. **Phase 3.5: polish World 1 (done: roster, victory panel, hints, tutorial, mobile fixes).**
    Commit Phase 3. Redesign the fight screen to match the new roster
    (spacing, hierarchy, mobile layout). Add a first-time tutorial overlay,
    win/lose celebration screens, and keyboard shortcuts (Cmd+Enter to run).
    Add hints and a "show solution" option.
-2. **Phase 4: World 2, The Vault.** Regex and encoding content. Navy and
-   brass palette, combination-lock mechanic. Needs ~5 cases in both engines.
+2. **Phase 4: World 2, The Vault (built: 3 cases, both engines, navy and brass theme).**
+   Still to do: more cases (aim for 5), and the signature combination-lock
+   tumbler display in place of the shared HP strip.
 3. **Phase 5: Worlds 3 and 4.** Joins (needs multi-table datasets in the
    engine protocol) and reshaping (pivot, melt, JSON).
 4. **Phase 6: World 5 and sandbox.** Benchmark HUD, bring-your-own-CSV mode.

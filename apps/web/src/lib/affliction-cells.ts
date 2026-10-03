@@ -7,10 +7,13 @@ import {
   casingRowIndices,
   outlierRowIndices,
   dtypeMismatchRowIndices,
+  patternMismatchRowIndices,
+  mojibakeRowIndices,
 } from "./afflictions";
 
 /** The six visual affliction kinds World 1 renders — see docs/design/world-1-phase-2-visual-spec.md §0 for the predicate -> kind mapping. */
-export type AfflictionKind = "null" | "dup" | "ws" | "dtype" | "outlier" | "date";
+export type AfflictionKind =
+  "null" | "dup" | "ws" | "dtype" | "outlier" | "date" | "pattern" | "encoding";
 
 export interface AfflictedCell {
   rowIndex: number;
@@ -31,6 +34,10 @@ function kindForPredicate(predicate: Predicate): AfflictionKind {
       return "outlier";
     case "valid_dtype":
       return predicate.dtype === "datetime" ? "date" : "dtype";
+    case "matches_pattern":
+      return "pattern";
+    case "no_mojibake":
+      return "encoding";
   }
 }
 
@@ -52,6 +59,10 @@ function rowIndicesForPredicate(grid: ResultGrid, predicate: Predicate): number[
       return outlierRowIndices(grid, predicate.column, predicate.min, predicate.max);
     case "valid_dtype":
       return dtypeMismatchRowIndices(grid, predicate.column, predicate.dtype);
+    case "matches_pattern":
+      return patternMismatchRowIndices(grid, predicate.column, predicate.pattern);
+    case "no_mojibake":
+      return mojibakeRowIndices(grid, predicate.column);
   }
 }
 

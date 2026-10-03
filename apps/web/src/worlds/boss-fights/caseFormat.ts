@@ -28,5 +28,9 @@ function formatPredicate(predicate: Predicate): string {
       return `no_outliers(${predicate.column}, ${String(predicate.min)}..${String(predicate.max)})`;
     case "valid_dtype":
       return `valid_dtype(${predicate.column}, ${predicate.dtype})`;
+    case "matches_pattern":
+      return `matches_pattern(${predicate.column}, /${predicate.pattern}/)`;
+    case "no_mojibake":
+      return `no_mojibake(${predicate.column})`;
   }
 }

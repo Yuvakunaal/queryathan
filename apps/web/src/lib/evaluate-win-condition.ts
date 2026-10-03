@@ -7,6 +7,8 @@ import {
   countCasing,
   countOutliers,
   dtypeMatches,
+  countPatternMismatches,
+  countMojibake,
 } from "./afflictions";
 
 function evaluatePredicate(grid: ResultGrid, predicate: Predicate): boolean {
@@ -23,6 +25,10 @@ function evaluatePredicate(grid: ResultGrid, predicate: Predicate): boolean {
       return countOutliers(grid, predicate.column, predicate.min, predicate.max) === 0;
     case "valid_dtype":
       return dtypeMatches(grid, predicate.column, predicate.dtype);
+    case "matches_pattern":
+      return countPatternMismatches(grid, predicate.column, predicate.pattern) === 0;
+    case "no_mojibake":
+      return countMojibake(grid, predicate.column) === 0;
   }
 }
 

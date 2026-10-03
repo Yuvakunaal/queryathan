@@ -1,10 +1,11 @@
 /*
-  World 1 (Boss Fights) tokens. Scoped to [data-world="boss-fights"] —
-  never added to styles/tokens.css, which stays world-agnostic.
+  World 1 (Boss Fights) tokens, also the base token set World 2 (The Vault)
+  overrides in theme-vault.css. Never added to styles/tokens.css, which stays
+  world-agnostic.
   See docs/design/world-1-visual-spec.md for the full rationale.
 */
 
-[data-world="boss-fights"] {
+:is([data-world="boss-fights"], [data-world="the-vault"]) {
   /* --- surfaces: near-black, cool cast, stepped not shadowed --- */
   --w1-bg-void: #06080a;
   --w1-bg-panel: #0c1110;
@@ -48,6 +49,10 @@
   --w1-status-outlier-rgb: 255 158 74;
   --w1-status-date: #f58fd0;
   --w1-status-date-rgb: 245 143 208;
+  --w1-status-pattern: #6fe3a2;
+  --w1-status-pattern-rgb: 111 227 162;
+  --w1-status-encoding: #ff8a8a;
+  --w1-status-encoding-rgb: 255 138 138;
 
   /* per-kind 4-step lightness ramps for the HP heatmap (design spec §3.2) — level 1 (clean) shares --w1-rule-faint regardless of kind */
   --w1-null-ramp-2: #5b3a73;
@@ -68,6 +73,12 @@
   --w1-date-ramp-2: #5c2a4a;
   --w1-date-ramp-3: #a4527f;
   --w1-date-ramp-4: #f58fd0;
+  --w1-pattern-ramp-2: #1f4d36;
+  --w1-pattern-ramp-3: #3d9468;
+  --w1-pattern-ramp-4: #6fe3a2;
+  --w1-encoding-ramp-2: #5c2a2a;
+  --w1-encoding-ramp-3: #a45252;
+  --w1-encoding-ramp-4: #ff8a8a;
 
   /* --- diff palette --- */
   --w1-diff-del: #ff6b3d;
@@ -107,7 +118,7 @@
   --w1-head-h: calc(32px * var(--dcq-text-scale, 1));
 }
 
-[data-dcq-contrast="high"] [data-world="boss-fights"] {
+[data-dcq-contrast="high"] :is([data-world="boss-fights"], [data-world="the-vault"]) {
   --w1-bg-void: #000000;
   --w1-bg-panel: #000000;
   --w1-bg-panel-2: #0a0a0a;
@@ -128,25 +139,25 @@
 }
 
 /* Global frame rules (spec §3.1) */
-[data-world="boss-fights"],
-[data-world="boss-fights"] * {
+:is([data-world="boss-fights"], [data-world="the-vault"]),
+:is([data-world="boss-fights"], [data-world="the-vault"]) * {
   border-radius: 0;
 }
 
-[data-world="boss-fights"] {
+:is([data-world="boss-fights"], [data-world="the-vault"]) {
   font-variant-ligatures: none;
   font-feature-settings: "zero" 1;
 }
 
-[data-world="boss-fights"] * {
+:is([data-world="boss-fights"], [data-world="the-vault"]) * {
   scrollbar-width: thin;
   scrollbar-color: var(--w1-rule-strong) transparent;
 }
-[data-world="boss-fights"] *::-webkit-scrollbar {
+:is([data-world="boss-fights"], [data-world="the-vault"]) *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-[data-world="boss-fights"] *::-webkit-scrollbar-thumb {
+:is([data-world="boss-fights"], [data-world="the-vault"]) *::-webkit-scrollbar-thumb {
   background: var(--w1-rule-strong);
   border-radius: 0;
 }

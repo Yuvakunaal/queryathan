@@ -1,0 +1,37 @@
+/*
+  World 2 (The Vault): navy and brass. Overrides the --w1-* token set defined
+  in theme.css, so every fight component themes through the same names. The
+  role mapping: "green" is the primary accent (run button, success), here
+  brass; "amber" is the interactive highlight (hover, focus, labels), here
+  steel blue. Loaded after theme.css.
+*/
+[data-world="the-vault"] {
+  --w1-bg-void: #070b14;
+  --w1-bg-panel: #0c1322;
+  --w1-bg-panel-2: #131c30;
+  --w1-bg-row-a: #090e1a;
+  --w1-bg-row-b: #0b1120;
+  --w1-bg-row-hover: #121b2e;
+
+  --w1-green-300: #f2dca0;
+  --w1-green-500: #d4a84b;
+  --w1-green-700: #8a6a22;
+
+  --w1-amber-300: #b9d4ff;
+  --w1-amber-500: #7fb2ff;
+  --w1-amber-700: #3f6ab0;
+
+  --w1-text-primary: #e4e8f1;
+  --w1-text-secondary: #98a3bd;
+  --w1-text-dim: #66728f;
+  --w1-text-inverse: #070b14;
+
+  --w1-rule-strong: #2a3756;
+  --w1-rule: #1b2640;
+  --w1-rule-faint: #121a2e;
+  --w1-focus: #7fb2ff;
+
+  --w1-crt-scanline-a: 0;
+  --w1-crt-grille-a: 0;
+  --w1-crt-vignette-a: 0.3;
+}

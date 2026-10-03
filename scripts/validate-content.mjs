@@ -81,7 +81,9 @@ for (const file of rosterFiles) {
     hasErrors = true;
     console.error(`✗ ${relPath}`);
     for (const id of missing) {
-      console.error(`  caseIds: "${id}" has no matching case file in content/cases/${result.data.world}/`);
+      console.error(
+        `  caseIds: "${id}" has no matching case file in content/cases/${result.data.world}/`,
+      );
     }
   } else {
     console.log(`✓ ${relPath}`);

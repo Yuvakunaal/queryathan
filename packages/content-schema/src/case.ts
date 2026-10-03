@@ -10,6 +10,15 @@ export type Dtype = z.infer<typeof dtypeSchema>;
 export const casingSchema = z.enum(["lower", "upper", "title"]);
 export type Casing = z.infer<typeof casingSchema>;
 
+function isValidRegex(pattern: string): boolean {
+  try {
+    new RegExp(pattern);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export const predicateSchema = z.discriminatedUnion("predicate", [
   z.object({ predicate: z.literal("no_nulls"), column: z.string() }),
   z.object({
@@ -33,6 +42,14 @@ export const predicateSchema = z.discriminatedUnion("predicate", [
     min: z.number(),
     max: z.number(),
   }),
+  /** Every non-null cell must match `pattern` (JavaScript RegExp syntax; write ^...$ for a full match). */
+  z.object({
+    predicate: z.literal("matches_pattern"),
+    column: z.string(),
+    pattern: z.string().refine(isValidRegex, "pattern is not a valid regular expression"),
+  }),
+  /** No cell may contain UTF-8-read-as-Latin-1 garbage such as "Ã©" or "â€™". */
+  z.object({ predicate: z.literal("no_mojibake"), column: z.string() }),
 ]);
 export type Predicate = z.infer<typeof predicateSchema>;
 

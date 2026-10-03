@@ -5,6 +5,14 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added (Phase 4: World 2, The Vault)
+
+- Three cases: PIN_TUMBLER (phone formats), LATIN_LOCK (mojibake), THE_WARDEN (final boss stacking both plus emails). Each was solved end to end in both Python and SQL against the real engines.
+- New predicates `matches_pattern` and `no_mojibake`, new affliction kinds `pattern` and `encoding`.
+- SQL engine gains `REGEXP`, `REGEXP_EXTRACT` and `REGEXP_REPLACE`.
+- World select hub as the landing screen; per-world themes (navy and brass for The Vault); `BossFightScreen` and `WorldMapScreen` now take a world.
+- First-time tutorial overlay.
+
 ### Added
 
 - Victory panel on boss clear (runs, cells cleaned, hints used, techniques) with "Back to bosses" and "Keep exploring".

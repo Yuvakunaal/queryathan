@@ -80,7 +80,7 @@ shipped World 1 tutorial case as a working reference
   for why. If the predicate you need doesn't exist yet, propose adding it to
   the schema in your PR description rather than working around it.
 
-### Available predicates (World 1)
+### Available predicates (Worlds 1 and 2)
 
 | Predicate           | Shape                                                             | Renders as                                                                                                                                                         |
 | ------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -90,6 +90,17 @@ shipped World 1 tutorial case as a working reference
 | `consistent_casing` | `{ column, case: "lower"\|"upper"\|"title" }`                     | teal `_` badge (same visual kind as whitespace — the master plan groups casing/whitespace as one content area)                                                     |
 | `valid_dtype`       | `{ column, dtype: "int"\|"float"\|"bool"\|"string"\|"datetime" }` | yellow `#` badge + dotted underline (`datetime` target renders as pink `@` instead — this is how "bad dates" content is authored, not a separate predicate)        |
 | `no_outliers`       | `{ column, min, max }`                                            | orange `^` badge, 135° hatch, inclusive bounds                                                                                                                     |
+| `matches_pattern`   | `{ column, pattern }`                                             | green `~` badge. Every non-null cell must match the JavaScript regex `pattern` (write `^...$` for a full match). Numbers are compared as strings.                  |
+| `no_mojibake`       | `{ column }`                                                      | red `?` badge. Flags UTF-8 text decoded as Latin-1, such as `JosÃ©` or `itâ€™s`.                                                                                   |
+
+### Regex in SQL (World 2)
+
+SQLite has no regex functions, so the SQL engine registers three, using
+JavaScript regex syntax: `REGEXP(pattern, text)` (also usable as
+`text REGEXP pattern`), `REGEXP_EXTRACT(text, pattern)` (first capture
+group, else the whole match) and `REGEXP_REPLACE(text, pattern, replacement)`
+(global; `$1` group references). Say so in the briefing of any case that
+needs them, since they are not standard SQLite.
 
 ### Writing content that's fair on both engines
 

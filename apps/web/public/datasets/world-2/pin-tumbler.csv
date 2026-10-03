@@ -1,0 +1,151 @@
+contact_id,name,phone,city
+1,Núria Rossi,(512) 555-0154,Montréal
+2,Sofia Kowalski," 212-555-0133 ",Leeds
+3,Noah Rossi," 212-555-0165 ",Austin
+4,Bjørn Silva,617.555.0166,Denver
+5,Amélie Haddad,1-415-555-0199,Montréal
+6,Mateo Lindqvist,212.555.0138,Montréal
+7,José Lindqvist,+1 617 555 0154,Montréal
+8,Amélie Kowalski,617-555-0180,Denver
+9,Núria Rossi,4155550160,Austin
+10,Sofia Rossi,5125550150,Montréal
+11,Noah Müller," 512-555-0167 ",Zürich
+12,Mateo Lindqvist," 312-555-0142 ",Göteborg
+13,Amélie Silva,1-206-555-0180,Zürich
+14,Omar Okafor,212.555.0149,Reykjavík
+15,Lucía Ibáñez,1-617-555-0105,Leeds
+16,Lucía Silva,(212) 555-0122,Leeds
+17,Núria Kowalski,312-555-0143,Montréal
+18,Omar Kowalski,617.555.0163,Köln
+19,Renée Fernández," 617-555-0192 ",Málaga
+20,Sofia Silva,(212) 555-0135,São Paulo
+21,José Rossi,(617) 555-0195,Austin
+22,Omar O'Brien,2065550191,Denver
+23,Omar Çelik,+1 303 555 0159,Göteborg
+24,Chen Ibáñez,212.555.0152,Köln
+25,Priya García,212-555-0190,Köln
+26,Sofia Kowalski,(415) 555-0151,Köln
+27,Aiko Nguyen,212.555.0173,Montréal
+28,Amélie Rossi,(512) 555-0124,Málaga
+29,Lucía Ibáñez,1-617-555-0148,Montréal
+30,Sofia Silva," 512-555-0193 ",Göteborg
+31,Priya Fernández,617-555-0136,Leeds
+32,Chen Okafor,+1 303 555 0101,Málaga
+33,Noah García,1-303-555-0190,Denver
+34,Zoë Çelik,206.555.0183,Denver
+35,Noah Ibáñez,+1 212 555 0183,Málaga
+36,Zoë Lindqvist,1-212-555-0164,Málaga
+37,Núria Silva,(617) 555-0188,São Paulo
+38,Omar Lindqvist," 512-555-0108 ",São Paulo
+39,Lucía Dubois,617-555-0117,Montréal
+40,Mateo Kowalski,2125550162,Leeds
+41,Aiko Kowalski,6175550189,Reykjavík
+42,José Nguyen,2125550159,Málaga
+43,Omar Lindqvist,+1 303 555 0124,São Paulo
+44,Søren Rossi,+1 212 555 0107,São Paulo
+45,Núria Kowalski," 303-555-0117 ",Göteborg
+46,Renée Dubois,1-415-555-0197,Reykjavík
+47,Bjørn Silva,+1 212 555 0106,São Paulo
+48,Zoë Nguyen," 212-555-0163 ",Köln
+49,Bjørn Fernández," 303-555-0156 ",São Paulo
+50,Sofia Silva,(212) 555-0148,Göteborg
+51,Amélie Çelik,1-617-555-0145,Göteborg
+52,Mateo Silva," 303-555-0116 ",Leeds
+53,Zoë Ibáñez," 303-555-0154 ",São Paulo
+54,Zoë Müller,+1 312 555 0128,São Paulo
+55,Zoë Okafor,+1 512 555 0184,Montréal
+56,Élodie Silva,1-303-555-0182,Zürich
+57,Priya Müller,2125550138,Reykjavík
+58,Élodie Ibáñez,1-303-555-0110,Málaga
+59,Noah Silva," 303-555-0133 ",Zürich
+60,Bjørn García,(512) 555-0183,Leeds
+61,Mateo Haddad,(312) 555-0144,São Paulo
+62,Sofia Kowalski,1-512-555-0113,Denver
+63,Sofia Silva,206.555.0116,São Paulo
+64,Priya Dubois,+1 312 555 0123,Reykjavík
+65,Omar Lindqvist,212-555-0171,São Paulo
+66,Omar García,+1 212 555 0191,Göteborg
+67,Bjørn Haddad,5125550123,Reykjavík
+68,Zoë Lindqvist,1-206-555-0137,Köln
+69,Chen Dubois,303.555.0166,Austin
+70,Núria García,312-555-0199,Zürich
+71,Amélie O'Brien,303.555.0157,Göteborg
+72,Mateo García,303-555-0132,Montréal
+73,Søren Müller,3125550113,Köln
+74,Renée Haddad,617-555-0121,Köln
+75,Mateo Dubois,(206) 555-0151,Leeds
+76,Bjørn O'Brien,303-555-0132,Göteborg
+77,Amélie Nguyen,1-312-555-0193,Málaga
+78,Noah Okafor,6175550198,Montréal
+79,Omar Ibáñez,+1 312 555 0163,Zürich
+80,Lucía Kowalski,303-555-0175,Göteborg
+81,Lucía Fernández,(206) 555-0173,Reykjavík
+82,Lucía Müller,5125550161,Zürich
+83,Bjørn Ibáñez,5125550120,Reykjavík
+84,Chen García,1-512-555-0198,São Paulo
+85,Renée Fernández," 206-555-0149 ",Reykjavík
+86,Sofia Ibáñez,1-303-555-0103,Austin
+87,Aiko García,212-555-0152,Zürich
+88,Élodie Fernández," 312-555-0116 ",Leeds
+89,Omar Müller,+1 617 555 0111,Austin
+90,Noah Rossi,+1 212 555 0150,Montréal
+91,Sofia Lindqvist,415.555.0157,Austin
+92,Aiko Dubois,4155550194,Denver
+93,Omar Rossi," 415-555-0150 ",Zürich
+94,Renée Fernández,(512) 555-0190,Montréal
+95,Noah Okafor,415-555-0120,Montréal
+96,Élodie Nguyen,3125550126,Reykjavík
+97,Priya Okafor," 212-555-0197 ",Leeds
+98,Élodie O'Brien," 303-555-0184 ",São Paulo
+99,Mateo Lindqvist,206-555-0155,Austin
+100,Renée García,2125550109,Málaga
+101,Núria Dubois,6175550186,Montréal
+102,Chen Kowalski,1-617-555-0154,Göteborg
+103,Søren O'Brien," 512-555-0124 ",Reykjavík
+104,Núria Ibáñez,+1 617 555 0183,Reykjavík
+105,Chen Fernández,206-555-0143,Leeds
+106,Aiko Nguyen,415-555-0112,Montréal
+107,Priya Rossi," 212-555-0134 ",Zürich
+108,Sofia Müller,303-555-0155,Köln
+109,Renée Haddad,3125550169,Denver
+110,Lucía Fernández,(617) 555-0129,Austin
+111,Søren García,+1 303 555 0162,São Paulo
+112,Zoë Lindqvist,415.555.0148,Montréal
+113,Chen Okafor,+1 415 555 0109,Montréal
+114,Noah Dubois,(303) 555-0161,Denver
+115,Omar García,3035550170,Reykjavík
+116,Zoë Nguyen,2125550172,Denver
+117,Omar Haddad,3035550141,Montréal
+118,Søren Okafor,303.555.0162,Zürich
+119,Renée Ibáñez," 312-555-0100 ",Reykjavík
+120,Mateo Haddad,212.555.0199,São Paulo
+121,Mateo Lindqvist," 512-555-0169 ",São Paulo
+122,Bjørn García,+1 206 555 0104,Köln
+123,Sofia Kowalski,303-555-0154,Austin
+124,Noah Okafor,(617) 555-0122,Göteborg
+125,Bjørn O'Brien,+1 303 555 0124,Leeds
+126,Sofia Ibáñez,415-555-0106,São Paulo
+127,Omar Okafor,(212) 555-0101,Málaga
+128,Amélie Okafor,415.555.0186,Zürich
+129,Omar Lindqvist,(617) 555-0117,São Paulo
+130,Søren Çelik,(415) 555-0169,Austin
+131,Amélie Okafor,212-555-0135,Zürich
+132,Chen Müller,206.555.0113,Montréal
+133,Noah Okafor," 212-555-0119 ",Denver
+134,Sofia Fernández," 512-555-0149 ",Málaga
+135,Amélie Kowalski,212-555-0188,São Paulo
+136,Aiko O'Brien,(415) 555-0181,Montréal
+137,Chen Müller," 303-555-0180 ",Göteborg
+138,Chen Haddad,(312) 555-0140,Leeds
+139,Núria Rossi,512.555.0117,Göteborg
+140,Omar Dubois,1-415-555-0140,Austin
+141,Lucía Dubois,+1 312 555 0196,Köln
+142,Noah Dubois,512-555-0189,Málaga
+143,Sofia Rossi,303.555.0192,Leeds
+144,Bjørn García,617-555-0131,Köln
+145,Noah Haddad,312-555-0186,São Paulo
+146,Aiko Dubois,1-212-555-0144,Montréal
+147,Noah Silva,(212) 555-0152,Denver
+148,José Haddad,1-206-555-0172,Málaga
+149,Sofia Dubois,+1 303 555 0105,Leeds
+150,Søren Çelik,212-555-0168,Leeds

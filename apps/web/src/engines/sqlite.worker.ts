@@ -39,6 +39,54 @@ function quoteIdentifier(name: string): string {
   return `"${name.replace(/"/g, '""')}"`;
 }
 
+function isScalar(value: unknown): value is string | number | bigint | boolean {
+  return (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "bigint" ||
+    typeof value === "boolean"
+  );
+}
+
+const regexCache = new Map<string, RegExp>();
+function compile(pattern: string): RegExp {
+  let regex = regexCache.get(pattern);
+  if (!regex) {
+    regex = new RegExp(pattern);
+    regexCache.set(pattern, regex);
+  }
+  return regex;
+}
+
+/**
+ * SQLite parses `X REGEXP Y` but ships no implementation. These make World 2's
+ * pattern work possible in SQL: `REGEXP` (pattern, text), plus two helpers
+ * SQLite also lacks, `REGEXP_EXTRACT(text, pattern)` (first capture group, else
+ * the whole match) and `REGEXP_REPLACE(text, pattern, replacement)`. Patterns
+ * use JavaScript regex syntax.
+ */
+function registerRegexFunctions(database: Database): void {
+  database.create_function("regexp", (pattern: unknown, text: unknown) => {
+    if (typeof pattern !== "string" || !isScalar(text)) return null;
+    return compile(pattern).test(String(text)) ? 1 : 0;
+  });
+  database.create_function("regexp_extract", (text: unknown, pattern: unknown) => {
+    if (typeof pattern !== "string" || !isScalar(text)) return null;
+    const match = compile(pattern).exec(String(text));
+    return match ? (match[1] ?? match[0]) : null;
+  });
+  database.create_function(
+    "regexp_replace",
+    (text: unknown, pattern: unknown, replacement: unknown) => {
+      if (typeof pattern !== "string" || !isScalar(text)) return null;
+      return String(text).replace(
+        new RegExp(pattern, "g"),
+        isScalar(replacement) ? String(replacement) : "",
+      );
+    },
+  );
+}
+
 async function loadCsvIntoTable(datasetUrl: string): Promise<void> {
   const SQL = await sqlJsReady;
   const response = await fetch(datasetUrl);
@@ -53,6 +101,7 @@ async function loadCsvIntoTable(datasetUrl: string): Promise<void> {
 
   db?.close();
   db = new SQL.Database();
+  registerRegexFunctions(db);
 
   const createColumns = columns.map((column) => quoteIdentifier(column)).join(", ");
   db.run(`CREATE TABLE ${TABLE_NAME} (${createColumns});`);

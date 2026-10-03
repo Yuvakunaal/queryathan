@@ -10,6 +10,8 @@ describe("BADGE_GLYPH", () => {
       dtype: "#",
       outlier: "^",
       date: "@",
+      pattern: "~",
+      encoding: "?",
     });
   });
 });

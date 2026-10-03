@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import styles from "./VictoryPanel.module.css";
 
 export interface VictoryPanelProps {
+  kicker: string;
   bossName: string;
   runCount: number;
   cellsCleared: number;
@@ -12,6 +13,7 @@ export interface VictoryPanelProps {
 }
 
 export default function VictoryPanel({
+  kicker,
   bossName,
   runCount,
   cellsCleared,
@@ -37,7 +39,7 @@ export default function VictoryPanel({
           if (event.key === "Escape") onContinue();
         }}
       >
-        <p className={styles.kicker}>Boss cleared</p>
+        <p className={styles.kicker}>{kicker}</p>
         <h2 id="victory-title" className={styles.title}>
           {bossName}
         </h2>
@@ -63,7 +65,7 @@ export default function VictoryPanel({
             className={styles.primary}
             onClick={onExitToRoster}
           >
-            Back to bosses
+            Back to roster
           </button>
           <button type="button" className={styles.secondary} onClick={onContinue}>
             Keep exploring

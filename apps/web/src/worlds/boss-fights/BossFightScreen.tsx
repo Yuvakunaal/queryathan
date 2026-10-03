@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { RpcRunError } from "@dcq/engine-adapters";
 import type { ResultGrid, WorkerEngineClient } from "@dcq/engine-adapters";
-import type { Case } from "@dcq/content-schema";
+import type { Case, WorldId } from "@dcq/content-schema";
 import { PyodideClient } from "../../engines/pyodide-client";
 import { SqliteClient } from "../../engines/sqlite-client";
 import { loadCase } from "../../lib/load-case";
@@ -41,6 +41,7 @@ import RunBar from "./RunBar";
 import DiffConsole from "./DiffConsole";
 import type { ConsoleEntry } from "./DiffConsole";
 import A11yControls from "./A11yControls";
+import { worldMeta } from "../../lib/world-meta";
 import VictoryPanel from "./VictoryPanel";
 import TutorialOverlay from "./TutorialOverlay";
 import { hasSeenTutorial, markTutorialSeen } from "../../lib/tutorial";
@@ -53,6 +54,7 @@ interface PendingReconciliation {
 }
 
 export interface BossFightScreenProps {
+  world: WorldId;
   casePath: string;
   rankLabel: string;
   a11y: A11yState;
@@ -62,6 +64,7 @@ export interface BossFightScreenProps {
 }
 
 export default function BossFightScreen({
+  world,
   casePath,
   rankLabel,
   a11y,
@@ -342,7 +345,7 @@ export default function BossFightScreen({
 
   if (loadError) {
     return (
-      <div className={styles.fightRoot} data-world="boss-fights">
+      <div className={styles.fightRoot} data-world={world}>
         <div className={styles.loadingScreen} role="alert">
           <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
           <span className={classNames(styles.loadingLine, styles.loadingError)}>
@@ -356,7 +359,7 @@ export default function BossFightScreen({
 
   if (phase === "loading" || !caseData) {
     return (
-      <div className={styles.fightRoot} data-world="boss-fights">
+      <div className={styles.fightRoot} data-world={world}>
         <div className={styles.loadingScreen} role="status" aria-live="polite">
           <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
           <span className={styles.loadingLine}>loading case data .......</span>
@@ -367,7 +370,7 @@ export default function BossFightScreen({
 
   if (phase === "engine-select") {
     return (
-      <div className={styles.fightRoot} data-world="boss-fights">
+      <div className={styles.fightRoot} data-world={world}>
         <EngineSelect
           bossName={caseData.strings.title}
           onSelect={(choice) => {
@@ -380,7 +383,7 @@ export default function BossFightScreen({
 
   if (phase === "spawning" || !grid) {
     return (
-      <div className={styles.fightRoot} data-world="boss-fights">
+      <div className={styles.fightRoot} data-world={world}>
         <div className={styles.loadingScreen} role="status" aria-live="polite">
           <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
           <span className={styles.loadingLine}>
@@ -393,7 +396,7 @@ export default function BossFightScreen({
 
   if (phase === "boot") {
     return (
-      <div className={styles.fightRoot} data-world="boss-fights">
+      <div className={styles.fightRoot} data-world={world}>
         <BootSequence
           bossName={caseData.strings.title}
           datasetFileName={caseData.datasetPath.split("/").pop() ?? "dataset.csv"}
@@ -418,13 +421,14 @@ export default function BossFightScreen({
   );
 
   return (
-    <div className={styles.fightRoot} data-world="boss-fights" ref={fightRootRef}>
+    <div className={styles.fightRoot} data-world={world} ref={fightRootRef}>
       <div className={styles.statusRail} ref={statusRailRef}>
         <span>
           <button type="button" className={styles.rosterLink} onClick={onExitToRoster}>
             &lt; ROSTER
           </button>{" "}
-          BOSS-FIGHTS // <span className={bossNameStyles}>{caseData.strings.title}</span>
+          {worldMeta(world).statusRailName} //{" "}
+          <span className={bossNameStyles}>{caseData.strings.title}</span>
         </span>
         <div className={styles.a11yRow}>
           <span className={styles.rankBadge}>{rankLabel}</span>
@@ -527,6 +531,7 @@ export default function BossFightScreen({
       ) : null}
       {showVictory ? (
         <VictoryPanel
+          kicker={worldMeta(world).clearedLabel}
           bossName={caseData.strings.title}
           runCount={runCount}
           cellsCleared={initialAfflictionRef.current ?? 0}

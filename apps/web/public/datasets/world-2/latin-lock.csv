@@ -1,0 +1,161 @@
+customer_id,customer,city,comment
+1,Lucía Rossi,Montréal,Résumé attached
+2,Omar Haddad,Zürich,Résumé attached
+3,Søren Çelik,Austin,No answer
+4,Sofia Silva,Denver,Résumé attached
+5,Chen Silva,Austin,Café order
+6,Bjørn García,Málaga,Needs invoice copy
+7,LucÃ­a IbÃ¡Ã±ez,Austin,CafÃ© order
+8,BjÃ¸rn Okafor,Köln,Prefers email
+9,ZoÃ« GarcÃ­a,Reykjavík,Prefers email
+10,Zoë García,Austin,Called back
+11,Aiko MÃ¼ller,Köln,Résumé attached
+12,Renée Kowalski,Göteborg,Needs invoice copy
+13,José Nguyen,MÃ¡laga,Café order
+14,Ã‰lodie Lindqvist,ReykjavÃ­k,Left voicemail
+15,Priya Silva,MÃ¡laga,Called back
+16,Zoë O'Brien,ReykjavÃ­k,Needs invoice copy
+17,Núria O'Brien,MÃ¡laga,CafÃ© order
+18,Søren Ibáñez,Denver,No answer
+19,Núria Kowalski,GÃ¶teborg,Café order
+20,Søren Dubois,Denver,Called back
+21,Élodie Dubois,Leeds,Left voicemail
+22,Aiko IbÃ¡Ã±ez,Denver,Café order
+23,Søren Lindqvist,Göteborg,CafÃ© order
+24,Sofia Lindqvist,Zürich,Café order
+25,Sofia Lindqvist,ZÃ¼rich,Prefers email
+26,Mateo Çelik,Málaga,No answer
+27,Chen O'Brien,Austin,Prefers email
+28,Chen Okafor,Göteborg,Needs invoice copy
+29,Renée Rossi,ZÃ¼rich,Prefers email
+30,ZoÃ« O'Brien,Málaga,Needs invoice copy
+31,Omar GarcÃ­a,São Paulo,Left voicemail
+32,Chen Okafor,Köln,Left voicemail
+33,Priya Nguyen,Málaga,Called back
+34,Mateo Ibáñez,Montréal,No answer
+35,Priya Silva,Göteborg,Left voicemail
+36,Élodie Müller,ZÃ¼rich,Résumé attached
+37,BjÃ¸rn Okafor,Zürich,Left voicemail
+38,RenÃ©e GarcÃ­a,Köln,No answer
+39,Ã‰lodie GarcÃ­a,Montréal,Café order
+40,Lucía García,Zürich,Left voicemail
+41,Noah Haddad,Málaga,Résumé attached
+42,Aiko Rossi,Austin,Called back
+43,Núria Nguyen,MÃ¡laga,Prefers email
+44,Bjørn O'Brien,Denver,Called back
+45,ZoÃ« Ã‡elik,Denver,Called back
+46,AmÃ©lie Okafor,Montréal,Needs invoice copy
+47,Priya Haddad,Reykjavík,Left voicemail
+48,LucÃ­a O'Brien,Zürich,Left voicemail
+49,Amélie Rossi,Austin,Left voicemail
+50,JosÃ© Kowalski,Köln,Called back
+51,ZoÃ« IbÃ¡Ã±ez,Zürich,Needs invoice copy
+52,SÃ¸ren IbÃ¡Ã±ez,Leeds,Résumé attached
+53,AmÃ©lie O'Brien,ReykjavÃ­k,Prefers email
+54,Aiko Ibáñez,Reykjavík,CafÃ© order
+55,Noah Kowalski,Köln,Prefers email
+56,Bjørn Çelik,Denver,Prefers email
+57,Aiko García,Köln,Needs invoice copy
+58,Sofia Nguyen,Austin,RÃ©sumÃ© attached
+59,Aiko Ã‡elik,KÃ¶ln,Prefers email
+60,LucÃ­a Haddad,Denver,Prefers email
+61,Omar Rossi,Köln,Called back
+62,Chen Ibáñez,ZÃ¼rich,No answer
+63,Sofia GarcÃ­a,São Paulo,Prefers email
+64,Noah Haddad,Reykjavík,No answer
+65,Chen Silva,ZÃ¼rich,Résumé attached
+66,Núria O'Brien,Montréal,Café order
+67,Priya Rossi,Montréal,Left voicemail
+68,Sofia Lindqvist,São Paulo,Left voicemail
+69,Søren Haddad,KÃ¶ln,Needs invoice copy
+70,Aiko Nguyen,Málaga,Prefers email
+71,Priya Ibáñez,MontrÃ©al,Called back
+72,JosÃ© Dubois,ZÃ¼rich,No answer
+73,Aiko Haddad,MÃ¡laga,Called back
+74,Priya Rossi,Göteborg,No answer
+75,RenÃ©e Okafor,Denver,Needs invoice copy
+76,Amélie O'Brien,Málaga,Résumé attached
+77,Omar Nguyen,São Paulo,Prefers email
+78,Lucía Ibáñez,Zürich,Prefers email
+79,Sofia FernÃ¡ndez,Reykjavík,No answer
+80,AmÃ©lie O'Brien,Montréal,Prefers email
+81,Sofia Ibáñez,São Paulo,Left voicemail
+82,AmÃ©lie IbÃ¡Ã±ez,Reykjavík,Called back
+83,Aiko MÃ¼ller,Málaga,Called back
+84,Mateo MÃ¼ller,Leeds,Prefers email
+85,Noah Lindqvist,Zürich,Résumé attached
+86,ZoÃ« Lindqvist,Leeds,Prefers email
+87,Sofia García,GÃ¶teborg,Called back
+88,Lucía Okafor,São Paulo,Called back
+89,Zoë Dubois,Leeds,Called back
+90,Élodie Dubois,ZÃ¼rich,No answer
+91,Zoë García,Göteborg,Prefers email
+92,NÃºria GarcÃ­a,Zürich,Needs invoice copy
+93,Bjørn Haddad,Reykjavík,Needs invoice copy
+94,Mateo Rossi,Denver,Needs invoice copy
+95,BjÃ¸rn O'Brien,Denver,Needs invoice copy
+96,Élodie Lindqvist,Denver,Résumé attached
+97,Amélie Silva,São Paulo,No answer
+98,Søren Fernández,São Paulo,Résumé attached
+99,Zoë Müller,Denver,Called back
+100,Noah Dubois,MÃ¡laga,Needs invoice copy
+101,SÃ¸ren Rossi,ReykjavÃ­k,Needs invoice copy
+102,ZoÃ« Kowalski,ReykjavÃ­k,Called back
+103,Chen GarcÃ­a,Austin,Résumé attached
+104,Zoë Lindqvist,Denver,No answer
+105,Élodie Dubois,Montréal,No answer
+106,José García,GÃ¶teborg,Prefers email
+107,Lucía Lindqvist,ZÃ¼rich,RÃ©sumÃ© attached
+108,Zoë Dubois,MÃ¡laga,Left voicemail
+109,Lucía Ibáñez,São Paulo,Needs invoice copy
+110,Søren Okafor,GÃ¶teborg,Résumé attached
+111,Sofia Okafor,KÃ¶ln,Prefers email
+112,Mateo Kowalski,Austin,Prefers email
+113,Priya O'Brien,Montréal,CafÃ© order
+114,Aiko O'Brien,Reykjavík,Called back
+115,Lucía Kowalski,Leeds,Needs invoice copy
+116,Søren Nguyen,MÃ¡laga,Résumé attached
+117,JosÃ© FernÃ¡ndez,Köln,Called back
+118,NÃºria Ã‡elik,MÃ¡laga,Needs invoice copy
+119,Chen Dubois,Leeds,Café order
+120,Noah Fernández,Montréal,Left voicemail
+121,Aiko Kowalski,Zürich,Needs invoice copy
+122,Noah Kowalski,ZÃ¼rich,Résumé attached
+123,Sofia Okafor,Austin,Called back
+124,Aiko García,ZÃ¼rich,Left voicemail
+125,Aiko Dubois,Reykjavík,Résumé attached
+126,Omar García,ReykjavÃ­k,Café order
+127,Amélie O'Brien,Köln,Prefers email
+128,Ã‰lodie MÃ¼ller,Málaga,Needs invoice copy
+129,AmÃ©lie Silva,Leeds,Left voicemail
+130,Chen Lindqvist,GÃ¶teborg,No answer
+131,Søren Rossi,Denver,Called back
+132,ZoÃ« Haddad,Denver,Résumé attached
+133,Chen Müller,MÃ¡laga,Prefers email
+134,Priya Rossi,MÃ¡laga,No answer
+135,Renée Okafor,Austin,Résumé attached
+136,Omar Silva,MÃ¡laga,Café order
+137,NÃºria MÃ¼ller,Leeds,Called back
+138,Amélie Rossi,KÃ¶ln,Called back
+139,Núria Müller,ZÃ¼rich,Left voicemail
+140,Sofia Okafor,Köln,RÃ©sumÃ© attached
+141,BjÃ¸rn Ã‡elik,São Paulo,Résumé attached
+142,Mateo Nguyen,Málaga,Résumé attached
+143,José Müller,São Paulo,Prefers email
+144,Aiko FernÃ¡ndez,São Paulo,Called back
+145,Sofia Çelik,Málaga,Prefers email
+146,Núria Dubois,Köln,Needs invoice copy
+147,Sofia Silva,Málaga,Prefers email
+148,Aiko Haddad,GÃ¶teborg,Left voicemail
+149,Priya Müller,Málaga,Résumé attached
+150,Aiko Silva,Montréal,Called back
+151,Priya Fernández,Austin,Called back
+152,AmÃ©lie Ã‡elik,Reykjavík,Called back
+153,JosÃ© MÃ¼ller,Leeds,Left voicemail
+154,Mateo Lindqvist,Denver,Prefers email
+155,Priya MÃ¼ller,ZÃ¼rich,No answer
+156,Chen Rossi,Málaga,Café order
+157,BjÃ¸rn Kowalski,São Paulo,Prefers email
+158,José Haddad,GÃ¶teborg,Called back
+159,Renée Dubois,KÃ¶ln,Prefers email
+160,Zoë Dubois,GÃ¶teborg,Résumé attached

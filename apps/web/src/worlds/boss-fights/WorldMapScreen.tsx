@@ -14,6 +14,7 @@ import { predicateKindOrder } from "../../lib/affliction-cells";
 import { BADGE_GLYPH } from "./afflictionPresentation";
 import { renderSigil } from "./sigil";
 import { classNames } from "../../lib/classNames";
+import { worldMeta } from "../../lib/world-meta";
 import A11yControls from "./A11yControls";
 import styles from "./WorldMapScreen.module.css";
 
@@ -22,6 +23,7 @@ export interface WorldMapScreenProps {
   saveData: SaveData;
   a11y: A11yState;
   onA11yChange: (next: A11yState) => void;
+  onBack: () => void;
   onSelectCase: (casePath: string) => void;
   onImportSave: (save: SaveData) => void;
 }
@@ -35,9 +37,11 @@ export default function WorldMapScreen({
   saveData,
   a11y,
   onA11yChange,
+  onBack,
   onSelectCase,
   onImportSave,
 }: WorldMapScreenProps) {
+  const meta = worldMeta(world);
   const [cases, setCases] = useState<Case[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
@@ -134,26 +138,25 @@ export default function WorldMapScreen({
   const clearedCount = clearedIds.size;
 
   return (
-    <div className={styles.roster} data-world="boss-fights">
+    <div className={styles.roster} data-world={world}>
       <div className={styles.shell}>
         <header className={styles.topbar}>
           <span className={styles.brand}>
             <span className={styles.brandMark} aria-hidden="true">
               &gt;_
             </span>
-            Data Cleaning Quest
+            <button type="button" className={styles.backLink} onClick={onBack}>
+              Data Cleaning Quest
+            </button>
           </span>
           <A11yControls a11y={a11y} onChange={onA11yChange} />
         </header>
 
         <section className={styles.hero}>
           <div>
-            <p className={styles.worldTag}>World 1</p>
-            <h1 className={styles.rosterHeading}>Boss Fights</h1>
-            <p className={styles.lede}>
-              Every boss is a messy table. Write real pandas or SQL, run it in your
-              browser, and watch the afflicted cells clear.
-            </p>
+            <p className={styles.worldTag}>World {meta.number}</p>
+            <h1 className={styles.rosterHeading}>{meta.name}</h1>
+            <p className={styles.lede}>{meta.lede}</p>
           </div>
           <div className={styles.rankPanel}>
             <div className={styles.rankTop}>
@@ -190,7 +193,7 @@ export default function WorldMapScreen({
 
         {!cases && !loadError ? (
           <div className={styles.loading} role="status" aria-live="polite">
-            Loading bosses...
+            Loading...
           </div>
         ) : null}
 
@@ -227,10 +230,10 @@ export default function WorldMapScreen({
                   </ul>
                   <span className={styles.cardCta} aria-hidden="true">
                     {status === "cleared"
-                      ? "Fight again"
+                      ? "Play again"
                       : isLocked
-                        ? "Clear the previous boss"
-                        : "Start fight"}
+                        ? `Clear the previous ${meta.caseNoun}`
+                        : meta.startLabel}
                   </span>
                 </>
               );
@@ -271,7 +274,7 @@ export default function WorldMapScreen({
         <footer className={styles.footer}>
           <span className={styles.footerNote}>
             {cases
-              ? `${String(clearedCount)} of ${String(cases.length)} bosses cleared. `
+              ? `${String(clearedCount)} of ${String(cases.length)} ${meta.caseNoun}s cleared. `
               : ""}
             Progress is saved in this browser. Export it to move devices.
           </span>
