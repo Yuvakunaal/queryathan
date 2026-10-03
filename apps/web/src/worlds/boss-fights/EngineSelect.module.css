@@ -1,0 +1,112 @@
+.select {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  justify-content: center;
+  padding: 10vh 8vw 0;
+  background: var(--w1-bg-void);
+}
+
+.eyebrow {
+  font: 400 var(--w1-fs-boot) / 20px var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+
+.prompt {
+  font: 600 var(--w1-fs-title) / 1.15 var(--w1-font-display);
+  letter-spacing: 0.02em;
+  color: var(--w1-text-primary);
+  text-transform: uppercase;
+  max-width: 44ch;
+}
+
+.bossName {
+  color: var(--w1-status-null);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(240px, 360px));
+  gap: 20px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+  padding: 20px;
+  background: var(--w1-bg-panel);
+  border: 1px solid var(--w1-rule-strong);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.tile:hover {
+  transform: translateY(-2px);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}
+
+.tile_python:hover,
+.tile_python:focus-visible {
+  border-color: var(--w1-green-500);
+  background: var(--w1-bg-panel-2);
+}
+
+.tile_sql:hover,
+.tile_sql:focus-visible {
+  border-color: var(--w1-status-dup);
+  background: var(--w1-bg-panel-2);
+}
+
+.tileLabel {
+  font: 700 20px / 1 var(--w1-font-display);
+  letter-spacing: 0.08em;
+  color: var(--w1-text-primary);
+}
+
+.tile_python .tileLabel {
+  color: var(--w1-green-500);
+}
+.tile_sql .tileLabel {
+  color: var(--w1-status-dup);
+}
+
+.tileRuntime {
+  font: 400 var(--w1-fs-hudlabel) / 1.4 var(--w1-font-text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--w1-text-dim);
+}
+
+.tileTagline {
+  font: 400 var(--w1-fs-brief) / 1.4 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+
+.tileHint {
+  margin-top: 4px;
+  font: 400 var(--w1-fs-gutter) / 1.4 var(--w1-font-text);
+  color: var(--w1-text-dim);
+}
+
+.footnote {
+  font: 400 var(--w1-fs-gutter) / 1.4 var(--w1-font-text);
+  color: var(--w1-text-dim);
+  max-width: 50ch;
+}
+
+@media (max-width: 719px) {
+  .tiles {
+    grid-template-columns: 1fr;
+  }
+}

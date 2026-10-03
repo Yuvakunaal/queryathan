@@ -5,6 +5,93 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## Phase 3 — Dual-engine World 1 (SQL) — 2026-08-09
+
+Every World 1 boss is now playable in SQL (SQLite via sql.js) as well as
+Python (pandas via Pyodide) — the same case content, the same win
+conditions, a real second in-browser engine rather than a simulated one.
+
+### Added
+
+- **sql.js/SQLite engine**: `apps/web/src/engines/sqlite.worker.ts`
+  implements the same worker protocol as the Pyodide worker (`init-case`,
+  `run-code`, `cancel`) against a real in-memory SQLite database. The seed
+  CSV is loaded into a table literally named `data`; row identity for
+  diffing uses SQLite's own `rowid` (stable across `UPDATE`/`DELETE`, with
+  no idiomatic-SQL equivalent of `.reset_index()` that could defeat it,
+  unlike pandas). sql.js's WASM binary is self-hosted automatically via
+  Vite's `?url` asset resolution — no manual fetch/checksum script needed,
+  unlike Pyodide's `scripts/fetch-pyodide.mjs` (it ships as one importable
+  npm package, not a multi-hundred-MB distribution).
+- **CSV-to-table loading + dtype inference for SQL**
+  (`apps/web/src/engines/csv.ts`, `sql-dtypes.ts`): a hand-rolled
+  RFC4180-ish CSV parser plus pandas-like per-column type inference (a
+  column is only numeric if _every_ non-empty value in it parses as one —
+  matching `pandas.read_csv`'s actual behavior), and dtype inference from
+  SQLite's manifest-typed return values, producing the exact same dtype
+  vocabulary (`int64`/`float64`/`object`/`datetime64[ns]`) the Pyodide
+  worker reports, so `valid_dtype` and every downstream rendering path stay
+  engine-agnostic.
+- **`WorkerEngineClient` base class** (`packages/engine-adapters/src/client.ts`):
+  extracted from the original single-engine `PyodideClient` once a second,
+  near-identical `SqliteClient` would otherwise have duplicated its
+  spawn/ready/run/cancel/terminate logic — the two now differ only in
+  which worker file `createWorker()` spawns.
+- **Engine-select screen** (`EngineSelect.tsx`): a new gate before boot —
+  neither `PyodideClient` nor `SqliteClient` spawns (and for Pyodide, its
+  multi-megabyte WASM payload isn't fetched) until the player actually
+  picks an engine. `BossFightScreen`'s phase flow grew a
+  `loading -> engine-select -> spawning -> boot -> fight` sequence (was
+  `loading -> boot -> fight`); the fight-reveal slide-down (added this
+  phase — see Fixed) still plays on entering `fight`, unaffected by which
+  engine the run underneath it is.
+- **Dual-language starter code**: `caseSchema.starterCode` is now
+  `{ python, sql }` (was a single string) — a case's Python and SQL seed
+  buffers are authored separately since they aren't translations of each
+  other. All four World 1 cases got real, runnable SQL starter code
+  (inspection queries mirroring their Python counterparts, e.g.
+  `SELECT COUNT(*) FROM data WHERE temp_c IS NULL` alongside
+  `df.isna().sum()`).
+- **SQL syntax highlighting**: `CodeEditor` takes a `language: "python" |
+"sql"` prop, using `@codemirror/lang-sql`'s `sql()` extension when a
+  player is in SQL mode.
+
+### Fixed / cross-engine parity
+
+- **`valid_dtype: "datetime"` was trivially satisfied on load in SQL,
+  never in Python** — the seed CSV's `opened_at` column (`THE_RECKONING`)
+  is written via `Date.toISOString()` (e.g.
+  `"2026-01-15T09:20:00.000Z"`), and the SQL dtype inferencer's original
+  ISO-date regex matched that shape immediately, so the predicate started
+  satisfied with zero player action — unlike Pyodide, where the identical
+  column starts as pandas' `object` dtype until `pd.to_datetime()` is
+  called. Fixed by tightening `ISO_DATE_PATTERN` in `sql-dtypes.ts` to
+  reject fractional seconds and zone suffixes, matching instead exactly
+  what SQLite's own `datetime()` function returns — so
+  `UPDATE data SET opened_at = datetime(opened_at);` is now the required
+  fix, the structural SQL twin of `pd.to_datetime(...)`. Caught during
+  this phase's manual real-browser verification of `THE_RECKONING` in SQL
+  mode, not by the type system or existing tests — regression tests added.
+- Documented (not a code fix, a genuine engine difference authors must
+  design around): SQLite's `CAST(x AS REAL)` silently returns `0` for
+  non-numeric text, unlike pandas' `pd.to_numeric(..., errors="coerce")`,
+  which returns `NaN`. `THE_RECKONING`'s `first_response_hours` column
+  (garbage tokens like `"N/A"`/`"TBD"` mixed with real numbers) needs an
+  explicit `CASE`-based coercion in SQL to get the same result — see the
+  new "Writing content that's fair on both engines" section in
+  `docs/content-authoring-guide.md`.
+
+### Verified
+
+- All four World 1 cases solved end-to-end in a real headless browser in
+  **both** engines (not just typechecked/unit-tested), including
+  `THE_RECKONING`'s six-predicate final-boss win condition in SQL — zero
+  console errors in either engine. Re-verified against a production build
+  served with the real `vercel.json` CSP headers (sql.js's self-hosted
+  WASM asset loads and initializes cleanly under
+  `script-src 'self' 'wasm-unsafe-eval'`; no CSP/`vercel.json` changes were
+  needed since no new external origin was introduced).
+
 ## Phase 2 — Full World 1 — 2026-08-08
 
 World 1 is now four bosses deep instead of one, with a real front door,

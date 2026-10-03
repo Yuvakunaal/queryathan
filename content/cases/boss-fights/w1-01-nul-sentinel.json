@@ -12,7 +12,10 @@
     "subtitle": "PROC 0x00 // CLASS: ABSENCE",
     "briefing": "Station telemetry came back with holes in it. 23 readings in temp_c never wrote — the sensor dropped frames, and pandas is showing you NaN where a number should be.\n\nThe Sentinel is not a monster standing next to your data. It is the absence inside it. Fill every gap in temp_c and it has nowhere left to live.\n\ndf is loaded. 240 rows, 6 columns."
   },
-  "starterCode": "# df is loaded. 240 rows, 6 columns.\n# Inspect first, then fix.\ndf.isna().sum()",
+  "starterCode": {
+    "python": "# df is loaded. 240 rows, 6 columns.\n# Inspect first, then fix.\ndf.isna().sum()",
+    "sql": "-- data table is loaded. 240 rows, 6 columns.\n-- Inspect first, then fix.\nSELECT COUNT(*) AS missing_temp_c FROM data WHERE temp_c IS NULL;"
+  },
   "columnHints": {
     "reading_id": { "widthPx": 92, "numeric": true },
     "station": { "widthPx": 110, "numeric": false },

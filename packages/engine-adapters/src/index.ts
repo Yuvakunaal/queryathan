@@ -12,3 +12,4 @@ export type {
 } from "./protocol";
 export { EngineRpcClient, RpcTimeoutError, RpcRunError, RpcEngineError } from "./rpc";
 export type { RpcTransport } from "./rpc";
+export { WorkerEngineClient } from "./client";

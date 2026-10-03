@@ -86,6 +86,17 @@ export type WorldId = z.infer<typeof worldIdSchema>;
 export const caseTierSchema = z.enum(["tutorial", "mid-boss", "final-boss"]);
 export type CaseTier = z.infer<typeof caseTierSchema>;
 
+/**
+ * One buffer per engine (Phase 3, plan's dual-engine requirement) — a case's
+ * starter code is language-specific, not translatable at runtime, so both
+ * variants are authored explicitly rather than one being derived.
+ */
+export const starterCodeSchema = z.object({
+  python: z.string().min(1),
+  sql: z.string().min(1),
+});
+export type StarterCode = z.infer<typeof starterCodeSchema>;
+
 export const caseSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   world: worldIdSchema,
@@ -93,8 +104,8 @@ export const caseSchema = z.object({
   datasetPath: z.string().min(1),
   datasetLicense: datasetLicenseSchema,
   strings: caseStringsSchema,
-  /** The code buffer CodeEditor seeds on entry — case content, not engine logic. Ignored for final-boss cases (plan §6's "no hints, one shot"). */
-  starterCode: z.string().min(1),
+  /** The code buffer CodeEditor seeds on entry, per engine — case content, not engine logic. Ignored for final-boss cases (plan §6's "no hints, one shot"). */
+  starterCode: starterCodeSchema,
   columnHints: columnHintsSchema.optional(),
   winCondition: winConditionSchema,
 });

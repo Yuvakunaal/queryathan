@@ -7,11 +7,12 @@ specific technical decisions.
 
 ## Current state
 
-**Phase 2 complete.** World 1 (Boss Fights) has four playable bosses
+**Phase 3 complete.** World 1 (Boss Fights) has four playable bosses
 (tutorial → two mid-bosses with stacked afflictions → a final boss
-stacking all six World 1 techniques) running against a real Pyodide/pandas
-Web Worker, with real diff feedback, win detection, a world-map front door,
-and a `localStorage` save/XP/rank system. See
+stacking all six World 1 techniques), each playable against either of two
+real engines — Pyodide/pandas or sql.js/SQLite — picked on an engine-select
+screen before boot, with real diff feedback, win detection, a world-map
+front door, and a `localStorage` save/XP/rank system. See
 [`README.md`](../README.md#status) for the up-to-date phase marker and
 [`CHANGELOG.md`](../CHANGELOG.md) for what shipped in each phase.
 
@@ -19,13 +20,13 @@ and a `localStorage` save/XP/rank system. See
 
 ```
 apps/web/              the game — Vite + React app, the only deployable unit
-  src/engines/            pyodide.worker.ts + pyodide-client.ts
+  src/engines/            pyodide.worker.ts/pyodide-client.ts + sqlite.worker.ts/sqlite-client.ts, csv.ts + sql-dtypes.ts (SQL's CSV loader/dtype inference)
   src/worlds/<world>/     one dir per world: components, theme.css, world-local logic
   src/anim/<world>/       one dir per world: GSAP choreography
   src/lib/                world-agnostic pure game logic (diff, afflictions, win-condition eval)
   public/datasets/<world>/   seed CSVs + LICENSES.md
 packages/content-schema/   Zod schema + inferred TS types for case JSON
-packages/engine-adapters/  typed protocol (protocol.ts) + RPC client (rpc.ts) shared between main thread & worker
+packages/engine-adapters/  typed protocol (protocol.ts) + RPC client (rpc.ts) + WorkerEngineClient base class (client.ts) shared between main thread & worker
 packages/ui-kit/           shared design-system primitives (grows on 2nd use — still empty)
 content/cases/          community-contributable case JSON, one dir per world
 content/rosters/        <world>.json — the world's boss sequence (fight order), one file per world
@@ -61,10 +62,24 @@ conflict with the lazy-load/fast-first-paint requirement. See
 [ADR 0004](./adr/0004-pyodide-package-delivery.md) for the full reasoning
 and the matching `connect-src` CSP exception in `vercel.json`.
 
-**Session model**: a boss fight keeps one persistent Python namespace across
-runs — `df` is loaded once via `init-case` and each `run-code` submission
-executes against whatever `df` currently is, so cumulative edits behave
-like a real notebook cell-by-cell, not a fresh interpreter per run.
+**Session model**: a boss fight keeps one persistent namespace across runs —
+`df` (Pyodide) or the `data` table (sql.js) is loaded once via `init-case`
+and each `run-code` submission executes against whatever that currently is,
+so cumulative edits behave like a real notebook cell-by-cell, not a fresh
+interpreter per run.
+
+**Dual-engine selection (Phase 3)**: `BossFightScreen` gates on an
+`EngineSelect` screen before spawning anything — `PyodideClient` and
+`SqliteClient` are both thin subclasses of `WorkerEngineClient`
+(`packages/engine-adapters/src/client.ts`), differing only in which worker
+file `createWorker()` spawns, so neither engine's worker (and for Pyodide,
+its multi-megabyte WASM payload) is fetched until the player actually picks
+it. Each case's `starterCode` is authored per-language
+(`{ python, sql }` in `packages/content-schema`) since the two aren't
+translations of each other. See
+[`docs/content-authoring-guide.md`](./content-authoring-guide.md)'s "Writing
+content that's fair on both engines" section for the SQLite/pandas dtype
+and coercion differences content authors need to know.
 
 Sandbox/freeplay mode (Phase 6) adds a sandboxed cross-origin `<iframe>`
 layer around the worker for user-uploaded files — not built yet.
@@ -117,12 +132,16 @@ Diff feedback appears in two synchronized places driven by one change list
 (`lib/diff.ts`): the grid's per-cell red/green flash
 (`anim/world1/diffFlash.ts`) and the console's `-`/`+` log
 (`DiffConsole.tsx`) — the latter is the durable, transferable-skill record
-after the flash decays. `diffGrids` matches rows by their real pandas index
+after the flash decays. `diffGrids` matches rows by a stable row-identity
 value (`ResultGrid.index`), not array position — a Phase 1 positional
 version was explicitly scoped to "revisit once `drop_duplicates`/`dropna`
 can change row count," and Phase 2's duplicate-dropping content needed
 exactly that fix (a naive positional diff would misattribute values across
-every row after a drop). See
+every row after a drop). Each engine assigns that identity itself: Pyodide
+maintains a hidden `__dcq_row_id__` data column (survives `.reset_index()`,
+unlike a raw pandas index), while sql.js uses SQLite's native `rowid`
+(stable across `UPDATE`/`DELETE` with no idiomatic-SQL equivalent of
+`.reset_index()` to defeat it). See
 [`docs/adr/0006-row-identity-diffing.md`](./adr/0006-row-identity-diffing.md).
 
 ## Progression: save data, XP, and ranks

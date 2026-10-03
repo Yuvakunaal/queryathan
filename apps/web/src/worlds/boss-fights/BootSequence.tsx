@@ -10,6 +10,8 @@ export interface BootSequenceProps {
   afflictionCount: number;
   /** e.g. "NUL" or "NUL+DUP" for a stacked case — the actual predicate kinds being scanned for, never hardcoded (design spec §4.2's escalation principle: the state itself is the signal). */
   scanLabel: string;
+  /** "pyodide/wasm" or "sql.js/wasm" — reflects the engine the player actually picked on the previous screen, not a fixed assumption. */
+  engineLabel: string;
   onEngage: () => void;
 }
 
@@ -19,6 +21,7 @@ export default function BootSequence({
   datasetShape,
   afflictionCount,
   scanLabel,
+  engineLabel,
   onEngage,
 }: BootSequenceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -71,7 +74,7 @@ export default function BootSequence({
       const lines = [
         makeBootLine([{ text: "DCQ//BOOT  v0.1.0", el: l1 }]),
         makeBootLine([
-          { text: "mounting engine ......... pyodide/wasm      ", el: l2a },
+          { text: `mounting engine ......... ${engineLabel.padEnd(18)}`, el: l2a },
           { text: "OK", el: l2b },
         ]),
         makeBootLine([
@@ -104,7 +107,14 @@ export default function BootSequence({
     },
     {
       scope: containerRef,
-      dependencies: [afflictionCount, bossName, datasetFileName, datasetShape, scanLabel],
+      dependencies: [
+        afflictionCount,
+        bossName,
+        datasetFileName,
+        datasetShape,
+        scanLabel,
+        engineLabel,
+      ],
     },
   );
 

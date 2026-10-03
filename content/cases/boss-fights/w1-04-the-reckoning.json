@@ -12,7 +12,10 @@
     "subtitle": "PROC 0xFF // CLASS: UNKNOWN",
     "briefing": "500 support tickets, exported once, never cleaned. Everything you've fought until now lives somewhere in this table — nothing has been flagged for you, and nothing has been simplified.\n\ndf is loaded. Whatever is wrong with it, you find it yourself."
   },
-  "starterCode": "# df is loaded.",
+  "starterCode": {
+    "python": "# df is loaded.",
+    "sql": "-- data table is loaded."
+  },
   "columnHints": {
     "ticket_id": { "widthPx": 96, "numeric": true },
     "customer_email": { "widthPx": 200, "numeric": false },

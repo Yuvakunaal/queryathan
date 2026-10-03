@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { RpcRunError } from "@dcq/engine-adapters";
-import type { ResultGrid } from "@dcq/engine-adapters";
+import type { ResultGrid, WorkerEngineClient } from "@dcq/engine-adapters";
 import type { Case } from "@dcq/content-schema";
 import { PyodideClient } from "../../engines/pyodide-client";
+import { SqliteClient } from "../../engines/sqlite-client";
 import { loadCase } from "../../lib/load-case";
 import { diffGrids } from "../../lib/diff";
 import type { CellChange } from "../../lib/diff";
@@ -28,6 +29,8 @@ import { playDiffFlashBatch } from "../../anim/world1/diffFlash";
 import type { DiffCellRefs } from "../../anim/world1/diffFlash";
 import { mountCrtIdle } from "../../anim/world1/crtIdle";
 import BootSequence from "./BootSequence";
+import EngineSelect from "./EngineSelect";
+import type { EngineChoice } from "./EngineSelect";
 import BriefingPanel from "./BriefingPanel";
 import HpHeatmap from "./HpHeatmap";
 import DataframeGrid from "./DataframeGrid";
@@ -65,7 +68,10 @@ export default function BossFightScreen({
 }: BossFightScreenProps) {
   const [caseData, setCaseData] = useState<Case | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [phase, setPhase] = useState<"loading" | "boot" | "fight">("loading");
+  const [phase, setPhase] = useState<
+    "loading" | "engine-select" | "spawning" | "boot" | "fight"
+  >("loading");
+  const [engine, setEngine] = useState<EngineChoice | null>(null);
   const [grid, setGrid] = useState<ResultGrid | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([]);
@@ -75,8 +81,7 @@ export default function BossFightScreen({
   const [liveErrorMessage, setLiveErrorMessage] = useState("");
   const liveMessageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const clientRef = useRef<PyodideClient | null>(null);
-  clientRef.current ??= new PyodideClient();
+  const clientRef = useRef<WorkerEngineClient | null>(null);
 
   const gridRef = useRef<DataframeGridHandle>(null);
   const codeEditorRef = useRef<CodeEditorHandle>(null);
@@ -120,7 +125,39 @@ export default function BossFightScreen({
     { scope: fightRootRef, dependencies: [phase] },
   );
 
+  // Fetches case content only — no engine is spawned yet (plan's dual-engine
+  // requirement: neither PyodideClient nor SqliteClient should pay its
+  // cold-start cost until the player has actually picked one).
   useEffect(() => {
+    let cancelled = false;
+    setCaseData(null);
+    setEngine(null);
+    setPhase("loading");
+
+    async function load(): Promise<void> {
+      try {
+        const loadedCase = await loadCase(casePath);
+        if (cancelled) return;
+        setCaseData(loadedCase);
+        setPhase("engine-select");
+      } catch (err) {
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : String(err));
+      }
+    }
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [casePath]);
+
+  // Runs once the player commits to an engine on the EngineSelect screen —
+  // spawns that engine's worker, loads the dataset into it, and only then
+  // reveals the BootSequence. See WorkerEngineClient's doc comment for why
+  // PyodideClient/SqliteClient only differ in which worker file they spawn.
+  useEffect(() => {
+    if (!engine || !caseData) return;
     // A plain boolean (even boxed in a ref) gets narrowed to a literal by
     // TS's control-flow analysis after the first early-return check, which
     // makes every later check look "always false" to no-unnecessary-condition
@@ -128,25 +165,24 @@ export default function BossFightScreen({
     // Routing the read through a function call sidesteps that narrowing.
     let cancelled = false;
     const isCancelled = (): boolean => cancelled;
-    const client = clientRef.current;
-    if (!client) return;
+    const activeCase = caseData;
+    const client: WorkerEngineClient =
+      engine === "sql" ? new SqliteClient() : new PyodideClient();
+    clientRef.current = client;
+    setPhase("spawning");
 
-    async function boot(activeClient: PyodideClient): Promise<void> {
+    async function boot(): Promise<void> {
       try {
-        const loadedCase = await loadCase(casePath);
+        client.spawn();
+        await client.ready();
         if (isCancelled()) return;
-        setCaseData(loadedCase);
-
-        activeClient.spawn();
-        await activeClient.ready();
-        if (isCancelled()) return;
-        const result = await activeClient.initCase(loadedCase.datasetPath);
+        const result = await client.initCase(activeCase.datasetPath);
         if (isCancelled()) return;
 
         setGrid(result.resultGrid);
         initialAfflictionRef.current = countTotalAffliction(
           result.resultGrid,
-          loadedCase.winCondition,
+          activeCase.winCondition,
         );
         setPhase("boot");
       } catch (err) {
@@ -155,13 +191,13 @@ export default function BossFightScreen({
       }
     }
 
-    void boot(client);
+    void boot();
 
     return () => {
       cancelled = true;
       client.terminate();
     };
-  }, [casePath]);
+  }, [engine, caseData]);
 
   // Post-run reconciliation: populate diff spans + fire the flash/recoil once
   // the grid has re-rendered with new values (DOM already shows new values;
@@ -309,13 +345,37 @@ export default function BossFightScreen({
     );
   }
 
-  if (phase === "loading" || !caseData || !grid) {
+  if (phase === "loading" || !caseData) {
+    return (
+      <div className={styles.fightRoot} data-world="boss-fights">
+        <div className={styles.loadingScreen} role="status" aria-live="polite">
+          <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
+          <span className={styles.loadingLine}>loading case data .......</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "engine-select") {
+    return (
+      <div className={styles.fightRoot} data-world="boss-fights">
+        <EngineSelect
+          bossName={caseData.strings.title}
+          onSelect={(choice) => {
+            setEngine(choice);
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (phase === "spawning" || !grid) {
     return (
       <div className={styles.fightRoot} data-world="boss-fights">
         <div className={styles.loadingScreen} role="status" aria-live="polite">
           <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
           <span className={styles.loadingLine}>
-            mounting engine ......... pyodide/wasm
+            mounting engine ......... {engine === "sql" ? "sql.js/wasm" : "pyodide/wasm"}
           </span>
         </div>
       </div>
@@ -333,6 +393,7 @@ export default function BossFightScreen({
           scanLabel={predicateKindOrder(caseData.winCondition)
             .map((kind) => SCAN_CODE[kind])
             .join("+")}
+          engineLabel={engine === "sql" ? "sql.js/wasm" : "pyodide/wasm"}
           onEngage={() => {
             setPhase("fight");
           }}
@@ -392,7 +453,10 @@ export default function BossFightScreen({
           <div className={styles.editorPane}>
             <CodeEditor
               ref={codeEditorRef}
-              initialValue={caseData.starterCode}
+              initialValue={
+                engine === "sql" ? caseData.starterCode.sql : caseData.starterCode.python
+              }
+              language={engine === "sql" ? "sql" : "python"}
               onRun={() => {
                 void handleRun();
               }}

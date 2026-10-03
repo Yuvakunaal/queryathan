@@ -13,18 +13,21 @@ Full product vision, world designs, and architecture rationale:
 
 ## Status
 
-**Phase 2 complete — World 1 (Boss Fights) is fully playable, four bosses
-deep.** Open the app to a boss roster (locked/unlocked/cleared state, rank,
-XP), pick a fight, and edit real pandas against a real Pyodide worker —
-watch the HP heatmap drop, cells flash a git-diff-style red/green, the
-boss's ASCII sigil decay as afflictions clear. All six of World 1's content
-areas are live (nulls, duplicates, whitespace/casing, wrong dtypes,
-outliers, bad dates), stacked 1–6 at a time depending on the boss. Real
-Python errors surface as an unmodified traceback, exactly as they would in
-a notebook. Progress (cleared bosses, XP, rank) persists in `localStorage`
-and is exportable/importable as JSON — no login, no server.
+**Phase 3 complete — World 1 (Boss Fights) is fully playable, four bosses
+deep, in either of two real engines.** Open the app to a boss roster
+(locked/unlocked/cleared state, rank, XP), pick a fight, choose Python
+(pandas/Pyodide) or SQL (SQLite/sql.js) on an engine-select screen, and edit
+real code against that real in-browser engine — watch the HP heatmap drop,
+cells flash a git-diff-style red/green, the boss's ASCII sigil decay as
+afflictions clear. All six of World 1's content areas are live (nulls,
+duplicates, whitespace/casing, wrong dtypes, outliers, bad dates), stacked
+1–6 at a time depending on the boss, solvable the same way in either
+language. Real interpreter errors surface as an unmodified traceback/SQLite
+error, exactly as they would in a notebook or a `sqlite3` shell. Progress
+(cleared bosses, XP, rank) persists in `localStorage` and is
+exportable/importable as JSON — no login, no server.
 
-No SQL path yet, no other worlds, no sandbox mode, no offline caching, no
+No other worlds yet, no sandbox mode, no offline caching, no
 Playwright/Lighthouse CI — all explicitly later phases. See
 [`data-cleaning-quest-master-plan.md`](./data-cleaning-quest-master-plan.md#14-build-roadmap)
 Section 14 for the full 9-phase roadmap. Architecture decisions are recorded
@@ -44,29 +47,34 @@ read this before diving into the source).
 - **Pyodide** (WASM Python/pandas) in a dedicated Web Worker — interpreter
   self-hosted and checksum-verified, pandas/numpy wheels from a pinned
   jsdelivr CDN path (see [ADR 0004](./docs/adr/0004-pyodide-package-delivery.md))
-- **CodeMirror 6** — real syntax highlighting, real error surfacing
+- **sql.js** (WASM SQLite) in its own dedicated Web Worker — ships as a
+  single importable npm package, self-hosted automatically by Vite's `?url`
+  asset resolution (no manual fetch script needed, unlike Pyodide)
+- **CodeMirror 6** — real syntax highlighting (Python and SQL modes), real
+  error surfacing
 - **GSAP** — all animation, driven imperatively outside React's render cycle
   (see [ADR 0001](./docs/adr/0001-framework.md))
 - **TanStack Virtual** — the dataframe grid
 - **Vite** — build/dev
-- **Vitest** — unit tests (36 passing across the workspace)
+- **Vitest** — unit tests (191 passing across the workspace)
 - **pnpm workspaces** monorepo, no Turborepo yet
 
-Not yet integrated: **sql.js** (SQL path is Phase 3), **Playwright**
-(e2e is Phase 7), per-world code-splitting (nothing to split until a second
-world exists).
+Not yet integrated: **Playwright** as a CI gate (e2e is Phase 7 — used
+manually this session for real-browser verification, including against a
+production build under real CSP headers, but not yet wired into CI),
+per-world code-splitting (nothing to split until a second world exists).
 
 ## Repository layout
 
 ```
 apps/web/              the game — Vite + React app
-  src/engines/            pyodide.worker.ts (dedicated Web Worker) + main-thread client
+  src/engines/            pyodide.worker.ts + sqlite.worker.ts (each a dedicated Web Worker) + their main-thread clients + csv.ts/sql-dtypes.ts (SQL's CSV loader/dtype inference)
   src/worlds/boss-fights/ World 1: all React components + theme.css
-  src/anim/world1/        GSAP choreography (recoil, diff-flash, HP shatter, CRT, boot type)
+  src/anim/world1/        GSAP choreography (recoil, diff-flash, HP shatter, CRT, boot type, engine-select reveal)
   src/lib/                pure game logic: diff, afflictions, win-condition eval
   public/datasets/        seed CSVs, license-tagged per world
 packages/content-schema/   shared TS types + Zod schema for case JSON
-packages/engine-adapters/  typed worker RPC protocol (protocol.ts, rpc.ts)
+packages/engine-adapters/  typed worker RPC protocol (protocol.ts, rpc.ts) + shared WorkerEngineClient base class (client.ts)
 packages/ui-kit/           shared design-system primitives (grows on 2nd use)
 content/cases/          community-contributable boss/case JSON, per world
 docs/                   architecture, security, content-authoring guide, ADRs, design specs

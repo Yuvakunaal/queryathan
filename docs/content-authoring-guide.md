@@ -40,7 +40,10 @@ shipped World 1 tutorial case as a working reference
     "subtitle": "PROC 0x00 // CLASS: ABSENCE",
     "briefing": "Station telemetry came back with holes in it. ..."
   },
-  "starterCode": "# df is loaded. 240 rows, 6 columns.\ndf.isna().sum()",
+  "starterCode": {
+    "python": "# df is loaded. 240 rows, 6 columns.\ndf.isna().sum()",
+    "sql": "-- data table is loaded. 240 rows, 6 columns.\nSELECT COUNT(*) AS missing_temp_c FROM data WHERE temp_c IS NULL;"
+  },
   "columnHints": {
     "temp_c": { "widthPx": 96, "numeric": true }
   },
@@ -61,10 +64,12 @@ shipped World 1 tutorial case as a working reference
 - `strings` — all player-facing text (`subtitle` is optional). Kept separate
   from logic so community translations are possible later without touching
   behavior.
-- `starterCode` — required. The buffer the code editor seeds when a player
-  enters the boss — write it as real, runnable code against your dataset's
-  actual columns, not a placeholder. **Except** for `final-boss` cases —
-  see §4.
+- `starterCode` — required, `{ python, sql }` (Phase 3 added dual-engine
+  support — a player picks one engine before boot, and each needs its own
+  seed buffer since Python and SQL aren't translations of each other).
+  Write both as real, runnable code against your dataset's actual columns
+  and its SQL table (always named `data`), not a placeholder. **Except**
+  for `final-boss` cases — see §4.
 - `columnHints` — optional. Per-column `widthPx`/`numeric` display hints; a
   column with no hint falls back to a default width and left-alignment.
   Only worth setting for columns where the default looks wrong (e.g. a
@@ -85,6 +90,37 @@ shipped World 1 tutorial case as a working reference
 | `consistent_casing` | `{ column, case: "lower"\|"upper"\|"title" }`                     | teal `_` badge (same visual kind as whitespace — the master plan groups casing/whitespace as one content area)                                                     |
 | `valid_dtype`       | `{ column, dtype: "int"\|"float"\|"bool"\|"string"\|"datetime" }` | yellow `#` badge + dotted underline (`datetime` target renders as pink `@` instead — this is how "bad dates" content is authored, not a separate predicate)        |
 | `no_outliers`       | `{ column, min, max }`                                            | orange `^` badge, 135° hatch, inclusive bounds                                                                                                                     |
+
+### Writing content that's fair on both engines
+
+The SQL engine (sql.js/SQLite) always loads the CSV into a table literally
+named `data`; row identity for diffing is SQLite's own `rowid`, which is
+stable across `UPDATE`/`DELETE` (no equivalent of `.reset_index()` exists in
+idiomatic SQL cleanup, so this needs no special handling the way Pyodide's
+worker does). A few dtype/coercion behaviors genuinely differ from pandas —
+know these before authoring a `valid_dtype` or numeric predicate:
+
+- **`valid_dtype: "datetime"`** — SQLite has no separate datetime storage
+  class; a column's effective dtype is inferred from the shape of the text
+  values a query returns (`packages/engine-adapters`'s dtype vocabulary via
+  `apps/web/src/engines/sql-dtypes.ts`). Seed CSV timestamps written as
+  `Date.toISOString()` (with milliseconds + a `Z` suffix) deliberately do
+  **not** match, so the predicate starts unsatisfied exactly like the
+  Pyodide side (where the same column starts as pandas `object` dtype). The
+  idiomatic SQL fix is `UPDATE data SET col = datetime(col);` — the
+  structural twin of `pd.to_datetime(df['col'])`.
+- **Garbage-text-forces-object-dtype columns** (e.g. `first_response_hours`
+  in THE_RECKONING, mixing real numbers with tokens like `"N/A"`/`"TBD"`) —
+  pandas' `pd.to_numeric(col, errors="coerce")` turns unparseable text into
+  `NaN`. SQLite's own `CAST(x AS REAL)` is lenient and silently returns `0`
+  for non-numeric text instead of `NULL` — a real behavioral gap, not a bug
+  to route around. The correct SQL fix mirrors the pandas one explicitly:
+  `CASE WHEN col GLOB '[0-9]*' OR col GLOB '-[0-9]*' THEN CAST(col AS REAL)
+ELSE NULL END`.
+- Don't design a case around a technique that's easy in one engine but
+  requires inventing new SQL/pandas syntax the world hasn't taught yet —
+  verify both a Python and a SQL solution manually (real browser, not just
+  `pnpm validate-content`, which only checks schema shape) before shipping.
 
 Stack multiple predicates in `winCondition.all` to build a mid/final boss —
 see `content/cases/boss-fights/w1-04-the-reckoning.json` for a case
@@ -108,7 +144,8 @@ unlocks once the case before it is cleared.
 
 - The objective line is replaced with `[ NOT DISCLOSED — READ THE DATA ]`
   in the UI — don't write `starterCode` that hints at the win condition
-  either. The convention is a flat `"# df is loaded."` with nothing else.
+  either. The convention is a flat `"# df is loaded."` / `"-- data table is
+loaded."` with nothing else, for both languages.
 - This is an honest tone/framing choice, not an anti-cheat mechanism —
   nothing about `tier` stops a player from running `df.isna().sum()` or
   `df.dtypes` themselves, nor should it. Don't design content that assumes

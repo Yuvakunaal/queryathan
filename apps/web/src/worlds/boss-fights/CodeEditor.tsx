@@ -3,6 +3,7 @@ import { EditorState, Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
+import { sql } from "@codemirror/lang-sql";
 import { bossFightsEditorExtensions } from "./editorTheme";
 import styles from "./CodeEditor.module.css";
 
@@ -12,12 +13,14 @@ export interface CodeEditorHandle {
 
 export interface CodeEditorProps {
   initialValue: string;
+  /** Which engine the player picked — a fresh CodeEditor mounts per fight, so this never changes mid-mount. */
+  language: "python" | "sql";
   onRun: () => void;
   onEscape: () => void;
 }
 
 const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEditor(
-  { initialValue, onRun, onEscape },
+  { initialValue, language, onRun, onEscape },
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,7 +64,12 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
 
     const state = EditorState.create({
       doc: initialValue,
-      extensions: [basicSetup, python(), bossFightsEditorExtensions, runKeymap],
+      extensions: [
+        basicSetup,
+        language === "sql" ? sql() : python(),
+        bossFightsEditorExtensions,
+        runKeymap,
+      ],
     });
 
     const view = new EditorView({ state, parent: container });

@@ -14,7 +14,10 @@ const validCase = {
     title: "The Null Hydra",
     briefing: "Every missing value regenerates the boss. Clear them all.",
   },
-  starterCode: "df.isna().sum()",
+  starterCode: {
+    python: "df.isna().sum()",
+    sql: "SELECT * FROM data WHERE email IS NULL;",
+  },
   winCondition: {
     all: [{ predicate: "no_nulls", column: "email" }],
   },
@@ -57,6 +60,14 @@ describe("caseSchema", () => {
   it("rejects a case missing starterCode", () => {
     const { starterCode: _unused, ...caseWithoutStarter } = validCase;
     const result = caseSchema.safeParse(caseWithoutStarter);
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects a case with starterCode missing the sql variant", () => {
+    const result = caseSchema.safeParse({
+      ...validCase,
+      starterCode: { python: "df.isna().sum()" },
+    });
     expect(result.success).toBe(false);
   });
 
