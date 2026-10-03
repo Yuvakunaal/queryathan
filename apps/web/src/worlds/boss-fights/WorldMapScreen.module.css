@@ -1,30 +1,101 @@
 .roster {
+  min-height: 100dvh;
   height: 100dvh;
   overflow: auto;
   background: var(--w1-bg-void);
-  padding: 10vh 8vw 4vh;
 }
 
-.rosterHeader {
-  max-width: 900px;
+.shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 24px 48px;
+}
+
+.topbar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--w1-rule);
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: 600 12px/1 var(--w1-font-display);
+  letter-spacing: 0.04em;
+  color: var(--w1-text-secondary);
+}
+.brandMark {
+  color: var(--w1-green-500);
 }
 
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+  gap: 48px;
+  align-items: end;
+  padding: 64px 0 48px;
+}
+.worldTag {
+  margin: 0 0 12px;
+  font: 500 var(--w1-fs-hudlabel) / 1 var(--w1-font-text);
+  color: var(--w1-amber-500);
+}
 .rosterHeading {
   margin: 0;
-  font: 700 var(--w1-fs-title) / 28px var(--w1-font-display);
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
+  font: 700 clamp(40px, 7vw, 76px) / 0.95 var(--w1-font-display);
+  letter-spacing: -0.04em;
+  color: var(--w1-text-primary);
+}
+.lede {
+  max-width: 52ch;
+  margin: 20px 0 0;
+  font: 400 var(--w1-fs-brief) / 1.6 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+
+.rankPanel {
+  padding: 18px 20px;
+  background: var(--w1-bg-panel);
+  border: 1px solid var(--w1-rule-strong);
+}
+.rankTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.rankLabel {
+  font: 500 var(--w1-fs-hudlabel) / 14px var(--w1-font-text);
+  color: var(--w1-text-dim);
+}
+.rankValue {
+  font: 700 var(--w1-fs-hudnum) / 20px var(--w1-font-display);
+  color: var(--w1-amber-500);
+}
+.rankTrack {
+  height: 6px;
+  background: var(--w1-rule-faint);
+  border: 1px solid var(--w1-rule);
+}
+.rankFill {
+  height: 100%;
+  background: var(--w1-green-500);
+  transform-origin: left;
+  transition: width 700ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.rankMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font: 400 12px/1 var(--w1-font-text);
   color: var(--w1-text-secondary);
 }
 
 .loading,
 .loadError {
-  max-width: 900px;
   font: 400 var(--w1-fs-brief) / 22px var(--w1-font-text);
   color: var(--w1-text-secondary);
 }
@@ -32,120 +103,186 @@
   color: var(--w1-diff-del);
 }
 
-.rosterRow {
-  max-width: 900px;
-  display: grid;
-  grid-template-columns: 40px 1fr 100px 1fr 90px;
-  align-items: center;
-  column-gap: 16px;
-  height: 40px;
-  border-bottom: 1px solid var(--w1-rule-faint);
-  font: 400 var(--w1-fs-cell) / 1 var(--w1-font-text);
-}
-.rosterRow:first-child {
-  border-top: 1px solid var(--w1-rule);
-}
-
-.rosterStatus {
-  font: 600 var(--w1-fs-cell) / 1 var(--w1-font-text);
-}
-.rosterStatus[data-status="cleared"] {
-  color: var(--w1-green-500);
-}
-.rosterStatus[data-status="unlocked"] {
-  color: var(--w1-amber-500);
-}
-.rosterStatus[data-status="locked"] {
-  color: var(--w1-text-dim);
-}
-
-.rosterName {
-  font: 600 var(--w1-fs-colhead) / 1 var(--w1-font-display);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--w1-text-primary);
-}
-.rosterNameButton {
-  background: transparent;
-  border: none;
+.grid {
+  list-style: none;
+  margin: 0;
   padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.cardItem {
+  display: flex;
+  animation: cardIn 520ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
   text-align: left;
+  color: var(--w1-text-primary);
+  background: var(--w1-bg-panel);
+  border: 1px solid var(--w1-rule);
+  font: inherit;
+  transition:
+    border-color 220ms cubic-bezier(0.32, 0.72, 0, 1),
+    background-color 220ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 220ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.cardButton {
   cursor: pointer;
 }
-.rosterNameButton:hover,
-.rosterNameButton:focus-visible {
-  color: var(--w1-amber-500);
+.cardButton:hover {
+  border-color: var(--w1-amber-500);
+  background: var(--w1-bg-panel-2);
+  transform: translateY(-2px);
 }
-.rosterNameButton:focus-visible {
+.cardButton:active {
+  transform: translateY(0) scale(0.99);
+}
+.cardButton:focus-visible {
   outline: 2px solid var(--w1-focus);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
-.rosterRow[data-status="locked"] .rosterName {
-  color: var(--w1-text-dim);
+.card[data-status="cleared"] {
+  border-color: var(--w1-green-700);
 }
-
-.rosterTier {
-  font: 400 12px/1 var(--w1-font-text);
-  color: var(--w1-text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.card[data-status="locked"] {
+  opacity: 0.55;
+  border-style: dashed;
 }
 
-.rosterGlyphs {
-  font: 500 12px/1 var(--w1-font-text);
-  color: var(--w1-text-secondary);
-  letter-spacing: 0.3em;
-}
-
-.rosterTag {
-  font: 600 10px/1 var(--w1-font-display);
-  letter-spacing: 0.1em;
-  color: var(--w1-text-dim);
-  text-align: right;
-}
-
-.rankReadout {
-  max-width: 900px;
+.cardHead {
   display: flex;
-  align-items: baseline;
   justify-content: space-between;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--w1-rule-strong);
+  align-items: center;
+  font: 500 11px/1 var(--w1-font-text);
 }
-.rankLabel {
-  font: 600 var(--w1-fs-hudlabel) / 14px var(--w1-font-display);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+.cardTier {
+  color: var(--w1-text-dim);
+}
+.cardStatus[data-status="cleared"] {
+  color: var(--w1-green-500);
+}
+.cardStatus[data-status="unlocked"] {
   color: var(--w1-amber-500);
 }
-.rankValue {
-  font: 600 var(--w1-fs-hudnum) / 20px var(--w1-font-text);
-  color: var(--w1-text-primary);
-  margin-left: 8px;
-}
-.rankProgress {
-  font: 400 12px/1 var(--w1-font-text);
+.cardStatus[data-status="locked"] {
   color: var(--w1-text-dim);
-  margin-left: 6px;
 }
 
+.sigil {
+  margin: 4px 0;
+  font: 400 var(--w1-fs-sigil) / 1.15 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+  white-space: pre;
+}
+.card[data-status="unlocked"] .sigil {
+  color: var(--w1-amber-500);
+}
+.card[data-status="cleared"] .sigil {
+  color: var(--w1-green-700);
+}
+
+.cardTitle {
+  margin: 0;
+  font: 700 18px/1.2 var(--w1-font-display);
+  letter-spacing: -0.02em;
+}
+.cardSub {
+  margin: -6px 0 0;
+  font: 400 12px/1.5 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+
+.chips {
+  list-style: none;
+  margin: auto 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font: 500 11px/1 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+  border: 1px solid var(--w1-rule-strong);
+}
+.chipGlyph {
+  font-weight: 600;
+}
+.chip[data-kind="null"] .chipGlyph {
+  color: var(--w1-status-null);
+}
+.chip[data-kind="dup"] .chipGlyph {
+  color: var(--w1-status-dup);
+}
+.chip[data-kind="dtype"] .chipGlyph {
+  color: var(--w1-status-dtype);
+}
+.chip[data-kind="ws"] .chipGlyph {
+  color: var(--w1-status-ws);
+}
+.chip[data-kind="outlier"] .chipGlyph {
+  color: var(--w1-status-outlier);
+}
+.chip[data-kind="date"] .chipGlyph {
+  color: var(--w1-status-date);
+}
+
+.cardCta {
+  padding-top: 12px;
+  border-top: 1px solid var(--w1-rule);
+  font: 600 12px/1 var(--w1-font-display);
+  color: var(--w1-amber-500);
+}
+.card[data-status="locked"] .cardCta {
+  color: var(--w1-text-dim);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--w1-rule);
+}
+.footerNote {
+  font: 400 12px/1.5 var(--w1-font-text);
+  color: var(--w1-text-dim);
+}
 .saveControls {
-  max-width: 900px;
   display: flex;
   gap: 12px;
-  margin-top: 20px;
 }
 .saveButton {
-  height: 28px;
-  padding: 0 12px;
+  height: 32px;
+  padding: 0 14px;
   background: transparent;
   border: 1px solid var(--w1-rule-strong);
   color: var(--w1-text-secondary);
-  font: 600 11px/1 var(--w1-font-display);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font: 600 12px/1 var(--w1-font-display);
   cursor: pointer;
+  transition:
+    border-color 200ms cubic-bezier(0.32, 0.72, 0, 1),
+    color 200ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 .saveButton:hover,
 .saveButton:focus-visible {
@@ -161,8 +298,8 @@
 }
 
 .importStatus {
-  max-width: 900px;
-  margin-top: 10px;
+  min-height: 14px;
+  margin-top: 12px;
   font: 500 12px/1 var(--w1-font-text);
   color: var(--w1-green-500);
 }
@@ -170,18 +307,35 @@
   color: var(--w1-diff-del);
 }
 
-/*
-  Windows High Contrast strips the status-color coding from rosterStatus/
-  rosterTag — the button/span aria-labels already carry the same
-  information, but sighted forced-colors users still get a real system
-  border to distinguish rows by, matching the fight screen's own
-  forced-colors treatment (DataframeGrid.module.css).
-*/
-@media (forced-colors: active) {
-  .rosterRow {
-    border-bottom: 1px solid CanvasText;
+@media (max-width: 760px) {
+  .shell {
+    padding: 16px 16px 40px;
   }
-  .rosterRow[data-status="locked"] {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 40px 0 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardItem {
+    animation: none;
+  }
+  .card,
+  .rankFill {
+    transition: none;
+  }
+  .cardButton:hover {
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .card {
+    border: 1px solid CanvasText;
+  }
+  .card[data-status="locked"] {
     border-style: dashed;
   }
 }

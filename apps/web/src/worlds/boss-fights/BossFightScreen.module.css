@@ -3,7 +3,7 @@
   height: 100dvh;
   display: grid;
   grid-template-rows: 40px 1fr;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   background: var(--w1-bg-void);
   overflow: hidden;
 }
@@ -253,6 +253,12 @@
   .stage {
     display: flex;
     flex-direction: column;
+    min-width: 0;
+  }
+  .stage > *,
+  .battlefield {
+    min-width: 0;
+    max-width: 100%;
   }
   .commandRail {
     display: contents;
@@ -288,5 +294,25 @@
     background: var(--w1-bg-panel-2);
     color: var(--w1-amber-500);
     font: 400 11px / 16px var(--w1-font-text);
+  }
+}
+
+@media (max-width: 719px) {
+  .statusRail {
+    gap: 8px;
+    padding: 0 12px;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .statusRail > :first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .rankBadge {
+    display: none;
+  }
+  .a11yRow {
+    gap: 6px;
   }
 }

@@ -12,6 +12,8 @@ body,
 
 body {
   margin: 0;
+  background: var(--dcq-color-bg);
+  color: var(--dcq-color-fg);
   min-height: 100vh;
 }
 

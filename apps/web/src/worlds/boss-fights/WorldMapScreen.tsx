@@ -12,6 +12,7 @@ import type { SaveData } from "../../lib/save";
 import type { A11yState } from "../../lib/a11y";
 import { predicateKindOrder } from "../../lib/affliction-cells";
 import { BADGE_GLYPH } from "./afflictionPresentation";
+import { renderSigil } from "./sigil";
 import { classNames } from "../../lib/classNames";
 import A11yControls from "./A11yControls";
 import styles from "./WorldMapScreen.module.css";
@@ -128,132 +129,187 @@ export default function WorldMapScreen({
   }
 
   const statusIsError = statusMessage.startsWith("IMPORT FAILED");
+  const rankPercent =
+    maxTechniques > 0 ? Math.round((masteredCount / maxTechniques) * 100) : 0;
+  const clearedCount = clearedIds.size;
 
   return (
     <div className={styles.roster} data-world="boss-fights">
-      <div className={styles.rosterHeader}>
-        <h1 className={styles.rosterHeading}>Boss-Fights // World Roster</h1>
-        <A11yControls a11y={a11y} onChange={onA11yChange} />
-      </div>
-
-      {loadError ? (
-        <div className={styles.loadError} role="alert">
-          failed to load roster — {loadError}
-        </div>
-      ) : null}
-
-      {!cases && !loadError ? (
-        <div className={styles.loading} role="status" aria-live="polite">
-          loading roster...
-        </div>
-      ) : null}
-
-      {cases ? (
-        <div role="list">
-          {cases.map((caseItem, index) => {
-            const status = statusFor(index, caseItem);
-            const kinds = predicateKindOrder(caseItem.winCondition);
-            const isLocked = status === "locked";
-            const glyphPreview = kinds.map((kind) => BADGE_GLYPH[kind]).join(" ");
-            return (
-              <div
-                key={caseItem.id}
-                role="listitem"
-                className={styles.rosterRow}
-                data-status={status}
-              >
-                <span
-                  className={styles.rosterStatus}
-                  data-status={status}
-                  aria-hidden="true"
-                >
-                  {status === "cleared" ? "[X]" : status === "unlocked" ? "[>]" : "[ ]"}
-                </span>
-                {isLocked ? (
-                  <span
-                    className={styles.rosterName}
-                    aria-label={`${caseItem.strings.title}, ${caseItem.tier}, locked`}
-                  >
-                    {caseItem.strings.title}
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    className={classNames(styles.rosterName, styles.rosterNameButton)}
-                    aria-label={`${caseItem.strings.title}, ${caseItem.tier}, ${status === "cleared" ? "cleared" : "unlocked"}, techniques: ${kinds.join(", ")}`}
-                    onClick={() => {
-                      onSelectCase(casePath(world, caseItem.id));
-                    }}
-                  >
-                    {caseItem.strings.title}
-                  </button>
-                )}
-                <span className={styles.rosterTier} aria-hidden="true">
-                  {caseItem.tier}
-                </span>
-                <span
-                  className={styles.rosterGlyphs}
-                  aria-hidden="true"
-                  title={glyphPreview}
-                >
-                  {glyphPreview}
-                </span>
-                <span className={styles.rosterTag} aria-hidden="true">
-                  {status === "cleared" ? "CLEARED" : status === "locked" ? "LOCKED" : ""}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      ) : null}
-
-      <div className={styles.rankReadout}>
-        <span>
-          <span className={styles.rankLabel}>RANK</span>
-          <span className={styles.rankValue}>{rankLabel}</span>
-          <span className={styles.rankProgress}>
-            ({masteredCount} / {maxTechniques} techniques)
+      <div className={styles.shell}>
+        <header className={styles.topbar}>
+          <span className={styles.brand}>
+            <span className={styles.brandMark} aria-hidden="true">
+              &gt;_
+            </span>
+            Data Cleaning Quest
           </span>
-        </span>
-        <span>
-          <span className={styles.rankLabel}>XP</span>
-          <span className={styles.rankValue}>{progress.xp}</span>
-        </span>
-      </div>
+          <A11yControls a11y={a11y} onChange={onA11yChange} />
+        </header>
 
-      <div className={styles.saveControls}>
-        <button type="button" className={styles.saveButton} onClick={handleExport}>
-          Export Save
-        </button>
-        <button
-          type="button"
-          className={styles.saveButton}
-          onClick={() => {
-            fileInputRef.current?.click();
-          }}
+        <section className={styles.hero}>
+          <div>
+            <p className={styles.worldTag}>World 1</p>
+            <h1 className={styles.rosterHeading}>Boss Fights</h1>
+            <p className={styles.lede}>
+              Every boss is a messy table. Write real pandas or SQL, run it in your
+              browser, and watch the afflicted cells clear.
+            </p>
+          </div>
+          <div className={styles.rankPanel}>
+            <div className={styles.rankTop}>
+              <span className={styles.rankLabel}>Rank</span>
+              <span className={styles.rankValue}>{rankLabel}</span>
+            </div>
+            <div
+              className={styles.rankTrack}
+              role="progressbar"
+              aria-label="Techniques mastered"
+              aria-valuemin={0}
+              aria-valuemax={maxTechniques}
+              aria-valuenow={masteredCount}
+            >
+              <div
+                className={styles.rankFill}
+                style={{ width: `${String(rankPercent)}%` }}
+              />
+            </div>
+            <div className={styles.rankMeta}>
+              <span>
+                {masteredCount} / {maxTechniques} techniques
+              </span>
+              <span>{progress.xp} XP</span>
+            </div>
+          </div>
+        </section>
+
+        {loadError ? (
+          <div className={styles.loadError} role="alert">
+            Could not load the roster: {loadError}. Reload the page to try again.
+          </div>
+        ) : null}
+
+        {!cases && !loadError ? (
+          <div className={styles.loading} role="status" aria-live="polite">
+            Loading bosses...
+          </div>
+        ) : null}
+
+        {cases ? (
+          <ul className={styles.grid}>
+            {cases.map((caseItem, index) => {
+              const status = statusFor(index, caseItem);
+              const kinds = predicateKindOrder(caseItem.winCondition);
+              const isLocked = status === "locked";
+              const sigil = renderSigil(isLocked || status === "unlocked" ? 1 : 0, 1);
+              const label = `${caseItem.strings.title}, ${caseItem.tier}, ${status}, techniques: ${kinds.join(", ")}`;
+              const body = (
+                <>
+                  <div className={styles.cardHead}>
+                    <span className={styles.cardTier}>{caseItem.tier}</span>
+                    <span className={styles.cardStatus} data-status={status}>
+                      {status === "cleared" ? "Cleared" : isLocked ? "Locked" : "Ready"}
+                    </span>
+                  </div>
+                  <pre className={styles.sigil} aria-hidden="true">
+                    {sigil}
+                  </pre>
+                  <h2 className={styles.cardTitle}>{caseItem.strings.title}</h2>
+                  {caseItem.strings.subtitle ? (
+                    <p className={styles.cardSub}>{caseItem.strings.subtitle}</p>
+                  ) : null}
+                  <ul className={styles.chips} aria-hidden="true">
+                    {kinds.map((kind) => (
+                      <li key={kind} className={styles.chip} data-kind={kind}>
+                        <span className={styles.chipGlyph}>{BADGE_GLYPH[kind]}</span>
+                        {kind}
+                      </li>
+                    ))}
+                  </ul>
+                  <span className={styles.cardCta} aria-hidden="true">
+                    {status === "cleared"
+                      ? "Fight again"
+                      : isLocked
+                        ? "Clear the previous boss"
+                        : "Start fight"}
+                  </span>
+                </>
+              );
+              return (
+                <li
+                  key={caseItem.id}
+                  className={styles.cardItem}
+                  style={{ "--i": index } as React.CSSProperties}
+                >
+                  {isLocked ? (
+                    <div
+                      className={styles.card}
+                      data-status={status}
+                      aria-label={label}
+                      role="group"
+                    >
+                      {body}
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className={classNames(styles.card, styles.cardButton)}
+                      data-status={status}
+                      aria-label={label}
+                      onClick={() => {
+                        onSelectCase(casePath(world, caseItem.id));
+                      }}
+                    >
+                      {body}
+                    </button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
+
+        <footer className={styles.footer}>
+          <span className={styles.footerNote}>
+            {cases
+              ? `${String(clearedCount)} of ${String(cases.length)} bosses cleared. `
+              : ""}
+            Progress is saved in this browser. Export it to move devices.
+          </span>
+          <div className={styles.saveControls}>
+            <button type="button" className={styles.saveButton} onClick={handleExport}>
+              Export save
+            </button>
+            <button
+              type="button"
+              className={styles.saveButton}
+              onClick={() => {
+                fileInputRef.current?.click();
+              }}
+            >
+              Import save
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/json"
+              className={styles.hiddenFileInput}
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) handleImportFile(file);
+                event.target.value = "";
+              }}
+            />
+          </div>
+        </footer>
+        <div
+          className={classNames(
+            styles.importStatus,
+            statusIsError && styles.importStatusError,
+          )}
+          aria-live="polite"
         >
-          Import Save
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="application/json"
-          className={styles.hiddenFileInput}
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (file) handleImportFile(file);
-            event.target.value = "";
-          }}
-        />
-      </div>
-      <div
-        className={classNames(
-          styles.importStatus,
-          statusIsError && styles.importStatusError,
-        )}
-        aria-live="polite"
-      >
-        {statusMessage}
+          {statusMessage}
+        </div>
       </div>
     </div>
   );

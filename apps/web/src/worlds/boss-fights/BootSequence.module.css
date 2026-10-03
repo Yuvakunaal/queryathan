@@ -48,3 +48,15 @@
   outline: 2px solid var(--w1-focus);
   outline-offset: 2px;
 }
+
+@media (max-width: 719px) {
+  .boot {
+    position: fixed;
+    padding: 10vh 16px 0;
+    overflow: auto;
+  }
+  .line {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
