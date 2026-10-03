@@ -39,7 +39,7 @@
     "wght" 700;
   letter-spacing: -0.02em;
   text-transform: uppercase;
-  color: var(--w1-status-null);
+  color: var(--w1-title, var(--w1-status-null));
 }
 
 .subtitle {
@@ -63,7 +63,7 @@
 }
 .body code {
   font: inherit;
-  color: var(--w1-status-null);
+  color: var(--w1-title, var(--w1-status-null));
 }
 
 .objective {

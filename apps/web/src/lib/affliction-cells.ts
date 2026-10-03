@@ -10,6 +10,9 @@ import {
   patternMismatchRowIndices,
   mojibakeRowIndices,
   missingColumns,
+  presentColumns,
+  columnSumMatches,
+  distinctCount,
 } from "./afflictions";
 
 /** The visual affliction kinds the game renders ("shape" never marks a cell: it labels whole-table rules) — see docs/design/world-1-phase-2-visual-spec.md §0 for the predicate -> kind mapping. */
@@ -41,6 +44,9 @@ export function kindForPredicate(predicate: Predicate): AfflictionKind {
       return "encoding";
     case "row_count":
     case "has_columns":
+    case "lacks_columns":
+    case "column_sum":
+    case "distinct_count":
       return "shape";
   }
 }
@@ -49,8 +55,11 @@ function columnsForPredicate(predicate: Predicate): string[] {
   switch (predicate.predicate) {
     case "no_duplicates":
     case "has_columns":
+    case "lacks_columns":
       return predicate.columns;
     case "row_count":
+    case "column_sum":
+    case "distinct_count":
       return [];
     default:
       return [predicate.column];
@@ -77,6 +86,9 @@ function rowIndicesForPredicate(grid: ResultGrid, predicate: Predicate): number[
       return mojibakeRowIndices(grid, predicate.column);
     case "row_count":
     case "has_columns":
+    case "lacks_columns":
+    case "column_sum":
+    case "distinct_count":
       // Whole-table rules: there is no single cell to blame. See predicateDebt.
       return [];
   }
@@ -148,10 +160,30 @@ export function predicateDebt(grid: ResultGrid, predicate: Predicate): number {
   switch (predicate.predicate) {
     case "has_columns":
       return missingColumns(grid, predicate.columns).length;
+    case "lacks_columns":
+      return presentColumns(grid, predicate.columns).length;
     case "row_count":
       return grid.rows.length === predicate.equals ? 0 : 1;
+    case "column_sum":
+      return columnSumMatches(grid, predicate.column, predicate.equals) ? 0 : 1;
+    case "distinct_count":
+      return distinctCount(grid, predicate.column) === predicate.equals ? 0 : 1;
     default:
       return getAfflictedCells(grid, predicate).length;
+  }
+}
+
+/** Rules about the shape of the whole result rather than individual cells. */
+export function isWholeTable(predicate: Predicate): boolean {
+  switch (predicate.predicate) {
+    case "row_count":
+    case "has_columns":
+    case "lacks_columns":
+    case "column_sum":
+    case "distinct_count":
+      return true;
+    default:
+      return false;
   }
 }
 
@@ -162,10 +194,7 @@ export function predicateDebt(grid: ResultGrid, predicate: Predicate): number {
  */
 export function totalDebt(grid: ResultGrid, winCondition: WinCondition): number {
   const structural = winCondition.all.reduce(
-    (sum, p) =>
-      p.predicate === "has_columns" || p.predicate === "row_count"
-        ? sum + predicateDebt(grid, p)
-        : sum,
+    (sum, p) => (isWholeTable(p) ? sum + predicateDebt(grid, p) : sum),
     0,
   );
   return afflictionCellMap(grid, winCondition).size + structural;

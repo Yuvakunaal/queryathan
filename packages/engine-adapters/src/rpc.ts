@@ -5,6 +5,11 @@ import type {
   WorkerResponse,
 } from "./protocol";
 
+export interface InitCaseOptions {
+  extraTables?: ExtraTable[];
+  trackRowIdentity?: boolean;
+}
+
 /**
  * Minimal Worker-shaped interface so this can be unit-tested with an
  * in-memory fake instead of a real Worker/jsdom.
@@ -105,10 +110,18 @@ export class EngineRpcClient {
 
   initCase(
     datasetUrl: string,
-    extraTables: ExtraTable[] = [],
+    options: InitCaseOptions = {},
     timeoutMs = DEFAULT_TIMEOUT_MS,
   ): Promise<RunResultResponse> {
-    return this.send({ type: "init-case", datasetUrl, extraTables }, timeoutMs);
+    return this.send(
+      {
+        type: "init-case",
+        datasetUrl,
+        extraTables: options.extraTables ?? [],
+        trackRowIdentity: options.trackRowIdentity ?? true,
+      },
+      timeoutMs,
+    );
   }
 
   run(code: string, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<RunResultResponse> {
@@ -144,7 +157,12 @@ export class EngineRpcClient {
 
   private send(
     request:
-      | { type: "init-case"; datasetUrl: string; extraTables: ExtraTable[] }
+      | {
+          type: "init-case";
+          datasetUrl: string;
+          extraTables: ExtraTable[];
+          trackRowIdentity: boolean;
+        }
       | { type: "run-code"; code: string },
     timeoutMs: number,
   ): Promise<RunResultResponse> {

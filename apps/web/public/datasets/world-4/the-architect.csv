@@ -1,0 +1,17 @@
+id,region,meta,q1,q2,q3,q4
+1,North,"{""channel"":""retail"",""manager"":""Okafor""}",6236,3233,6516,3819
+2,South,"{""channel"":""partner"",""manager"":""Kim""}",5523,4704,4405,4113
+3,East,"{""channel"":""retail"",""manager"":""Nguyen""}",2288,1492,6892,7868
+4,West,"{""channel"":""retail"",""manager"":""Okafor""}",6259,6671,6735,7764
+5,Central,"{""channel"":""retail"",""manager"":""Nguyen""}",4916,3564,8459,1203
+6,Coastal,"{""channel"":""partner"",""manager"":""Kim""}",4891,1909,8369,4333
+7,Highland,"{""channel"":""web"",""manager"":""Silva""}",2819,6004,5896,4527
+8,Lakes,"{""channel"":""retail"",""manager"":""Cohen""}",6858,1290,4876,8147
+9,Islands,"{""channel"":""web"",""manager"":""Kim""}",8184,2812,1136,8629
+10,Plains,"{""channel"":""partner"",""manager"":""Cohen""}",3514,6555,2411,7679
+11,Delta,"{""channel"":""partner"",""manager"":""Kim""}",3381,1862,2005,6218
+12,Valley,"{""channel"":""partner"",""manager"":""Silva""}",2836,5188,4662,5882
+13,Ridge,"{""channel"":""web"",""manager"":""Okafor""}",5524,5242,1764,2452
+14,Bay,"{""channel"":""partner"",""manager"":""Cohen""}",5520,5418,5689,1995
+15,Prairie,"{""channel"":""web"",""manager"":""Kim""}",6978,6288,5495,4865
+16,Forest,"{""channel"":""partner"",""manager"":""Cohen""}",6378,1894,8470,4251

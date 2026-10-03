@@ -33,6 +33,12 @@ export interface InitCaseRequest {
   datasetUrl: string;
   /** Optional reference tables (World 3 joins). The main dataset stays `df` / `data`. */
   extraTables?: ExtraTable[];
+  /**
+   * Python only. When true (default) a hidden column carries each row's identity through
+   * the player's code for diffing. Reshaping cases (melt, pivot) turn it off, because that
+   * column would itself be reshaped; identity then falls back to row position.
+   */
+  trackRowIdentity?: boolean;
 }
 
 export interface RunCodeRequest {

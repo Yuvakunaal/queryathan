@@ -23,7 +23,7 @@
 }
 
 .bossName {
-  color: var(--w1-status-null);
+  color: var(--w1-title, var(--w1-status-null));
 }
 
 .tiles {

@@ -5,6 +5,14 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added (Phase 5: World 4, The Architect)
+
+- Four cases: MELT_FORM, PIVOT_PLAN, JSON_VAULT and the final THE_ARCHITECT, all solved in Python and SQL on the real engines.
+- New whole-table predicates `lacks_columns`, `column_sum` and `distinct_count`.
+- `reshapes` case flag: disables the Python row-identity column (which melt/pivot would otherwise reshape into the data) and shows a shape summary instead of a cell diff.
+- Blueprint theme and HUD: the target shape drawn as chips (columns to add, columns to remove) plus the remaining rules.
+- Each world's boss title now follows the world's accent color.
+
 ### Added (Phase 5: World 3, The Twins)
 
 - Multi-table engine support: a case can declare `extraTables`; both workers load them beside the main dataset. In SQL, a table or view named `result` is judged in preference to `data`.

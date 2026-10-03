@@ -5,7 +5,12 @@
   See docs/design/world-1-visual-spec.md for the full rationale.
 */
 
-:is([data-world="boss-fights"], [data-world="the-vault"], [data-world="the-twins"]) {
+:is(
+  [data-world="boss-fights"],
+  [data-world="the-vault"],
+  [data-world="the-twins"],
+  [data-world="the-architect"]
+) {
   /* --- surfaces: near-black, cool cast, stepped not shadowed --- */
   --w1-bg-void: #06080a;
   --w1-bg-panel: #0c1110;
@@ -124,7 +129,12 @@
 }
 
 [data-dcq-contrast="high"]
-  :is([data-world="boss-fights"], [data-world="the-vault"], [data-world="the-twins"]) {
+  :is(
+    [data-world="boss-fights"],
+    [data-world="the-vault"],
+    [data-world="the-twins"],
+    [data-world="the-architect"]
+  ) {
   --w1-bg-void: #000000;
   --w1-bg-panel: #000000;
   --w1-bg-panel-2: #0a0a0a;
@@ -145,26 +155,58 @@
 }
 
 /* Global frame rules (spec §3.1) */
-:is([data-world="boss-fights"], [data-world="the-vault"], [data-world="the-twins"]),
-:is([data-world="boss-fights"], [data-world="the-vault"], [data-world="the-twins"]) * {
+:is(
+  [data-world="boss-fights"],
+  [data-world="the-vault"],
+  [data-world="the-twins"],
+  [data-world="the-architect"]
+),
+:is(
+    [data-world="boss-fights"],
+    [data-world="the-vault"],
+    [data-world="the-twins"],
+    [data-world="the-architect"]
+  )
+  * {
   border-radius: 0;
 }
 
-:is([data-world="boss-fights"], [data-world="the-vault"], [data-world="the-twins"]) {
+:is(
+  [data-world="boss-fights"],
+  [data-world="the-vault"],
+  [data-world="the-twins"],
+  [data-world="the-architect"]
+) {
   font-variant-ligatures: none;
   font-feature-settings: "zero" 1;
 }
 
-:is([data-world="boss-fights"], [data-world="the-vault"], [data-world="the-twins"]) * {
+:is(
+    [data-world="boss-fights"],
+    [data-world="the-vault"],
+    [data-world="the-twins"],
+    [data-world="the-architect"]
+  )
+  * {
   scrollbar-width: thin;
   scrollbar-color: var(--w1-rule-strong) transparent;
 }
-:is([data-world="boss-fights"], [data-world="the-vault"], [data-world="the-twins"])
+:is(
+    [data-world="boss-fights"],
+    [data-world="the-vault"],
+    [data-world="the-twins"],
+    [data-world="the-architect"]
+  )
   *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-:is([data-world="boss-fights"], [data-world="the-vault"], [data-world="the-twins"])
+:is(
+    [data-world="boss-fights"],
+    [data-world="the-vault"],
+    [data-world="the-twins"],
+    [data-world="the-architect"]
+  )
   *::-webkit-scrollbar-thumb {
   background: var(--w1-rule-strong);
   border-radius: 0;

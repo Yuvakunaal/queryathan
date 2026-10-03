@@ -10,6 +10,9 @@ import {
   countPatternMismatches,
   countMojibake,
   missingColumns,
+  presentColumns,
+  columnSumMatches,
+  distinctCount,
 } from "./afflictions";
 
 function evaluatePredicate(grid: ResultGrid, predicate: Predicate): boolean {
@@ -32,6 +35,12 @@ function evaluatePredicate(grid: ResultGrid, predicate: Predicate): boolean {
       return grid.rows.length === predicate.equals;
     case "has_columns":
       return missingColumns(grid, predicate.columns).length === 0;
+    case "lacks_columns":
+      return presentColumns(grid, predicate.columns).length === 0;
+    case "column_sum":
+      return columnSumMatches(grid, predicate.column, predicate.equals);
+    case "distinct_count":
+      return distinctCount(grid, predicate.column) === predicate.equals;
     case "no_mojibake":
       return countMojibake(grid, predicate.column) === 0;
   }

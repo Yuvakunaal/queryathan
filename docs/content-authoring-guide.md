@@ -94,6 +94,19 @@ shipped World 1 tutorial case as a working reference
 | `no_mojibake`       | `{ column }`                                                      | red `?` badge. Flags UTF-8 text decoded as Latin-1, such as `JosÃ©` or `itâ€™s`.                                                                                   |
 | `row_count`         | `{ equals }`                                                      | The result must have exactly this many rows. Whole-table rule: shown in the Twins checklist, no cell to highlight.                                                 |
 | `has_columns`       | `{ columns }`                                                     | Every listed column must exist in the result. Whole-table rule.                                                                                                    |
+| `lacks_columns`     | `{ columns }`                                                     | None of the listed columns may remain. Whole-table rule (World 4).                                                                                                 |
+| `column_sum`        | `{ column, equals }`                                              | Numeric cells of the column must add to `equals` (within 0.01). A checksum proving values survived a reshape. Whole-table rule.                                    |
+| `distinct_count`    | `{ column, equals }`                                              | The column must hold exactly this many distinct non-null values. Whole-table rule.                                                                                 |
+
+### Reshaping cases (World 4)
+
+Set `"reshapes": true` on a case where the player changes the table's rows and
+columns (melt, pivot, flatten JSON). This turns off the hidden row-identity
+column in Python (it would itself be melted into the data) and replaces the
+per-cell diff with a "reshaped: A x B -> C x D" summary. Win with
+`has_columns` + `lacks_columns` + `row_count`, and add `column_sum` so a result
+with the right shape but wrong numbers does not pass. Compute the checksum
+from the CSV, never by hand. SQLite has `json_extract` built in.
 
 ### Two tables (World 3)
 

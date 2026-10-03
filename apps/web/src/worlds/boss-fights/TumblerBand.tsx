@@ -36,6 +36,12 @@ function labelFor(predicate: Predicate): string {
       return "row count";
     case "has_columns":
       return "columns";
+    case "lacks_columns":
+      return "old columns";
+    case "column_sum":
+      return `${predicate.column} total`;
+    case "distinct_count":
+      return `${predicate.column} variety`;
   }
 }
 

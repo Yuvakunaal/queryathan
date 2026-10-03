@@ -52,6 +52,23 @@ export const predicateSchema = z.discriminatedUnion("predicate", [
   z.object({ predicate: z.literal("row_count"), equals: z.number().int().min(0) }),
   /** Every listed column must exist in the result (World 3: a join must bring the other table's columns across). */
   z.object({ predicate: z.literal("has_columns"), columns: z.array(z.string()).min(1) }),
+  /** None of the listed columns may remain (World 4: a melt or flatten must drop the old shape). */
+  z.object({
+    predicate: z.literal("lacks_columns"),
+    columns: z.array(z.string()).min(1),
+  }),
+  /** The numeric cells of `column` must add up to `equals` (within 0.01): proof that values survived a reshape. */
+  z.object({
+    predicate: z.literal("column_sum"),
+    column: z.string(),
+    equals: z.number(),
+  }),
+  /** `column` must hold exactly `equals` distinct non-null values. */
+  z.object({
+    predicate: z.literal("distinct_count"),
+    column: z.string(),
+    equals: z.number().int().min(0),
+  }),
   /** No cell may contain UTF-8-read-as-Latin-1 garbage such as "Ã©" or "â€™". */
   z.object({ predicate: z.literal("no_mojibake"), column: z.string() }),
 ]);
@@ -139,6 +156,8 @@ export const caseSchema = z.object({
   datasetPath: z.string().min(1),
   /** Reference tables the player can join against (World 3). The main dataset stays `df` / `data`. */
   extraTables: z.array(extraTableSchema).optional(),
+  /** True when the player is expected to change the table's shape (melt, pivot, flatten). Turns off per-cell diffing and row-identity tracking. */
+  reshapes: z.boolean().optional(),
   datasetLicense: datasetLicenseSchema,
   strings: caseStringsSchema,
   /** The code buffer CodeEditor seeds on entry, per engine — case content, not engine logic. Ignored for final-boss cases (plan §6's "no hints, one shot"). */

@@ -129,7 +129,12 @@ const RANK_TIERS: Record<WorldId, RankTier[]> = {
     { label: "Linker", minTechniques: 3 },
     { label: "Twin Master", minTechniques: 6 },
   ],
-  "the-architect": [{ label: "Recruit", minTechniques: 0 }],
+  "the-architect": [
+    { label: "Recruit", minTechniques: 0 },
+    { label: "Drafter", minTechniques: 1 },
+    { label: "Designer", minTechniques: 3 },
+    { label: "Architect", minTechniques: 6 },
+  ],
   "the-foundry": [{ label: "Recruit", minTechniques: 0 }],
 };
 

@@ -47,15 +47,21 @@ const ROW_ID_COLUMN = "__dcq_row_id__";
 const SERIALIZE_HELPER_PY = `
 import json
 
+__dcq_track_row_ids = True
+
 def __dcq_ensure_row_id(dataframe):
     if "${ROW_ID_COLUMN}" not in dataframe.columns:
         dataframe["${ROW_ID_COLUMN}"] = range(len(dataframe))
     return dataframe
 
 def __dcq_serialize_df(dataframe):
-    dataframe = __dcq_ensure_row_id(dataframe)
-    row_ids = dataframe["${ROW_ID_COLUMN}"].tolist()
-    visible = dataframe.drop(columns=["${ROW_ID_COLUMN}"])
+    if __dcq_track_row_ids:
+        dataframe = __dcq_ensure_row_id(dataframe)
+        row_ids = dataframe["${ROW_ID_COLUMN}"].tolist()
+        visible = dataframe.drop(columns=["${ROW_ID_COLUMN}"])
+    else:
+        row_ids = list(range(len(dataframe)))
+        visible = dataframe
     columns = list(visible.columns)
     rows = json.loads(visible.to_json(orient="records", date_format="iso"))
     dtypes = {col: str(dtype) for col, dtype in visible.dtypes.items()}
@@ -167,6 +173,8 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
       await pyodide.runPythonAsync(
         "import pandas as pd, io\ndf = pd.read_csv(io.StringIO(__dcq_csv_text))",
       );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      pyodide.globals.set("__dcq_track_row_ids", request.trackRowIdentity ?? true);
       for (const table of request.extraTables ?? []) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         pyodide.globals.set("__dcq_extra_name", table.name);

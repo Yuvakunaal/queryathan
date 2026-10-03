@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import type { ResultGrid } from "@dcq/engine-adapters";
-import type { Predicate, WinCondition } from "@dcq/content-schema";
-import { missingColumns } from "../../lib/afflictions";
-import { predicateDebt, totalDebt } from "../../lib/affliction-cells";
+import type { WinCondition } from "@dcq/content-schema";
+import { totalDebt } from "../../lib/affliction-cells";
+import { describePredicate } from "./predicateChecks";
+import type { Check } from "./predicateChecks";
 import styles from "./TwinBand.module.css";
 
 export interface TwinBandProps {
@@ -10,82 +11,6 @@ export interface TwinBandProps {
   winCondition: WinCondition;
   leftName: string;
   rightName: string;
-}
-
-interface Check {
-  key: string;
-  label: string;
-  detail: string;
-  met: boolean;
-}
-
-function describe(grid: ResultGrid, predicate: Predicate): Omit<Check, "key"> {
-  const debt = predicateDebt(grid, predicate);
-  const met = debt === 0;
-  switch (predicate.predicate) {
-    case "row_count":
-      return {
-        label: `Exactly ${String(predicate.equals)} rows`,
-        detail: met ? "yes" : `has ${String(grid.rows.length)}`,
-        met,
-      };
-    case "has_columns":
-      return {
-        label: `Has ${predicate.columns.join(", ")}`,
-        detail: met
-          ? "yes"
-          : `missing ${missingColumns(grid, predicate.columns).join(", ")}`,
-        met,
-      };
-    case "no_nulls":
-      return {
-        label: `No gaps in ${predicate.column}`,
-        detail: met ? "yes" : `${String(debt)} empty`,
-        met,
-      };
-    case "no_duplicates":
-      return {
-        label: `No repeats in ${predicate.columns.join("+")}`,
-        detail: met ? "yes" : `${String(debt)} repeated`,
-        met,
-      };
-    case "no_whitespace":
-      return {
-        label: `No stray spaces in ${predicate.column}`,
-        detail: met ? "yes" : `${String(debt)} cells`,
-        met,
-      };
-    case "consistent_casing":
-      return {
-        label: `${predicate.column} in ${predicate.case} case`,
-        detail: met ? "yes" : `${String(debt)} cells`,
-        met,
-      };
-    case "no_outliers":
-      return {
-        label: `${predicate.column} within range`,
-        detail: met ? "yes" : `${String(debt)} outside`,
-        met,
-      };
-    case "valid_dtype":
-      return {
-        label: `${predicate.column} is ${predicate.dtype}`,
-        detail: met ? "yes" : "wrong type",
-        met,
-      };
-    case "matches_pattern":
-      return {
-        label: `${predicate.column} fits the pattern`,
-        detail: met ? "yes" : `${String(debt)} cells`,
-        met,
-      };
-    case "no_mojibake":
-      return {
-        label: `${predicate.column} readable`,
-        detail: met ? "yes" : `${String(debt)} garbled`,
-        met,
-      };
-  }
 }
 
 /**
@@ -104,7 +29,7 @@ export default function TwinBand({
     () =>
       winCondition.all.map((predicate, i) => ({
         key: `${predicate.predicate}-${String(i)}`,
-        ...describe(grid, predicate),
+        ...describePredicate(grid, predicate),
       })),
     [grid, winCondition],
   );

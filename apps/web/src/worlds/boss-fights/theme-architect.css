@@ -1,0 +1,45 @@
+/*
+  World 4 (The Architect): blueprint blue with chalk-yellow annotations and a
+  faint drafting grid. "green" (primary accent) is pale blueprint-blue line
+  work, "amber" (highlight) is chalk yellow. Loaded after theme.css.
+*/
+[data-world="the-architect"] {
+  --w1-bg-void: #07182f;
+  --w1-bg-panel: #0b2240;
+  --w1-bg-panel-2: #102c52;
+  --w1-bg-row-a: #081d38;
+  --w1-bg-row-b: #0a2140;
+  --w1-bg-row-hover: #0f2a4d;
+
+  --w1-green-300: #d6ebff;
+  --w1-green-500: #9fd3ff;
+  --w1-green-700: #4c86bd;
+
+  --w1-amber-300: #ffe6a3;
+  --w1-amber-500: #ffd166;
+  --w1-amber-700: #a88a35;
+
+  --w1-text-primary: #e8f2ff;
+  --w1-text-secondary: #a9c1de;
+  --w1-text-dim: #6f8bad;
+  --w1-text-inverse: #07182f;
+
+  --w1-rule-strong: #2c5384;
+  --w1-rule: #1d3f69;
+  --w1-rule-faint: #14304f;
+  --w1-title: #ffd166;
+  --w1-focus: #ffd166;
+
+  --w1-crt-scanline-a: 0;
+  --w1-crt-grille-a: 0;
+  --w1-crt-vignette-a: 0;
+}
+
+/* Drafting grid on the screen backgrounds. The extra `html` raises specificity above each screen's own module background. */
+html [data-world="the-architect"] {
+  background-image:
+    linear-gradient(rgb(159 211 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(159 211 255 / 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-attachment: local;
+}

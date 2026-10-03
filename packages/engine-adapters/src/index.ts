@@ -12,5 +12,5 @@ export type {
   ResultGrid,
 } from "./protocol";
 export { EngineRpcClient, RpcTimeoutError, RpcRunError, RpcEngineError } from "./rpc";
-export type { RpcTransport } from "./rpc";
+export type { RpcTransport, InitCaseOptions } from "./rpc";
 export { WorkerEngineClient } from "./client";

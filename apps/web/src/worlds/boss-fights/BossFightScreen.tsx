@@ -35,6 +35,7 @@ import BriefingPanel from "./BriefingPanel";
 import HpHeatmap from "./HpHeatmap";
 import TumblerBand from "./TumblerBand";
 import TwinBand from "./TwinBand";
+import BlueprintBand from "./BlueprintBand";
 import ReferenceTable from "./ReferenceTable";
 import DataframeGrid from "./DataframeGrid";
 import type { DataframeGridHandle } from "./DataframeGrid";
@@ -190,10 +191,13 @@ export default function BossFightScreen({
         client.spawn();
         await client.ready();
         if (isCancelled()) return;
-        const result = await client.initCase(
-          activeCase.datasetPath,
-          (activeCase.extraTables ?? []).map((t) => ({ name: t.name, url: t.path })),
-        );
+        const result = await client.initCase(activeCase.datasetPath, {
+          extraTables: (activeCase.extraTables ?? []).map((t) => ({
+            name: t.name,
+            url: t.path,
+          })),
+          trackRowIdentity: !activeCase.reshapes,
+        });
         if (isCancelled()) return;
 
         setGrid(result.resultGrid);
@@ -279,7 +283,13 @@ export default function BossFightScreen({
     try {
       const result = await client.run(code);
       const nextGrid = result.resultGrid;
-      const changes = diffGrids(grid, nextGrid);
+      // A reshaping case (melt, pivot, flatten) changes rows and columns wholesale,
+      // so a per-cell diff against the old table would be noise: summarize the shape instead.
+      const reshaped =
+        caseData.reshapes === true &&
+        (nextGrid.rows.length !== grid.rows.length ||
+          nextGrid.columns.join("\u0000") !== grid.columns.join("\u0000"));
+      const changes = reshaped ? [] : diffGrids(grid, nextGrid);
       const beforeAfflicted = cellMap.size;
       const nextCellMap = afflictionCellMap(nextGrid, caseData.winCondition);
       const afterAfflicted = nextCellMap.size;
@@ -317,7 +327,9 @@ export default function BossFightScreen({
           {
             kind: "info",
             id: entryId,
-            text: `no change — ${String(afterAfflicted).padStart(3, "0")} afflicted cells remain`,
+            text: reshaped
+              ? `reshaped: ${String(grid.rows.length)} rows x ${String(grid.columns.length)} columns -> ${String(nextGrid.rows.length)} rows x ${String(nextGrid.columns.length)} columns`
+              : `no change — ${String(totalDebt(nextGrid, caseData.winCondition)).padStart(3, "0")} left to fix`,
           },
         ]);
       }
@@ -510,6 +522,8 @@ export default function BossFightScreen({
               leftName={engine === "sql" ? "data" : "df"}
               rightName={caseData.extraTables?.[0]?.name ?? "other"}
             />
+          ) : world === "the-architect" ? (
+            <BlueprintBand grid={grid} winCondition={caseData.winCondition} />
           ) : (
             <HpHeatmap grid={grid} winCondition={caseData.winCondition} />
           )}

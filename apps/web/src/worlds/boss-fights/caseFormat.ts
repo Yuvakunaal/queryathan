@@ -36,5 +36,11 @@ function formatPredicate(predicate: Predicate): string {
       return `row_count = ${String(predicate.equals)}`;
     case "has_columns":
       return `has_columns(${predicate.columns.join(",")})`;
+    case "lacks_columns":
+      return `lacks_columns(${predicate.columns.join(",")})`;
+    case "column_sum":
+      return `column_sum(${predicate.column}) = ${String(predicate.equals)}`;
+    case "distinct_count":
+      return `distinct_count(${predicate.column}) = ${String(predicate.equals)}`;
   }
 }

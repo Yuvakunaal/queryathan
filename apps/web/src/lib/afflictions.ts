@@ -182,3 +182,39 @@ export function countMojibake(grid: ResultGrid, column: string): number {
 export function missingColumns(grid: ResultGrid, required: string[]): string[] {
   return required.filter((column) => !grid.columns.includes(column));
 }
+
+/** Required-absent columns that are still present. */
+export function presentColumns(grid: ResultGrid, forbidden: string[]): string[] {
+  return forbidden.filter((column) => grid.columns.includes(column));
+}
+
+export function columnSum(grid: ResultGrid, column: string): number {
+  let total = 0;
+  for (const row of grid.rows) {
+    const value = row[column];
+    if (typeof value === "number") total += value;
+  }
+  return total;
+}
+
+export const COLUMN_SUM_TOLERANCE = 0.01;
+
+export function columnSumMatches(
+  grid: ResultGrid,
+  column: string,
+  equals: number,
+): boolean {
+  return (
+    grid.columns.includes(column) &&
+    Math.abs(columnSum(grid, column) - equals) <= COLUMN_SUM_TOLERANCE
+  );
+}
+
+export function distinctCount(grid: ResultGrid, column: string): number {
+  const seen = new Set<string | number | boolean>();
+  for (const row of grid.rows) {
+    const value = row[column];
+    if (value !== null && value !== undefined) seen.add(value);
+  }
+  return seen.size;
+}

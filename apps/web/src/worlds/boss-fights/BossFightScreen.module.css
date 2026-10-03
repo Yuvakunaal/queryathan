@@ -23,7 +23,7 @@
 }
 
 .statusRailBoss {
-  color: var(--w1-status-null);
+  color: var(--w1-title, var(--w1-status-null));
 }
 .statusRailBossFinal {
   color: var(--w1-diff-del);
@@ -377,5 +377,9 @@
 }
 
 [data-world="the-twins"] .battlefield {
+  grid-template-rows: auto 1fr;
+}
+
+[data-world="the-architect"] .battlefield {
   grid-template-rows: auto 1fr;
 }
