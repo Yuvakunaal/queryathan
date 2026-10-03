@@ -4,7 +4,8 @@
   flex-direction: column;
   gap: 28px;
   justify-content: center;
-  padding: 10vh 8vw 0;
+  align-items: center;
+  padding: 0 24px;
   background: var(--w1-bg-void);
 }
 
@@ -109,4 +110,14 @@
   .tiles {
     grid-template-columns: 1fr;
   }
+}
+
+.select > * {
+  width: min(760px, 100%);
+}
+
+.footnote {
+  align-self: center;
+  width: min(760px, 100%);
+  max-width: none;
 }

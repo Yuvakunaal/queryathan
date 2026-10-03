@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import type { CaseTier } from "@dcq/content-schema";
 import { renderSigil } from "./sigil";
@@ -13,6 +13,9 @@ export interface BriefingPanelProps {
   remaining: number;
   initial: number;
   tier: CaseTier;
+  /** Progressive hints for the active engine; omit or pass [] to hide the hint control. */
+  hints?: string[] | undefined;
+  onHintRevealed?: ((count: number) => void) | undefined;
 }
 
 const TIER_TAG_LABEL: Record<CaseTier, string | null> = {
@@ -29,7 +32,15 @@ export default function BriefingPanel({
   remaining,
   initial,
   tier,
+  hints = [],
+  onHintRevealed,
 }: BriefingPanelProps) {
+  const [revealed, setRevealed] = useState(0);
+  const hintsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (revealed > 0) hintsRef.current?.scrollIntoView({ block: "nearest" });
+  }, [revealed]);
   const sigilRef = useRef<HTMLPreElement>(null);
   const prevRemainingRef = useRef(remaining);
 
@@ -80,6 +91,31 @@ export default function BriefingPanel({
           <span className={styles.objectiveValue}>{objectiveLabel}</span>
         )}
       </div>
+      {tier !== "final-boss" && hints.length > 0 ? (
+        <div className={styles.hints} ref={hintsRef}>
+          {revealed > 0 ? (
+            <ol className={styles.hintList} aria-live="polite">
+              {hints.slice(0, revealed).map((hint) => (
+                <li key={hint}>{hint}</li>
+              ))}
+            </ol>
+          ) : null}
+          {revealed < hints.length ? (
+            <button
+              type="button"
+              className={styles.hintButton}
+              onClick={() => {
+                const next = revealed + 1;
+                setRevealed(next);
+                onHintRevealed?.(next);
+              }}
+            >
+              {revealed === 0 ? "Show a hint" : "Show the next hint"} ({revealed}/
+              {hints.length})
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -97,6 +97,13 @@ export const starterCodeSchema = z.object({
 });
 export type StarterCode = z.infer<typeof starterCodeSchema>;
 
+/** Progressive hints, revealed one at a time per engine. Never shown for final-boss cases. */
+export const hintsSchema = z.object({
+  python: z.array(z.string().min(1)),
+  sql: z.array(z.string().min(1)),
+});
+export type Hints = z.infer<typeof hintsSchema>;
+
 export const caseSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   world: worldIdSchema,
@@ -107,6 +114,7 @@ export const caseSchema = z.object({
   /** The code buffer CodeEditor seeds on entry, per engine — case content, not engine logic. Ignored for final-boss cases (plan §6's "no hints, one shot"). */
   starterCode: starterCodeSchema,
   columnHints: columnHintsSchema.optional(),
+  hints: hintsSchema.optional(),
   winCondition: winConditionSchema,
 });
 export type Case = z.infer<typeof caseSchema>;

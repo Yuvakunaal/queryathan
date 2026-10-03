@@ -97,3 +97,34 @@
 .tierTag[data-tier="final-boss"] {
   color: var(--w1-diff-del);
 }
+
+.hints {
+  margin-top: 16px;
+}
+.hintList {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  font: 400 var(--w1-fs-objective) / 1.6 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.hintList li + li {
+  margin-top: 6px;
+}
+.hintButton {
+  height: 30px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid var(--w1-rule-strong);
+  color: var(--w1-text-secondary);
+  font: 600 12px/1 var(--w1-font-display);
+  cursor: pointer;
+}
+.hintButton:hover,
+.hintButton:focus-visible {
+  border-color: var(--w1-amber-500);
+  color: var(--w1-amber-500);
+}
+.hintButton:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}

@@ -1,0 +1,103 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgb(6 8 10 / 0.78);
+  animation: fade 240ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+.panel {
+  width: min(440px, 100%);
+  padding: 28px;
+  background: var(--w1-bg-panel);
+  border: 1px solid var(--w1-green-700);
+  animation: rise 360ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+.kicker {
+  margin: 0 0 8px;
+  font: 500 12px/1 var(--w1-font-text);
+  color: var(--w1-green-500);
+}
+.title {
+  margin: 0 0 24px;
+  font: 700 28px/1.1 var(--w1-font-display);
+  letter-spacing: -0.02em;
+  color: var(--w1-text-primary);
+  overflow-wrap: anywhere;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 16px 0;
+  border-block: 1px solid var(--w1-rule);
+}
+.stats dt {
+  font: 400 11px/1 var(--w1-font-text);
+  color: var(--w1-text-dim);
+}
+.stats dd {
+  margin: 8px 0 0;
+  font: 700 22px/1 var(--w1-font-display);
+  color: var(--w1-text-primary);
+}
+.techniques {
+  margin: 0 0 24px;
+  font: 400 13px/1.5 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.primary,
+.secondary {
+  height: 40px;
+  padding: 0 18px;
+  font: 600 13px/1 var(--w1-font-display);
+  cursor: pointer;
+}
+.primary {
+  background: var(--w1-green-500);
+  border: 1px solid var(--w1-green-500);
+  color: var(--w1-text-inverse);
+}
+.secondary {
+  background: transparent;
+  border: 1px solid var(--w1-rule-strong);
+  color: var(--w1-text-secondary);
+}
+.primary:hover,
+.secondary:hover {
+  border-color: var(--w1-amber-500);
+}
+.secondary:hover {
+  color: var(--w1-amber-500);
+}
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .panel {
+    animation: none;
+  }
+}

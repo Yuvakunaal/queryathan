@@ -41,6 +41,7 @@ import RunBar from "./RunBar";
 import DiffConsole from "./DiffConsole";
 import type { ConsoleEntry } from "./DiffConsole";
 import A11yControls from "./A11yControls";
+import VictoryPanel from "./VictoryPanel";
 import styles from "./BossFightScreen.module.css";
 
 interface PendingReconciliation {
@@ -76,6 +77,9 @@ export default function BossFightScreen({
   const [isRunning, setIsRunning] = useState(false);
   const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([]);
   const [hasWon, setHasWon] = useState(false);
+  const [showVictory, setShowVictory] = useState(false);
+  const [runCount, setRunCount] = useState(0);
+  const [hintsUsed, setHintsUsed] = useState(0);
   const [narrowNoticeDismissed, setNarrowNoticeDismissed] = useState(false);
   const [liveMessage, setLiveMessage] = useState("");
   const [liveErrorMessage, setLiveErrorMessage] = useState("");
@@ -311,8 +315,10 @@ export default function BossFightScreen({
         `Run complete. ${String(changes.length)} cells changed. ${String(afterAfflicted)} afflicted cells remaining.`,
       );
 
+      setRunCount((n) => n + 1);
       if (evaluateWinCondition(nextGrid, caseData.winCondition)) {
         setHasWon(true);
+        setShowVictory(true);
         onWin(caseData.id, predicateKinds(caseData.winCondition));
       }
     } catch (err) {
@@ -448,6 +454,8 @@ export default function BossFightScreen({
               remaining={remaining}
               initial={initialAfflictionRef.current ?? remaining}
               tier={caseData.tier}
+              hints={engine === "sql" ? caseData.hints?.sql : caseData.hints?.python}
+              onHintRevealed={setHintsUsed}
             />
           </div>
           <div className={styles.editorPane}>
@@ -501,9 +509,22 @@ export default function BossFightScreen({
         {liveErrorMessage}
       </div>
       {hasWon ? (
-        <div className={styles.winOverlay} role="status">
-          Boss defeated — {caseData.strings.title} neutralized.
+        <div className={styles.srOnly} role="status">
+          Boss defeated. {caseData.strings.title} neutralized.
         </div>
+      ) : null}
+      {showVictory ? (
+        <VictoryPanel
+          bossName={caseData.strings.title}
+          runCount={runCount}
+          cellsCleared={initialAfflictionRef.current ?? 0}
+          techniques={predicateKinds(caseData.winCondition)}
+          hintsUsed={hintsUsed}
+          onContinue={() => {
+            setShowVictory(false);
+          }}
+          onExitToRoster={onExitToRoster}
+        />
       ) : null}
     </div>
   );

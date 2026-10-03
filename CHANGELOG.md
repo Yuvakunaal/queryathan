@@ -5,6 +5,17 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+
+- Victory panel on boss clear (runs, cells cleaned, hints used, techniques) with "Back to bosses" and "Keep exploring".
+- Progressive per-engine hints (`hints` in case JSON, hidden for final bosses); authored for the first three bosses.
+- Redesigned boss roster screen with rank progress bar and boss cards.
+
+### Fixed
+
+- Mobile fight screen text overflow, cramped top bar, and clipped boot sequence.
+- Briefing pane clipped the objective line on desktop; engine-select screen is now centred.
+
 ## Phase 3 — Dual-engine World 1 (SQL) — 2026-08-09
 
 Every World 1 boss is now playable in SQL (SQLite via sql.js) as well as

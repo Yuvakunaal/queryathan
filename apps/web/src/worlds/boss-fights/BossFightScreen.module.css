@@ -70,7 +70,7 @@
 
 .commandRail {
   display: grid;
-  grid-template-rows: minmax(auto, 34%) minmax(200px, 1fr) 44px minmax(110px, 24%);
+  grid-template-rows: minmax(auto, 50%) minmax(150px, 1fr) 44px minmax(100px, 20%);
   border-right: 1px solid var(--w1-rule-strong);
   min-height: 0;
 }

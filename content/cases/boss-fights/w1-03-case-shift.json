@@ -17,17 +17,55 @@
     "sql": "-- data table is loaded. 200 rows, 5 columns.\n-- Three afflictions stacked here. typeof() is a good place to start.\nSELECT sku, category, quantity, typeof(quantity) FROM data LIMIT 20;"
   },
   "columnHints": {
-    "sku": { "widthPx": 108, "numeric": false },
-    "product_name": { "widthPx": 176, "numeric": false },
-    "category": { "widthPx": 128, "numeric": false },
-    "quantity": { "widthPx": 96, "numeric": true },
-    "updated_at": { "widthPx": 176, "numeric": false }
+    "sku": {
+      "widthPx": 108,
+      "numeric": false
+    },
+    "product_name": {
+      "widthPx": 176,
+      "numeric": false
+    },
+    "category": {
+      "widthPx": 128,
+      "numeric": false
+    },
+    "quantity": {
+      "widthPx": 96,
+      "numeric": true
+    },
+    "updated_at": {
+      "widthPx": 176,
+      "numeric": false
+    }
   },
   "winCondition": {
     "all": [
-      { "predicate": "no_whitespace", "column": "sku" },
-      { "predicate": "consistent_casing", "column": "category", "case": "upper" },
-      { "predicate": "valid_dtype", "column": "quantity", "dtype": "int" }
+      {
+        "predicate": "no_whitespace",
+        "column": "sku"
+      },
+      {
+        "predicate": "consistent_casing",
+        "column": "category",
+        "case": "upper"
+      },
+      {
+        "predicate": "valid_dtype",
+        "column": "quantity",
+        "dtype": "int"
+      }
+    ]
+  },
+  "hints": {
+    "python": [
+      "Three columns, three fixes: sku whitespace, category casing, quantity type.",
+      "df['sku'] = df['sku'].str.strip() and df['category'] = df['category'].str.upper()",
+      "Convert quantity with pd.to_numeric(df['quantity'], errors='coerce'), then fill gaps and call .astype(int)."
+    ],
+    "sql": [
+      "Fix sku and category in one UPDATE using TRIM() and UPPER().",
+      "UPDATE data SET sku = TRIM(sku), category = UPPER(category);",
+      "Quantity needs CAST(quantity AS INTEGER). Check for non-numeric values first."
     ]
   }
 }

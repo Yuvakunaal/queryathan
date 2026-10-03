@@ -6,7 +6,7 @@ tests pass. The roster screen was redesigned in this pass.
 
 ## Next, in order
 
-1. **Phase 3.5: polish World 1 (1-2 weeks).**
+1. **Phase 3.5: polish World 1 (mostly done: roster, victory panel, hints, mobile fixes; first-time tutorial overlay and keyboard shortcut help remain).**
    Commit Phase 3. Redesign the fight screen to match the new roster
    (spacing, hierarchy, mobile layout). Add a first-time tutorial overlay,
    win/lose celebration screens, and keyboard shortcuts (Cmd+Enter to run).

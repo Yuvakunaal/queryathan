@@ -17,19 +17,49 @@
     "sql": "-- data table is loaded. 180 rows, 5 columns.\n-- Two afflictions here, not one. Inspect both before you fix either.\nSELECT COUNT(*) AS missing_email FROM data WHERE customer_email IS NULL;"
   },
   "columnHints": {
-    "order_id": { "widthPx": 88, "numeric": true },
-    "customer_email": { "widthPx": 200, "numeric": false },
-    "item_sku": { "widthPx": 100, "numeric": false },
-    "quantity": { "widthPx": 88, "numeric": true },
-    "submitted_at": { "widthPx": 176, "numeric": false }
+    "order_id": {
+      "widthPx": 88,
+      "numeric": true
+    },
+    "customer_email": {
+      "widthPx": 200,
+      "numeric": false
+    },
+    "item_sku": {
+      "widthPx": 100,
+      "numeric": false
+    },
+    "quantity": {
+      "widthPx": 88,
+      "numeric": true
+    },
+    "submitted_at": {
+      "widthPx": 176,
+      "numeric": false
+    }
   },
   "winCondition": {
     "all": [
-      { "predicate": "no_nulls", "column": "customer_email" },
+      {
+        "predicate": "no_nulls",
+        "column": "customer_email"
+      },
       {
         "predicate": "no_duplicates",
         "columns": ["customer_email", "item_sku", "submitted_at"]
       }
+    ]
+  },
+  "hints": {
+    "python": [
+      "Two problems here: missing emails and repeated submissions. Handle them one at a time.",
+      "df.dropna(subset=['customer_email']) removes rows with no email.",
+      "df.drop_duplicates(subset=['customer_email','item_sku','submitted_at']) removes repeats. Assign the result back to df."
+    ],
+    "sql": [
+      "Delete rows with no email: DELETE FROM data WHERE customer_email IS NULL;",
+      "Duplicates share the same email, SKU and time. Keep the lowest rowid in each group.",
+      "DELETE FROM data WHERE rowid NOT IN (SELECT MIN(rowid) FROM data GROUP BY customer_email, item_sku, submitted_at);"
     ]
   }
 }

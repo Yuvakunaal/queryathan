@@ -17,14 +17,49 @@
     "sql": "-- data table is loaded. 240 rows, 6 columns.\n-- Inspect first, then fix.\nSELECT COUNT(*) AS missing_temp_c FROM data WHERE temp_c IS NULL;"
   },
   "columnHints": {
-    "reading_id": { "widthPx": 92, "numeric": true },
-    "station": { "widthPx": 110, "numeric": false },
-    "captured_at": { "widthPx": 176, "numeric": false },
-    "temp_c": { "widthPx": 96, "numeric": true },
-    "humidity": { "widthPx": 96, "numeric": true },
-    "operator": { "widthPx": 128, "numeric": false }
+    "reading_id": {
+      "widthPx": 92,
+      "numeric": true
+    },
+    "station": {
+      "widthPx": 110,
+      "numeric": false
+    },
+    "captured_at": {
+      "widthPx": 176,
+      "numeric": false
+    },
+    "temp_c": {
+      "widthPx": 96,
+      "numeric": true
+    },
+    "humidity": {
+      "widthPx": 96,
+      "numeric": true
+    },
+    "operator": {
+      "widthPx": 128,
+      "numeric": false
+    }
   },
   "winCondition": {
-    "all": [{ "predicate": "no_nulls", "column": "temp_c" }]
+    "all": [
+      {
+        "predicate": "no_nulls",
+        "column": "temp_c"
+      }
+    ]
+  },
+  "hints": {
+    "python": [
+      "Start by counting the gaps: df.isna().sum() shows nulls per column.",
+      "Pick a fill value that makes sense for temperatures, such as the column mean: df['temp_c'].fillna(df['temp_c'].mean()).",
+      "Assign the result back: df['temp_c'] = df['temp_c'].fillna(df['temp_c'].mean())"
+    ],
+    "sql": [
+      "Count the gaps first: SELECT COUNT(*) FROM data WHERE temp_c IS NULL;",
+      "Use a subquery for the replacement value: (SELECT AVG(temp_c) FROM data).",
+      "UPDATE data SET temp_c = (SELECT AVG(temp_c) FROM data) WHERE temp_c IS NULL;"
+    ]
   }
 }
