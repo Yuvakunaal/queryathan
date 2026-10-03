@@ -55,7 +55,7 @@ export default function A11yControls({ a11y, onChange }: A11yControlsProps) {
         type="button"
         className={styles.a11yButton}
         aria-label="Toggle CRT effect"
-        aria-pressed={a11y.crtReduced}
+        aria-pressed={!a11y.crtReduced}
         onClick={() => {
           onChange({ ...a11y, crtReduced: !a11y.crtReduced });
         }}

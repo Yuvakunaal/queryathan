@@ -1,0 +1,108 @@
+import { forwardRef } from "react";
+import CodeEditor from "./CodeEditor";
+import type { CodeEditorHandle } from "./CodeEditor";
+import styles from "./EditorPanel.module.css";
+
+export interface EditorPanelProps {
+  language: "python" | "sql";
+  starterCode: string;
+  /** Table name -> column names. The first entry is the player's main table. */
+  schema: Record<string, string[]>;
+  onRun: () => void;
+  onEscape: () => void;
+}
+
+/**
+ * The code editor plus what a learner needs beside it: a clear title, a reset
+ * button, and the names of every table and column as chips that insert
+ * themselves at the cursor, so nobody has to remember or retype a name.
+ */
+const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function EditorPanel(
+  { language, starterCode, schema, onRun, onEscape },
+  ref,
+) {
+  const handle = ref && typeof ref === "object" ? ref : null;
+  const tableNames = Object.keys(schema);
+
+  function insertColumn(table: string, column: string, isMain: boolean): void {
+    if (language === "sql") {
+      handle?.current?.insert(isMain ? column : `${table}.${column}`);
+    } else {
+      handle?.current?.insert(`${table}['${column}']`);
+    }
+  }
+
+  return (
+    <div className={styles.panel}>
+      <div className={styles.toolbar}>
+        <h2 className={styles.title}>
+          {language === "sql" ? "Your query" : "Your code"}
+        </h2>
+        <span className={styles.lang}>{language === "sql" ? "SQL" : "Python"}</span>
+        <span className={styles.spacer} />
+        <button
+          type="button"
+          className={styles.toolButton}
+          onClick={() => {
+            handle?.current?.setValue(starterCode);
+          }}
+          title="Put the starting code back. You can undo this with Ctrl+Z."
+        >
+          Reset
+        </button>
+        <button
+          type="button"
+          className={styles.toolButton}
+          onClick={() => {
+            handle?.current?.setValue("");
+          }}
+          title="Empty the editor. You can undo this with Ctrl+Z."
+        >
+          Clear
+        </button>
+      </div>
+      <div
+        className={styles.schema}
+        aria-label="Tables and columns. Click one to insert it."
+      >
+        {tableNames.map((table, index) => (
+          <div key={table} className={styles.group}>
+            <button
+              type="button"
+              className={styles.tableChip}
+              onClick={() => {
+                handle?.current?.insert(table);
+              }}
+            >
+              {table}
+            </button>
+            {(schema[table] ?? []).map((column) => (
+              <button
+                key={column}
+                type="button"
+                className={styles.columnChip}
+                onClick={() => {
+                  insertColumn(table, column, index === 0);
+                }}
+              >
+                {column}
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div className={styles.editor}>
+        <CodeEditor
+          ref={ref}
+          initialValue={starterCode}
+          language={language}
+          schema={schema}
+          onRun={onRun}
+          onEscape={onEscape}
+        />
+      </div>
+    </div>
+  );
+});
+
+export default EditorPanel;

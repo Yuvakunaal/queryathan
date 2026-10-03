@@ -128,3 +128,95 @@
   outline: 2px solid var(--w1-focus);
   outline-offset: 2px;
 }
+
+.sectionHeading {
+  margin: 0 0 6px;
+  font: 600 12px/1 var(--w1-font-display);
+  color: var(--w1-amber-500);
+}
+.task {
+  margin-top: 18px;
+  padding: 12px 14px;
+  background: var(--w1-bg-panel-2);
+  border-left: 3px solid var(--w1-amber-500);
+}
+.taskText {
+  margin: 0;
+  font: 500 var(--w1-fs-brief) / 1.6 var(--w1-font-text);
+  color: var(--w1-text-primary);
+}
+.winSection {
+  margin-top: 16px;
+}
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font: 400 var(--w1-fs-objective) / 1.5 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.checklist li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.checklist li[data-met="true"] {
+  color: var(--w1-text-primary);
+}
+.box {
+  flex: 0 0 16px;
+  height: 16px;
+  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--w1-rule-strong);
+  font: 700 12px/1 var(--w1-font-text);
+  color: var(--w1-text-inverse);
+  transition: background-color 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.checklist li[data-met="true"] .box {
+  background: var(--w1-green-500);
+  border-color: var(--w1-green-500);
+}
+.unmet {
+  color: var(--w1-text-dim);
+}
+.withheld {
+  margin: 0;
+  font: 400 var(--w1-fs-objective) / 1.5 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.story {
+  margin-top: 16px;
+  font: 400 var(--w1-fs-objective) / 1.5 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.story summary {
+  cursor: pointer;
+  color: var(--w1-text-secondary);
+  font-weight: 600;
+}
+.story summary:hover,
+.story summary:focus-visible {
+  color: var(--w1-amber-500);
+}
+.story[open] summary {
+  margin-bottom: 10px;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .box {
+    transition: none;
+  }
+}

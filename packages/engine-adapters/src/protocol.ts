@@ -26,6 +26,16 @@ export interface ExtraTable {
   url: string;
 }
 
+/** A query's returned table (a SELECT result, or a DataFrame/Series the last expression evaluated to). Capped for display. */
+export interface OutputTable {
+  columns: string[];
+  rows: (string | number | boolean | null)[][];
+  /** Rows the query actually produced; `rows` holds at most the first MAX_OUTPUT_ROWS of them. */
+  totalRows: number;
+}
+
+export const MAX_OUTPUT_ROWS = 200;
+
 export interface InitCaseRequest {
   type: "init-case";
   requestId: string;
@@ -75,6 +85,8 @@ export interface RunResultResponse {
    * assignment). Never fabricated; verbatim from the interpreter.
    */
   output: string | null;
+  /** Present when the run produced a table the player should see as a table (SELECT, DataFrame, Series). `output` then omits that table's text form. */
+  outputTable?: OutputTable | null;
 }
 
 export interface RunErrorResponse {

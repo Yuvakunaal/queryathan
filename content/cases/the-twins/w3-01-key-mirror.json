@@ -16,7 +16,8 @@
   "strings": {
     "title": "KEY_MIRROR",
     "subtitle": "LINK 0x20 // CLASS: PAIR",
-    "briefing": "Two tables describe the same business. orders knows what was bought and the customer's id. customers knows who each id belongs to. Neither has the whole story.\n\nJoin them so every order carries its customer_name and city, and no order is lost along the way.\n\nIn Python, df holds the orders and customers holds the people; finish with df as the combined table. In SQL, data holds the orders and customers the people; build a table named result and that is what gets judged."
+    "briefing": "Two tables describe the same business. orders knows what was bought and the customer's id. customers knows who each id belongs to. Neither has the whole story.\n\nJoin them so every order carries its customer_name and city, and no order is lost along the way.\n\nIn Python, df holds the orders and customers holds the people; finish with df as the combined table. In SQL, data holds the orders and customers the people; build a table named result and that is what gets judged.",
+    "task": "Combine the orders with the customers table so every order also shows its customer_name and city. Keep all 120 orders."
   },
   "starterCode": {
     "python": "# df = orders (120 rows). customers = people (40 rows).\n# Inspect both before you join.\ndf.head()",

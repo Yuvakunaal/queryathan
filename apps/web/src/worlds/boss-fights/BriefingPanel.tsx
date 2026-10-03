@@ -2,14 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import type { CaseTier } from "@dcq/content-schema";
 import { renderSigil } from "./sigil";
-import { classNames } from "../../lib/classNames";
+import type { ResultGrid } from "@dcq/engine-adapters";
+import type { WinCondition } from "@dcq/content-schema";
+import { describePredicate } from "./predicateChecks";
 import styles from "./BriefingPanel.module.css";
 
 export interface BriefingPanelProps {
   title: string;
   subtitle?: string | undefined;
   briefing: string;
-  objectiveLabel: string;
+  /** Plain one-or-two-sentence statement of what to do. */
+  task?: string | undefined;
+  grid: ResultGrid;
+  winCondition: WinCondition;
   remaining: number;
   initial: number;
   tier: CaseTier;
@@ -28,7 +33,9 @@ export default function BriefingPanel({
   title,
   subtitle,
   briefing,
-  objectiveLabel,
+  task,
+  grid,
+  winCondition,
   remaining,
   initial,
   tier,
@@ -76,21 +83,57 @@ export default function BriefingPanel({
           {subtitle ? <div className={styles.subtitle}>{subtitle}</div> : null}
         </div>
       </div>
-      <div className={styles.body}>
-        {briefing.split("\n\n").map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-      </div>
-      <div className={styles.objective}>
-        OBJECTIVE{" "}
+      {task ? (
+        <section className={styles.task} aria-labelledby="task-heading">
+          <h2 id="task-heading" className={styles.sectionHeading}>
+            Your task
+          </h2>
+          <p className={styles.taskText}>{task}</p>
+        </section>
+      ) : null}
+      <section className={styles.winSection} aria-labelledby="win-heading">
+        <h2 id="win-heading" className={styles.sectionHeading}>
+          {tier === "final-boss" ? "To win" : "You win when"}
+        </h2>
         {tier === "final-boss" ? (
-          <span className={classNames(styles.objectiveValue, styles.objectiveWithheld)}>
-            [ NOT DISCLOSED — READ THE DATA ]
-          </span>
+          <p className={styles.withheld}>
+            Not disclosed. Read the data and decide what clean looks like.
+          </p>
         ) : (
-          <span className={styles.objectiveValue}>{objectiveLabel}</span>
+          <ul className={styles.checklist}>
+            {winCondition.all.map((predicate, i) => {
+              const check = describePredicate(grid, predicate);
+              return (
+                <li
+                  key={`${predicate.predicate}-${String(i)}`}
+                  data-met={check.met ? "true" : "false"}
+                >
+                  <span className={styles.box} aria-hidden="true">
+                    {check.met ? "✓" : ""}
+                  </span>
+                  <span>
+                    {check.label}
+                    {check.met ? null : (
+                      <span className={styles.unmet}> ({check.detail})</span>
+                    )}
+                    <span className={styles.srOnly}>
+                      {check.met ? ", done" : ", not done yet"}
+                    </span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
         )}
-      </div>
+      </section>
+      <details className={styles.story} open={!task}>
+        <summary>{task ? "The story behind it" : "Briefing"}</summary>
+        <div className={styles.body}>
+          {briefing.split("\n\n").map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      </details>
       {tier !== "final-boss" && hints.length > 0 ? (
         <div className={styles.hints} ref={hintsRef}>
           {revealed > 0 ? (

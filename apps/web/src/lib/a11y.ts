@@ -9,11 +9,9 @@ export interface A11yState {
 }
 
 export function defaultA11y(): A11yState {
-  const reduceIntensity =
-    typeof window !== "undefined" &&
-    (window.matchMedia("(prefers-contrast: more)").matches ||
-      window.matchMedia("(prefers-reduced-transparency: reduce)").matches);
-  return { textScaleIndex: 1, crtReduced: reduceIntensity, highContrast: false };
+  // The CRT scanline overlay is decoration that some people find tiring, so
+  // it starts off; the CRT button turns it on.
+  return { textScaleIndex: 1, crtReduced: true, highContrast: false };
 }
 
 export function loadA11yState(): A11yState {

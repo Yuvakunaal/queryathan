@@ -1,6 +1,4 @@
-import { useEffect, useRef } from "react";
 import type { RefObject } from "react";
-import { prefersReducedMotion } from "../../anim/world1/motionContext";
 import styles from "./RunBar.module.css";
 
 export interface RunBarProps {
@@ -9,32 +7,11 @@ export interface RunBarProps {
   buttonRef?: RefObject<HTMLButtonElement | null>;
 }
 
-const SPINNER_FRAMES = ["|", "/", "-", "\\"];
-const FIRST_FRAME = SPINNER_FRAMES[0] ?? "|";
+const isMac =
+  typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent);
+const RUN_SHORTCUT = isMac ? "Cmd+Enter" : "Ctrl+Enter";
 
 export default function RunBar({ isRunning, onRun, buttonRef }: RunBarProps) {
-  const labelRef = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const el = labelRef.current;
-    if (!isRunning || !el) return;
-
-    if (prefersReducedMotion()) {
-      el.textContent = "[*] RUNNING";
-      return;
-    }
-
-    let frame = 0;
-    el.textContent = `[${FIRST_FRAME}] RUNNING`;
-    const interval = setInterval(() => {
-      frame = (frame + 1) % SPINNER_FRAMES.length;
-      el.textContent = `[${SPINNER_FRAMES[frame] ?? FIRST_FRAME}] RUNNING`;
-    }, 100);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [isRunning]);
-
   return (
     <div className={styles.runBar}>
       <button
@@ -46,12 +23,18 @@ export default function RunBar({ isRunning, onRun, buttonRef }: RunBarProps) {
         disabled={isRunning}
       >
         {isRunning ? (
-          <span ref={labelRef}>{`[${FIRST_FRAME}] RUNNING`}</span>
+          <>
+            <span className={styles.spinner} aria-hidden="true" />
+            Running...
+          </>
         ) : (
-          ">_ EXECUTE"
+          <>
+            <span className={styles.play} aria-hidden="true" />
+            Run
+          </>
         )}
       </button>
-      <span className={styles.hint}>CTRL+ENTER</span>
+      <span className={styles.hint}>or press {RUN_SHORTCUT}</span>
     </div>
   );
 }

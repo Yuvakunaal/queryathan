@@ -9,10 +9,12 @@ import type {
   EngineErrorResponse,
   EngineReadyResponse,
   ResultGrid,
+  OutputTable,
   RunErrorResponse,
   RunResultResponse,
   WorkerRequest,
 } from "@dcq/engine-adapters";
+import { MAX_OUTPUT_ROWS } from "@dcq/engine-adapters";
 import { coerceCsvValue, inferColumnTypes, parseCsv } from "./csv";
 import type { CsvValue } from "./csv";
 import { inferSqlDtypes } from "./sql-dtypes";
@@ -177,6 +179,20 @@ function serializeTable(): ResultGrid {
 }
 
 /** Mirrors the Pyodide worker's notebook-style output (stdout + last-expression repr): the last statement's result set if the code ended in a SELECT, or a "rows affected" message for a mutating statement — real SQLite behavior either way, never fabricated. */
+function buildOutputTable(
+  execResults: { columns: string[]; values: SqlValue[][] }[],
+): OutputTable | null {
+  const last = execResults[execResults.length - 1];
+  if (!last) return null;
+  return {
+    columns: last.columns,
+    rows: last.values
+      .slice(0, MAX_OUTPUT_ROWS)
+      .map((row) => row.map((cell) => (cell instanceof Uint8Array ? null : cell))),
+    totalRows: last.values.length,
+  };
+}
+
 function buildOutput(
   execResults: { columns: string[]; values: SqlValue[][] }[],
 ): string | null {
@@ -208,6 +224,7 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
 
   try {
     let output: string | null = null;
+    let outputTable: OutputTable | null = null;
 
     if (request.type === "init-case") {
       await loadCsvIntoTable(request.datasetUrl, TABLE_NAME, true);
@@ -217,7 +234,8 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
     } else {
       if (!db) throw new Error("No dataset loaded yet.");
       const execResults = db.exec(request.code);
-      output = buildOutput(execResults);
+      outputTable = buildOutputTable(execResults);
+      output = outputTable ? null : buildOutput(execResults);
     }
 
     const resultGrid = serializeTable();
@@ -226,6 +244,7 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
       requestId: request.requestId,
       resultGrid,
       output,
+      outputTable,
     } satisfies RunResultResponse);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

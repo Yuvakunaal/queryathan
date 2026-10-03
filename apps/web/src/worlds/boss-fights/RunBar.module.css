@@ -1,29 +1,32 @@
 .runBar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  height: 44px;
+  gap: 14px;
+  height: 48px;
   padding: 0 12px;
   background: var(--w1-bg-panel-2);
   border-top: 1px solid var(--w1-rule-strong);
 }
 
 .runButton {
-  flex: 1;
-  height: 32px;
-  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 120px;
+  height: 34px;
+  padding: 0 20px;
+  background: var(--w1-green-500);
   border: 1px solid var(--w1-green-500);
-  color: var(--w1-green-500);
-  font: 600 12px / 1 var(--w1-font-display);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  color: var(--w1-text-inverse);
+  font: 700 13px / 1 var(--w1-font-display);
   cursor: pointer;
-  transition: 90ms linear;
-  transition-property: background-color, color;
+  transition:
+    filter 160ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 160ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 .runButton:hover:not(:disabled) {
-  background: var(--w1-green-500);
-  color: var(--w1-text-inverse);
+  filter: brightness(1.1);
 }
 .runButton:active:not(:disabled) {
   transform: translateY(1px);
@@ -33,12 +36,40 @@
   outline-offset: 2px;
 }
 .runButton[data-running] {
-  border-color: var(--w1-amber-500);
+  background: transparent;
   color: var(--w1-amber-500);
+  border-color: var(--w1-amber-500);
   cursor: default;
 }
 
+.play {
+  width: 0;
+  height: 0;
+  border-left: 9px solid currentColor;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border-right-color: currentColor;
+  }
+}
+
 .hint {
-  font: 400 11px / 1 var(--w1-font-text);
+  font: 400 12px / 1 var(--w1-font-text);
   color: var(--w1-text-dim);
 }

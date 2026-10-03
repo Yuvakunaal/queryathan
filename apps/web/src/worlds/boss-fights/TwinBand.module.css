@@ -104,3 +104,15 @@
     border-color: CanvasText;
   }
 }
+
+@media (max-width: 719px) {
+  .band {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: none;
+    row-gap: 8px;
+  }
+  .band > * {
+    grid-area: auto;
+    min-width: 0;
+  }
+}

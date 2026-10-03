@@ -8,6 +8,14 @@ import {
 } from "../../lib/afflictions";
 import { predicateDebt } from "../../lib/affliction-cells";
 
+const DTYPE_WORDS = {
+  int: "whole numbers",
+  float: "decimal numbers",
+  bool: "true/false values",
+  string: "text",
+  datetime: "proper dates",
+} as const;
+
 export interface Check {
   key: string;
   label: string;
@@ -44,7 +52,7 @@ export function describePredicate(
       };
     case "no_duplicates":
       return {
-        label: `No repeats in ${predicate.columns.join("+")}`,
+        label: `No repeated rows (same ${predicate.columns.join(", ")})`,
         detail: met ? "yes" : `${String(debt)} repeated`,
         met,
       };
@@ -62,13 +70,13 @@ export function describePredicate(
       };
     case "no_outliers":
       return {
-        label: `${predicate.column} within range`,
+        label: `${predicate.column} between ${String(predicate.min)} and ${String(predicate.max)}`,
         detail: met ? "yes" : `${String(debt)} outside`,
         met,
       };
     case "valid_dtype":
       return {
-        label: `${predicate.column} is ${predicate.dtype}`,
+        label: `${predicate.column} holds ${DTYPE_WORDS[predicate.dtype]}`,
         detail: met ? "yes" : "wrong type",
         met,
       };

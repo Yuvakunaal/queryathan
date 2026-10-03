@@ -10,7 +10,8 @@
   "strings": {
     "title": "JSON_VAULT",
     "subtitle": "PLAN 0x32 // CLASS: NESTED",
-    "briefing": "Each order's details arrived as a block of JSON text in one column: {\"customer\": {\"id\": 20, \"name\": \"Ben Okafor\"}, \"total\": 88.57}. You cannot filter or sum text.\n\nFlatten it into real columns: order_id, customer_id, customer_name and total. The payload column goes away.\n\nIn pandas, json.loads turns the text into dictionaries and pd.json_normalize flattens them. In SQL, json_extract(text, '$.path') reaches inside.\n\nIn Python, finish with df as the reshaped table. In SQL, build a table named result and that is what gets judged."
+    "briefing": "Each order's details arrived as a block of JSON text in one column: {\"customer\": {\"id\": 20, \"name\": \"Ben Okafor\"}, \"total\": 88.57}. You cannot filter or sum text.\n\nFlatten it into real columns: order_id, customer_id, customer_name and total. The payload column goes away.\n\nIn pandas, json.loads turns the text into dictionaries and pd.json_normalize flattens them. In SQL, json_extract(text, '$.path') reaches inside.\n\nIn Python, finish with df as the reshaped table. In SQL, build a table named result and that is what gets judged.",
+    "task": "The payload column holds JSON text. Unpack it into normal columns: order_id, customer_id, customer_name and total. The payload column must disappear."
   },
   "starterCode": {
     "python": "# df has 80 rows: order_id and a JSON text column, payload.\ndf['payload'].head(3).tolist()",

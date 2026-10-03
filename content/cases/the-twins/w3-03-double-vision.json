@@ -16,7 +16,8 @@
   "strings": {
     "title": "DOUBLE_VISION",
     "subtitle": "LINK 0x22 // CLASS: ECHO",
-    "briefing": "The customers table lists some people twice. Join orders to it as is and every order for those people appears twice too: the result grows past the 120 orders you started with.\n\nRemove the repeated customers before you join, so each order appears once.\n\nIn Python, df holds the orders and customers holds the people; finish with df as the combined table. In SQL, data holds the orders and customers the people; build a table named result and that is what gets judged."
+    "briefing": "The customers table lists some people twice. Join orders to it as is and every order for those people appears twice too: the result grows past the 120 orders you started with.\n\nRemove the repeated customers before you join, so each order appears once.\n\nIn Python, df holds the orders and customers holds the people; finish with df as the combined table. In SQL, data holds the orders and customers the people; build a table named result and that is what gets judged.",
+    "task": "The customers table lists some people twice, which would duplicate their orders in a join. Remove the repeated customers first, then add customer_name and city to the 120 orders."
   },
   "starterCode": {
     "python": "# df = orders (120 rows). customers = people (52 rows, but how many are distinct?).\ncustomers['customer_id'].nunique()",

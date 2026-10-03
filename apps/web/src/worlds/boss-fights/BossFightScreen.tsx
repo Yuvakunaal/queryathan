@@ -19,7 +19,8 @@ import { evaluateWinCondition } from "../../lib/evaluate-win-condition";
 import { classNames } from "../../lib/classNames";
 import { TEXT_SCALES } from "../../lib/a11y";
 import type { A11yState } from "../../lib/a11y";
-import { formatWinCondition, predicateKinds } from "./caseFormat";
+import { parseCsv } from "../../engines/csv";
+import { predicateKinds } from "./caseFormat";
 import { formatCellValue } from "./formatCellValue";
 import { markJustCleared } from "./afflictionDom";
 import { SCAN_CODE } from "./afflictionPresentation";
@@ -39,10 +40,12 @@ import BlueprintBand from "./BlueprintBand";
 import ReferenceTable from "./ReferenceTable";
 import DataframeGrid from "./DataframeGrid";
 import type { DataframeGridHandle } from "./DataframeGrid";
-import CodeEditor from "./CodeEditor";
+import EditorPanel from "./EditorPanel";
 import type { CodeEditorHandle } from "./CodeEditor";
 import RunBar from "./RunBar";
 import DiffConsole from "./DiffConsole";
+import OutputView from "./OutputView";
+import type { RunOutput } from "./OutputView";
 import type { ConsoleEntry } from "./DiffConsole";
 import A11yControls from "./A11yControls";
 import { worldMeta } from "../../lib/world-meta";
@@ -87,7 +90,9 @@ export default function BossFightScreen({
   const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([]);
   const [hasWon, setHasWon] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
-  const [activeTable, setActiveTable] = useState("result");
+  const [activeTab, setActiveTab] = useState("data");
+  const [extraColumns, setExtraColumns] = useState<Record<string, string[]>>({});
+  const [runOutput, setRunOutput] = useState<RunOutput | null>(null);
   const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial());
   const [runCount, setRunCount] = useState(0);
   const [hintsUsed, setHintsUsed] = useState(0);
@@ -108,6 +113,7 @@ export default function BossFightScreen({
   const rollBarRef = useRef<HTMLDivElement>(null);
   const runButtonRef = useRef<HTMLButtonElement>(null);
   const initialAfflictionRef = useRef<number | null>(null);
+  const initialColumnsRef = useRef<string[] | null>(null);
   const justClearedRef = useRef<{ rowIndex: number; column: string }[]>([]);
   const entryIdRef = useRef(0);
   const pendingRef = useRef<PendingReconciliation | null>(null);
@@ -200,6 +206,14 @@ export default function BossFightScreen({
         });
         if (isCancelled()) return;
 
+        initialColumnsRef.current = result.resultGrid.columns;
+        const loadedExtras: Record<string, string[]> = {};
+        for (const table of activeCase.extraTables ?? []) {
+          const text = await (await fetch(table.path)).text();
+          loadedExtras[table.name] = parseCsv(text).columns;
+        }
+        if (isCancelled()) return;
+        setExtraColumns(loadedExtras);
         setGrid(result.resultGrid);
         initialAfflictionRef.current = totalDebt(
           result.resultGrid,
@@ -296,14 +310,14 @@ export default function BossFightScreen({
       const clearedThisTurn = Math.max(0, beforeAfflicted - afterAfflicted);
       const justCleared = clearedCells(grid, cellMap, nextGrid, nextCellMap);
 
-      const output = result.output;
-      if (output) {
-        const outputEntryId = `output-${String(entryIdRef.current++)}`;
-        setConsoleEntries((prev) => [
-          ...prev,
-          { kind: "info", id: outputEntryId, text: output },
-        ]);
-      }
+      const nextOutput: RunOutput = result.outputTable
+        ? { kind: "table", table: result.outputTable }
+        : result.output
+          ? { kind: "text", text: result.output }
+          : { kind: "empty" };
+      setRunOutput(nextOutput);
+      // Something to read goes to the Result tab; a plain edit goes to the data so the change is visible.
+      setActiveTab(nextOutput.kind === "empty" ? "data" : "result");
 
       if (changes.length > 0) {
         const entryId = `run-${String(entryIdRef.current++)}`;
@@ -348,11 +362,8 @@ export default function BossFightScreen({
       }
     } catch (err) {
       if (err instanceof RpcRunError) {
-        const entryId = `err-${String(entryIdRef.current++)}`;
-        setConsoleEntries((prev) => [
-          ...prev,
-          { kind: "error", id: entryId, message: err.message },
-        ]);
+        setRunOutput({ kind: "error", message: err.message });
+        setActiveTab("result");
         setLiveErrorMessage(`Run failed. ${err.message.split("\n")[0] ?? ""}`);
       } else {
         throw err;
@@ -433,6 +444,11 @@ export default function BossFightScreen({
     );
   }
 
+  const mainTable = engine === "sql" ? "data" : "df";
+  const editorSchema: Record<string, string[]> = {
+    [mainTable]: initialColumnsRef.current ?? grid.columns,
+    ...extraColumns,
+  };
   const remaining = totalDebt(grid, caseData.winCondition);
   const bossNameStyles = classNames(
     styles.statusRailBoss,
@@ -476,7 +492,9 @@ export default function BossFightScreen({
               title={caseData.strings.title}
               subtitle={caseData.strings.subtitle}
               briefing={caseData.strings.briefing}
-              objectiveLabel={formatWinCondition(caseData.winCondition)}
+              task={caseData.strings.task}
+              grid={grid}
+              winCondition={caseData.winCondition}
               remaining={remaining}
               initial={initialAfflictionRef.current ?? remaining}
               tier={caseData.tier}
@@ -485,12 +503,13 @@ export default function BossFightScreen({
             />
           </div>
           <div className={styles.editorPane}>
-            <CodeEditor
+            <EditorPanel
               ref={codeEditorRef}
-              initialValue={
+              language={engine === "sql" ? "sql" : "python"}
+              starterCode={
                 engine === "sql" ? caseData.starterCode.sql : caseData.starterCode.python
               }
-              language={engine === "sql" ? "sql" : "python"}
+              schema={editorSchema}
               onRun={() => {
                 void handleRun();
               }}
@@ -507,9 +526,6 @@ export default function BossFightScreen({
               }}
               buttonRef={runButtonRef}
             />
-          </div>
-          <div className={styles.consolePane}>
-            <DiffConsole entries={consoleEntries} />
           </div>
         </div>
         <div className={styles.battlefield} ref={battlefieldRef}>
@@ -528,31 +544,47 @@ export default function BossFightScreen({
             <HpHeatmap grid={grid} winCondition={caseData.winCondition} />
           )}
           <div className={styles.gridWrap}>
-            {caseData.extraTables?.length ? (
-              <div className={styles.tabs} role="tablist" aria-label="Tables">
-                {[
-                  { id: "result", label: engine === "sql" ? "data / result" : "df" },
-                  ...caseData.extraTables.map((t) => ({
-                    id: t.name,
-                    label: `${t.name} (original)`,
-                  })),
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={activeTable === tab.id}
-                    className={styles.tab}
-                    onClick={() => {
-                      setActiveTable(tab.id);
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            ) : null}
-            <div className={styles.tablePane} hidden={activeTable !== "result"}>
+            <div className={styles.tabs} role="tablist" aria-label="Views">
+              {[
+                { id: "data", label: "Your data" },
+                { id: "result", label: "Result" },
+                {
+                  id: "changes",
+                  label: `Changes${consoleEntries.length ? ` (${String(consoleEntries.length)})` : ""}`,
+                },
+                ...(caseData.extraTables ?? []).map((t) => ({
+                  id: t.name,
+                  label: `${t.name} (original)`,
+                })),
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  id={`tab-${tab.id}`}
+                  aria-selected={activeTab === tab.id}
+                  aria-controls={`pane-${tab.id}`}
+                  className={styles.tab}
+                  data-error={
+                    tab.id === "result" && runOutput?.kind === "error"
+                      ? "true"
+                      : undefined
+                  }
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            <div
+              className={styles.tablePane}
+              id="pane-data"
+              role="tabpanel"
+              aria-labelledby="tab-data"
+              hidden={activeTab !== "data"}
+            >
               <DataframeGrid
                 ref={gridRef}
                 grid={grid}
@@ -561,11 +593,39 @@ export default function BossFightScreen({
                 columnHints={caseData.columnHints}
               />
             </div>
+            <div
+              className={styles.tablePane}
+              id="pane-result"
+              role="tabpanel"
+              aria-labelledby="tab-result"
+              hidden={activeTab !== "result"}
+            >
+              <OutputView
+                output={runOutput}
+                language={engine === "sql" ? "sql" : "python"}
+                textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
+                onShowData={() => {
+                  setActiveTab("data");
+                }}
+              />
+            </div>
+            <div
+              className={styles.tablePane}
+              id="pane-changes"
+              role="tabpanel"
+              aria-labelledby="tab-changes"
+              hidden={activeTab !== "changes"}
+            >
+              <DiffConsole entries={consoleEntries} />
+            </div>
             {caseData.extraTables?.map((t) => (
               <div
                 key={t.name}
                 className={styles.tablePane}
-                hidden={activeTable !== t.name}
+                id={`pane-${t.name}`}
+                role="tabpanel"
+                aria-labelledby={`tab-${t.name}`}
+                hidden={activeTab !== t.name}
               >
                 <ReferenceTable
                   url={t.path}

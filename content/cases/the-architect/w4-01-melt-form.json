@@ -10,7 +10,8 @@
   "strings": {
     "title": "MELT_FORM",
     "subtitle": "PLAN 0x30 // CLASS: WIDE",
-    "briefing": "Monthly sales sit in three columns: jan, feb, mar. That is easy to read and hard to analyse. Charts, group-bys and joins want one row per product per month.\n\nMelt the table into long form: columns product, month and sales, and none of the old month columns. Every number must survive the move.\n\nIn Python, finish with df as the reshaped table. In SQL, build a table named result and that is what gets judged."
+    "briefing": "Monthly sales sit in three columns: jan, feb, mar. That is easy to read and hard to analyse. Charts, group-bys and joins want one row per product per month.\n\nMelt the table into long form: columns product, month and sales, and none of the old month columns. Every number must survive the move.\n\nIn Python, finish with df as the reshaped table. In SQL, build a table named result and that is what gets judged.",
+    "task": "Turn this wide table (one column per month) into a long one: one row per product per month, with the columns product, month and sales. The jan, feb and mar columns must disappear and no number may be lost."
   },
   "starterCode": {
     "python": "# df is wide: 12 rows, columns product, jan, feb, mar.\ndf.head()",

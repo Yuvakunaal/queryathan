@@ -10,7 +10,8 @@
   "strings": {
     "title": "HOST_LOCK",
     "subtitle": "LOCK 0x11 // CLASS: ADDRESS",
-    "briefing": "A web analytics export stored the full address people visited: with and without https, with www, in capitals, sometimes with a port or a path.\n\nThe lock wants only the bare hostname, lower case: example.com, not HTTPS://WWW.EXAMPLE.COM:8080/shop?id=4.\n\nCapture groups are the tool for this. Describe the whole address, put parentheses around the part you want to keep, and pull that part out. In pandas that is .str.extract(); in SQL it is REGEXP_EXTRACT(text, pattern).\n\ndf is loaded. 140 rows, 4 columns."
+    "briefing": "A web analytics export stored the full address people visited: with and without https, with www, in capitals, sometimes with a port or a path.\n\nThe lock wants only the bare hostname, lower case: example.com, not HTTPS://WWW.EXAMPLE.COM:8080/shop?id=4.\n\nCapture groups are the tool for this. Describe the whole address, put parentheses around the part you want to keep, and pull that part out. In pandas that is .str.extract(); in SQL it is REGEXP_EXTRACT(text, pattern).\n\ndf is loaded. 140 rows, 4 columns.",
+    "task": "The site column holds full web addresses. Keep only the host name, in lower case: example.com, not https://www.Example.com/shop."
   },
   "starterCode": {
     "python": "# df is loaded. 140 rows, 4 columns.\n# Look at the different shapes the site column takes.\ndf['site'].head(15)",

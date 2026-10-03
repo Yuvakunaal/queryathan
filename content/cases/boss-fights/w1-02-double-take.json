@@ -10,7 +10,8 @@
   "strings": {
     "title": "DOUBLE_TAKE",
     "subtitle": "PROC 0x02 // CLASS: ECHO",
-    "briefing": "The signup form's submit button doesn't disable itself while the request is in flight. Impatient customers double-click. 14 orders exist twice — same customer, same item, same second — and 11 more never captured an email at all.\n\nDOUBLE_TAKE isn't one problem, it's two stacked on the same table. Clear both and it has nothing left to echo.\n\ndf is loaded. 180 rows, 5 columns."
+    "briefing": "The signup form's submit button doesn't disable itself while the request is in flight. Impatient customers double-click. 14 orders exist twice — same customer, same item, same second — and 11 more never captured an email at all.\n\nDOUBLE_TAKE isn't one problem, it's two stacked on the same table. Clear both and it has nothing left to echo.\n\ndf is loaded. 180 rows, 5 columns.",
+    "task": "This order list has two problems: some rows have no customer_email, and some orders were entered twice. Remove the rows with a missing email, then remove the repeated orders (same email, SKU and time)."
   },
   "starterCode": {
     "python": "# df is loaded. 180 rows, 5 columns.\n# Two afflictions here, not one. Inspect both before you fix either.\ndf.isna().sum()",

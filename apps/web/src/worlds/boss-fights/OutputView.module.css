@@ -1,0 +1,168 @@
+.tableView {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  background: var(--w1-bg-panel);
+  border-bottom: 1px solid var(--w1-rule);
+}
+.barTitle {
+  font: 600 13px/1 var(--w1-font-display);
+  color: var(--w1-text-primary);
+}
+.barMeta {
+  flex: 1;
+  font: 400 12px/1 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.tableHost {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.text {
+  flex: 1 1 0;
+  min-height: 0;
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  font: 400 var(--w1-fs-code) / 1.6 var(--w1-font-text);
+  color: var(--w1-text-primary);
+  background: var(--w1-bg-void);
+  white-space: pre;
+}
+.linkButton {
+  flex: 0 0 auto;
+  height: 28px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid var(--w1-rule-strong);
+  color: var(--w1-text-secondary);
+  font: 600 12px/1 var(--w1-font-display);
+  cursor: pointer;
+}
+.linkButton:hover,
+.linkButton:focus-visible {
+  border-color: var(--w1-amber-500);
+  color: var(--w1-amber-500);
+}
+.linkButton:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}
+
+.placeholder {
+  height: 100%;
+  min-height: 0;
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--w1-bg-void);
+  overflow: auto;
+}
+.placeholderTitle {
+  margin: 0;
+  font: 600 18px/1.3 var(--w1-font-display);
+  color: var(--w1-text-primary);
+}
+.placeholderText {
+  max-width: 60ch;
+  margin: 0;
+  font: 400 14px/1.7 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+
+/* The error replaces the table entirely: plain background, large type, nothing to compete with the message. */
+.error {
+  height: 100%;
+  min-height: 0;
+  padding: 40px 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  overflow: auto;
+  background: var(--w1-bg-void);
+  background-image: none;
+}
+.errorTitle {
+  margin: 0;
+  font: 700 28px/1.2 var(--w1-font-display);
+  letter-spacing: -0.02em;
+  color: var(--w1-diff-del);
+}
+.errorLead {
+  max-width: 62ch;
+  margin: 0;
+  font: 400 15px/1.7 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.errorMessage {
+  align-self: stretch;
+  margin: 0;
+  padding: 16px 20px;
+  max-height: 46%;
+  overflow: auto;
+  font: 500 15px/1.6 var(--w1-font-text);
+  color: var(--w1-text-primary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--w1-bg-panel);
+  border-left: 4px solid var(--w1-diff-del);
+}
+.errorTips {
+  max-width: 62ch;
+  margin: 0;
+  padding-left: 20px;
+  font: 400 14px/1.7 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+@media (forced-colors: active) {
+  .errorMessage {
+    border-left-color: CanvasText;
+  }
+}
+
+.errorHeadline {
+  align-self: stretch;
+  margin: 0;
+  padding: 16px 20px;
+  font: 600 18px/1.5 var(--w1-font-text);
+  color: var(--w1-text-primary);
+  overflow-wrap: anywhere;
+  background: var(--w1-bg-panel);
+  border-left: 4px solid var(--w1-diff-del);
+}
+.errorDetails {
+  align-self: stretch;
+  font: 500 13px/1.5 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.errorDetails summary {
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.errorDetails summary:hover,
+.errorDetails summary:focus-visible {
+  color: var(--w1-amber-500);
+}
+.errorDetails .errorMessage {
+  max-height: 340px;
+  font-size: 13px;
+  border-left-width: 2px;
+}
+.tipsLabel {
+  margin: 8px 0 -8px;
+  font: 600 12px/1 var(--w1-font-display);
+  color: var(--w1-amber-500);
+}

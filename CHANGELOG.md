@@ -5,6 +5,17 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Changed (fight screen overhaul)
+
+- The data table now scrolls inside its panel (its scroll container had no bounded height, so rows past the screen were unreachable). Column headers no longer overlap.
+- The right-hand panel has tabs: Your data (live table with highlights), Result (what the last run returned), Changes (cell-by-cell log). A SELECT, DataFrame or Series is shown as a real table; text output as text; an error replaces the table with a large plain error view that leads with a plain-English reading of the problem and keeps the engine's own message below it.
+- The left side now holds the task, the live "You win when" checklist, hints, the editor and the Run button. The old output console is gone from there.
+- New editor panel: schema-aware autocomplete (SQL tables and columns; pandas methods and column names in Python), clickable table and column chips that insert names, line wrapping, Tab indent, Reset and Clear.
+- Cases carry a plain `strings.task` (one or two sentences) shown first; the story is tucked under "The story behind it".
+- The CRT scanline effect now starts off.
+- Run button reads "Run" with a plain shortcut hint.
+- Narrow screens: HUD bands and the editor no longer overflow.
+
 ### Added (Phase 5: World 4, The Architect)
 
 - Four cases: MELT_FORM, PIVOT_PLAN, JSON_VAULT and the final THE_ARCHITECT, all solved in Python and SQL on the real engines.

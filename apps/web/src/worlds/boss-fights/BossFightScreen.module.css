@@ -71,7 +71,7 @@
 .commandRail {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: fit-content(58%) minmax(150px, 1fr) 44px minmax(100px, 20%);
+  grid-template-rows: fit-content(52%) minmax(220px, 1fr) 48px;
   border-right: 1px solid var(--w1-rule-strong);
   min-height: 0;
 }
@@ -294,9 +294,6 @@
   .runBarPane {
     order: 4;
   }
-  .consolePane {
-    order: 5;
-  }
 }
 
 @media (max-width: 719px) {
@@ -382,4 +379,31 @@
 
 [data-world="the-architect"] .battlefield {
   grid-template-rows: auto 1fr;
+}
+
+.tab[data-error="true"] {
+  color: var(--w1-diff-del);
+}
+.tablePane {
+  display: flex;
+  flex-direction: column;
+}
+.tablePane[hidden] {
+  display: none;
+}
+
+@media (max-width: 1079px) {
+  .editorPane {
+    min-height: 340px;
+  }
+  .battlefield {
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 1079px) {
+  .battlefield,
+  [data-world="the-vault"] .battlefield {
+    grid-template-rows: auto auto;
+  }
 }

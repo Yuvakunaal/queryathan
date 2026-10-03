@@ -201,3 +201,19 @@
 .hpBreakdownItem[data-kind="encoding"] {
   color: var(--w1-status-encoding);
 }
+
+@media (max-width: 719px) {
+  .hpBand,
+  .hpBand[data-breakdown="true"] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "label" "strip" "readout" "breakdown";
+    row-gap: 8px;
+  }
+  .hpStrip {
+    min-width: 0;
+    overflow: hidden;
+  }
+  .hpReadout {
+    text-align: left;
+  }
+}

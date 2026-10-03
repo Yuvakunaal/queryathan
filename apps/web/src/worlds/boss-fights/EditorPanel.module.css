@@ -1,0 +1,105 @@
+.panel {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--w1-bg-void);
+}
+.toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 12px;
+  background: var(--w1-bg-panel-2);
+  border-top: 1px solid var(--w1-rule-strong);
+  border-bottom: 1px solid var(--w1-rule);
+}
+.title {
+  margin: 0;
+  font: 600 13px/1 var(--w1-font-display);
+  color: var(--w1-text-primary);
+}
+.lang {
+  padding: 3px 8px;
+  font: 500 11px/1 var(--w1-font-text);
+  color: var(--w1-amber-500);
+  border: 1px solid var(--w1-rule-strong);
+}
+.spacer {
+  flex: 1;
+}
+.toolButton {
+  height: 26px;
+  padding: 0 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--w1-text-secondary);
+  font: 500 12px/1 var(--w1-font-text);
+  cursor: pointer;
+}
+.toolButton:hover,
+.toolButton:focus-visible {
+  color: var(--w1-amber-500);
+  border-color: var(--w1-rule-strong);
+}
+.toolButton:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}
+.schema {
+  flex: 0 0 auto;
+  max-height: 84px;
+  overflow: auto;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--w1-bg-panel);
+  border-bottom: 1px solid var(--w1-rule);
+}
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.tableChip,
+.columnChip {
+  height: 22px;
+  padding: 0 8px;
+  background: transparent;
+  font: 500 12px/1 var(--w1-font-text);
+  cursor: pointer;
+}
+.tableChip {
+  color: var(--w1-green-500);
+  border: 1px solid var(--w1-green-700);
+  margin-right: 4px;
+}
+.columnChip {
+  color: var(--w1-text-secondary);
+  border: 1px solid var(--w1-rule-strong);
+}
+.tableChip:hover,
+.columnChip:hover,
+.tableChip:focus-visible,
+.columnChip:focus-visible {
+  color: var(--w1-amber-500);
+  border-color: var(--w1-amber-500);
+}
+.tableChip:focus-visible,
+.columnChip:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 1px;
+}
+.editor {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.editor:focus-within {
+  box-shadow: inset 0 0 0 1px var(--w1-green-700);
+}

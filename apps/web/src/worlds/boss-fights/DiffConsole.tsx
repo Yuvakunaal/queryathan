@@ -30,7 +30,7 @@ export default function DiffConsole({ entries }: DiffConsoleProps) {
   return (
     <div className={styles.console}>
       <div className={styles.header}>
-        <span className={styles.headerLabel}>OUTPUT</span>
+        <span className={styles.headerLabel}>Changes your code made</span>
         {entries.length > 0 ? (
           <span className={styles.headerCount}>
             {entries.length} {entries.length === 1 ? "ENTRY" : "ENTRIES"}
@@ -39,7 +39,10 @@ export default function DiffConsole({ entries }: DiffConsoleProps) {
       </div>
       <div className={styles.body} ref={scrollRef} aria-live="off" tabIndex={0}>
         {entries.length === 0 ? (
-          <div className={styles.empty}>// run code to see diff output here</div>
+          <div className={styles.empty}>
+            Nothing yet. When your code changes the data, each change is listed here: red
+            is the old value, green is the new one.
+          </div>
         ) : null}
         {entries.map((entry) => {
           if (entry.kind === "diff") {

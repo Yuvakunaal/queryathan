@@ -3,6 +3,7 @@ export type {
   WorkerResponse,
   InitCaseRequest,
   ExtraTable,
+  OutputTable,
   RunCodeRequest,
   CancelRequest,
   EngineReadyResponse,
@@ -11,6 +12,7 @@ export type {
   RunErrorResponse,
   ResultGrid,
 } from "./protocol";
+export { MAX_OUTPUT_ROWS } from "./protocol";
 export { EngineRpcClient, RpcTimeoutError, RpcRunError, RpcEngineError } from "./rpc";
 export type { RpcTransport, InitCaseOptions } from "./rpc";
 export { WorkerEngineClient } from "./client";

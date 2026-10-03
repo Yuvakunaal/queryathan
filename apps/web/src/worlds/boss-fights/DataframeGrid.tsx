@@ -109,8 +109,11 @@ const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
 
     const items = virtualizer.getVirtualItems();
 
+    // A hint can be narrower than the column's own name once it is shown in
+    // capitals with letter-spacing, so the name sets a floor.
     function columnWidth(column: string): number {
-      return columnHints?.[column]?.widthPx ?? DEFAULT_COLUMN_WIDTH;
+      const hinted = columnHints?.[column]?.widthPx ?? DEFAULT_COLUMN_WIDTH;
+      return Math.max(hinted, Math.ceil(column.length * 9.5 * textScale) + 28);
     }
     function isNumericColumn(column: string): boolean {
       return columnHints?.[column]?.numeric ?? false;

@@ -1,7 +1,9 @@
 import { loadPyodide, type PyodideInterface } from "pyodide";
+import { MAX_OUTPUT_ROWS } from "@dcq/engine-adapters";
 import type {
   EngineErrorResponse,
   EngineReadyResponse,
+  OutputTable,
   ResultGrid,
   RunErrorResponse,
   RunResultResponse,
@@ -48,6 +50,26 @@ const SERIALIZE_HELPER_PY = `
 import json
 
 __dcq_track_row_ids = True
+
+def __dcq_table_of(obj):
+    import pandas as pd
+    if isinstance(obj, pd.Series):
+        obj = obj.to_frame(name=obj.name if obj.name is not None else "value")
+    if not isinstance(obj, pd.DataFrame):
+        return None
+    # The hidden row-identity column is an implementation detail: never show it,
+    # whether it turned up as a column (df.describe()) or an index label (df.isna().sum()).
+    obj = obj.drop(index="${ROW_ID_COLUMN}", errors="ignore").drop(columns="${ROW_ID_COLUMN}", errors="ignore")
+    total = len(obj)
+    frame = obj.head(${String(MAX_OUTPUT_ROWS)})
+    if not isinstance(frame.index, pd.RangeIndex):
+        try:
+            frame = frame.reset_index()
+        except ValueError:
+            frame = frame.reset_index(drop=True)
+    frame.columns = [" ".join(str(part) for part in col) if isinstance(col, tuple) else str(col) for col in frame.columns]
+    parsed = json.loads(frame.to_json(orient="split", date_format="iso"))
+    return json.dumps({"columns": parsed["columns"], "rows": parsed["data"], "totalRows": total})
 
 def __dcq_ensure_row_id(dataframe):
     if "${ROW_ID_COLUMN}" not in dataframe.columns:
@@ -164,6 +186,7 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
 
   try {
     let replValue: unknown;
+    let outputTable: OutputTable | null = null;
 
     if (request.type === "init-case") {
       const csvText = await fetchText(request.datasetUrl);
@@ -186,6 +209,18 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
       }
     } else {
       replValue = await pyodide.runPythonAsync(request.code);
+      if (replValue !== undefined && replValue !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        pyodide.globals.set("__dcq_last_value", replValue);
+        const tableJson = pyodide.runPython("__dcq_table_of(__dcq_last_value)") as
+          string | undefined;
+        if (typeof tableJson === "string") {
+          outputTable = JSON.parse(tableJson) as OutputTable;
+          // The table is shown as a table; do not also echo its repr as text.
+          if (isDestroyable(replValue)) replValue.destroy();
+          replValue = undefined;
+        }
+      }
     }
 
     const resultGrid = serializeDataframe(pyodide);
@@ -194,6 +229,7 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
       requestId: request.requestId,
       resultGrid,
       output: buildOutput(stdoutBuffer, replValue),
+      outputTable,
     } satisfies RunResultResponse);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

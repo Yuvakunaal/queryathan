@@ -13,10 +13,10 @@ beforeAll(() => {
 });
 
 describe("defaultA11y", () => {
-  it("defaults to the middle text scale, no reduced CRT, no high contrast", () => {
+  it("defaults to the middle text scale, CRT effect off, no high contrast", () => {
     expect(defaultA11y()).toEqual({
       textScaleIndex: 1,
-      crtReduced: false,
+      crtReduced: true,
       highContrast: false,
     });
   });
@@ -60,7 +60,7 @@ describe("loadA11yState / persistA11yState", () => {
     store.set("dcq.a11y", JSON.stringify({ textScaleIndex: 2 }));
     expect(loadA11yState()).toEqual({
       textScaleIndex: 2,
-      crtReduced: false,
+      crtReduced: true,
       highContrast: false,
     });
   });

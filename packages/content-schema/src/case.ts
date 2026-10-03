@@ -83,6 +83,8 @@ export type WinCondition = z.infer<typeof winConditionSchema>;
 export const caseStringsSchema = z.object({
   title: z.string().min(1),
   subtitle: z.string().min(1).optional(),
+  /** One or two plain sentences saying exactly what to do. Shown first, ahead of the story. Omit on final bosses. */
+  task: z.string().min(1).optional(),
   briefing: z.string().min(1),
 });
 

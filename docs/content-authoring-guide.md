@@ -80,6 +80,15 @@ shipped World 1 tutorial case as a working reference
   for why. If the predicate you need doesn't exist yet, propose adding it to
   the schema in your PR description rather than working around it.
 
+### Write a plain task
+
+Every non-final case should set `strings.task`: one or two plain sentences
+saying exactly what to do, naming the columns and the end state ("Rewrite every
+phone number as 415-555-0132"). Assume the reader is new to the tool. Keep the
+fiction in `briefing`; it is shown folded away under "The story behind it".
+The "You win when" checklist is generated from `winCondition`, so keep the
+task and the predicates saying the same thing. Final bosses omit `task`.
+
 ### Available predicates (Worlds 1 and 2)
 
 | Predicate           | Shape                                                             | Renders as                                                                                                                                                         |
