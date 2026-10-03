@@ -5,6 +5,10 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Returning to "Your data" after viewing Result or Changes no longer skips the first rows. Inactive tabs were hidden with display:none, which reset the table's scroll position while its virtual row list kept the old offset. They are now hidden with visibility, so each tab keeps its scroll position and rows.
+
 ### Fixed (panel widths and large text)
 
 - The "023 cells / 240 rows" readout no longer gets pushed off the edge at middle panel widths: the progress strip now shrinks instead of forcing a minimum width, and the HUD stacks below 860px of panel width. Swept 4 worlds x 2 text sizes x 4 divider positions with no overflow.

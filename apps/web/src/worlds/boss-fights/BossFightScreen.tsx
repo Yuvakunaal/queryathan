@@ -640,62 +640,64 @@ export default function BossFightScreen({
                 </button>
               ))}
             </div>
-            <div
-              className={styles.tablePane}
-              id="pane-data"
-              role="tabpanel"
-              aria-labelledby="tab-data"
-              hidden={activeTab !== "data"}
-            >
-              <DataframeGrid
-                ref={gridRef}
-                grid={grid}
-                afflictionCellMap={cellMap}
-                textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
-                columnHints={caseData.columnHints}
-              />
-            </div>
-            <div
-              className={styles.tablePane}
-              id="pane-result"
-              role="tabpanel"
-              aria-labelledby="tab-result"
-              hidden={activeTab !== "result"}
-            >
-              <OutputView
-                output={runOutput}
-                language={engine === "sql" ? "sql" : "python"}
-                textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
-                onShowData={() => {
-                  setActiveTab("data");
-                }}
-              />
-            </div>
-            <div
-              className={styles.tablePane}
-              id="pane-changes"
-              role="tabpanel"
-              aria-labelledby="tab-changes"
-              hidden={activeTab !== "changes"}
-            >
-              <DiffConsole entries={consoleEntries} />
-            </div>
-            {caseData.extraTables?.map((t) => (
+            <div className={styles.panes}>
               <div
-                key={t.name}
                 className={styles.tablePane}
-                id={`pane-${t.name}`}
+                id="pane-data"
                 role="tabpanel"
-                aria-labelledby={`tab-${t.name}`}
-                hidden={activeTab !== t.name}
+                aria-labelledby="tab-data"
+                hidden={activeTab !== "data"}
               >
-                <ReferenceTable
-                  url={t.path}
-                  columnHints={caseData.columnHints}
+                <DataframeGrid
+                  ref={gridRef}
+                  grid={grid}
+                  afflictionCellMap={cellMap}
                   textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
+                  columnHints={caseData.columnHints}
                 />
               </div>
-            ))}
+              <div
+                className={styles.tablePane}
+                id="pane-result"
+                role="tabpanel"
+                aria-labelledby="tab-result"
+                hidden={activeTab !== "result"}
+              >
+                <OutputView
+                  output={runOutput}
+                  language={engine === "sql" ? "sql" : "python"}
+                  textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
+                  onShowData={() => {
+                    setActiveTab("data");
+                  }}
+                />
+              </div>
+              <div
+                className={styles.tablePane}
+                id="pane-changes"
+                role="tabpanel"
+                aria-labelledby="tab-changes"
+                hidden={activeTab !== "changes"}
+              >
+                <DiffConsole entries={consoleEntries} />
+              </div>
+              {caseData.extraTables?.map((t) => (
+                <div
+                  key={t.name}
+                  className={styles.tablePane}
+                  id={`pane-${t.name}`}
+                  role="tabpanel"
+                  aria-labelledby={`tab-${t.name}`}
+                  hidden={activeTab !== t.name}
+                >
+                  <ReferenceTable
+                    url={t.path}
+                    columnHints={caseData.columnHints}
+                    textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         <ResizeHandle

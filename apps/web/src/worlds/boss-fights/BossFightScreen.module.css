@@ -403,13 +403,6 @@
   outline: 2px solid var(--w1-focus);
   outline-offset: -2px;
 }
-.tablePane {
-  flex: 1 1 0;
-  min-height: 0;
-}
-.tablePane[hidden] {
-  display: none;
-}
 
 [data-world="the-twins"] .battlefield {
   grid-template-rows: auto minmax(0, 1fr);
@@ -422,12 +415,28 @@
 .tab[data-error="true"] {
   color: var(--w1-diff-del);
 }
+.panes {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  min-width: 0;
+}
+/*
+  Inactive tabs are hidden with visibility, not display:none. display:none
+  removes the box, which resets a scrolled table to the top while its virtual
+  row list still remembers the old offset (rows vanished on return). Keeping
+  the box keeps the scroll position and the row list in step.
+*/
 .tablePane {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
 }
 .tablePane[hidden] {
-  display: none;
+  display: flex;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 @media (max-width: 1079px) {
