@@ -1,4 +1,10 @@
 {
   "world": "the-vault",
-  "caseIds": ["w2-01-pin-tumbler", "w2-02-latin-lock", "w2-03-warden"]
+  "caseIds": [
+    "w2-01-pin-tumbler",
+    "w2-02-host-lock",
+    "w2-03-serial-lock",
+    "w2-04-latin-lock",
+    "w2-05-warden"
+  ]
 }

@@ -7,7 +7,8 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ### Added (Phase 4: World 2, The Vault)
 
-- Three cases: PIN_TUMBLER (phone formats), LATIN_LOCK (mojibake), THE_WARDEN (final boss stacking both plus emails). Each was solved end to end in both Python and SQL against the real engines.
+- Five cases: PIN_TUMBLER (phone formats), HOST_LOCK (URLs to hostnames), SERIAL_LOCK (ids buried in text), LATIN_LOCK (mojibake), THE_WARDEN (final boss). Each was solved end to end in both Python and SQL against the real engines.
+- Tumbler display: The Vault replaces the HP strip with one lock tumbler per win-condition rule; pins slide onto the shear line as cells clear.
 - New predicates `matches_pattern` and `no_mojibake`, new affliction kinds `pattern` and `encoding`.
 - SQL engine gains `REGEXP`, `REGEXP_EXTRACT` and `REGEXP_REPLACE`.
 - World select hub as the landing screen; per-world themes (navy and brass for The Vault); `BossFightScreen` and `WorldMapScreen` now take a world.

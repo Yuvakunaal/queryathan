@@ -33,6 +33,7 @@ import EngineSelect from "./EngineSelect";
 import type { EngineChoice } from "./EngineSelect";
 import BriefingPanel from "./BriefingPanel";
 import HpHeatmap from "./HpHeatmap";
+import TumblerBand from "./TumblerBand";
 import DataframeGrid from "./DataframeGrid";
 import type { DataframeGridHandle } from "./DataframeGrid";
 import CodeEditor from "./CodeEditor";
@@ -494,7 +495,11 @@ export default function BossFightScreen({
           </div>
         </div>
         <div className={styles.battlefield} ref={battlefieldRef}>
-          <HpHeatmap grid={grid} winCondition={caseData.winCondition} />
+          {world === "the-vault" ? (
+            <TumblerBand grid={grid} winCondition={caseData.winCondition} />
+          ) : (
+            <HpHeatmap grid={grid} winCondition={caseData.winCondition} />
+          )}
           <div className={styles.gridWrap}>
             <DataframeGrid
               ref={gridRef}

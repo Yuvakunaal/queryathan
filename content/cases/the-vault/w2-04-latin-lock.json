@@ -1,5 +1,5 @@
 {
-  "id": "w2-02-latin-lock",
+  "id": "w2-04-latin-lock",
   "world": "the-vault",
   "tier": "mid-boss",
   "datasetPath": "/datasets/world-2/latin-lock.csv",
@@ -9,7 +9,7 @@
   },
   "strings": {
     "title": "LATIN_LOCK",
-    "subtitle": "LOCK 0x11 // CLASS: CIPHER",
+    "subtitle": "LOCK 0x13 // CLASS: CIPHER",
     "briefing": "A customer export was saved as UTF-8 and then opened as Latin-1. José became JosÃ©. Zürich became ZÃ¼rich.\n\nThe text is not lost. Each garbled sequence is the original UTF-8 bytes shown in the wrong alphabet. Reverse the mistake and the names come back.\n\nBe careful: some rows were never damaged, and re-decoding a clean row can fail.\n\ndf is loaded. 160 rows, 4 columns."
   },
   "starterCode": {

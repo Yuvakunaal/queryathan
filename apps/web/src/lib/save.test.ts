@@ -96,8 +96,8 @@ describe("maxTechniquesForWorld", () => {
     expect(maxTechniquesForWorld("boss-fights")).toBe(6);
   });
 
-  it("returns 2 for The Vault and 0 for a world with only the fallback Recruit tier", () => {
-    expect(maxTechniquesForWorld("the-vault")).toBe(2);
+  it("returns 5 for The Vault and 0 for a world with only the fallback Recruit tier", () => {
+    expect(maxTechniquesForWorld("the-vault")).toBe(5);
     expect(maxTechniquesForWorld("the-twins")).toBe(0);
   });
 });

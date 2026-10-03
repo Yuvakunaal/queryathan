@@ -225,4 +225,73 @@ mkdirSync(outDir, { recursive: true });
     toCsv(["member_id", "name", "email", "phone"], rows),
   );
 }
+// 4. host-lock: URLs down to bare hostnames
+{
+  const HOSTS = [
+    "example.com",
+    "shop.example.net",
+    "blog.example.org",
+    "example.io",
+    "docs.example.co.uk",
+  ];
+  const PATHS = ["", "/", "/shop?id=4", "/post/12", "/about", "/docs/start#intro"];
+  const rows = [];
+  for (let i = 1; i <= 140; i++) {
+    const host = pick(HOSTS);
+    const shape = int(0, 5);
+    let site;
+    if (shape === 0) site = `https://www.${host}${pick(PATHS)}`;
+    else if (shape === 1) site = `http://${host}${pick(PATHS)}`;
+    else if (shape === 2) site = `HTTPS://WWW.${host.toUpperCase()}`;
+    else if (shape === 3) site = `${host}${pick(PATHS)}`;
+    else if (shape === 4) site = `https://${host}:8080${pick(PATHS)}`;
+    else site = `www.${host}`;
+    rows.push({
+      visit_id: i,
+      visitor: `${pick(FIRST)} ${pick(LAST)}`.normalize("NFC"),
+      site,
+      visits: int(1, 40),
+    });
+  }
+  writeFileSync(
+    join(outDir, "host-lock.csv"),
+    toCsv(["visit_id", "visitor", "site", "visits"], rows),
+  );
+}
+
+// 5. serial-lock: invoice ids buried in text, plus a messy status column
+{
+  const STATUS = ["paid", "pending", "overdue"];
+  const rows = [];
+  for (let i = 1; i <= 150; i++) {
+    const id = String(int(10000, 99999));
+    const forms = [
+      `Invoice INV-${id} paid`,
+      `inv-${id}`,
+      `#INV-${id} (late)`,
+      `Re: Inv-${id} reminder sent`,
+      `INV-${id}`,
+      `see invoice inv-${id}, thanks`,
+    ];
+    const status = pick(STATUS);
+    const shape = int(0, 3);
+    rows.push({
+      row_id: i,
+      ref: pick(forms),
+      status:
+        shape === 0
+          ? status.toUpperCase()
+          : shape === 1
+            ? ` ${status} `
+            : shape === 2
+              ? status.replace(/^./, (c) => c.toUpperCase())
+              : status,
+      amount: (int(2000, 90000) / 100).toFixed(2),
+    });
+  }
+  writeFileSync(
+    join(outDir, "serial-lock.csv"),
+    toCsv(["row_id", "ref", "status", "amount"], rows),
+  );
+}
 console.log("wrote World 2 datasets to", outDir);

@@ -1,0 +1,151 @@
+row_id,ref,status,amount
+1,inv-11331,paid,115.54
+2,#INV-89275 (late),Pending,305.26
+3,Invoice INV-24359 paid,PAID,747.54
+4,#INV-20970 (late),paid,558.01
+5,"see invoice inv-65714, thanks",overdue,343.61
+6,"see invoice inv-39936, thanks"," overdue ",800.10
+7,inv-52840,overdue,518.10
+8,#INV-34067 (late)," overdue ",577.61
+9,INV-15361," overdue ",177.19
+10,INV-44119," overdue ",181.32
+11,Invoice INV-27886 paid," paid ",689.13
+12,inv-13814,paid,162.29
+13,inv-14789," pending ",422.57
+14,Re: Inv-61539 reminder sent," pending ",601.19
+15,"see invoice inv-61864, thanks",Pending,177.87
+16,"see invoice inv-84653, thanks"," overdue ",352.25
+17,"see invoice inv-33484, thanks",Overdue,584.80
+18,"see invoice inv-26551, thanks",PAID,134.34
+19,Invoice INV-74149 paid,PENDING,298.08
+20,Invoice INV-28644 paid,paid,595.66
+21,Invoice INV-47727 paid,PENDING,443.37
+22,Invoice INV-26239 paid," overdue ",676.07
+23,INV-74305,PENDING,622.32
+24,inv-61662,OVERDUE,599.38
+25,"see invoice inv-65821, thanks",overdue,203.12
+26,#INV-52881 (late),Pending,748.04
+27,Re: Inv-21256 reminder sent,OVERDUE,786.15
+28,Re: Inv-95624 reminder sent," paid ",744.14
+29,#INV-23366 (late),Overdue,144.96
+30,Invoice INV-23910 paid," overdue ",874.14
+31,"see invoice inv-81357, thanks",overdue,434.91
+32,"see invoice inv-35933, thanks",paid,46.52
+33,"see invoice inv-26745, thanks",PENDING,257.09
+34,#INV-38759 (late),pending,584.09
+35,#INV-31567 (late),Pending,287.14
+36,Invoice INV-60521 paid,overdue,811.20
+37,#INV-87877 (late)," overdue ",357.16
+38,#INV-80653 (late),PAID,456.18
+39,#INV-90521 (late),Pending,870.40
+40,#INV-28209 (late)," overdue ",785.94
+41,Re: Inv-15999 reminder sent," pending ",264.44
+42,INV-26545,PAID,503.79
+43,#INV-31658 (late),pending,742.90
+44,inv-40940,Overdue,864.32
+45,Re: Inv-14189 reminder sent," pending ",581.04
+46,Invoice INV-92822 paid,Overdue,689.55
+47,INV-87133,pending,886.36
+48,"see invoice inv-83781, thanks",PENDING,717.55
+49,INV-59992,Paid,320.27
+50,Re: Inv-40981 reminder sent,paid,679.25
+51,inv-90015,pending,467.53
+52,Re: Inv-71614 reminder sent,Pending,398.30
+53,#INV-43944 (late),OVERDUE,114.19
+54,Re: Inv-75545 reminder sent," overdue ",674.96
+55,"see invoice inv-39483, thanks",Paid,757.04
+56,INV-46052,overdue,185.93
+57,INV-80122,PENDING,444.83
+58,"see invoice inv-94147, thanks"," pending ",201.04
+59,inv-81964,Paid,589.38
+60,Invoice INV-34892 paid,PAID,133.66
+61,Invoice INV-27091 paid," overdue ",649.24
+62,INV-18660,Overdue,25.58
+63,Invoice INV-74066 paid,pending,481.14
+64,inv-22696," pending ",320.82
+65,#INV-17165 (late),paid,88.31
+66,"see invoice inv-21479, thanks",OVERDUE,729.99
+67,Invoice INV-49019 paid,paid,618.20
+68,inv-21221,overdue,889.35
+69,inv-42644,paid,525.46
+70,"see invoice inv-54724, thanks"," overdue ",891.36
+71,INV-88302," overdue ",162.81
+72,"see invoice inv-76871, thanks",PENDING,814.38
+73,"see invoice inv-41374, thanks",Paid,196.74
+74,inv-60736,Paid,864.06
+75,#INV-68431 (late),PAID,380.05
+76,INV-94639," paid ",149.68
+77,inv-43999," overdue ",100.51
+78,"see invoice inv-37003, thanks",pending,98.84
+79,#INV-10247 (late),Pending,801.09
+80,#INV-90450 (late)," overdue ",313.32
+81,INV-44738," overdue ",30.71
+82,Re: Inv-46014 reminder sent,PENDING,378.24
+83,INV-80455," overdue ",780.82
+84,#INV-89014 (late),paid,660.67
+85,#INV-45776 (late),Overdue,255.08
+86,#INV-65568 (late)," pending ",327.22
+87,INV-42825," overdue ",715.05
+88,Invoice INV-71372 paid,Pending,214.84
+89,inv-30093," overdue ",543.90
+90,"see invoice inv-93522, thanks",paid,79.31
+91,inv-18187,paid,122.24
+92,#INV-67153 (late),paid,25.82
+93,inv-32771,Pending,149.71
+94,#INV-13698 (late),overdue,134.60
+95,Invoice INV-92266 paid,pending,898.72
+96,INV-68606," overdue ",843.66
+97,#INV-62245 (late)," overdue ",39.84
+98,inv-72385,OVERDUE,871.57
+99,INV-41904," overdue ",133.05
+100,"see invoice inv-14303, thanks"," pending ",572.15
+101,INV-21139," paid ",311.32
+102,Re: Inv-71371 reminder sent," paid ",648.04
+103,Re: Inv-57832 reminder sent,PAID,750.73
+104,Invoice INV-71150 paid," overdue ",402.46
+105,Invoice INV-44951 paid,Overdue,65.97
+106,"see invoice inv-53127, thanks",Overdue,168.07
+107,INV-51011,paid,475.48
+108,inv-69498," overdue ",176.18
+109,#INV-47221 (late),overdue,600.09
+110,Invoice INV-84625 paid,Pending,195.52
+111,"see invoice inv-24564, thanks",pending,137.99
+112,Re: Inv-19761 reminder sent,PENDING,789.97
+113,Re: Inv-40186 reminder sent,PAID,708.59
+114,"see invoice inv-94599, thanks",Paid,567.14
+115,INV-42614," paid ",166.88
+116,"see invoice inv-72936, thanks",Overdue,733.32
+117,Re: Inv-75449 reminder sent,overdue,877.26
+118,"see invoice inv-87924, thanks",OVERDUE,390.31
+119,INV-80502,pending,843.73
+120,#INV-67824 (late),Pending,137.15
+121,INV-68357,PAID,547.08
+122,"see invoice inv-83159, thanks",Overdue,629.81
+123,#INV-92895 (late),paid,298.42
+124,"see invoice inv-85271, thanks",PENDING,615.40
+125,"see invoice inv-14098, thanks",pending,465.16
+126,INV-74275,Pending,758.62
+127,"see invoice inv-58695, thanks",OVERDUE,82.53
+128,inv-86926,paid,805.52
+129,"see invoice inv-91926, thanks"," overdue ",706.39
+130,"see invoice inv-48128, thanks",Pending,570.48
+131,Invoice INV-19867 paid,paid,270.41
+132,inv-66946,PENDING,382.85
+133,INV-48022," overdue ",830.92
+134,Re: Inv-83338 reminder sent,Pending,191.79
+135,"see invoice inv-74929, thanks",pending,226.07
+136,Re: Inv-23150 reminder sent,PENDING,750.02
+137,"see invoice inv-43937, thanks"," overdue ",645.31
+138,inv-35829," pending ",772.97
+139,Re: Inv-60700 reminder sent,Overdue,478.89
+140,"see invoice inv-85648, thanks",OVERDUE,515.31
+141,INV-97717,Paid,798.08
+142,INV-46170,Pending,737.73
+143,Re: Inv-50371 reminder sent," pending ",859.06
+144,INV-37050," paid ",622.38
+145,"see invoice inv-80023, thanks",OVERDUE,817.28
+146,INV-24164,Overdue,487.43
+147,#INV-99939 (late),overdue,386.27
+148,inv-32610," pending ",285.18
+149,#INV-71795 (late),PAID,790.90
+150,#INV-81973 (late)," overdue ",53.76

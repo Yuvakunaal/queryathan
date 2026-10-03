@@ -21,7 +21,7 @@ export interface AfflictedCell {
   kind: AfflictionKind;
 }
 
-function kindForPredicate(predicate: Predicate): AfflictionKind {
+export function kindForPredicate(predicate: Predicate): AfflictionKind {
   switch (predicate.predicate) {
     case "no_nulls":
       return "null";

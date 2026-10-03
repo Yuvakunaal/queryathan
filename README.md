@@ -13,7 +13,7 @@ Full product vision, world designs, and architecture rationale:
 
 ## Status
 
-**Phases 1-4 in progress: World 2 (The Vault) is playable with three locks. Phase 3 complete — World 1 (Boss Fights) is fully playable, four bosses
+**Phases 1-4 in progress: World 2 (The Vault) is playable with five locks. Phase 3 complete — World 1 (Boss Fights) is fully playable, four bosses
 deep, in either of two real engines.** Open the app to a boss roster
 (locked/unlocked/cleared state, rank, XP), pick a fight, choose Python
 (pandas/Pyodide) or SQL (SQLite/sql.js) on an engine-select screen, and edit

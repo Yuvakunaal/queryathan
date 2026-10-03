@@ -1,0 +1,137 @@
+.band {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "label readout" "row readout";
+  column-gap: 20px;
+  row-gap: 8px;
+  padding: 12px 16px;
+  background: var(--w1-bg-panel);
+  border-bottom: 1px solid var(--w1-rule-strong);
+  overflow: hidden;
+}
+.label {
+  grid-area: label;
+  font: 600 var(--w1-fs-hudlabel) / 14px var(--w1-font-display);
+  letter-spacing: 0.14em;
+  color: var(--w1-amber-500);
+}
+.row {
+  grid-area: row;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+}
+.tumbler {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 22px auto;
+  grid-template-areas: "shaft name" "shaft count";
+  column-gap: 8px;
+  align-items: center;
+}
+.shaft {
+  grid-area: shaft;
+  position: relative;
+  width: 22px;
+  height: 56px;
+  border: 1px solid var(--w1-rule-strong);
+  background: var(--w1-bg-void);
+  overflow: hidden;
+}
+.shear {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1px dashed var(--w1-text-dim);
+}
+.pin {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: calc(50% - 7px);
+  height: 14px;
+  background: var(--w1-text-secondary);
+  transition:
+    transform 700ms cubic-bezier(0.32, 0.72, 0, 1),
+    background-color 300ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.tumbler[data-set="true"] .pin {
+  background: var(--w1-green-500);
+}
+.tumbler[data-set="true"] .shear {
+  border-top-color: var(--w1-green-500);
+}
+.name {
+  grid-area: name;
+  align-self: end;
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 500 12px/1.3 var(--w1-font-text);
+  color: var(--w1-text-primary);
+}
+.glyph[data-kind="pattern"] {
+  color: var(--w1-status-pattern);
+}
+.glyph[data-kind="encoding"] {
+  color: var(--w1-status-encoding);
+}
+.glyph[data-kind="null"] {
+  color: var(--w1-status-null);
+}
+.glyph[data-kind="dup"] {
+  color: var(--w1-status-dup);
+}
+.glyph[data-kind="dtype"] {
+  color: var(--w1-status-dtype);
+}
+.glyph[data-kind="ws"] {
+  color: var(--w1-status-ws);
+}
+.glyph[data-kind="outlier"] {
+  color: var(--w1-status-outlier);
+}
+.glyph[data-kind="date"] {
+  color: var(--w1-status-date);
+}
+.count {
+  grid-area: count;
+  align-self: start;
+  font: 600 12px/1.3 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.tumbler[data-set="true"] .count {
+  color: var(--w1-green-500);
+}
+.readout {
+  grid-area: readout;
+  align-self: end;
+  text-align: right;
+}
+.num {
+  font: 700 var(--w1-fs-hudnum) / 1 var(--w1-font-display);
+  color: var(--w1-text-primary);
+}
+.denom {
+  margin-left: 6px;
+  font: 400 11px/1 var(--w1-font-text);
+  color: var(--w1-text-dim);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pin {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  .shaft {
+    border-color: CanvasText;
+  }
+  .pin {
+    background: CanvasText;
+  }
+}
