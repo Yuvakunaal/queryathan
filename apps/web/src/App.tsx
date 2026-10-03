@@ -1,5 +1,11 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { WorldMapScreen, WorldSelectScreen } from "./worlds/boss-fights";
+import {
+  SandboxSetupScreen,
+  WorldMapScreen,
+  WorldSelectScreen,
+} from "./worlds/boss-fights";
+import type { SandboxSession } from "./worlds/boss-fights/BossFightScreen";
+import { buildSandboxCase } from "./lib/sandbox";
 import type { WorldId } from "@dcq/content-schema";
 import {
   getWorldProgress,
@@ -22,7 +28,9 @@ const BossFightScreen = lazy(() => import("./worlds/boss-fights/BossFightScreen"
 type Screen =
   | { name: "hub" }
   | { name: "roster"; world: WorldId }
-  | { name: "fight"; world: WorldId; casePath: string };
+  | { name: "fight"; world: WorldId; casePath: string }
+  | { name: "sandbox-setup" }
+  | { name: "sandbox"; session: SandboxSession };
 
 /**
  * Only visible for the code-split chunk's fetch time — near-instant on a
@@ -69,6 +77,49 @@ export default function App() {
     persistSave(next);
   }
 
+  if (screen.name === "sandbox-setup") {
+    return (
+      <SandboxSetupScreen
+        a11y={a11y}
+        onA11yChange={setA11y}
+        onBack={() => {
+          setScreen({ name: "hub" });
+        }}
+        onStart={(fileName, prepared) => {
+          setScreen({
+            name: "sandbox",
+            session: {
+              caseData: buildSandboxCase(fileName, prepared),
+              csvText: prepared.csvText,
+              fileName,
+              rowCount: prepared.rowCount,
+              notes: prepared.notes,
+            },
+          });
+        }}
+      />
+    );
+  }
+
+  if (screen.name === "sandbox") {
+    return (
+      <Suspense fallback={<FightScreenFallback />}>
+        <BossFightScreen
+          sandbox={screen.session}
+          world="boss-fights"
+          casePath=""
+          rankLabel=""
+          a11y={a11y}
+          onA11yChange={setA11y}
+          onExitToRoster={() => {
+            setScreen({ name: "sandbox-setup" });
+          }}
+          onWin={() => undefined}
+        />
+      </Suspense>
+    );
+  }
+
   if (screen.name === "fight") {
     const world = screen.world;
     const progress = getWorldProgress(saveData, world);
@@ -100,6 +151,9 @@ export default function App() {
         onA11yChange={setA11y}
         onSelectWorld={(world) => {
           setScreen({ name: "roster", world });
+        }}
+        onOpenSandbox={() => {
+          setScreen({ name: "sandbox-setup" });
         }}
       />
     );

@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added (Phase 6: Sandbox)
+
+- Sandbox mode, from a card on the world select screen: load your own CSV (file picker, drag and drop, pasted text, or a built-in sample) and explore or clean it with pandas or SQL in the same editor. Ungraded; the file is never uploaded (the CSV text goes straight to the in-browser engine).
+- CSV intake: semicolon- and tab-separated files are converted, blank and duplicate column names are renamed, ragged rows are padded or trimmed, a byte-order mark is stripped; limits of 5 MB, 50,000 rows and 200 columns, each with a plain-language message. Every change is listed to the player.
+- A live profile band (rows, columns, each column's type and number of empty cells), clickable "good first questions" for the chosen language, and a Download CSV button for the cleaned table.
+
+### Fixed (engine)
+
+- Python no longer carries a hidden row-id column inside `df`. That column made every row unique, so a plain `df.drop_duplicates()` removed nothing, and it leaked into `df.columns`, `df.shape`, `df.to_csv()` and `df.isna().sum()`. Row identity for the diff view is now tracked outside the DataFrame (same labels, then label match, then content match). See docs/adr/0006-row-identity-diffing.md.
+
 ### Fixed
 
 - Returning to "Your data" after viewing Result or Changes no longer skips the first rows. Inactive tabs were hidden with display:none, which reset the table's scroll position while its virtual row list kept the old offset. They are now hidden with visibility, so each tab keeps its scroll position and rows.

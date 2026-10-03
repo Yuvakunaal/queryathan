@@ -93,15 +93,19 @@ async function loadCsvIntoTable(
   datasetUrl: string,
   tableName: string,
   freshDatabase: boolean,
+  inlineText?: string,
 ): Promise<void> {
   const SQL = await sqlJsReady;
-  const response = await fetch(datasetUrl);
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch dataset: ${String(response.status)} ${response.statusText}`,
-    );
+  let csvText = inlineText;
+  if (csvText === undefined) {
+    const response = await fetch(datasetUrl);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch dataset: ${String(response.status)} ${response.statusText}`,
+      );
+    }
+    csvText = await response.text();
   }
-  const csvText = await response.text();
   const { columns, rows } = parseCsv(csvText);
   const columnTypes = inferColumnTypes(columns, rows);
 
@@ -227,7 +231,7 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
     let outputTable: OutputTable | null = null;
 
     if (request.type === "init-case") {
-      await loadCsvIntoTable(request.datasetUrl, TABLE_NAME, true);
+      await loadCsvIntoTable(request.datasetUrl, TABLE_NAME, true, request.datasetText);
       for (const table of request.extraTables ?? []) {
         await loadCsvIntoTable(table.url, table.name, false);
       }

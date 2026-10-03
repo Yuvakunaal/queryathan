@@ -170,3 +170,43 @@
     border: 1px solid CanvasText;
   }
 }
+
+.sandbox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 20px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 18px 20px;
+  text-align: left;
+  background: transparent;
+  color: var(--w1-text-primary);
+  border: 1px dashed var(--w1-rule-strong);
+  cursor: pointer;
+  font: inherit;
+  transition:
+    border-color 220ms cubic-bezier(0.32, 0.72, 0, 1),
+    background-color 220ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.sandbox:hover {
+  border-color: var(--w1-amber-500);
+  background: var(--w1-bg-panel);
+}
+.sandbox:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 3px;
+}
+.sandboxTitle {
+  font: 700 18px/1.2 var(--w1-font-display);
+}
+.sandboxText {
+  flex: 1 1 280px;
+  font: 400 13px/1.5 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sandbox {
+    transition: none;
+  }
+}

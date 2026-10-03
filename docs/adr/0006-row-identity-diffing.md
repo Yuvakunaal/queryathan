@@ -71,3 +71,16 @@ df[["a", "b"]]` column selection, or a `.merge()` that doesn't carry it
 - Content authors don't need to know any of this — it's an engine-layer
   fix. It only matters to someone extending `pyodide.worker.ts`,
   `lib/diff.ts`, or `lib/affliction-cells.ts`.
+
+## Update: identity no longer lives in the DataFrame
+
+The hidden `__dcq_row_id__` column described above was removed. Because it was
+a real column, every pandas call could see it: it made every row unique (a
+plain `df.drop_duplicates()` removed nothing), it showed up in `df.columns`,
+`df.shape`, `df.to_csv()` and `df.isna().sum()`, and `melt()` reshaped it into
+the data. Identity is now computed by the worker after each run and kept in
+Python-side state outside `df` (`pyodide.worker.ts`): identical index labels keep
+their ids; a subset of labels whose rows mostly still match keeps ids by label;
+anything else (`reset_index(drop=True)`, merges) is matched by row content,
+first occurrence first, with a positional or fresh id for rows that changed.
+The SQL worker is unchanged (rowid / ROW_NUMBER).

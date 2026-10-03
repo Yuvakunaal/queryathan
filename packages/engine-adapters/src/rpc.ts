@@ -6,6 +6,7 @@ import type {
 } from "./protocol";
 
 export interface InitCaseOptions {
+  datasetText?: string;
   extraTables?: ExtraTable[];
   trackRowIdentity?: boolean;
 }
@@ -118,6 +119,9 @@ export class EngineRpcClient {
         type: "init-case",
         datasetUrl,
         extraTables: options.extraTables ?? [],
+        ...(options.datasetText === undefined
+          ? {}
+          : { datasetText: options.datasetText }),
         trackRowIdentity: options.trackRowIdentity ?? true,
       },
       timeoutMs,
@@ -161,6 +165,7 @@ export class EngineRpcClient {
           type: "init-case";
           datasetUrl: string;
           extraTables: ExtraTable[];
+          datasetText?: string;
           trackRowIdentity: boolean;
         }
       | { type: "run-code"; code: string },

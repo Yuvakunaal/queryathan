@@ -13,7 +13,7 @@ Full product vision, world designs, and architecture rationale:
 
 ## Status
 
-**Phases 1-4 in progress: Worlds 2 (The Vault), 3 (The Twins) and 4 (The Architect) are playable. Phase 3 complete — World 1 (Boss Fights) is fully playable, four bosses
+**Phases 1-4 in progress: Worlds 2 (The Vault), 3 (The Twins) and 4 (The Architect) are playable, plus a sandbox for your own CSV. Phase 3 complete — World 1 (Boss Fights) is fully playable, four bosses
 deep, in either of two real engines.** Open the app to a boss roster
 (locked/unlocked/cleared state, rank, XP), pick a fight, choose Python
 (pandas/Pyodide) or SQL (SQLite/sql.js) on an engine-select screen, and edit

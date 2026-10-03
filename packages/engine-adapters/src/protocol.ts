@@ -41,6 +41,8 @@ export interface InitCaseRequest {
   requestId: string;
   /** Fetched inside the worker and loaded into the `df` namespace variable. */
   datasetUrl: string;
+  /** When present, the engine loads this CSV text instead of fetching `datasetUrl` (sandbox mode: the player's own file, which never leaves the browser). */
+  datasetText?: string;
   /** Optional reference tables (World 3 joins). The main dataset stays `df` / `data`. */
   extraTables?: ExtraTable[];
   /**

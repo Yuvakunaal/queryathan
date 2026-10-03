@@ -9,7 +9,10 @@
  * every cell as text.
  */
 
-export function parseCsv(text: string): { columns: string[]; rows: string[][] } {
+export function parseCsv(
+  text: string,
+  delimiter = ",",
+): { columns: string[]; rows: string[][] } {
   const rows: string[][] = [];
   let field = "";
   let row: string[] = [];
@@ -51,7 +54,7 @@ export function parseCsv(text: string): { columns: string[]; rows: string[][] } 
       i += 1;
       continue;
     }
-    if (char === ",") {
+    if (char === delimiter) {
       endField();
       i += 1;
       continue;

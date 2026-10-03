@@ -22,3 +22,4 @@ import "./theme-architect.css";
 export type { BossFightScreenProps } from "./BossFightScreen";
 export { default as WorldMapScreen } from "./WorldMapScreen";
 export { default as WorldSelectScreen } from "./WorldSelectScreen";
+export { default as SandboxSetupScreen } from "./SandboxSetupScreen";

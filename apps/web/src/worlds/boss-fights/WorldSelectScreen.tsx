@@ -13,6 +13,7 @@ export interface WorldSelectScreenProps {
   a11y: A11yState;
   onA11yChange: (next: A11yState) => void;
   onSelectWorld: (world: WorldId) => void;
+  onOpenSandbox: () => void;
 }
 
 function WorldCard({
@@ -78,6 +79,7 @@ export default function WorldSelectScreen({
   a11y,
   onA11yChange,
   onSelectWorld,
+  onOpenSandbox,
 }: WorldSelectScreenProps) {
   return (
     <div className={styles.screen} data-world="boss-fights">
@@ -110,6 +112,14 @@ export default function WorldSelectScreen({
             />
           ))}
         </ul>
+        <button type="button" className={styles.sandbox} onClick={onOpenSandbox}>
+          <span className={styles.sandboxTitle}>Sandbox</span>
+          <span className={styles.sandboxText}>
+            Bring your own CSV and explore or clean it with pandas or SQL. Nothing is
+            uploaded.
+          </span>
+          <span className={styles.cardCta}>Open</span>
+        </button>
       </div>
     </div>
   );

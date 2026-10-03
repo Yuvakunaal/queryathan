@@ -33,6 +33,8 @@ import BootSequence from "./BootSequence";
 import EngineSelect from "./EngineSelect";
 import type { EngineChoice } from "./EngineSelect";
 import BriefingPanel from "./BriefingPanel";
+import SandboxBriefing from "./SandboxBriefing";
+import SandboxBand from "./SandboxBand";
 import HpHeatmap from "./HpHeatmap";
 import TumblerBand from "./TumblerBand";
 import TwinBand from "./TwinBand";
@@ -62,7 +64,17 @@ interface PendingReconciliation {
   justCleared: { rowIndex: number; column: string }[];
 }
 
+export interface SandboxSession {
+  caseData: Case;
+  csvText: string;
+  fileName: string;
+  rowCount: number;
+  notes: string[];
+}
+
 export interface BossFightScreenProps {
+  /** Present in sandbox mode: the player's own CSV, with no win condition, hints or progress. */
+  sandbox?: SandboxSession | undefined;
   world: WorldId;
   casePath: string;
   rankLabel: string;
@@ -73,6 +85,7 @@ export interface BossFightScreenProps {
 }
 
 export default function BossFightScreen({
+  sandbox,
   world,
   casePath,
   rankLabel,
@@ -102,7 +115,7 @@ export default function BossFightScreen({
   const [hasSelection, setHasSelection] = useState(false);
   const [extraColumns, setExtraColumns] = useState<Record<string, string[]>>({});
   const [runOutput, setRunOutput] = useState<RunOutput | null>(null);
-  const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial());
+  const [showTutorial, setShowTutorial] = useState(() => !sandbox && !hasSeenTutorial());
   const [runCount, setRunCount] = useState(0);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [narrowNoticeDismissed, setNarrowNoticeDismissed] = useState(false);
@@ -166,7 +179,7 @@ export default function BossFightScreen({
 
     async function load(): Promise<void> {
       try {
-        const loadedCase = await loadCase(casePath);
+        const loadedCase = sandbox ? sandbox.caseData : await loadCase(casePath);
         if (cancelled) return;
         setCaseData(loadedCase);
         setPhase("engine-select");
@@ -180,7 +193,7 @@ export default function BossFightScreen({
     return () => {
       cancelled = true;
     };
-  }, [casePath]);
+  }, [casePath, sandbox]);
 
   // Runs once the player commits to an engine on the EngineSelect screen —
   // spawns that engine's worker, loads the dataset into it, and only then
@@ -212,6 +225,7 @@ export default function BossFightScreen({
             url: t.path,
           })),
           trackRowIdentity: !activeCase.reshapes,
+          ...(sandbox ? { datasetText: sandbox.csvText } : {}),
         });
         if (isCancelled()) return;
 
@@ -228,7 +242,8 @@ export default function BossFightScreen({
           result.resultGrid,
           activeCase.winCondition,
         );
-        setPhase("boot");
+        // Sandbox has nothing to scan for, so it skips the boot sequence.
+        setPhase(sandbox ? "fight" : "boot");
       } catch (err) {
         if (!isCancelled())
           setLoadError(err instanceof Error ? err.message : String(err));
@@ -241,7 +256,7 @@ export default function BossFightScreen({
       cancelled = true;
       client.terminate();
     };
-  }, [engine, caseData]);
+  }, [engine, caseData, sandbox]);
 
   // Post-run reconciliation: populate diff spans + fire the flash/recoil once
   // the grid has re-rendered with new values (DOM already shows new values;
@@ -278,7 +293,7 @@ export default function BossFightScreen({
 
     if (cellRefs.length > 0) playDiffFlashBatch(cellRefs);
 
-    if (battlefieldRef.current) {
+    if (battlefieldRef.current && !sandbox) {
       playBossHitRecoil({
         battlefieldEl: battlefieldRef.current,
         crtEl: crtRef.current,
@@ -286,6 +301,7 @@ export default function BossFightScreen({
         totalAffliction: initialAfflictionRef.current ?? 1,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once per new grid; sandbox is fixed for the life of the screen
   }, [grid]);
 
   /** Debounced per spec §3.6 — a fast series of runs shouldn't queue up a stack of polite announcements. */
@@ -352,7 +368,9 @@ export default function BossFightScreen({
             id: entryId,
             text: reshaped
               ? `reshaped: ${String(grid.rows.length)} rows x ${String(grid.columns.length)} columns -> ${String(nextGrid.rows.length)} rows x ${String(nextGrid.columns.length)} columns`
-              : `no change — ${String(totalDebt(nextGrid, caseData.winCondition)).padStart(3, "0")} left to fix`,
+              : sandbox
+                ? "no change to the data"
+                : `no change — ${String(totalDebt(nextGrid, caseData.winCondition)).padStart(3, "0")} left to fix`,
           },
         ]);
       }
@@ -360,11 +378,13 @@ export default function BossFightScreen({
       pendingRef.current = { changes, clearedThisTurn, justCleared };
       setGrid(nextGrid);
       announcePolite(
-        `Run complete. ${String(changes.length)} cells changed. ${String(totalDebt(nextGrid, caseData.winCondition))} left to fix.`,
+        sandbox
+          ? `Run complete. ${String(changes.length)} cells changed.`
+          : `Run complete. ${String(changes.length)} cells changed. ${String(totalDebt(nextGrid, caseData.winCondition))} left to fix.`,
       );
 
       setRunCount((n) => n + 1);
-      if (evaluateWinCondition(nextGrid, caseData.winCondition)) {
+      if (!sandbox && evaluateWinCondition(nextGrid, caseData.winCondition)) {
         setHasWon(true);
         setShowVictory(true);
         onWin(caseData.id, predicateKinds(caseData.winCondition));
@@ -469,16 +489,16 @@ export default function BossFightScreen({
       <div className={styles.statusRail} ref={statusRailRef}>
         <span className={styles.railLeft}>
           <button type="button" className={styles.rosterLink} onClick={onExitToRoster}>
-            &lt; Roster
+            {sandbox ? "< Back" : "< Roster"}
           </button>
           <span className={styles.railDivider} aria-hidden="true" />
           <span className={styles.railTitle}>
-            {worldMeta(world).statusRailName} //{" "}
+            {sandbox ? "SANDBOX" : worldMeta(world).statusRailName} //{" "}
             <span className={bossNameStyles}>{caseData.strings.title}</span>
           </span>
         </span>
         <div className={styles.a11yRow}>
-          <span className={styles.rankBadge}>{rankLabel}</span>
+          {sandbox ? null : <span className={styles.rankBadge}>{rankLabel}</span>}
           <A11yControls a11y={a11y} onChange={onA11yChange} />
         </div>
       </div>
@@ -516,19 +536,32 @@ export default function BossFightScreen({
           }
         >
           <div className={styles.briefingPane} ref={briefingPaneRef}>
-            <BriefingPanel
-              title={caseData.strings.title}
-              subtitle={caseData.strings.subtitle}
-              briefing={caseData.strings.briefing}
-              task={caseData.strings.task}
-              grid={grid}
-              winCondition={caseData.winCondition}
-              remaining={remaining}
-              initial={initialAfflictionRef.current ?? remaining}
-              tier={caseData.tier}
-              hints={engine === "sql" ? caseData.hints?.sql : caseData.hints?.python}
-              onHintRevealed={setHintsUsed}
-            />
+            {sandbox ? (
+              <SandboxBriefing
+                fileName={sandbox.fileName}
+                language={engine === "sql" ? "sql" : "python"}
+                columns={initialColumnsRef.current ?? grid.columns}
+                rowCount={sandbox.rowCount}
+                notes={sandbox.notes}
+                onUse={(code) => {
+                  codeEditorRef.current?.setValue(code);
+                }}
+              />
+            ) : (
+              <BriefingPanel
+                title={caseData.strings.title}
+                subtitle={caseData.strings.subtitle}
+                briefing={caseData.strings.briefing}
+                task={caseData.strings.task}
+                grid={grid}
+                winCondition={caseData.winCondition}
+                remaining={remaining}
+                initial={initialAfflictionRef.current ?? remaining}
+                tier={caseData.tier}
+                hints={engine === "sql" ? caseData.hints?.sql : caseData.hints?.python}
+                onHintRevealed={setHintsUsed}
+              />
+            )}
           </div>
           <ResizeHandle
             orientation="horizontal"
@@ -591,7 +624,9 @@ export default function BossFightScreen({
           </div>
         </div>
         <div className={styles.battlefield} ref={battlefieldRef}>
-          {world === "the-vault" ? (
+          {sandbox ? (
+            <SandboxBand grid={grid} fileName={sandbox.fileName} />
+          ) : world === "the-vault" ? (
             <TumblerBand grid={grid} winCondition={caseData.winCondition} />
           ) : world === "the-twins" ? (
             <TwinBand

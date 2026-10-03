@@ -32,24 +32,88 @@ const RUNTIME_WHEELS = [
   "pandas-3.0.2-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
 ].map((fileName) => `${PACKAGE_CDN_BASE}/${fileName}`);
 
-const ROW_ID_COLUMN = "__dcq_row_id__";
-
 /**
- * Row identity for diffing (lib/diff.ts, lib/affliction-cells.ts#clearedCells)
- * used to be dataframe.index directly — but a player calling
- * .reset_index(drop=True) (the single most idiomatic way to finish off a
- * drop_duplicates() fix) re-labels every row back to a fresh 0..N-1 range,
- * which can numerically collide with unrelated rows' old index values and
- * silently corrupt the identity match. A real hidden data column survives
- * every row-preserving pandas operation .reset_index() included, since it's
- * not the index at all — it rides along as an ordinary column and is
- * stripped back out before the grid is serialized, so the player never sees
- * it. See docs/adr/0006-row-identity-diffing.md.
+ * Row identity for diffing (lib/diff.ts, lib/affliction-cells.ts#clearedCells,
+ * docs/adr/0006-row-identity-diffing.md): which row in the new table is which
+ * row in the old one. It used to be a hidden data column, but a column that
+ * is not the player's is visible to every pandas call: it makes every row
+ * unique (so plain df.drop_duplicates() removed nothing), it appears in
+ * df.columns, df.shape, df.to_csv() and df.isna().sum(), and melt() reshaped
+ * it into the data. So identity is now kept entirely outside the DataFrame,
+ * and the player's df is exactly what they loaded.
+ *
+ * After each run the engine decides each row's id:
+ *   1. Same index labels as before: same ids.
+ *   2. Labels are a subset of the old ones and most rows still hold the same
+ *      values under them (dropna, filters, sort without reset): ids by label.
+ *   3. Otherwise (reset_index(drop=True), merge): rows are matched by their
+ *      content, first occurrence first, which is what drop_duplicates keeps.
+ *      A leftover changed row falls back to its position, else a fresh id.
  */
 const SERIALIZE_HELPER_PY = `
 import json
+from collections import defaultdict, deque
 
 __dcq_track_row_ids = True
+__dcq_state = {"ids": None, "labels": None, "frame": None, "next": 0}
+
+def __dcq_reset_state():
+    __dcq_state.update({"ids": None, "labels": None, "frame": None, "next": 0})
+
+def __dcq_rows(frame, cols):
+    if not cols:
+        return [()] * len(frame)
+    sub = frame[cols].astype(object)
+    sub = sub.where(sub.notna(), None)
+    return list(zip(*[sub[c].tolist() for c in cols]))
+
+def __dcq_assign_ids(df):
+    n = len(df)
+    state = __dcq_state
+    if not __dcq_track_row_ids or not df.columns.is_unique:
+        return list(range(n))
+    prev = state["frame"]
+    if state["ids"] is None or prev is None:
+        ids = list(range(n))
+        state["next"] = n
+    else:
+        labels = list(df.index)
+        if labels == state["labels"]:
+            ids = list(state["ids"])
+        else:
+            ids = None
+            common = [c for c in df.columns if c in prev.columns]
+            cur_rows = __dcq_rows(df, common)
+            old_rows = __dcq_rows(prev, common)
+            if df.index.is_unique and prev.index.is_unique:
+                pos = {label: i for i, label in enumerate(state["labels"])}
+                if all(label in pos for label in labels):
+                    same = sum(1 for i, label in enumerate(labels) if cur_rows[i] == old_rows[pos[label]])
+                    if n == 0 or same / n >= 0.5:
+                        ids = [state["ids"][pos[label]] for label in labels]
+            if ids is None:
+                queues = defaultdict(deque)
+                for i, row in enumerate(old_rows):
+                    queues[row].append(state["ids"][i])
+                ids = [queues[row].popleft() if queues.get(row) else None for row in cur_rows]
+                used = {i for i in ids if i is not None}
+                fresh = state["next"]
+                for i, value in enumerate(ids):
+                    if value is not None:
+                        continue
+                    candidate = state["ids"][i] if n == len(state["ids"]) and i < len(state["ids"]) else None
+                    if candidate is not None and candidate not in used:
+                        ids[i] = candidate
+                        used.add(candidate)
+                    else:
+                        ids[i] = fresh
+                        used.add(fresh)
+                        fresh += 1
+    state["ids"] = ids
+    state["labels"] = list(df.index)
+    state["frame"] = df.copy()
+    state["next"] = max(state["next"], (max(ids) + 1) if ids else 0)
+    return ids
 
 def __dcq_table_of(obj):
     import pandas as pd
@@ -57,9 +121,6 @@ def __dcq_table_of(obj):
         obj = obj.to_frame(name=obj.name if obj.name is not None else "value")
     if not isinstance(obj, pd.DataFrame):
         return None
-    # The hidden row-identity column is an implementation detail: never show it,
-    # whether it turned up as a column (df.describe()) or an index label (df.isna().sum()).
-    obj = obj.drop(index="${ROW_ID_COLUMN}", errors="ignore").drop(columns="${ROW_ID_COLUMN}", errors="ignore")
     total = len(obj)
     frame = obj.head(${String(MAX_OUTPUT_ROWS)})
     if not isinstance(frame.index, pd.RangeIndex):
@@ -71,22 +132,14 @@ def __dcq_table_of(obj):
     parsed = json.loads(frame.to_json(orient="split", date_format="iso"))
     return json.dumps({"columns": parsed["columns"], "rows": parsed["data"], "totalRows": total})
 
-def __dcq_ensure_row_id(dataframe):
-    if "${ROW_ID_COLUMN}" not in dataframe.columns:
-        dataframe["${ROW_ID_COLUMN}"] = range(len(dataframe))
-    return dataframe
-
 def __dcq_serialize_df(dataframe):
-    if __dcq_track_row_ids:
-        dataframe = __dcq_ensure_row_id(dataframe)
-        row_ids = dataframe["${ROW_ID_COLUMN}"].tolist()
-        visible = dataframe.drop(columns=["${ROW_ID_COLUMN}"])
-    else:
+    try:
+        row_ids = __dcq_assign_ids(dataframe)
+    except Exception:
         row_ids = list(range(len(dataframe)))
-        visible = dataframe
-    columns = list(visible.columns)
-    rows = json.loads(visible.to_json(orient="records", date_format="iso"))
-    dtypes = {col: str(dtype) for col, dtype in visible.dtypes.items()}
+    columns = list(dataframe.columns)
+    rows = json.loads(dataframe.to_json(orient="records", date_format="iso"))
+    dtypes = {col: str(dtype) for col, dtype in dataframe.dtypes.items()}
     return json.dumps({"columns": columns, "rows": rows, "dtypes": dtypes, "index": row_ids})
 `;
 
@@ -189,7 +242,7 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
     let outputTable: OutputTable | null = null;
 
     if (request.type === "init-case") {
-      const csvText = await fetchText(request.datasetUrl);
+      const csvText = request.datasetText ?? (await fetchText(request.datasetUrl));
       // Pyodide's PyProxy.set() is untyped (any) in its own .d.ts — third-party limitation.
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       pyodide.globals.set("__dcq_csv_text", csvText);
@@ -198,6 +251,7 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
       );
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       pyodide.globals.set("__dcq_track_row_ids", request.trackRowIdentity ?? true);
+      pyodide.runPython("__dcq_reset_state()");
       for (const table of request.extraTables ?? []) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         pyodide.globals.set("__dcq_extra_name", table.name);
