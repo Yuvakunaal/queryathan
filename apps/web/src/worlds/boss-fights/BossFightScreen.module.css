@@ -106,8 +106,12 @@
 
 .battlefield {
   display: grid;
-  grid-template-rows: 72px 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   min-height: 0;
+  overflow: hidden;
+  container: field / inline-size;
   will-change: transform;
   border: 1px solid transparent;
   background-color: rgb(var(--w1-diff-add-rgb) / var(--w1-hit-tint, 0));
@@ -160,6 +164,7 @@
     );
 }
 .gridWrap {
+  min-width: 0;
   min-height: 0;
 }
 
@@ -339,7 +344,7 @@
 }
 
 [data-world="the-vault"] .battlefield {
-  grid-template-rows: 100px 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .gridWrap {
@@ -384,11 +389,11 @@
 }
 
 [data-world="the-twins"] .battlefield {
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 [data-world="the-architect"] .battlefield {
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .tab[data-error="true"] {
@@ -427,4 +432,23 @@
   .briefingHandle {
     display: none;
   }
+}
+
+/* Tabs never wrap or push the panel wider: they scroll sideways when the panel is narrow. */
+.tabs {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+.tab {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.gridWrap,
+.tablePane {
+  min-width: 0;
+  max-width: 100%;
 }

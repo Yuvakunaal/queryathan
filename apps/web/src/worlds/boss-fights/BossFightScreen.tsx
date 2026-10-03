@@ -566,7 +566,7 @@ export default function BossFightScreen({
                 engine === "sql" ? caseData.starterCode.sql : caseData.starterCode.python
               }
               schema={editorSchema}
-              dark={a11y.theme === "dark" || a11y.highContrast}
+              dark={a11y.theme === "dark"}
               onSelectionChange={setHasSelection}
               onRun={() => {
                 void handleRun();

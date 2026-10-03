@@ -136,7 +136,7 @@
   }
 }
 
-@media (max-width: 719px) {
+@container field (max-width: 720px) {
   .band {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: none;

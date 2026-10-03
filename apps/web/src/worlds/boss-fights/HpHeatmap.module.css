@@ -202,7 +202,7 @@
   color: var(--w1-status-encoding);
 }
 
-@media (max-width: 719px) {
+@container field (max-width: 720px) {
   .hpBand,
   .hpBand[data-breakdown="true"] {
     grid-template-columns: minmax(0, 1fr);

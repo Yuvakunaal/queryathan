@@ -91,7 +91,7 @@
     transition: none;
   }
 }
-@media (max-width: 1079px) {
+@container field (max-width: 900px) {
   .band {
     grid-template-columns: 1fr auto;
   }
@@ -105,7 +105,7 @@
   }
 }
 
-@media (max-width: 719px) {
+@container field (max-width: 720px) {
   .band {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: none;

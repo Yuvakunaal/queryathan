@@ -306,3 +306,101 @@
   --w1-crt-grille-a: 0;
   --w1-crt-vignette-a: 0;
 }
+
+/*
+  High contrast on the light theme: pure white surfaces, black text and black
+  rules, saturated dark accents. It must outrank every light and dark rule
+  above, so it is written last and with the most specific selector.
+*/
+html[data-dcq-theme="light"][data-dcq-contrast="high"]
+  :is(
+    [data-world="boss-fights"],
+    [data-world="the-vault"],
+    [data-world="the-twins"],
+    [data-world="the-architect"]
+  ) {
+  --w1-bg-void: #ffffff;
+  --w1-bg-panel: #ffffff;
+  --w1-bg-panel-2: #f0f0f0;
+  --w1-bg-row-a: #ffffff;
+  --w1-bg-row-b: #f4f4f4;
+  --w1-bg-row-hover: #dcdcdc;
+
+  --w1-green-300: #004d1f;
+  --w1-green-500: #006b2b;
+  --w1-green-700: #006b2b;
+  --w1-amber-300: #6b2d00;
+  --w1-amber-500: #8a3b00;
+  --w1-amber-700: #8a3b00;
+
+  --w1-text-primary: #000000;
+  --w1-text-secondary: #111111;
+  --w1-text-dim: #333333;
+  --w1-text-inverse: #ffffff;
+
+  --w1-rule-strong: #000000;
+  --w1-rule: #000000;
+  --w1-rule-faint: #595959;
+  --w1-focus: #0033cc;
+  --w1-title: #000000;
+
+  --w1-status-null: #5a0fa0;
+  --w1-status-null-rgb: 90 15 160;
+  --w1-status-dup: #00507f;
+  --w1-status-dup-rgb: 0 80 127;
+  --w1-status-dtype: #6b5d00;
+  --w1-status-dtype-rgb: 107 93 0;
+  --w1-status-ws: #006655;
+  --w1-status-ws-rgb: 0 102 85;
+  --w1-status-outlier: #9a3f00;
+  --w1-status-outlier-rgb: 154 63 0;
+  --w1-status-date: #8a0f62;
+  --w1-status-date-rgb: 138 15 98;
+  --w1-status-pattern: #006b2f;
+  --w1-status-pattern-rgb: 0 107 47;
+  --w1-status-encoding: #a01f12;
+  --w1-status-encoding-rgb: 160 31 18;
+  --w1-status-shape: #00607a;
+  --w1-status-shape-rgb: 0 96 122;
+  --w1-null-ramp-2: #ffffff;
+  --w1-null-ramp-3: #5a0fa099;
+  --w1-null-ramp-4: #5a0fa0;
+  --w1-dup-ramp-2: #ffffff;
+  --w1-dup-ramp-3: #00507f99;
+  --w1-dup-ramp-4: #00507f;
+  --w1-dtype-ramp-2: #ffffff;
+  --w1-dtype-ramp-3: #6b5d0099;
+  --w1-dtype-ramp-4: #6b5d00;
+  --w1-ws-ramp-2: #ffffff;
+  --w1-ws-ramp-3: #00665599;
+  --w1-ws-ramp-4: #006655;
+  --w1-outlier-ramp-2: #ffffff;
+  --w1-outlier-ramp-3: #9a3f0099;
+  --w1-outlier-ramp-4: #9a3f00;
+  --w1-date-ramp-2: #ffffff;
+  --w1-date-ramp-3: #8a0f6299;
+  --w1-date-ramp-4: #8a0f62;
+  --w1-pattern-ramp-2: #ffffff;
+  --w1-pattern-ramp-3: #006b2f99;
+  --w1-pattern-ramp-4: #006b2f;
+  --w1-encoding-ramp-2: #ffffff;
+  --w1-encoding-ramp-3: #a01f1299;
+  --w1-encoding-ramp-4: #a01f12;
+  --w1-shape-ramp-2: #ffffff;
+  --w1-shape-ramp-3: #00607a99;
+  --w1-shape-ramp-4: #00607a;
+
+  --w1-diff-del: #b30000;
+  --w1-diff-del-rgb: 179 0 0;
+  --w1-diff-add: #006b2b;
+  --w1-diff-add-rgb: 0 107 43;
+
+  --w1-crt-scanline-a: 0;
+  --w1-crt-grille-a: 0;
+  --w1-crt-vignette-a: 0;
+}
+
+/* Every world's HC-light drops tinted backgrounds, including the blueprint grid. */
+html[data-dcq-theme="light"][data-dcq-contrast="high"] [data-world] {
+  background-image: none;
+}

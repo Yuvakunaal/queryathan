@@ -5,6 +5,11 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Fixed / Added (narrow data panel, light high contrast)
+
+- Dragging the divider right no longer pushes the table past the screen edge. The data panel is now a bounded box: the table scrolls sideways inside it at any width, tabs scroll instead of wrapping, and the panel's header (progress strip, checklists, blueprint chips) re-flows according to the panel's own width (CSS container query) rather than the window's.
+- High contrast now works on the light theme: pure white surfaces, black text and black rules with dark saturated accents, instead of switching to the dark palette.
+
 ### Added (worksheet-style editor, light theme, resizable panels)
 
 - Run behaves like a SQL worksheet (MySQL Workbench, Snowflake): if text is highlighted, only that runs ("Run selection"); with nothing highlighted, everything in the editor runs. Applies to Python too (a selected indented block is dedented first). The last statement's result is shown.

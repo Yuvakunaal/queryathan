@@ -69,7 +69,7 @@ export function applyA11yToDocument(a11y: A11yState): void {
   if (a11y.crtReduced || a11y.theme === "light") html.dataset.dcqIntensity = "reduced";
   else delete html.dataset.dcqIntensity;
   html.dataset.dcqTheme = a11y.theme;
-  html.style.colorScheme = a11y.highContrast ? "dark" : a11y.theme;
+  html.style.colorScheme = a11y.theme;
   if (a11y.highContrast) html.dataset.dcqContrast = "high";
   else delete html.dataset.dcqContrast;
 }

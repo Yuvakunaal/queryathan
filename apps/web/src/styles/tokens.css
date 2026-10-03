@@ -27,3 +27,8 @@
   --dcq-color-danger: #c9391a;
   --dcq-color-success: #0f8a3a;
 }
+
+:root[data-dcq-theme="light"][data-dcq-contrast="high"] {
+  --dcq-color-bg: #ffffff;
+  --dcq-color-fg: #000000;
+}
