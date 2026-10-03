@@ -30,6 +30,7 @@ export const HP_LEVEL_COLORS: Record<
   date: ["#121a17", "#5c2a4a", "#a4527f", "#f58fd0"],
   pattern: ["#121a17", "#1f4d36", "#3d9468", "#6fe3a2"],
   encoding: ["#121a17", "#5c2a2a", "#a45252", "#ff8a8a"],
+  shape: ["#121a17", "#1f4a52", "#3d8f9c", "#6fd8e8"],
 };
 
 /**

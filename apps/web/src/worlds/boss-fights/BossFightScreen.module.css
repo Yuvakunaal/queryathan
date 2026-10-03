@@ -71,7 +71,7 @@
 .commandRail {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: fit-content(50%) minmax(150px, 1fr) 44px minmax(100px, 20%);
+  grid-template-rows: fit-content(58%) minmax(150px, 1fr) 44px minmax(100px, 20%);
   border-right: 1px solid var(--w1-rule-strong);
   min-height: 0;
 }
@@ -333,4 +333,49 @@
 
 [data-world="the-vault"] .battlefield {
   grid-template-rows: 100px 1fr;
+}
+
+.gridWrap {
+  display: flex;
+  flex-direction: column;
+}
+.tabs {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 0;
+  background: var(--w1-bg-panel);
+  border-bottom: 1px solid var(--w1-rule);
+}
+.tab {
+  height: 32px;
+  padding: 0 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--w1-text-secondary);
+  font: 600 12px/1 var(--w1-font-display);
+  cursor: pointer;
+}
+.tab[aria-selected="true"] {
+  color: var(--w1-text-primary);
+  border-bottom-color: var(--w1-green-500);
+}
+.tab:hover,
+.tab:focus-visible {
+  color: var(--w1-amber-500);
+}
+.tab:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: -2px;
+}
+.tablePane {
+  flex: 1 1 0;
+  min-height: 0;
+}
+.tablePane[hidden] {
+  display: none;
+}
+
+[data-world="the-twins"] .battlefield {
+  grid-template-rows: auto 1fr;
 }

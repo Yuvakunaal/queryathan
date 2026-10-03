@@ -1,5 +1,5 @@
 import { EngineRpcClient } from "./rpc";
-import type { RunResultResponse } from "./protocol";
+import type { ExtraTable, RunResultResponse } from "./protocol";
 
 /**
  * Main-thread handle shared by every engine (Pyodide, sql.js): lazy-spawn
@@ -29,9 +29,12 @@ export abstract class WorkerEngineClient {
     return this.rpc.ready();
   }
 
-  initCase(datasetUrl: string): Promise<RunResultResponse> {
+  initCase(
+    datasetUrl: string,
+    extraTables: ExtraTable[] = [],
+  ): Promise<RunResultResponse> {
     if (!this.rpc) throw new Error("spawn() must be called before initCase()");
-    return this.rpc.initCase(datasetUrl);
+    return this.rpc.initCase(datasetUrl, extraTables);
   }
 
   run(code: string): Promise<RunResultResponse> {

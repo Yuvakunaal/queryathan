@@ -1,0 +1,151 @@
+order_id,customer_id,item,amount
+1000," C-023 ",Chair Mat,152.57
+1001,c-022,Webcam,31.43
+1002,"C-004 ",Notebook,183.57
+1003,C-902,Cable Kit,235.58
+1004,C-010,Monitor Arm,48.79
+1005,"C-014 ",Desk Lamp,82.46
+1006,c-030,Notebook,71.05
+1007,"C-046 ",Desk Lamp,116.86
+1008,c-014,Keyboard,218.62
+1009,"C-001 ",Webcam,90.38
+1010,c-002,Keyboard,178.66
+1011,"C-003 ",Chair Mat,175.49
+1012,"C-025 ",Desk Lamp,61.31
+1013," C-007 ",Headset,74.40
+1014,c-043,Cable Kit,51.34
+1015," C-026 ",Headset,138.84
+1016,c-034,Cable Kit,184.89
+1017," C-027 ",Monitor Arm,185.08
+1018,c-034,Notebook,181.92
+1019," C-044 ",Chair Mat,238.18
+1020," C-002 ",Webcam,239.57
+1021,"C-050 ",Webcam,200.50
+1022,c-018,Webcam,135.53
+1023,C-027,Webcam,246.04
+1024,"C-040 ",Monitor Arm,21.48
+1025,C-040,Notebook,88.44
+1026,C-003,Headset,238.28
+1027," C-031 ",Headset,80.40
+1028,C-017,Desk Lamp,206.77
+1029,"C-007 ",Desk Lamp,93.34
+1030,c-026,Notebook,95.25
+1031,c-046,Cable Kit,225.41
+1032,C-014,Cable Kit,141.01
+1033,"C-035 ",Cable Kit,135.00
+1034,"C-013 ",Notebook,24.29
+1035,C-012,Keyboard,70.81
+1036,c-007,Monitor Arm,83.60
+1037,c-027,Headset,138.65
+1038," C-050 ",Notebook,134.54
+1039,"C-011 ",Keyboard,71.01
+1040,"C-014 ",Chair Mat,122.83
+1041,"C-010 ",Desk Lamp,248.40
+1042,C-034,Chair Mat,37.75
+1043,"C-006 ",Chair Mat,13.67
+1044,"C-035 ",Chair Mat,200.72
+1045," C-010 ",Cable Kit,170.72
+1046,C-028,Chair Mat,204.96
+1047,c-024,Chair Mat,184.40
+1048,c-043,Headset,133.02
+1049,C-031,Keyboard,123.15
+1050,c-037,Chair Mat,198.20
+1051,"C-046 ",Headset,98.76
+1052,c-033,Desk Lamp,27.42
+1053,"C-046 ",Keyboard,30.10
+1054,c-041,Headset,30.39
+1055,"C-016 ",Headset,46.27
+1056,C-906,Webcam,36.26
+1057,C-904,Notebook,157.66
+1058,"C-008 ",Cable Kit,90.78
+1059,c-001,Cable Kit,238.48
+1060,"C-016 ",Headset,236.54
+1061," C-003 ",Cable Kit,62.58
+1062," C-004 ",Cable Kit,214.41
+1063,C-034,Headset,11.33
+1064," C-043 ",Webcam,115.25
+1065,"C-044 ",Headset,218.85
+1066," C-033 ",Chair Mat,60.20
+1067," C-020 ",Keyboard,108.81
+1068," C-020 ",Cable Kit,119.21
+1069,C-908,Webcam,154.19
+1070,C-903,Keyboard,150.81
+1071," C-019 ",Cable Kit,162.58
+1072,C-015,Notebook,151.16
+1073," C-033 ",Desk Lamp,128.53
+1074,"C-033 ",Notebook,70.70
+1075,C-033,Webcam,91.94
+1076,c-029,Webcam,168.49
+1077,C-048,Notebook,31.63
+1078,"C-021 ",Headset,30.94
+1079,C-042,Cable Kit,196.34
+1080,C-039,Desk Lamp,45.12
+1081,C-004,Keyboard,114.95
+1082,c-036,Chair Mat,206.20
+1083,c-028,Headset,92.36
+1084,C-005,Chair Mat,236.40
+1085,C-034,Desk Lamp,167.60
+1086," C-022 ",Webcam,156.25
+1087,"C-048 ",Desk Lamp,199.59
+1088," C-033 ",Monitor Arm,182.23
+1089,c-014,Webcam,49.25
+1090," C-028 ",Keyboard,144.69
+1091,C-901,Desk Lamp,25.49
+1092," C-030 ",Webcam,153.08
+1093,c-006,Headset,133.49
+1094,C-046,Monitor Arm,210.22
+1095,c-021,Chair Mat,93.02
+1096,c-009,Monitor Arm,23.44
+1097,"C-043 ",Cable Kit,91.82
+1098,C-905,Headset,239.34
+1099,C-036,Desk Lamp,144.44
+1100,C-010,Webcam,82.06
+1101,C-016,Webcam,111.24
+1102,C-900,Chair Mat,89.54
+1103,c-045,Cable Kit,91.47
+1104," C-037 ",Keyboard,232.59
+1105,C-022,Monitor Arm,108.39
+1106,c-010,Chair Mat,211.83
+1107,C-907,Headset,9.64
+1108,"C-021 ",Headset,229.20
+1109,C-033,Webcam,181.90
+1110,C-023,Chair Mat,73.37
+1111,C-015,Monitor Arm,26.26
+1112,C-050,Cable Kit,40.81
+1113,C-050,Desk Lamp,126.98
+1114," C-022 ",Notebook,91.03
+1115,"C-047 ",Monitor Arm,81.38
+1116,c-036,Headset,70.88
+1117,"C-037 ",Webcam,192.06
+1118," C-022 ",Headset,23.66
+1119,C-029,Headset,193.27
+1120,C-017,Monitor Arm,106.56
+1121," C-019 ",Headset,47.99
+1122,C-048,Keyboard,125.91
+1123,"C-039 ",Webcam,122.33
+1124,C-027,Monitor Arm,207.64
+1125,c-025,Desk Lamp,200.10
+1126,"C-044 ",Headset,10.25
+1127,C-038,Notebook,38.20
+1128," C-038 ",Monitor Arm,70.51
+1129,C-016,Desk Lamp,135.92
+1130,c-009,Cable Kit,51.29
+1131," C-047 ",Desk Lamp,19.67
+1132,C-045,Desk Lamp,39.01
+1133," C-049 ",Notebook,121.62
+1134,c-044,Monitor Arm,166.62
+1135,C-050,Notebook,112.79
+1136,c-036,Webcam,156.86
+1137,"C-012 ",Keyboard,192.50
+1138,C-005,Headset,126.62
+1139,"C-044 ",Cable Kit,190.49
+1140," C-012 ",Chair Mat,209.98
+1141,c-013,Chair Mat,154.15
+1142,"C-037 ",Cable Kit,177.71
+1143," C-007 ",Headset,237.13
+1144,C-022,Headset,62.44
+1145,"C-008 ",Keyboard,138.52
+1146,"C-022 ",Monitor Arm,134.14
+1147,c-008,Notebook,102.30
+1148,"C-008 ",Desk Lamp,215.51
+1149," C-028 ",Keyboard,34.72

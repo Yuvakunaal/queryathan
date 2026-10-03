@@ -1,0 +1,35 @@
+/*
+  World 3 (The Twins): graphite with two accents, one per table. The "green"
+  role (primary accent) is cyan for the left twin and the "amber" role
+  (interactive highlight) is rose for the right twin. Loaded after theme.css.
+*/
+[data-world="the-twins"] {
+  --w1-bg-void: #08090c;
+  --w1-bg-panel: #0f1218;
+  --w1-bg-panel-2: #171b24;
+  --w1-bg-row-a: #0a0c10;
+  --w1-bg-row-b: #0c0f14;
+  --w1-bg-row-hover: #141821;
+
+  --w1-green-300: #a8eef3;
+  --w1-green-500: #4fd1d9;
+  --w1-green-700: #23757b;
+
+  --w1-amber-300: #ffc2d0;
+  --w1-amber-500: #ff7f9f;
+  --w1-amber-700: #a84a62;
+
+  --w1-text-primary: #e6e9ef;
+  --w1-text-secondary: #9aa3b4;
+  --w1-text-dim: #667085;
+  --w1-text-inverse: #08090c;
+
+  --w1-rule-strong: #2b3342;
+  --w1-rule: #1c222d;
+  --w1-rule-faint: #131820;
+  --w1-focus: #ff7f9f;
+
+  --w1-crt-scanline-a: 0;
+  --w1-crt-grille-a: 0;
+  --w1-crt-vignette-a: 0.25;
+}

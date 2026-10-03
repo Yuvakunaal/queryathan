@@ -32,6 +32,10 @@ function labelFor(predicate: Predicate): string {
       return `${predicate.column} format`;
     case "no_mojibake":
       return `${predicate.column} text`;
+    case "row_count":
+      return "row count";
+    case "has_columns":
+      return "columns";
   }
 }
 

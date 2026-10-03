@@ -92,6 +92,18 @@ shipped World 1 tutorial case as a working reference
 | `no_outliers`       | `{ column, min, max }`                                            | orange `^` badge, 135° hatch, inclusive bounds                                                                                                                     |
 | `matches_pattern`   | `{ column, pattern }`                                             | green `~` badge. Every non-null cell must match the JavaScript regex `pattern` (write `^...$` for a full match). Numbers are compared as strings.                  |
 | `no_mojibake`       | `{ column }`                                                      | red `?` badge. Flags UTF-8 text decoded as Latin-1, such as `JosÃ©` or `itâ€™s`.                                                                                   |
+| `row_count`         | `{ equals }`                                                      | The result must have exactly this many rows. Whole-table rule: shown in the Twins checklist, no cell to highlight.                                                 |
+| `has_columns`       | `{ columns }`                                                     | Every listed column must exist in the result. Whole-table rule.                                                                                                    |
+
+### Two tables (World 3)
+
+A case can add reference tables with `"extraTables": [{ "name": "customers", "path": "/datasets/world-3/x.csv" }]`.
+In Python each becomes a DataFrame with that name beside `df`. In SQL each is
+a table beside `data`. The player combines them and the combined result is
+judged: `df` in Python; in SQL a table or view named `result` if one exists,
+otherwise `data`. Say this in the briefing. Pair `has_columns` and
+`row_count` (a join must bring columns across without losing or multiplying
+rows) with cell rules like `no_nulls` on a joined column.
 
 ### Regex in SQL (World 2)
 

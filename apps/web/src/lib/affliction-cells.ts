@@ -9,11 +9,12 @@ import {
   dtypeMismatchRowIndices,
   patternMismatchRowIndices,
   mojibakeRowIndices,
+  missingColumns,
 } from "./afflictions";
 
-/** The six visual affliction kinds World 1 renders — see docs/design/world-1-phase-2-visual-spec.md §0 for the predicate -> kind mapping. */
+/** The visual affliction kinds the game renders ("shape" never marks a cell: it labels whole-table rules) — see docs/design/world-1-phase-2-visual-spec.md §0 for the predicate -> kind mapping. */
 export type AfflictionKind =
-  "null" | "dup" | "ws" | "dtype" | "outlier" | "date" | "pattern" | "encoding";
+  "null" | "dup" | "ws" | "dtype" | "outlier" | "date" | "pattern" | "encoding" | "shape";
 
 export interface AfflictedCell {
   rowIndex: number;
@@ -38,11 +39,22 @@ export function kindForPredicate(predicate: Predicate): AfflictionKind {
       return "pattern";
     case "no_mojibake":
       return "encoding";
+    case "row_count":
+    case "has_columns":
+      return "shape";
   }
 }
 
 function columnsForPredicate(predicate: Predicate): string[] {
-  return predicate.predicate === "no_duplicates" ? predicate.columns : [predicate.column];
+  switch (predicate.predicate) {
+    case "no_duplicates":
+    case "has_columns":
+      return predicate.columns;
+    case "row_count":
+      return [];
+    default:
+      return [predicate.column];
+  }
 }
 
 function rowIndicesForPredicate(grid: ResultGrid, predicate: Predicate): number[] {
@@ -63,6 +75,10 @@ function rowIndicesForPredicate(grid: ResultGrid, predicate: Predicate): number[
       return patternMismatchRowIndices(grid, predicate.column, predicate.pattern);
     case "no_mojibake":
       return mojibakeRowIndices(grid, predicate.column);
+    case "row_count":
+    case "has_columns":
+      // Whole-table rules: there is no single cell to blame. See predicateDebt.
+      return [];
   }
 }
 
@@ -120,6 +136,39 @@ export function afflictionKindAt(
   column: string,
 ): AfflictionKind | undefined {
   return cellMap.get(cellKey(rowIndex, column));
+}
+
+/**
+ * How far one predicate is from satisfied, as a count. Cell rules: the number
+ * of afflicted cells. `has_columns`: the number of missing columns.
+ * `row_count`: 1 while the row count is wrong, else 0 (the size of the miss
+ * is shown by the HUD, not folded into this number).
+ */
+export function predicateDebt(grid: ResultGrid, predicate: Predicate): number {
+  switch (predicate.predicate) {
+    case "has_columns":
+      return missingColumns(grid, predicate.columns).length;
+    case "row_count":
+      return grid.rows.length === predicate.equals ? 0 : 1;
+    default:
+      return getAfflictedCells(grid, predicate).length;
+  }
+}
+
+/**
+ * The single "how much is left" number for the HUD and victory screen: the
+ * distinct afflicted cells (overlapping predicates count a cell once, like the
+ * grid renders it) plus the whole-table shortfalls from has_columns/row_count.
+ */
+export function totalDebt(grid: ResultGrid, winCondition: WinCondition): number {
+  const structural = winCondition.all.reduce(
+    (sum, p) =>
+      p.predicate === "has_columns" || p.predicate === "row_count"
+        ? sum + predicateDebt(grid, p)
+        : sum,
+    0,
+  );
+  return afflictionCellMap(grid, winCondition).size + structural;
 }
 
 /** Total afflicted-cell count across every predicate — the win condition's aggregate "HP." */

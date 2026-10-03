@@ -117,3 +117,37 @@ describe("evaluateWinCondition", () => {
     expect(evaluateWinCondition(grid, winCondition)).toBe(false);
   });
 });
+
+describe("whole-table predicates", () => {
+  const grid: ResultGrid = {
+    columns: ["order_id", "customer_name"],
+    rows: [
+      { order_id: 1, customer_name: "A" },
+      { order_id: 2, customer_name: "B" },
+    ],
+    dtypes: {},
+    index: [0, 1],
+  };
+
+  it("row_count requires the exact number of rows", () => {
+    expect(
+      evaluateWinCondition(grid, { all: [{ predicate: "row_count", equals: 2 }] }),
+    ).toBe(true);
+    expect(
+      evaluateWinCondition(grid, { all: [{ predicate: "row_count", equals: 3 }] }),
+    ).toBe(false);
+  });
+
+  it("has_columns requires every listed column to exist", () => {
+    expect(
+      evaluateWinCondition(grid, {
+        all: [{ predicate: "has_columns", columns: ["order_id", "customer_name"] }],
+      }),
+    ).toBe(true);
+    expect(
+      evaluateWinCondition(grid, {
+        all: [{ predicate: "has_columns", columns: ["order_id", "city"] }],
+      }),
+    ).toBe(false);
+  });
+});

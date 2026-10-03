@@ -9,6 +9,7 @@ import "@fontsource/ibm-plex-mono/latin-500.css";
 import "@fontsource/ibm-plex-mono/latin-600.css";
 import "./theme.css";
 import "./theme-vault.css";
+import "./theme-twins.css";
 
 // BossFightScreen is deliberately NOT re-exported here — App.tsx imports it
 // directly (`import("./worlds/boss-fights/BossFightScreen")`) via

@@ -12,6 +12,7 @@ describe("BADGE_GLYPH", () => {
       date: "@",
       pattern: "~",
       encoding: "?",
+      shape: "+",
     });
   });
 });

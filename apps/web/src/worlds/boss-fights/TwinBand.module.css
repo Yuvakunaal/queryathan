@@ -1,0 +1,106 @@
+.band {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  column-gap: 24px;
+  padding: 10px 16px;
+  background: var(--w1-bg-panel);
+  border-bottom: 1px solid var(--w1-rule-strong);
+  overflow: hidden;
+}
+.link {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font: 600 12px/1 var(--w1-font-display);
+}
+.node {
+  padding: 6px 10px;
+  border: 1px solid var(--w1-rule-strong);
+  color: var(--w1-text-primary);
+}
+.node:first-child {
+  border-color: var(--w1-green-700);
+  color: var(--w1-green-300);
+}
+.node:last-child {
+  border-color: var(--w1-amber-700);
+  color: var(--w1-amber-300);
+}
+.strand {
+  width: 56px;
+  height: 0;
+  border-top: 2px dashed var(--w1-text-dim);
+  transition:
+    border-color 400ms cubic-bezier(0.32, 0.72, 0, 1),
+    border-top-style 0ms;
+}
+.link[data-linked="true"] .strand {
+  border-top-style: solid;
+  border-top-color: var(--w1-green-500);
+}
+.checks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 4px 20px;
+  font: 400 12px/1.4 var(--w1-font-text);
+}
+.check {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 8px;
+  color: var(--w1-text-secondary);
+}
+.check[data-met="true"] .mark {
+  color: var(--w1-green-500);
+}
+.check[data-met="true"] .checkLabel {
+  color: var(--w1-text-primary);
+}
+.checkDetail {
+  color: var(--w1-text-dim);
+}
+.check[data-met="false"] .checkDetail {
+  color: var(--w1-diff-del);
+}
+.readout {
+  text-align: right;
+}
+.num {
+  font: 700 var(--w1-fs-hudnum) / 1 var(--w1-font-display);
+  color: var(--w1-text-primary);
+}
+.denom {
+  margin-left: 6px;
+  font: 400 11px/1 var(--w1-font-text);
+  color: var(--w1-text-dim);
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .strand {
+    transition: none;
+  }
+}
+@media (max-width: 1079px) {
+  .band {
+    grid-template-columns: 1fr auto;
+  }
+  .link {
+    display: none;
+  }
+}
+@media (forced-colors: active) {
+  .node {
+    border-color: CanvasText;
+  }
+}

@@ -2,6 +2,7 @@ export type {
   WorkerRequest,
   WorkerResponse,
   InitCaseRequest,
+  ExtraTable,
   RunCodeRequest,
   CancelRequest,
   EngineReadyResponse,

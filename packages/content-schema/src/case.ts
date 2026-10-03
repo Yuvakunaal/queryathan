@@ -48,6 +48,10 @@ export const predicateSchema = z.discriminatedUnion("predicate", [
     column: z.string(),
     pattern: z.string().refine(isValidRegex, "pattern is not a valid regular expression"),
   }),
+  /** The whole result must have exactly `equals` rows (World 3: a join must not lose or multiply rows). */
+  z.object({ predicate: z.literal("row_count"), equals: z.number().int().min(0) }),
+  /** Every listed column must exist in the result (World 3: a join must bring the other table's columns across). */
+  z.object({ predicate: z.literal("has_columns"), columns: z.array(z.string()).min(1) }),
   /** No cell may contain UTF-8-read-as-Latin-1 garbage such as "Ã©" or "â€™". */
   z.object({ predicate: z.literal("no_mojibake"), column: z.string() }),
 ]);
@@ -121,11 +125,20 @@ export const hintsSchema = z.object({
 });
 export type Hints = z.infer<typeof hintsSchema>;
 
+/** A second CSV loaded beside the main dataset, available to the player as a DataFrame / table with this name. */
+export const extraTableSchema = z.object({
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/),
+  path: z.string().min(1),
+});
+export type ExtraTableSpec = z.infer<typeof extraTableSchema>;
+
 export const caseSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   world: worldIdSchema,
   tier: caseTierSchema,
   datasetPath: z.string().min(1),
+  /** Reference tables the player can join against (World 3). The main dataset stays `df` / `data`. */
+  extraTables: z.array(extraTableSchema).optional(),
   datasetLicense: datasetLicenseSchema,
   strings: caseStringsSchema,
   /** The code buffer CodeEditor seeds on entry, per engine — case content, not engine logic. Ignored for final-boss cases (plan §6's "no hints, one shot"). */

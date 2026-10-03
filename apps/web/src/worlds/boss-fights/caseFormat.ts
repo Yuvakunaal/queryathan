@@ -32,5 +32,9 @@ function formatPredicate(predicate: Predicate): string {
       return `matches_pattern(${predicate.column}, /${predicate.pattern}/)`;
     case "no_mojibake":
       return `no_mojibake(${predicate.column})`;
+    case "row_count":
+      return `row_count = ${String(predicate.equals)}`;
+    case "has_columns":
+      return `has_columns(${predicate.columns.join(",")})`;
   }
 }

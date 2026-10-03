@@ -1,4 +1,9 @@
-import type { RunResultResponse, WorkerRequest, WorkerResponse } from "./protocol";
+import type {
+  ExtraTable,
+  RunResultResponse,
+  WorkerRequest,
+  WorkerResponse,
+} from "./protocol";
 
 /**
  * Minimal Worker-shaped interface so this can be unit-tested with an
@@ -100,9 +105,10 @@ export class EngineRpcClient {
 
   initCase(
     datasetUrl: string,
+    extraTables: ExtraTable[] = [],
     timeoutMs = DEFAULT_TIMEOUT_MS,
   ): Promise<RunResultResponse> {
-    return this.send({ type: "init-case", datasetUrl }, timeoutMs);
+    return this.send({ type: "init-case", datasetUrl, extraTables }, timeoutMs);
   }
 
   run(code: string, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<RunResultResponse> {
@@ -138,7 +144,8 @@ export class EngineRpcClient {
 
   private send(
     request:
-      { type: "init-case"; datasetUrl: string } | { type: "run-code"; code: string },
+      | { type: "init-case"; datasetUrl: string; extraTables: ExtraTable[] }
+      | { type: "run-code"; code: string },
     timeoutMs: number,
   ): Promise<RunResultResponse> {
     const requestId = generateRequestId();

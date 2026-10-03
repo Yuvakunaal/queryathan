@@ -11,7 +11,7 @@ import type { CellChange } from "../../lib/diff";
 import {
   afflictionCellMap,
   clearedCells,
-  countTotalAffliction,
+  totalDebt,
   predicateKindOrder,
 } from "../../lib/affliction-cells";
 import type { AfflictionKind } from "../../lib/affliction-cells";
@@ -34,6 +34,8 @@ import type { EngineChoice } from "./EngineSelect";
 import BriefingPanel from "./BriefingPanel";
 import HpHeatmap from "./HpHeatmap";
 import TumblerBand from "./TumblerBand";
+import TwinBand from "./TwinBand";
+import ReferenceTable from "./ReferenceTable";
 import DataframeGrid from "./DataframeGrid";
 import type { DataframeGridHandle } from "./DataframeGrid";
 import CodeEditor from "./CodeEditor";
@@ -84,6 +86,7 @@ export default function BossFightScreen({
   const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([]);
   const [hasWon, setHasWon] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
+  const [activeTable, setActiveTable] = useState("result");
   const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial());
   const [runCount, setRunCount] = useState(0);
   const [hintsUsed, setHintsUsed] = useState(0);
@@ -187,11 +190,14 @@ export default function BossFightScreen({
         client.spawn();
         await client.ready();
         if (isCancelled()) return;
-        const result = await client.initCase(activeCase.datasetPath);
+        const result = await client.initCase(
+          activeCase.datasetPath,
+          (activeCase.extraTables ?? []).map((t) => ({ name: t.name, url: t.path })),
+        );
         if (isCancelled()) return;
 
         setGrid(result.resultGrid);
-        initialAfflictionRef.current = countTotalAffliction(
+        initialAfflictionRef.current = totalDebt(
           result.resultGrid,
           activeCase.winCondition,
         );
@@ -319,7 +325,7 @@ export default function BossFightScreen({
       pendingRef.current = { changes, clearedThisTurn, justCleared };
       setGrid(nextGrid);
       announcePolite(
-        `Run complete. ${String(changes.length)} cells changed. ${String(afterAfflicted)} afflicted cells remaining.`,
+        `Run complete. ${String(changes.length)} cells changed. ${String(totalDebt(nextGrid, caseData.winCondition))} left to fix.`,
       );
 
       setRunCount((n) => n + 1);
@@ -415,7 +421,7 @@ export default function BossFightScreen({
     );
   }
 
-  const remaining = cellMap.size;
+  const remaining = totalDebt(grid, caseData.winCondition);
   const bossNameStyles = classNames(
     styles.statusRailBoss,
     caseData.tier === "final-boss" && styles.statusRailBossFinal,
@@ -497,17 +503,63 @@ export default function BossFightScreen({
         <div className={styles.battlefield} ref={battlefieldRef}>
           {world === "the-vault" ? (
             <TumblerBand grid={grid} winCondition={caseData.winCondition} />
+          ) : world === "the-twins" ? (
+            <TwinBand
+              grid={grid}
+              winCondition={caseData.winCondition}
+              leftName={engine === "sql" ? "data" : "df"}
+              rightName={caseData.extraTables?.[0]?.name ?? "other"}
+            />
           ) : (
             <HpHeatmap grid={grid} winCondition={caseData.winCondition} />
           )}
           <div className={styles.gridWrap}>
-            <DataframeGrid
-              ref={gridRef}
-              grid={grid}
-              afflictionCellMap={cellMap}
-              textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
-              columnHints={caseData.columnHints}
-            />
+            {caseData.extraTables?.length ? (
+              <div className={styles.tabs} role="tablist" aria-label="Tables">
+                {[
+                  { id: "result", label: engine === "sql" ? "data / result" : "df" },
+                  ...caseData.extraTables.map((t) => ({
+                    id: t.name,
+                    label: `${t.name} (original)`,
+                  })),
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTable === tab.id}
+                    className={styles.tab}
+                    onClick={() => {
+                      setActiveTable(tab.id);
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            <div className={styles.tablePane} hidden={activeTable !== "result"}>
+              <DataframeGrid
+                ref={gridRef}
+                grid={grid}
+                afflictionCellMap={cellMap}
+                textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
+                columnHints={caseData.columnHints}
+              />
+            </div>
+            {caseData.extraTables?.map((t) => (
+              <div
+                key={t.name}
+                className={styles.tablePane}
+                hidden={activeTable !== t.name}
+              >
+                <ReferenceTable
+                  url={t.path}
+                  columnHints={caseData.columnHints}
+                  textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>

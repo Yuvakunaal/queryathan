@@ -20,11 +20,19 @@ export interface ResultGrid {
   index: (string | number)[];
 }
 
+/** An additional CSV loaded beside the main dataset: a pandas DataFrame named `name` in Python, a table named `name` in SQL. */
+export interface ExtraTable {
+  name: string;
+  url: string;
+}
+
 export interface InitCaseRequest {
   type: "init-case";
   requestId: string;
   /** Fetched inside the worker and loaded into the `df` namespace variable. */
   datasetUrl: string;
+  /** Optional reference tables (World 3 joins). The main dataset stays `df` / `data`. */
+  extraTables?: ExtraTable[];
 }
 
 export interface RunCodeRequest {

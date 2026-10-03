@@ -14,8 +14,8 @@ tests pass. The roster screen was redesigned in this pass.
 2. **Phase 4: World 2, The Vault (built: 3 cases, both engines, navy and brass theme).**
    Still to do: more cases (aim for 5), and the signature combination-lock
    tumbler display in place of the shared HP strip.
-3. **Phase 5: Worlds 3 and 4.** Joins (needs multi-table datasets in the
-   engine protocol) and reshaping (pivot, melt, JSON).
+3. **Phase 5: Worlds 3 and 4.** World 3 (The Twins, joins) is done: 4 cases,
+   multi-table engine support. World 4 (The Architect: pivot, melt, JSON) is next.
 4. **Phase 6: World 5 and sandbox.** Benchmark HUD, bring-your-own-CSV mode.
 5. **Phase 7: hardening.** Playwright E2E in CI, Lighthouse budgets, service
    worker caching for WASM, CSP and accessibility audits.

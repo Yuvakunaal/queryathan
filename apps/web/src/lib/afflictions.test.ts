@@ -11,6 +11,7 @@ import {
   dtypeMismatchRowIndices,
   patternMismatchRowIndices,
   mojibakeRowIndices,
+  missingColumns,
 } from "./afflictions";
 import type { ResultGrid } from "@dcq/engine-adapters";
 
@@ -295,5 +296,13 @@ describe("mojibakeRowIndices", () => {
       index: [0, 1, 2, 3, 4],
     };
     expect(mojibakeRowIndices(grid, "name")).toEqual([0, 2]);
+  });
+});
+
+describe("missingColumns", () => {
+  it("lists required columns the result lacks", () => {
+    const grid: ResultGrid = { columns: ["a", "b"], rows: [], dtypes: {}, index: [] };
+    expect(missingColumns(grid, ["a", "c", "d"])).toEqual(["c", "d"]);
+    expect(missingColumns(grid, ["a"])).toEqual([]);
   });
 });

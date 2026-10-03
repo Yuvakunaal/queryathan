@@ -5,6 +5,12 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added (Phase 5: World 3, The Twins)
+
+- Multi-table engine support: a case can declare `extraTables`; both workers load them beside the main dataset. In SQL, a table or view named `result` is judged in preference to `data`.
+- New whole-table predicates `row_count` and `has_columns`, and a shared "debt" count (`totalDebt`) so the HUD and victory screen work when a rule has no cell to highlight.
+- The Twins: KEY_MIRROR, GHOST_TWIN, DOUBLE_VISION and the final THE_TWINS, all solved in Python and SQL on the real engines. Graphite theme with a cyan and a rose accent; a checklist HUD showing what the join still needs; tabs to view the original second table.
+
 ### Added (Phase 4: World 2, The Vault)
 
 - Five cases: PIN_TUMBLER (phone formats), HOST_LOCK (URLs to hostnames), SERIAL_LOCK (ids buried in text), LATIN_LOCK (mojibake), THE_WARDEN (final boss). Each was solved end to end in both Python and SQL against the real engines.

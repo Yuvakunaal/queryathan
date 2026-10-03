@@ -87,7 +87,11 @@ function registerRegexFunctions(database: Database): void {
   );
 }
 
-async function loadCsvIntoTable(datasetUrl: string): Promise<void> {
+async function loadCsvIntoTable(
+  datasetUrl: string,
+  tableName: string,
+  freshDatabase: boolean,
+): Promise<void> {
   const SQL = await sqlJsReady;
   const response = await fetch(datasetUrl);
   if (!response.ok) {
@@ -99,17 +103,19 @@ async function loadCsvIntoTable(datasetUrl: string): Promise<void> {
   const { columns, rows } = parseCsv(csvText);
   const columnTypes = inferColumnTypes(columns, rows);
 
-  db?.close();
-  db = new SQL.Database();
-  registerRegexFunctions(db);
+  if (freshDatabase || !db) {
+    db?.close();
+    db = new SQL.Database();
+    registerRegexFunctions(db);
+  }
 
   const createColumns = columns.map((column) => quoteIdentifier(column)).join(", ");
-  db.run(`CREATE TABLE ${TABLE_NAME} (${createColumns});`);
+  db.run(`CREATE TABLE ${quoteIdentifier(tableName)} (${createColumns});`);
 
   const placeholders = columns.map(() => "?").join(", ");
   const insertColumns = columns.map((column) => quoteIdentifier(column)).join(", ");
   const stmt = db.prepare(
-    `INSERT INTO ${TABLE_NAME} (${insertColumns}) VALUES (${placeholders});`,
+    `INSERT INTO ${quoteIdentifier(tableName)} (${insertColumns}) VALUES (${placeholders});`,
   );
   db.run("BEGIN TRANSACTION;");
   try {
@@ -130,8 +136,16 @@ async function loadCsvIntoTable(datasetUrl: string): Promise<void> {
 
 function serializeTable(): ResultGrid {
   if (!db) throw new Error("No dataset loaded yet.");
+  // A table or view named `result` takes priority over `data`: it lets a
+  // player express a join as CREATE TABLE result AS SELECT ... JOIN ...
+  // (World 3) without having to overwrite the source table.
+  const hasResult =
+    (db.exec("SELECT 1 FROM sqlite_master WHERE name = 'result';")[0]?.values.length ??
+      0) > 0;
   const result = db.exec(
-    `SELECT rowid AS ${ROW_ID_ALIAS}, * FROM ${TABLE_NAME} ORDER BY rowid;`,
+    hasResult
+      ? `SELECT ROW_NUMBER() OVER () AS ${ROW_ID_ALIAS}, * FROM result;`
+      : `SELECT rowid AS ${ROW_ID_ALIAS}, * FROM ${TABLE_NAME} ORDER BY rowid;`,
   );
   const first = result[0];
   if (!first) return { columns: [], rows: [], dtypes: {}, index: [] };
@@ -196,7 +210,10 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
     let output: string | null = null;
 
     if (request.type === "init-case") {
-      await loadCsvIntoTable(request.datasetUrl);
+      await loadCsvIntoTable(request.datasetUrl, TABLE_NAME, true);
+      for (const table of request.extraTables ?? []) {
+        await loadCsvIntoTable(table.url, table.name, false);
+      }
     } else {
       if (!db) throw new Error("No dataset loaded yet.");
       const execResults = db.exec(request.code);

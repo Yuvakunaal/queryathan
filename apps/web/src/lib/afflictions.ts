@@ -177,3 +177,8 @@ export function mojibakeRowIndices(grid: ResultGrid, column: string): number[] {
 export function countMojibake(grid: ResultGrid, column: string): number {
   return mojibakeRowIndices(grid, column).length;
 }
+
+/** Columns from `required` that the result does not have. */
+export function missingColumns(grid: ResultGrid, required: string[]): string[] {
+  return required.filter((column) => !grid.columns.includes(column));
+}

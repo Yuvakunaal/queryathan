@@ -135,6 +135,16 @@ function buildOutput(stdoutLines: string[], replValue: unknown): string | null {
   return parts.length > 0 ? parts.join("\n") : null;
 }
 
+async function fetchText(url: string): Promise<string> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch dataset: ${String(response.status)} ${response.statusText}`,
+    );
+  }
+  return response.text();
+}
+
 async function handleRequest(request: WorkerRequest): Promise<void> {
   if (request.type === "cancel") {
     // Best-effort only — see EngineRpcClient.cancel() in
@@ -150,19 +160,22 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
     let replValue: unknown;
 
     if (request.type === "init-case") {
-      const response = await fetch(request.datasetUrl);
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch dataset: ${String(response.status)} ${response.statusText}`,
-        );
-      }
-      const csvText = await response.text();
+      const csvText = await fetchText(request.datasetUrl);
       // Pyodide's PyProxy.set() is untyped (any) in its own .d.ts — third-party limitation.
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       pyodide.globals.set("__dcq_csv_text", csvText);
       await pyodide.runPythonAsync(
         "import pandas as pd, io\ndf = pd.read_csv(io.StringIO(__dcq_csv_text))",
       );
+      for (const table of request.extraTables ?? []) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        pyodide.globals.set("__dcq_extra_name", table.name);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        pyodide.globals.set("__dcq_extra_csv", await fetchText(table.url));
+        await pyodide.runPythonAsync(
+          "globals()[__dcq_extra_name] = pd.read_csv(io.StringIO(__dcq_extra_csv))",
+        );
+      }
     } else {
       replValue = await pyodide.runPythonAsync(request.code);
     }
