@@ -37,7 +37,7 @@ shipped World 1 tutorial case as a working reference
   },
   "strings": {
     "title": "NUL_SENTINEL",
-    "subtitle": "PROC 0x00 // CLASS: ABSENCE",
+    "subtitle": "Problem: missing values",
     "briefing": "Station telemetry came back with holes in it. ..."
   },
   "starterCode": {
@@ -79,6 +79,10 @@ shipped World 1 tutorial case as a working reference
   [`docs/adr/0003-win-condition-contract.md`](./adr/0003-win-condition-contract.md)
   for why. If the predicate you need doesn't exist yet, propose adding it to
   the schema in your PR description rather than working around it.
+
+### Subtitle
+
+`strings.subtitle` is a plain label under the title, written as `Problem: ...` (what is wrong) or `Skill: ...` (what is practised). No codes or codenames; final bosses use `Problem: not disclosed. Read the data.`
 
 ### Write a plain task
 

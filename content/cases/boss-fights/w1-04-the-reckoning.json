@@ -9,7 +9,7 @@
   },
   "strings": {
     "title": "THE_RECKONING",
-    "subtitle": "PROC 0xFF // CLASS: UNKNOWN",
+    "subtitle": "Problem: not disclosed. Read the data.",
     "briefing": "500 support tickets, exported once, never cleaned. Everything you've fought until now lives somewhere in this table — nothing has been flagged for you, and nothing has been simplified.\n\ndf is loaded. Whatever is wrong with it, you find it yourself."
   },
   "starterCode": {
@@ -17,22 +17,64 @@
     "sql": "-- data table is loaded."
   },
   "columnHints": {
-    "ticket_id": { "widthPx": 96, "numeric": true },
-    "customer_email": { "widthPx": 200, "numeric": false },
-    "priority": { "widthPx": 88, "numeric": false },
-    "status": { "widthPx": 88, "numeric": false },
-    "opened_at": { "widthPx": 176, "numeric": false },
-    "first_response_hours": { "widthPx": 120, "numeric": true }
+    "ticket_id": {
+      "widthPx": 96,
+      "numeric": true
+    },
+    "customer_email": {
+      "widthPx": 200,
+      "numeric": false
+    },
+    "priority": {
+      "widthPx": 88,
+      "numeric": false
+    },
+    "status": {
+      "widthPx": 88,
+      "numeric": false
+    },
+    "opened_at": {
+      "widthPx": 176,
+      "numeric": false
+    },
+    "first_response_hours": {
+      "widthPx": 120,
+      "numeric": true
+    }
   },
   "winCondition": {
     "all": [
-      { "predicate": "no_nulls", "column": "customer_email" },
-      { "predicate": "no_whitespace", "column": "customer_email" },
-      { "predicate": "no_duplicates", "columns": ["ticket_id"] },
-      { "predicate": "consistent_casing", "column": "status", "case": "lower" },
-      { "predicate": "valid_dtype", "column": "opened_at", "dtype": "datetime" },
-      { "predicate": "valid_dtype", "column": "first_response_hours", "dtype": "float" },
-      { "predicate": "no_nulls", "column": "first_response_hours" },
+      {
+        "predicate": "no_nulls",
+        "column": "customer_email"
+      },
+      {
+        "predicate": "no_whitespace",
+        "column": "customer_email"
+      },
+      {
+        "predicate": "no_duplicates",
+        "columns": ["ticket_id"]
+      },
+      {
+        "predicate": "consistent_casing",
+        "column": "status",
+        "case": "lower"
+      },
+      {
+        "predicate": "valid_dtype",
+        "column": "opened_at",
+        "dtype": "datetime"
+      },
+      {
+        "predicate": "valid_dtype",
+        "column": "first_response_hours",
+        "dtype": "float"
+      },
+      {
+        "predicate": "no_nulls",
+        "column": "first_response_hours"
+      },
       {
         "predicate": "no_outliers",
         "column": "first_response_hours",

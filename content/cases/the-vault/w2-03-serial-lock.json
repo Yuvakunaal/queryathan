@@ -9,7 +9,7 @@
   },
   "strings": {
     "title": "SERIAL_LOCK",
-    "subtitle": "LOCK 0x12 // CLASS: BURIED",
+    "subtitle": "Skill: finding an ID buried in text",
     "briefing": "Support staff paste invoice numbers into free text. The ref column holds 'Invoice INV-24359 paid', 'inv-11331' and '#INV-89275 (late)'. The number is always there, but never in the same place or the same case.\n\nThe lock wants exactly INV- followed by five digits, upper case. Extract it from the text, then deal with the status column, which has stray spaces and mixed casing.\n\ndf is loaded. 150 rows, 4 columns.",
     "task": "The ref column hides an invoice number inside other text. Replace each ref with just the invoice number written as INV-12345 (upper case). Also make the status column lower case with no extra spaces."
   },

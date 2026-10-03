@@ -9,7 +9,7 @@
   },
   "strings": {
     "title": "PIVOT_PLAN",
-    "subtitle": "PLAN 0x31 // CLASS: LONG",
+    "subtitle": "Skill: long table to wide (pivot)",
     "briefing": "Store revenue arrives as one row per store per month. The report needs the opposite: one row per store with a column for each month.\n\nPivot the table so each store appears once, with columns store, jan, feb and mar. The month and revenue columns go away. Every total must be preserved.\n\nIn Python, finish with df as the reshaped table. In SQL, build a table named result and that is what gets judged.",
     "task": "Turn this long table into a wide one: one row per store, with the columns store, jan, feb and mar holding the revenue. The month and revenue columns must disappear and no total may change."
   },

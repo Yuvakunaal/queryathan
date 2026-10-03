@@ -9,7 +9,7 @@
   },
   "strings": {
     "title": "NUL_SENTINEL",
-    "subtitle": "PROC 0x00 // CLASS: ABSENCE",
+    "subtitle": "Problem: missing values",
     "briefing": "Station telemetry came back with holes in it. 23 readings in temp_c never wrote — the sensor dropped frames, and pandas is showing you NaN where a number should be.\n\nThe Sentinel is not a monster standing next to your data. It is the absence inside it. Fill every gap in temp_c and it has nowhere left to live.\n\ndf is loaded. 240 rows, 6 columns.",
     "task": "The temp_c column has 23 empty (missing) values. Fill every empty value with a sensible number, such as the column's average, so that no gaps are left."
   },

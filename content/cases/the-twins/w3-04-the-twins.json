@@ -15,7 +15,7 @@
   },
   "strings": {
     "title": "THE_TWINS",
-    "subtitle": "LINK 0xFF // CLASS: UNKNOWN",
+    "subtitle": "Problem: not disclosed. Read the data.",
     "briefing": "Orders and customers from two systems. Make one table that tells the full story of every order.\n\nNothing is documented. In Python, df holds the orders and customers holds the people; finish with df as the combined table. In SQL, data holds the orders and customers the people; build a table named result and that is what gets judged."
   },
   "starterCode": {

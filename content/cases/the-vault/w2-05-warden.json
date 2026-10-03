@@ -9,7 +9,7 @@
   },
   "strings": {
     "title": "THE_WARDEN",
-    "subtitle": "LOCK 0xFF // CLASS: UNKNOWN",
+    "subtitle": "Problem: not disclosed. Read the data.",
     "briefing": "A membership export from three systems merged into one file. Nobody documented what is wrong with it.\n\nRead the data. Decide what a clean record looks like. Then make every row look that way."
   },
   "starterCode": {

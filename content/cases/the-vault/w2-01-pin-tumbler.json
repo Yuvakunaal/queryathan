@@ -9,7 +9,7 @@
   },
   "strings": {
     "title": "PIN_TUMBLER",
-    "subtitle": "LOCK 0x10 // CLASS: FORMAT",
+    "subtitle": "Problem: phone numbers in many formats",
     "briefing": "The contact list was typed by forty different people. Phone numbers show up as (415) 555-0132, 415.555.0132, +1 415 555 0132 and a dozen other shapes.\n\nThe lock opens for exactly one shape: 415-555-0132. Strip everything that is not a digit, keep the last ten, then put the dashes back.\n\nRegular expressions do the heavy lifting here. In pandas use .str.replace(..., regex=True). In SQL use the built-in helper REGEXP_REPLACE(text, pattern, replacement), which takes $1-style group references.\n\ndf is loaded. 150 rows, 4 columns.",
     "task": "Phone numbers are written in many different styles. Rewrite every phone number as 415-555-0132: three digits, a dash, three digits, a dash, then four digits."
   },

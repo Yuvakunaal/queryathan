@@ -9,7 +9,7 @@
   },
   "strings": {
     "title": "THE_ARCHITECT",
-    "subtitle": "PLAN 0xFF // CLASS: UNKNOWN",
+    "subtitle": "Problem: not disclosed. Read the data.",
     "briefing": "A regional sales export. Each region has quarterly figures and a block of metadata. Reshape it so an analyst can group by region, channel, manager and quarter without any further cleaning.\n\nNothing is documented. In Python, finish with df as the reshaped table. In SQL, build a table named result and that is what gets judged."
   },
   "starterCode": {

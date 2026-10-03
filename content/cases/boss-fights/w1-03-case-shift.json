@@ -9,7 +9,7 @@
   },
   "strings": {
     "title": "CASE_SHIFT",
-    "subtitle": "PROC 0x03 // CLASS: DRIFT",
+    "subtitle": "Problems: extra spaces, letter case and wrong type",
     "briefing": "This catalog was merged from four vendor feeds and nobody agreed on a format. SKUs picked up stray whitespace in transit. Category names drift between UPPER, Title, and lower case depending on which feed wrote them last. And quantity — which should be a plain integer — came back as free text for a chunk of rows, so the whole column reads as text now.\n\nThree separate problems, one table. Fix them in whatever order makes sense; CASE_SHIFT doesn't care which you clear first.\n\ndf is loaded. 200 rows, 5 columns.",
     "task": "Three columns need tidying. Remove the extra spaces around each sku, write every category in UPPER CASE, and turn quantity into whole numbers (it currently contains some text)."
   },

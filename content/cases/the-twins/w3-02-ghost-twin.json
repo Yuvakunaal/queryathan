@@ -15,7 +15,7 @@
   },
   "strings": {
     "title": "GHOST_TWIN",
-    "subtitle": "LINK 0x21 // CLASS: MISMATCH",
+    "subtitle": "Problem: keys that do not match",
     "briefing": "The tables share a key, but the orders were typed by hand. Some customer ids have spaces around them, others are in lower case. A join treats ' c-007 ' and 'C-007' as strangers, so those orders find no customer.\n\nClean the key first, then join. Keep every order.\n\nIn Python, df holds the orders and customers holds the people; finish with df as the combined table. In SQL, data holds the orders and customers the people; build a table named result and that is what gets judged.",
     "task": "Same goal as before, but the customer_id values in the orders have extra spaces and mixed letter case, so they do not match the customers table. Tidy customer_id into the form C-007 first, then combine the tables. Keep all 130 orders."
   },
