@@ -1,0 +1,56 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgb(6 8 10 / 0.78);
+}
+.panel {
+  width: min(520px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 28px;
+  background: var(--w1-bg-panel);
+  border: 1px solid var(--w1-rule-strong);
+}
+.title {
+  margin: 0 0 20px;
+  font: 700 24px/1.1 var(--w1-font-display);
+  letter-spacing: -0.02em;
+  color: var(--w1-text-primary);
+}
+.steps {
+  margin: 0 0 24px;
+  padding-left: 22px;
+  font: 400 14px/1.6 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.steps li + li {
+  margin-top: 12px;
+}
+.steps strong {
+  color: var(--w1-text-primary);
+  font-weight: 600;
+}
+.steps kbd {
+  padding: 1px 6px;
+  font: 600 12px/1 var(--w1-font-text);
+  color: var(--w1-amber-500);
+  border: 1px solid var(--w1-rule-strong);
+}
+.button {
+  height: 40px;
+  padding: 0 20px;
+  background: var(--w1-green-500);
+  border: 1px solid var(--w1-green-500);
+  color: var(--w1-text-inverse);
+  font: 600 13px/1 var(--w1-font-display);
+  cursor: pointer;
+}
+.button:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}

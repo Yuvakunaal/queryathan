@@ -42,6 +42,8 @@ import DiffConsole from "./DiffConsole";
 import type { ConsoleEntry } from "./DiffConsole";
 import A11yControls from "./A11yControls";
 import VictoryPanel from "./VictoryPanel";
+import TutorialOverlay from "./TutorialOverlay";
+import { hasSeenTutorial, markTutorialSeen } from "../../lib/tutorial";
 import styles from "./BossFightScreen.module.css";
 
 interface PendingReconciliation {
@@ -78,6 +80,7 @@ export default function BossFightScreen({
   const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([]);
   const [hasWon, setHasWon] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial());
   const [runCount, setRunCount] = useState(0);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [narrowNoticeDismissed, setNarrowNoticeDismissed] = useState(false);
@@ -512,6 +515,15 @@ export default function BossFightScreen({
         <div className={styles.srOnly} role="status">
           Boss defeated. {caseData.strings.title} neutralized.
         </div>
+      ) : null}
+      {showTutorial ? (
+        <TutorialOverlay
+          engineLabel={engine === "sql" ? "SQLite" : "pandas"}
+          onClose={() => {
+            markTutorialSeen();
+            setShowTutorial(false);
+          }}
+        />
       ) : null}
       {showVictory ? (
         <VictoryPanel
