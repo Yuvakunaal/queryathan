@@ -60,11 +60,21 @@ export const bossFightsEditorTheme = EditorView.theme(
       borderLeftColor: "var(--w1-green-500)",
       borderLeftWidth: "2px",
     },
-    "&.cm-focused .cm-selectionBackground, .cm-selectionBackground": {
-      backgroundColor: "rgb(var(--w1-status-null-rgb) / 0.22)",
+    // Selection is painted on a layer BEHIND the text, so nothing in the line
+    // may be opaque, and these selectors must out-rank CodeMirror's own dark
+    // base theme (which otherwise wins with a near-invisible #233).
+    "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, & > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-content ::selection":
+      {
+        backgroundColor: "color-mix(in srgb, var(--w1-amber-500) 38%, transparent)",
+      },
+    "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground": {
+      backgroundColor: "color-mix(in srgb, var(--w1-amber-500) 48%, transparent)",
+    },
+    ".cm-selectionMatch": {
+      backgroundColor: "color-mix(in srgb, var(--w1-green-500) 24%, transparent)",
     },
     ".cm-activeLine": {
-      backgroundColor: "var(--w1-bg-row-hover)",
+      backgroundColor: "color-mix(in srgb, var(--w1-text-primary) 6%, transparent)",
     },
     ".cm-gutters": {
       backgroundColor: "var(--w1-bg-panel-2)",
