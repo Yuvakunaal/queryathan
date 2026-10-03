@@ -8,7 +8,9 @@ export interface EditorPanelProps {
   starterCode: string;
   /** Table name -> column names. The first entry is the player's main table. */
   schema: Record<string, string[]>;
+  dark: boolean;
   onRun: () => void;
+  onSelectionChange?: (hasSelection: boolean) => void;
   onEscape: () => void;
 }
 
@@ -18,7 +20,7 @@ export interface EditorPanelProps {
  * themselves at the cursor, so nobody has to remember or retype a name.
  */
 const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function EditorPanel(
-  { language, starterCode, schema, onRun, onEscape },
+  { language, starterCode, schema, dark, onRun, onEscape, onSelectionChange },
   ref,
 ) {
   const handle = ref && typeof ref === "object" ? ref : null;
@@ -40,6 +42,18 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
         </h2>
         <span className={styles.lang}>{language === "sql" ? "SQL" : "Python"}</span>
         <span className={styles.spacer} />
+        {language === "sql" ? (
+          <button
+            type="button"
+            className={styles.toolButton}
+            onClick={() => {
+              handle?.current?.format();
+            }}
+            title="Tidy the SQL (the selection, or everything). Shift+Alt+F"
+          >
+            Format
+          </button>
+        ) : null}
         <button
           type="button"
           className={styles.toolButton}
@@ -97,7 +111,9 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
           initialValue={starterCode}
           language={language}
           schema={schema}
+          dark={dark}
           onRun={onRun}
+          onSelectionChange={onSelectionChange}
           onEscape={onEscape}
         />
       </div>

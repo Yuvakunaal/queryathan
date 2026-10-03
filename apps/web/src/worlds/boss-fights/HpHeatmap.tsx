@@ -6,6 +6,7 @@ import {
   afflictionCellMap,
   afflictionCountsByKind,
   afflictionKindsByRow,
+  type AfflictionKind,
   predicateKindOrder,
 } from "../../lib/affliction-cells";
 import { computeHpSegments, HP_LEVEL_COLORS, HP_SEGMENT_HEIGHTS_PX } from "./hpSegments";
@@ -16,6 +17,14 @@ import { BADGE_GLYPH } from "./afflictionPresentation";
 import styles from "./HpHeatmap.module.css";
 
 const MAX_SEGMENTS = 200;
+
+/** The animation needs a resolved color, so read the active theme's ramp instead of the dark-theme constants. */
+function levelColor(el: HTMLElement, kind: AfflictionKind, level: 0 | 1 | 2 | 3): string {
+  const name = level === 0 ? "--w1-rule-faint" : `--w1-${kind}-ramp-${String(level + 1)}`;
+  return (
+    getComputedStyle(el).getPropertyValue(name).trim() || HP_LEVEL_COLORS[kind][level]
+  );
+}
 
 export interface HpHeatmapProps {
   grid: ResultGrid;
@@ -75,7 +84,7 @@ export default function HpHeatmap({ grid, winCondition }: HpHeatmapProps) {
             shardEls: shardRefs.current[i] ?? [],
             oldHeightPx: HP_SEGMENT_HEIGHTS_PX[prev.level],
             newHeightPx: HP_SEGMENT_HEIGHTS_PX[seg.level],
-            newColor: HP_LEVEL_COLORS[colorKind][seg.level],
+            newColor: levelColor(segEl, colorKind, seg.level),
           });
         }
       });

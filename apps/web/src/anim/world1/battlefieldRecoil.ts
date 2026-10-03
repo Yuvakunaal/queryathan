@@ -1,10 +1,15 @@
 import gsap from "gsap";
 import { prefersReducedMotion } from "./motionContext";
 
-// Mirrors theme.css tokens — GSAP's color interpolation needs resolvable
-// values, not var() references, so these are kept in sync by hand.
+// GSAP's color interpolation needs resolved values, not var() references.
+// These are only fallbacks: the live values are read from the active theme.
 const AMBER_500 = "#FFB000";
 const RULE_STRONG = "#2A3A33";
+
+function tokenColor(el: HTMLElement, name: string, fallback: string): string {
+  const value = getComputedStyle(el).getPropertyValue(name).trim();
+  return value || fallback;
+}
 
 export interface RecoilOptions {
   battlefieldEl: HTMLElement;
@@ -67,9 +72,13 @@ function playReducedRecoil(battlefieldEl: HTMLElement): void {
     .to(battlefieldEl, { "--w1-hit-tint": 0, duration: 0.16, ease: "power1.inOut" });
   gsap
     .timeline()
-    .to(battlefieldEl, { borderColor: "#35F06B", duration: 0.13, ease: "power2.out" })
     .to(battlefieldEl, {
-      borderColor: RULE_STRONG,
+      borderColor: tokenColor(battlefieldEl, "--w1-diff-add", "#35F06B"),
+      duration: 0.13,
+      ease: "power2.out",
+    })
+    .to(battlefieldEl, {
+      borderColor: tokenColor(battlefieldEl, "--w1-rule-strong", RULE_STRONG),
       duration: 0.13,
       ease: "power1.inOut",
     });
@@ -79,6 +88,12 @@ function playReducedRecoil(battlefieldEl: HTMLElement): void {
 function playNoProgressFlash(battlefieldEl: HTMLElement): void {
   gsap
     .timeline()
-    .to(battlefieldEl, { borderColor: AMBER_500, duration: 0.1 })
-    .to(battlefieldEl, { borderColor: RULE_STRONG, duration: 0.1 });
+    .to(battlefieldEl, {
+      borderColor: tokenColor(battlefieldEl, "--w1-amber-500", AMBER_500),
+      duration: 0.1,
+    })
+    .to(battlefieldEl, {
+      borderColor: tokenColor(battlefieldEl, "--w1-rule-strong", RULE_STRONG),
+      duration: 0.1,
+    });
 }

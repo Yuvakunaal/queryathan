@@ -103,3 +103,15 @@
 .editor:focus-within {
   box-shadow: inset 0 0 0 1px var(--w1-green-700);
 }
+
+.title,
+.lang,
+.toolButton {
+  white-space: nowrap;
+}
+.toolbar {
+  overflow: hidden;
+}
+.toolButton {
+  padding: 0 7px;
+}

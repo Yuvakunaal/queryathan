@@ -2,16 +2,29 @@ export const TEXT_SCALES = [0.875, 1, 1.125, 1.25] as const;
 
 const A11Y_STORAGE_KEY = "dcq.a11y";
 
+export type ThemeMode = "dark" | "light";
+
 export interface A11yState {
   textScaleIndex: number;
+  theme: ThemeMode;
   crtReduced: boolean;
   highContrast: boolean;
 }
 
 export function defaultA11y(): A11yState {
   // The CRT scanline overlay is decoration that some people find tiring, so
-  // it starts off; the CRT button turns it on.
-  return { textScaleIndex: 1, crtReduced: true, highContrast: false };
+  // it starts off; the CRT button turns it on. The theme follows the system
+  // setting until the player picks one.
+  const prefersLight =
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-color-scheme: light)").matches;
+  return {
+    textScaleIndex: 1,
+    theme: prefersLight ? "light" : "dark",
+    crtReduced: true,
+    highContrast: false,
+  };
 }
 
 export function loadA11yState(): A11yState {
@@ -23,6 +36,10 @@ export function loadA11yState(): A11yState {
     const fallback = defaultA11y();
     return {
       textScaleIndex: parsed.textScaleIndex ?? fallback.textScaleIndex,
+      theme:
+        parsed.theme === "light" || parsed.theme === "dark"
+          ? parsed.theme
+          : fallback.theme,
       crtReduced: parsed.crtReduced ?? fallback.crtReduced,
       highContrast: parsed.highContrast ?? fallback.highContrast,
     };
@@ -48,8 +65,11 @@ export function persistA11yState(a11y: A11yState): void {
 export function applyA11yToDocument(a11y: A11yState): void {
   const html = document.documentElement;
   html.style.setProperty("--dcq-text-scale", String(TEXT_SCALES[a11y.textScaleIndex]));
-  if (a11y.crtReduced) html.dataset.dcqIntensity = "reduced";
+  // The scanline overlay only makes sense on a dark screen.
+  if (a11y.crtReduced || a11y.theme === "light") html.dataset.dcqIntensity = "reduced";
   else delete html.dataset.dcqIntensity;
+  html.dataset.dcqTheme = a11y.theme;
+  html.style.colorScheme = a11y.highContrast ? "dark" : a11y.theme;
   if (a11y.highContrast) html.dataset.dcqContrast = "high";
   else delete html.dataset.dcqContrast;
 }

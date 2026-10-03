@@ -5,6 +5,13 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added (worksheet-style editor, light theme, resizable panels)
+
+- Run behaves like a SQL worksheet (MySQL Workbench, Snowflake): if text is highlighted, only that runs ("Run selection"); with nothing highlighted, everything in the editor runs. Applies to Python too (a selected indented block is dedented first). The last statement's result is shown.
+- SQL Format button and Shift+Alt+F (sql-formatter, SQLite dialect, upper-case keywords). SQL results show NULL for empty values.
+- Light theme for the whole site: every world has its own light palette; toggle in the top bar (follows the system setting until chosen, then remembered). High contrast always uses the dark high-contrast set. The CodeMirror editor, GSAP flashes and HP-strip animation read the active theme instead of fixed dark colors.
+- Draggable dividers: between the left panel and the data, and between the task and the editor. Pointer and keyboard (arrows, Shift for bigger steps, Home/End, Enter to reset), double-click to reset, sizes remembered.
+
 ### Changed (fight screen overhaul)
 
 - The data table now scrolls inside its panel (its scroll container had no bounded height, so rows past the screen were unreachable). Column headers no longer overlap.

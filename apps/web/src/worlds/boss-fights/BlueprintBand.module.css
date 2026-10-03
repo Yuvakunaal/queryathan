@@ -41,7 +41,7 @@
     border-color 300ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 .chip[data-state="ok"] {
-  background: rgb(159 211 255 / 0.12);
+  background: color-mix(in srgb, var(--w1-green-500) 14%, transparent);
   border-color: var(--w1-green-500);
 }
 .chip[data-state="missing"] {

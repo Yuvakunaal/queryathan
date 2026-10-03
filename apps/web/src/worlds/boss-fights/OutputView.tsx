@@ -151,6 +151,7 @@ export default function OutputView({
               afflictionCellMap={NO_AFFLICTIONS}
               textScale={textScale}
               columnHints={converted.hints}
+              nullLabel={language === "sql" ? "NULL" : "NaN"}
             />
           </div>
         )}

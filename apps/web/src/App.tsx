@@ -40,8 +40,8 @@ function FightScreenFallback() {
         display: "flex",
         alignItems: "flex-start",
         padding: "12vh 0 0 8vw",
-        background: "#06080a",
-        color: "#8fa79b",
+        background: "var(--dcq-color-bg)",
+        color: "var(--dcq-color-fg)",
         font: "13px/20px ui-monospace, monospace",
       }}
     >

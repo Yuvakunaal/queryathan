@@ -26,3 +26,8 @@
   outline: 2px solid var(--w1-focus);
   outline-offset: 2px;
 }
+
+.wide {
+  width: auto;
+  padding: 0 8px;
+}

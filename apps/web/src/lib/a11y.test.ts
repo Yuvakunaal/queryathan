@@ -16,6 +16,7 @@ describe("defaultA11y", () => {
   it("defaults to the middle text scale, CRT effect off, no high contrast", () => {
     expect(defaultA11y()).toEqual({
       textScaleIndex: 1,
+      theme: "dark",
       crtReduced: true,
       highContrast: false,
     });
@@ -51,7 +52,12 @@ describe("loadA11yState / persistA11yState", () => {
   });
 
   it("round-trips a persisted state", () => {
-    const state: A11yState = { textScaleIndex: 3, crtReduced: true, highContrast: true };
+    const state: A11yState = {
+      textScaleIndex: 3,
+      theme: "light",
+      crtReduced: true,
+      highContrast: true,
+    };
     persistA11yState(state);
     expect(loadA11yState()).toEqual(state);
   });
@@ -60,6 +66,7 @@ describe("loadA11yState / persistA11yState", () => {
     store.set("dcq.a11y", JSON.stringify({ textScaleIndex: 2 }));
     expect(loadA11yState()).toEqual({
       textScaleIndex: 2,
+      theme: "dark",
       crtReduced: true,
       highContrast: false,
     });

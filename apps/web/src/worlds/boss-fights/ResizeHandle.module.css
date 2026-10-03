@@ -1,0 +1,95 @@
+.handle {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  user-select: none;
+  background: transparent;
+}
+.vertical {
+  cursor: col-resize;
+  width: 12px;
+  height: 100%;
+}
+.horizontal {
+  cursor: row-resize;
+  height: 12px;
+  width: 100%;
+}
+/* the visible line + grip: thin at rest, bold on hover, focus and drag */
+.grip {
+  background: var(--w1-rule-strong);
+  transition:
+    background-color 160ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 160ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.vertical .grip {
+  width: 1px;
+  height: 100%;
+}
+.horizontal .grip {
+  height: 1px;
+  width: 100%;
+}
+.handle:hover .grip,
+.handle:focus-visible .grip,
+.dragging .grip {
+  background: var(--w1-amber-500);
+}
+.vertical:hover .grip,
+.vertical:focus-visible .grip,
+.vertical.dragging .grip {
+  transform: scaleX(3);
+}
+.horizontal:hover .grip,
+.horizontal:focus-visible .grip,
+.horizontal.dragging .grip {
+  transform: scaleY(3);
+}
+/* a short pill in the middle tells people it can be grabbed */
+.handle::after {
+  content: "";
+  position: absolute;
+  background: var(--w1-text-dim);
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity 160ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.vertical::after {
+  width: 3px;
+  height: 36px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.horizontal::after {
+  height: 3px;
+  width: 36px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.handle:hover::after,
+.handle:focus-visible::after,
+.dragging::after {
+  opacity: 1;
+  background: var(--w1-amber-500);
+}
+.handle:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: -2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .grip,
+  .handle::after {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  .grip,
+  .handle::after {
+    background: CanvasText;
+  }
+}

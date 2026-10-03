@@ -43,3 +43,35 @@ html [data-world="the-architect"] {
   background-size: 24px 24px;
   background-attachment: local;
 }
+
+/* the-architect: light */
+[data-dcq-theme="light"]:not([data-dcq-contrast="high"]) [data-world="the-architect"] {
+  --w1-bg-void: #eef5ff;
+  --w1-bg-panel: #ffffff;
+  --w1-bg-panel-2: #e1edfb;
+  --w1-bg-row-a: #f4f9ff;
+  --w1-bg-row-b: #e9f2fd;
+  --w1-bg-row-hover: #dbe9fa;
+  --w1-green-300: #0b4a85;
+  --w1-green-500: #1565b3;
+  --w1-green-700: #5a9ad6;
+  --w1-amber-300: #8a5a00;
+  --w1-amber-500: #a86a00;
+  --w1-amber-700: #d9a23a;
+  --w1-text-primary: #0c2340;
+  --w1-text-secondary: #3c5878;
+  --w1-text-dim: #5a7ca0;
+  --w1-text-inverse: #ffffff;
+  --w1-rule-strong: #9fbbdd;
+  --w1-rule: #c2d6ec;
+  --w1-rule-faint: #dae6f4;
+  --w1-focus: #a86a00;
+  --w1-title: #0b4a85;
+}
+
+html[data-dcq-theme="light"]:not([data-dcq-contrast="high"])
+  [data-world="the-architect"] {
+  background-image:
+    linear-gradient(rgb(21 101 179 / 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(21 101 179 / 0.07) 1px, transparent 1px);
+}

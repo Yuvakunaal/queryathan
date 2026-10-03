@@ -1,5 +1,6 @@
 import { TEXT_SCALES } from "../../lib/a11y";
 import type { A11yState } from "../../lib/a11y";
+import { classNames } from "../../lib/classNames";
 import styles from "./A11yControls.module.css";
 
 export interface A11yControlsProps {
@@ -50,6 +51,17 @@ export default function A11yControls({ a11y, onChange }: A11yControlsProps) {
         }}
       >
         A+
+      </button>
+      <button
+        type="button"
+        className={classNames(styles.a11yButton, styles.wide)}
+        aria-label="Light theme"
+        aria-pressed={a11y.theme === "light"}
+        onClick={() => {
+          onChange({ ...a11y, theme: a11y.theme === "light" ? "dark" : "light" });
+        }}
+      >
+        {a11y.theme === "light" ? "Light" : "Dark"}
       </button>
       <button
         type="button"

@@ -4,6 +4,8 @@ import styles from "./RunBar.module.css";
 export interface RunBarProps {
   isRunning: boolean;
   onRun: () => void;
+  /** True while text is highlighted in the editor: the button then runs only that. */
+  hasSelection?: boolean;
   buttonRef?: RefObject<HTMLButtonElement | null>;
 }
 
@@ -11,7 +13,12 @@ const isMac =
   typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent);
 const RUN_SHORTCUT = isMac ? "Cmd+Enter" : "Ctrl+Enter";
 
-export default function RunBar({ isRunning, onRun, buttonRef }: RunBarProps) {
+export default function RunBar({
+  isRunning,
+  onRun,
+  buttonRef,
+  hasSelection = false,
+}: RunBarProps) {
   return (
     <div className={styles.runBar}>
       <button
@@ -30,11 +37,16 @@ export default function RunBar({ isRunning, onRun, buttonRef }: RunBarProps) {
         ) : (
           <>
             <span className={styles.play} aria-hidden="true" />
-            Run
+            {hasSelection ? "Run selection" : "Run"}
           </>
         )}
       </button>
-      <span className={styles.hint}>or press {RUN_SHORTCUT}</span>
+      <span className={styles.hint}>
+        {hasSelection
+          ? "Only the highlighted text will run."
+          : "Runs everything in the editor."}{" "}
+        {RUN_SHORTCUT} also runs.
+      </span>
     </div>
   );
 }

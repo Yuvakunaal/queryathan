@@ -41,6 +41,8 @@ import ReferenceTable from "./ReferenceTable";
 import DataframeGrid from "./DataframeGrid";
 import type { DataframeGridHandle } from "./DataframeGrid";
 import EditorPanel from "./EditorPanel";
+import ResizeHandle from "./ResizeHandle";
+import { loadPanelSize, savePanelSize } from "./panelSizes";
 import type { CodeEditorHandle } from "./CodeEditor";
 import RunBar from "./RunBar";
 import DiffConsole from "./DiffConsole";
@@ -91,6 +93,13 @@ export default function BossFightScreen({
   const [hasWon, setHasWon] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
   const [activeTab, setActiveTab] = useState("data");
+  const [railWidth, setRailWidth] = useState<number | null>(() => loadPanelSize("rail"));
+  const [briefingHeight, setBriefingHeight] = useState<number | null>(() =>
+    loadPanelSize("briefing"),
+  );
+  const stageRef = useRef<HTMLDivElement>(null);
+  const briefingPaneRef = useRef<HTMLDivElement>(null);
+  const [hasSelection, setHasSelection] = useState(false);
   const [extraColumns, setExtraColumns] = useState<Record<string, string[]>>({});
   const [runOutput, setRunOutput] = useState<RunOutput | null>(null);
   const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial());
@@ -290,7 +299,7 @@ export default function BossFightScreen({
   async function handleRun(): Promise<void> {
     const client = clientRef.current;
     if (!client || !grid || !caseData || isRunning) return;
-    const code = codeEditorRef.current?.getValue() ?? "";
+    const code = codeEditorRef.current?.getRunnableText().text ?? "";
     if (!code.trim()) return;
 
     setIsRunning(true);
@@ -485,9 +494,25 @@ export default function BossFightScreen({
           </button>
         </div>
       )}
-      <div className={styles.stage}>
-        <div className={styles.commandRail} ref={commandRailRef}>
-          <div className={styles.briefingPane}>
+      <div
+        className={styles.stage}
+        ref={stageRef}
+        style={
+          railWidth
+            ? ({ "--rail-w": `${String(railWidth)}px` } as React.CSSProperties)
+            : undefined
+        }
+      >
+        <div
+          className={styles.commandRail}
+          ref={commandRailRef}
+          style={
+            briefingHeight
+              ? ({ "--briefing-h": `${String(briefingHeight)}px` } as React.CSSProperties)
+              : undefined
+          }
+        >
+          <div className={styles.briefingPane} ref={briefingPaneRef}>
             <BriefingPanel
               title={caseData.strings.title}
               subtitle={caseData.strings.subtitle}
@@ -502,6 +527,37 @@ export default function BossFightScreen({
               onHintRevealed={setHintsUsed}
             />
           </div>
+          <ResizeHandle
+            orientation="horizontal"
+            className={styles.briefingHandle}
+            label="Resize the task and the editor"
+            getSize={() => briefingPaneRef.current?.getBoundingClientRect().height ?? 0}
+            min={() => 120}
+            max={() =>
+              Math.max(
+                160,
+                (commandRailRef.current?.getBoundingClientRect().height ?? 600) -
+                  12 -
+                  48 -
+                  220,
+              )
+            }
+            onResize={(px) => {
+              commandRailRef.current?.style.setProperty(
+                "--briefing-h",
+                `${String(px)}px`,
+              );
+            }}
+            onCommit={(px) => {
+              setBriefingHeight(px);
+              savePanelSize("briefing", px);
+            }}
+            onReset={() => {
+              commandRailRef.current?.style.removeProperty("--briefing-h");
+              setBriefingHeight(null);
+              savePanelSize("briefing", null);
+            }}
+          />
           <div className={styles.editorPane}>
             <EditorPanel
               ref={codeEditorRef}
@@ -510,6 +566,8 @@ export default function BossFightScreen({
                 engine === "sql" ? caseData.starterCode.sql : caseData.starterCode.python
               }
               schema={editorSchema}
+              dark={a11y.theme === "dark" || a11y.highContrast}
+              onSelectionChange={setHasSelection}
               onRun={() => {
                 void handleRun();
               }}
@@ -520,6 +578,7 @@ export default function BossFightScreen({
           </div>
           <div className={styles.runBarPane}>
             <RunBar
+              hasSelection={hasSelection}
               isRunning={isRunning}
               onRun={() => {
                 void handleRun();
@@ -636,6 +695,29 @@ export default function BossFightScreen({
             ))}
           </div>
         </div>
+        <ResizeHandle
+          orientation="vertical"
+          className={styles.railHandle}
+          label="Resize the left panel and the data"
+          getSize={() => commandRailRef.current?.getBoundingClientRect().width ?? 0}
+          min={() => 340}
+          max={() => {
+            const stageWidth = stageRef.current?.getBoundingClientRect().width ?? 1200;
+            return Math.max(360, Math.min(stageWidth * 0.72, stageWidth - 380));
+          }}
+          onResize={(px) => {
+            stageRef.current?.style.setProperty("--rail-w", `${String(px)}px`);
+          }}
+          onCommit={(px) => {
+            setRailWidth(px);
+            savePanelSize("rail", px);
+          }}
+          onReset={() => {
+            stageRef.current?.style.removeProperty("--rail-w");
+            setRailWidth(null);
+            savePanelSize("rail", null);
+          }}
+        />
       </div>
       <div ref={crtRef} className={styles.crt} aria-hidden="true">
         <div ref={rollBarRef} className={styles.crtRoll} />

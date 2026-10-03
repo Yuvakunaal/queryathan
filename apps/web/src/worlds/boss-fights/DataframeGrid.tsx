@@ -29,10 +29,15 @@ export interface DataframeGridProps {
   textScale: number;
   /** Per-column display hints from the case JSON; a column with no hint falls back to sane defaults. */
   columnHints?: ColumnHints | undefined;
+  /** How an empty cell reads: "NaN" for pandas, "NULL" for SQL results. */
+  nullLabel?: string;
 }
 
 const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
-  function DataframeGrid({ grid, afflictionCellMap, textScale, columnHints }, ref) {
+  function DataframeGrid(
+    { grid, afflictionCellMap, textScale, columnHints, nullLabel = "NaN" },
+    ref,
+  ) {
     const scrollRef = useRef<HTMLDivElement>(null);
     // Roving tabindex (spec §3.6): exactly one cell is tab-stoppable at a
     // time; arrow keys move it and re-focus the new target.
@@ -217,7 +222,7 @@ const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
                       <span className={styles.diffGutter} data-role="gutter" />
                       <span className={styles.diffOld} data-role="old" />
                       <span className={styles.diffNew} data-role="new">
-                        {formatCellValue(value)}
+                        {formatCellValue(value, nullLabel)}
                       </span>
                     </div>
                   );

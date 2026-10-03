@@ -19,3 +19,11 @@
   --dcq-space-4: 24px;
   --dcq-space-5: 40px;
 }
+
+:root[data-dcq-theme="light"] {
+  --dcq-color-bg: #f3f6f4;
+  --dcq-color-fg: #14201a;
+  --dcq-color-accent: #0f8a3a;
+  --dcq-color-danger: #c9391a;
+  --dcq-color-success: #0f8a3a;
+}

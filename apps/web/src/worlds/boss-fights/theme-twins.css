@@ -34,3 +34,28 @@
   --w1-crt-grille-a: 0;
   --w1-crt-vignette-a: 0.25;
 }
+
+/* the-twins: light */
+[data-dcq-theme="light"]:not([data-dcq-contrast="high"]) [data-world="the-twins"] {
+  --w1-bg-void: #f3f5f8;
+  --w1-bg-panel: #ffffff;
+  --w1-bg-panel-2: #e8ecf2;
+  --w1-bg-row-a: #f7f9fb;
+  --w1-bg-row-b: #edf1f6;
+  --w1-bg-row-hover: #e0e7f0;
+  --w1-green-300: #0b6f77;
+  --w1-green-500: #0a7b85;
+  --w1-green-700: #3aa6ae;
+  --w1-amber-300: #9c2f50;
+  --w1-amber-500: #c23a62;
+  --w1-amber-700: #e07a97;
+  --w1-text-primary: #151a24;
+  --w1-text-secondary: #475166;
+  --w1-text-dim: #667085;
+  --w1-text-inverse: #ffffff;
+  --w1-rule-strong: #bcc6d4;
+  --w1-rule: #d4dbe5;
+  --w1-rule-faint: #e5e9f0;
+  --w1-focus: #c23a62;
+  --w1-title: #0a6b74;
+}

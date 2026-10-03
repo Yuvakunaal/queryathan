@@ -1,10 +1,11 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
-import { EditorState, Prec } from "@codemirror/state";
+import { Compartment, EditorState, Prec } from "@codemirror/state";
 import { EditorView, keymap, placeholder } from "@codemirror/view";
 import { indentWithTab } from "@codemirror/commands";
 import { SQLite } from "@codemirror/lang-sql";
 import { pythonLanguage } from "@codemirror/lang-python";
 import { pythonCompletionSource } from "./editorCompletions";
+import { format as formatSql } from "sql-formatter";
 import { basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
 import { sql } from "@codemirror/lang-sql";
@@ -18,6 +19,23 @@ export interface CodeEditorHandle {
   /** Inserts at the cursor (or over the selection) and keeps focus in the editor. */
   insert(text: string): void;
   focus(): void;
+  /**
+   * What the Run button should execute, worksheet-style: the highlighted text
+   * if any is selected, otherwise the whole buffer.
+   */
+  getRunnableText(): { text: string; isSelection: boolean };
+  /** Tidies the SQL (the selection if there is one, else everything). No-op for Python. */
+  format(): void;
+}
+
+/** Removes the indentation shared by every non-blank line, so a selected block of Python still parses. */
+function dedent(text: string): string {
+  const lines = text.split("\n");
+  const indents = lines
+    .filter((line) => line.trim() !== "")
+    .map((line) => /^[ \t]*/.exec(line)?.[0].length ?? 0);
+  const shared = indents.length > 0 ? Math.min(...indents) : 0;
+  return shared > 0 ? lines.map((line) => line.slice(shared)).join("\n") : text;
 }
 
 export interface CodeEditorProps {
@@ -26,24 +44,33 @@ export interface CodeEditorProps {
   language: "python" | "sql";
   /** Tables the player can query, with their column names; drives autocomplete. */
   schema: Record<string, string[]>;
+  /** Whether the surrounding theme is dark; switches CodeMirror's own base styles. Can change while mounted. */
+  dark: boolean;
   onRun: () => void;
+  /** Fires when text becomes selected or the selection is cleared. */
+  onSelectionChange?: ((hasSelection: boolean) => void) | undefined;
   onEscape: () => void;
 }
 
+const themeCompartment = new Compartment();
+
 const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEditor(
-  { initialValue, language, schema, onRun, onEscape },
+  { initialValue, language, schema, dark, onRun, onEscape, onSelectionChange },
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onRunRef = useRef(onRun);
   const onEscapeRef = useRef(onEscape);
+  const onSelectionChangeRef = useRef(onSelectionChange);
+  onSelectionChangeRef.current = onSelectionChange;
   onRunRef.current = onRun;
   onEscapeRef.current = onEscape;
 
-  useImperativeHandle(
-    ref,
-    () => ({
+  const handleRef = useRef<CodeEditorHandle | null>(null);
+
+  useImperativeHandle(ref, () => {
+    const api: CodeEditorHandle = {
       getValue: () => viewRef.current?.state.doc.toString() ?? "",
       setValue: (text: string) => {
         const view = viewRef.current;
@@ -63,9 +90,50 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
       focus: () => {
         viewRef.current?.focus();
       },
-    }),
-    [],
-  );
+      getRunnableText: () => {
+        const view = viewRef.current;
+        if (!view) return { text: "", isSelection: false };
+        const { from: rawFrom, to } = view.state.selection.main;
+        // If only indentation precedes the selection, include it: otherwise the first
+        // line of a selected Python block loses its indent and the rest looks over-indented.
+        const line = view.state.doc.lineAt(rawFrom);
+        const from =
+          view.state.sliceDoc(line.from, rawFrom).trim() === "" ? line.from : rawFrom;
+        const selected = view.state.sliceDoc(from, to);
+        if (selected.trim() !== "") {
+          return {
+            text: language === "python" ? dedent(selected) : selected,
+            isSelection: true,
+          };
+        }
+        return { text: view.state.doc.toString(), isSelection: false };
+      },
+      format: () => {
+        const view = viewRef.current;
+        if (!view || language !== "sql") return;
+        const { from, to } = view.state.selection.main;
+        const hasSelection = view.state.sliceDoc(from, to).trim() !== "";
+        const start = hasSelection ? from : 0;
+        const end = hasSelection ? to : view.state.doc.length;
+        try {
+          const formatted = formatSql(view.state.sliceDoc(start, end), {
+            language: "sqlite",
+            keywordCase: "upper",
+            tabWidth: 2,
+          });
+          view.dispatch({
+            changes: { from: start, to: end, insert: formatted },
+            selection: { anchor: start + formatted.length },
+          });
+        } catch {
+          // Unparseable SQL is left exactly as typed; running it will show the engine's own error.
+        }
+        view.focus();
+      },
+    };
+    handleRef.current = api;
+    return api;
+  }, [language]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -78,6 +146,13 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
           key: "Mod-Enter",
           run: () => {
             onRunRef.current();
+            return true;
+          },
+        },
+        {
+          key: "Shift-Alt-f",
+          run: () => {
+            handleRef.current?.format();
             return true;
           },
         },
@@ -118,8 +193,13 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
                 ),
               }),
             ],
-        bossFightsEditorExtensions,
+        themeCompartment.of(bossFightsEditorExtensions(dark)),
         runKeymap,
+        EditorView.updateListener.of((update) => {
+          if (!update.selectionSet && !update.docChanged) return;
+          const { from, to } = update.state.selection.main;
+          onSelectionChangeRef.current?.(update.state.sliceDoc(from, to).trim() !== "");
+        }),
       ],
     });
 
@@ -133,6 +213,12 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
     // Editor is created once on mount; initialValue only seeds it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    viewRef.current?.dispatch({
+      effects: themeCompartment.reconfigure(bossFightsEditorExtensions(dark)),
+    });
+  }, [dark]);
 
   return <div className={styles.editor} ref={containerRef} />;
 });

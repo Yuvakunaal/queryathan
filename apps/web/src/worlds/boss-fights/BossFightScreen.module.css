@@ -64,14 +64,24 @@
 
 .stage {
   display: grid;
-  grid-template-columns: clamp(380px, 34vw, 520px) 1fr;
+  position: relative;
+  grid-template-columns: min(var(--rail-w, clamp(380px, 34vw, 520px)), 72%) minmax(0, 1fr);
   min-height: 0;
+}
+
+/* Sits over the seam between the two panels. */
+.railHandle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(min(var(--rail-w, clamp(380px, 34vw, 520px)), 72%) - 6px);
+  width: 12px;
 }
 
 .commandRail {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: fit-content(52%) minmax(220px, 1fr) 48px;
+  grid-template-rows: var(--briefing-h, fit-content(52%)) 12px minmax(220px, 1fr) 48px;
   border-right: 1px solid var(--w1-rule-strong);
   min-height: 0;
 }
@@ -405,5 +415,16 @@
   .battlefield,
   [data-world="the-vault"] .battlefield {
     grid-template-rows: auto auto;
+  }
+}
+
+.briefingHandle {
+  margin-top: -6px;
+  margin-bottom: -6px;
+}
+@media (max-width: 1079px) {
+  .railHandle,
+  .briefingHandle {
+    display: none;
   }
 }
