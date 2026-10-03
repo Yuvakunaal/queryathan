@@ -1,6 +1,6 @@
 .band {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   column-gap: 24px;
   padding: 10px 16px;

@@ -1,6 +1,6 @@
 .hpBand {
   display: grid;
-  grid-template-columns: 1fr minmax(210px, auto);
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: auto auto;
   grid-template-areas: "label readout" "strip readout";
   align-items: end;
@@ -25,6 +25,8 @@
 
 .hpStrip {
   grid-area: strip;
+  min-width: 0;
+  overflow: hidden;
   display: flex;
   gap: 1px;
   height: 18px;
@@ -40,7 +42,7 @@
 .hpSeg {
   position: relative;
   flex: 1 1 0;
-  min-width: 2px;
+  min-width: 0;
   transform-origin: bottom center;
   background: var(--seg-color, var(--w1-rule-faint));
 }
@@ -202,7 +204,7 @@
   color: var(--w1-status-encoding);
 }
 
-@container field (max-width: 720px) {
+@container field (max-width: 860px) {
   .hpBand,
   .hpBand[data-breakdown="true"] {
     grid-template-columns: minmax(0, 1fr);
@@ -210,8 +212,7 @@
     row-gap: 8px;
   }
   .hpStrip {
-    min-width: 0;
-    overflow: hidden;
+    gap: 0;
   }
   .hpReadout {
     text-align: left;

@@ -467,12 +467,15 @@ export default function BossFightScreen({
   return (
     <div className={styles.fightRoot} data-world={world} ref={fightRootRef}>
       <div className={styles.statusRail} ref={statusRailRef}>
-        <span>
+        <span className={styles.railLeft}>
           <button type="button" className={styles.rosterLink} onClick={onExitToRoster}>
-            &lt; ROSTER
-          </button>{" "}
-          {worldMeta(world).statusRailName} //{" "}
-          <span className={bossNameStyles}>{caseData.strings.title}</span>
+            &lt; Roster
+          </button>
+          <span className={styles.railDivider} aria-hidden="true" />
+          <span className={styles.railTitle}>
+            {worldMeta(world).statusRailName} //{" "}
+            <span className={bossNameStyles}>{caseData.strings.title}</span>
+          </span>
         </span>
         <div className={styles.a11yRow}>
           <span className={styles.rankBadge}>{rankLabel}</span>

@@ -2,7 +2,7 @@
   position: relative;
   height: 100dvh;
   display: grid;
-  grid-template-rows: 40px 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
   grid-template-columns: minmax(0, 1fr);
   background: var(--w1-bg-void);
   overflow: hidden;
@@ -12,8 +12,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 40px;
-  padding: 0 16px;
+  min-height: 40px;
+  padding: 4px 16px;
   background: var(--w1-bg-panel-2);
   border-bottom: 1px solid var(--w1-rule-strong);
   font: 600 var(--w1-fs-rail) / 1 var(--w1-font-display);
@@ -29,17 +29,40 @@
   color: var(--w1-diff-del);
 }
 
+.railLeft {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.railDivider {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 18px;
+  background: var(--w1-text-dim);
+}
+.railTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .rosterLink {
+  flex: 0 0 auto;
+  padding: 5px 10px;
   background: transparent;
-  border: none;
-  padding: 0;
+  border: 1px solid var(--w1-rule-strong);
   font: inherit;
-  color: var(--w1-text-secondary);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  color: var(--w1-text-primary);
   cursor: pointer;
 }
 .rosterLink:hover,
 .rosterLink:focus-visible {
   color: var(--w1-amber-500);
+  border-color: var(--w1-amber-500);
 }
 .rosterLink:focus-visible {
   outline: 2px solid var(--w1-focus);

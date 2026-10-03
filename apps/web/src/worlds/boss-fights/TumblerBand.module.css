@@ -1,6 +1,6 @@
 .band {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas: "label readout" "row readout";
   column-gap: 20px;
   row-gap: 8px;
@@ -136,7 +136,7 @@
   }
 }
 
-@container field (max-width: 720px) {
+@container field (max-width: 760px) {
   .band {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: none;

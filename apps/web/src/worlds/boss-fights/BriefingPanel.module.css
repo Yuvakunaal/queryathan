@@ -16,11 +16,12 @@
 }
 
 .sigil {
-  flex: 0 0 88px;
-  width: 88px;
-  height: 66px;
+  flex: 0 0 auto;
+  width: calc(88px * var(--dcq-text-scale, 1));
+  height: calc(66px * var(--dcq-text-scale, 1));
   margin: 0;
-  font: 500 var(--w1-fs-sigil) / 11px var(--w1-font-text);
+  overflow: hidden;
+  font: 500 var(--w1-fs-sigil) / calc(11px * var(--dcq-text-scale, 1)) var(--w1-font-text);
   letter-spacing: 0;
   color: var(--w1-green-700);
   white-space: pre;

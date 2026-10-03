@@ -5,6 +5,12 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Fixed (panel widths and large text)
+
+- The "023 cells / 240 rows" readout no longer gets pushed off the edge at middle panel widths: the progress strip now shrinks instead of forcing a minimum width, and the HUD stacks below 860px of panel width. Swept 4 worlds x 2 text sizes x 4 divider positions with no overflow.
+- At the largest text size the boss diagram scales with the text, so the title no longer overlaps it.
+- The back button is now a bordered "< Roster" button followed by a divider line, clearly separate from the world and boss name; the top bar grows with the text size instead of clipping.
+
 ### Fixed / Added (narrow data panel, light high contrast)
 
 - Dragging the divider right no longer pushes the table past the screen edge. The data panel is now a bounded box: the table scrolls sideways inside it at any width, tabs scroll instead of wrapping, and the panel's header (progress strip, checklists, blueprint chips) re-flows according to the panel's own width (CSS container query) rather than the window's.
