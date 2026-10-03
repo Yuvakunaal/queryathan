@@ -34,7 +34,7 @@
 
 .title {
   margin: 0;
-  font: 700 var(--w1-fs-title) / 28px var(--w1-font-display);
+  font: 700 var(--w1-fs-title) / 1.15 var(--w1-font-display);
   font-variation-settings:
     "wdth" 87.5,
     "wght" 700;
@@ -44,8 +44,8 @@
 }
 
 .subtitle {
-  margin-top: 2px;
-  font: 500 var(--w1-fs-subtitle) / 16px var(--w1-font-text);
+  margin-top: calc(8px * var(--dcq-text-scale, 1));
+  font: 500 var(--w1-fs-subtitle) / 1.5 var(--w1-font-text);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--w1-text-secondary);
