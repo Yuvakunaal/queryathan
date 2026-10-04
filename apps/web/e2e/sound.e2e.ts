@@ -73,7 +73,7 @@ test("typing in the editor plays a key sound per keystroke, and none for shortcu
   expect(await count()).toBeGreaterThanOrEqual(before + 8);
 });
 
-test("the finishing cut plays the layered knife sound, then the chime", async ({
+test("the finishing cut plays the layered knife sound, then the kill stinger", async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -88,6 +88,7 @@ test("the finishing cut plays the layered knife sound, then the chime", async ({
       "createConvolver",
       "createDynamicsCompressor",
       "createOscillator",
+      "createWaveShaper",
     ]) {
       const original = proto[name];
       if (!original) continue;
@@ -118,9 +119,10 @@ test("the finishing cut plays the layered knife sound, then the chime", async ({
       },
     )
     .toBeGreaterThanOrEqual(5);
-  // Then the chime, with its reverb.
+  // Then the kill stinger: distorted chords through a drive stage, with its room.
   await expect
     .poll(async () => (await read()).createConvolver ?? 0, { timeout: 10_000 })
     .toBeGreaterThanOrEqual(1);
+  expect((await read()).createWaveShaper ?? 0).toBeGreaterThanOrEqual(1);
   expect((await read()).createDynamicsCompressor).toBe(1);
 });

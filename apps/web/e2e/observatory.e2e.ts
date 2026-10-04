@@ -36,7 +36,7 @@ test("a differently named column is reported by name", async ({ page }) => {
   await noWin(page);
 });
 
-test("the answer lights up one star per right row as it improves", async ({ page }) => {
+test("the answer lights up count of right rows as it improves", async ({ page }) => {
   await openCase(page, "the-observatory", "w6-01-first-light", "sql");
   await setCode(
     page,

@@ -26,7 +26,8 @@ follows [Keep a Changelog](https://keepachangelog.com/).
   drawn over it. SQL help is checked the same way.
 - **A fuller finishing cut.** The knife recording now sits under a rising air swish, a bright crack,
   a juicy burst, a low thud and two small drops, in the spirit of a fruit-slicing game. The win
-  sound is a soft bell chime with a warm chord and a little reverb instead of beeps. A limiter on
+  sound is a heavy two-hit boss-kill stinger (distorted D-minor power chords, sub boom, crash and a
+  long room) instead of beeps. A limiter on
   the output keeps the layers from ever clipping.
 - **Layout fixes found by a width check** (desktop, laptop, tablet, phone): the home top bar and the
   editor toolbar no longer run off the edge on a phone. A new test fails if any screen scrolls
@@ -67,7 +68,7 @@ DAY)`, `ILIKE`). A "SQL help" panel groups them by task, and function names auto
 - New `result_matches` predicate: judges an answer table by column name, with exact
   row matching, numeric tolerance and optional order. Its checks report what is wrong
   (missing column, row count, rows right) without revealing the answer, and the HUD
-  shows one star per correct row.
+  shows a count of correct rows.
 - Cases can list `skills`, which rank uses instead of predicate kinds.
 - Expected answers are computed by `scripts/generate-observatory.mjs` from the
   briefing's definitions and verified by real SQL and real pandas in the E2E suite.

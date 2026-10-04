@@ -10,13 +10,11 @@ export interface StarChartBandProps {
   winCondition: WinCondition;
 }
 
-const MAX_STARS = 48;
-
 /**
- * The Observatory's HUD: the answer drawn as a star chart. Each column the
- * answer needs is a chip, and each row of the expected answer is a star that
- * lights up once the player's table holds a matching row. It shows how close
- * the answer is without ever showing the expected values themselves.
+ * The HUD for cases judged by an answer table: each column the answer needs is
+ * a chip (dashed until the player's table has it), and a counter shows how many
+ * of the expected rows are right. It shows how close the answer is without ever
+ * showing the expected values themselves.
  */
 export default function StarChartBand({ grid, winCondition }: StarChartBandProps) {
   const { columns, report, others } = useMemo(() => {
@@ -34,9 +32,6 @@ export default function StarChartBand({ grid, winCondition }: StarChartBandProps
   }, [grid, winCondition]);
 
   if (!report) return null;
-  const shown = report.matched.slice(0, MAX_STARS);
-  const hidden = report.matched.length - shown.length;
-
   return (
     <div className={styles.band}>
       <div className={styles.chart}>
@@ -58,18 +53,6 @@ export default function StarChartBand({ grid, winCondition }: StarChartBandProps
                 </li>
               );
             })}
-          </ul>
-        </div>
-        <div className={styles.row}>
-          <span className={styles.rowLabel}>Rows</span>
-          <ul className={styles.stars} aria-hidden="true">
-            {shown.map((lit, i) => (
-              // The position is the identity: stars have no content of their own.
-              <li key={i} className={styles.star} data-lit={lit ? "true" : "false"}>
-                {lit ? "★" : "☆"}
-              </li>
-            ))}
-            {hidden > 0 ? <li className={styles.more}>+{String(hidden)}</li> : null}
           </ul>
         </div>
         {report.rowCount !== report.expectedRows ? (

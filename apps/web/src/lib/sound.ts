@@ -16,7 +16,7 @@ interface Note {
   gain: number;
 }
 
-// Short tones for running code, clearing afflictions and errors: readable by ear, never harsh. The win chime is built separately below.
+// Short tones for running code, clearing afflictions and errors: readable by ear, never harsh. The win stinger is built separately below.
 export const CUES: Record<Exclude<Cue, "win">, readonly Note[]> = {
   run: [{ f: 660, at: 0, dur: 0.05, type: "square", gain: 0.04 }],
   error: [
@@ -68,7 +68,7 @@ function getOutput(ctx: AudioContext): AudioNode {
     master = ctx.createGain();
     // Perceived loudness is roughly the square of the slider, so the middle sounds like the middle.
     master.gain.value = volume * volume;
-    // A limiter at the end: the knife and the chime stack several layers, and this keeps
+    // A limiter at the end: the knife and the stinger stack several layers, and this keeps
     // their sum from ever clipping, however loud the volume is set.
     const limiter = ctx.createDynamicsCompressor();
     limiter.threshold.value = -9;
@@ -84,7 +84,7 @@ function getOutput(ctx: AudioContext): AudioNode {
 export function playCue(cue: Cue): void {
   if (!effectsOn) return;
   if (cue === "win") {
-    playWinChime();
+    playVictoryStinger();
     return;
   }
   try {
@@ -302,7 +302,7 @@ export function playSlice(): void {
 
 let reverbImpulse: AudioBuffer | null = null;
 
-/** A soft, short room: decaying noise, used only to give the win chime some air. */
+/** A soft, short room: decaying noise, used only to give the kill stinger some air. */
 function getReverb(ctx: AudioContext): AudioBuffer {
   if (reverbImpulse?.sampleRate !== ctx.sampleRate) {
     const length = Math.floor(ctx.sampleRate * 1.7);
@@ -317,12 +317,24 @@ function getReverb(ctx: AudioContext): AudioBuffer {
   return reverbImpulse;
 }
 
+/** A hard-clipping curve: turns a plain saw into a snarling, amp-like power chord. */
+function distortionCurve(amount: number): Float32Array<ArrayBuffer> {
+  const curve = new Float32Array(new ArrayBuffer(2048 * 4));
+  for (let i = 0; i < curve.length; i += 1) {
+    const x = (i / (curve.length - 1)) * 2 - 1;
+    curve[i] = ((1 + amount) * x) / (1 + amount * Math.abs(x));
+  }
+  return curve;
+}
+
 /**
- * The finishing chime: a rising run of soft bell tones (each a fundamental with
- * two quiet overtones that fade faster), a warm held chord swelling underneath,
- * and a little reverb so it rings out instead of stopping. About 2.4 seconds.
+ * The kill stinger: what plays as "Boss cleared" slams onto the screen. Two heavy
+ * hits in D minor, like a boss falling in a dark action game: a short punch, then
+ * a big distorted power chord with a sub boom, a cymbal-like crash and a long
+ * decaying room. Built from saws through a distortion stage, so it sounds
+ * aggressive and final, not cheerful. About 2.4 seconds.
  */
-function playWinChime(): void {
+function playVictoryStinger(): void {
   try {
     const ctx = getContext();
     if (!ctx) return;
@@ -331,62 +343,89 @@ function playWinChime(): void {
     const t0 = ctx.currentTime + 0.02;
 
     const dry = ctx.createGain();
-    dry.gain.value = 0.8;
+    dry.gain.value = 0.85;
     dry.connect(out);
     const reverb = ctx.createConvolver();
     reverb.buffer = getReverb(ctx);
     const wet = ctx.createGain();
-    wet.gain.value = 0.38;
+    wet.gain.value = 0.34;
     reverb.connect(wet).connect(out);
     const bus = ctx.createGain();
     bus.connect(dry);
     bus.connect(reverb);
 
-    // Bell: sine fundamental plus partials at roughly 2.76x and 5.4x, which fade faster.
-    const bell = (freq: number, at: number, hold: number, level: number): void => {
-      const partials: [number, number, number][] = [
-        [1, 1, hold],
-        [2.76, 0.28, hold * 0.45],
-        [5.4, 0.1, hold * 0.22],
-      ];
-      for (const [ratio, gain, length] of partials) {
-        const osc = ctx.createOscillator();
-        osc.type = "sine";
-        osc.frequency.value = freq * ratio;
-        const amp = ctx.createGain();
-        amp.gain.setValueAtTime(0.0001, t0 + at);
-        amp.gain.exponentialRampToValueAtTime(level * gain, t0 + at + 0.012);
-        amp.gain.exponentialRampToValueAtTime(0.0001, t0 + at + length);
-        osc.connect(amp).connect(bus);
-        osc.start(t0 + at);
-        osc.stop(t0 + at + length + 0.05);
+    const drive = ctx.createWaveShaper();
+    drive.curve = distortionCurve(38);
+    drive.oversample = "2x";
+    const tone = ctx.createBiquadFilter();
+    tone.type = "lowpass";
+    tone.frequency.value = 2400;
+    drive.connect(tone).connect(bus);
+
+    // A distorted power chord: saws (a little detuned) through the drive.
+    const chord = (freqs: number[], at: number, hold: number, level: number): void => {
+      for (const freq of freqs) {
+        for (const detune of [-9, 9]) {
+          const osc = ctx.createOscillator();
+          osc.type = "sawtooth";
+          osc.frequency.value = freq;
+          osc.detune.value = detune;
+          const amp = ctx.createGain();
+          amp.gain.setValueAtTime(0.0001, t0 + at);
+          amp.gain.exponentialRampToValueAtTime(level, t0 + at + 0.006);
+          amp.gain.exponentialRampToValueAtTime(level * 0.45, t0 + at + hold * 0.3);
+          amp.gain.exponentialRampToValueAtTime(0.0001, t0 + at + hold);
+          osc.connect(amp).connect(drive);
+          osc.start(t0 + at);
+          osc.stop(t0 + at + hold + 0.05);
+        }
       }
     };
-    // C major rising: C5 E5 G5 then a high C6 that rings.
-    bell(523.25, 0, 0.9, 0.17);
-    bell(659.25, 0.13, 0.9, 0.17);
-    bell(783.99, 0.26, 1.0, 0.17);
-    bell(1046.5, 0.42, 1.9, 0.2);
 
-    // A warm chord (C4 G4 C5 E5) that swells in under the bells and fades away.
-    for (const freq of [261.63, 392, 523.25, 659.25]) {
-      for (const detune of [-4, 4]) {
-        const osc = ctx.createOscillator();
-        osc.type = "triangle";
-        osc.frequency.value = freq;
-        osc.detune.value = detune;
-        const lowpass = ctx.createBiquadFilter();
-        lowpass.type = "lowpass";
-        lowpass.frequency.value = 1400;
-        const amp = ctx.createGain();
-        amp.gain.setValueAtTime(0.0001, t0 + 0.2);
-        amp.gain.exponentialRampToValueAtTime(0.028, t0 + 0.75);
-        amp.gain.exponentialRampToValueAtTime(0.0001, t0 + 2.3);
-        osc.connect(lowpass).connect(amp).connect(bus);
-        osc.start(t0 + 0.2);
-        osc.stop(t0 + 2.4);
-      }
-    }
+    // Hit one: a short, tight punch (D3, A3, D4).
+    chord([146.83, 220, 293.66], 0, 0.3, 0.07);
+    noiseBurst(ctx, bus, {
+      at: t0,
+      dur: 0.09,
+      type: "bandpass",
+      from: 1800,
+      q: 0.7,
+      peak: 0.3,
+      attack: 0.002,
+    });
+    glide(ctx, bus, { at: t0, dur: 0.2, from: 140, to: 55, peak: 0.45 });
+
+    // Hit two: the big one (D2, A2, D3, F3, A3), with the boom, the crash and the ring.
+    const big = 0.34;
+    chord([73.42, 110, 146.83, 174.61, 220], big, 1.9, 0.075);
+    glide(ctx, bus, { at: t0 + big, dur: 1.1, from: 95, to: 32, peak: 0.6 });
+    noiseBurst(ctx, bus, {
+      at: t0 + big,
+      dur: 0.12,
+      type: "bandpass",
+      from: 2400,
+      q: 0.6,
+      peak: 0.34,
+      attack: 0.002,
+    });
+    noiseBurst(ctx, bus, {
+      at: t0 + big,
+      dur: 1.6,
+      type: "highpass",
+      from: 6200,
+      to: 4200,
+      peak: 0.2,
+      attack: 0.01,
+    });
+    noiseBurst(ctx, bus, {
+      at: t0 + big,
+      dur: 0.9,
+      type: "lowpass",
+      from: 420,
+      to: 120,
+      peak: 0.34,
+      attack: 0.02,
+    });
   } catch {
     // Audio is a nicety; a blocked or missing context just stays quiet.
   }
