@@ -10,12 +10,12 @@
   "strings": {
     "title": "JSON_VAULT",
     "subtitle": "Skill: unpacking JSON into columns",
-    "briefing": "Each order's details arrived as a block of JSON text in one column: {\"customer\": {\"id\": 20, \"name\": \"Ben Okafor\"}, \"total\": 88.57}. You cannot filter or sum text.\n\nFlatten it into real columns: order_id, customer_id, customer_name and total. The payload column goes away.\n\nIn pandas, json.loads turns the text into dictionaries and pd.json_normalize flattens them. In SQL, json_extract(text, '$.path') reaches inside.\n\nIn Python, finish with df as the reshaped table. In SQL, build a table named result and that is what gets judged.",
+    "briefing": "Each order's details arrived as a block of JSON text in one column: {\"customer\": {\"id\": 20, \"name\": \"Ben Okafor\"}, \"total\": 88.57}. You cannot filter or sum text.\n\nFlatten it into real columns: order_id, customer_id, customer_name and total. The payload column goes away.\n\nIn pandas, json.loads turns the text into dictionaries and pd.json_normalize flattens them. In SQL, json_extract(text, '$.path') reaches inside.\n\nIn Python, put your reshaped table in df (df = ...), and that is what gets judged.\n\nIn SQL, create a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
     "task": "The payload column holds JSON text. Unpack it into normal columns: order_id, customer_id, customer_name and total. The payload column must disappear."
   },
   "starterCode": {
     "python": "# df has 80 rows: order_id and a JSON text column, payload.\ndf['payload'].head(3).tolist()",
-    "sql": "-- data has 80 rows: order_id and a JSON text column, payload.\nSELECT order_id, payload FROM data LIMIT 3;"
+    "sql": "-- data has 80 rows: order_id and a JSON text column, payload.\n-- Your answer goes in a NEW table named result: CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT order_id, payload FROM data LIMIT 3;"
   },
   "columnHints": {
     "order_id": {

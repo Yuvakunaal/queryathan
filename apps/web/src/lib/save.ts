@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { worldIdSchema } from "@dcq/content-schema";
 import { betterStamp } from "./forge";
+import { writeStored } from "./safeStorage";
 import type { Stamp } from "./forge";
 import type { WorldId } from "@dcq/content-schema";
 
@@ -92,7 +93,7 @@ export function loadSave(): SaveData {
 
 export function persistSave(save: SaveData): void {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(save));
+  writeStored(STORAGE_KEY, JSON.stringify(save));
 }
 
 export function exportSaveAsJson(save: SaveData): string {

@@ -16,12 +16,12 @@
   "strings": {
     "title": "GHOST_TWIN",
     "subtitle": "Problem: keys that do not match",
-    "briefing": "The tables share a key, but the orders were typed by hand. Some customer ids have spaces around them, others are in lower case. A join treats ' c-007 ' and 'C-007' as strangers, so those orders find no customer.\n\nClean the key first, then join. Keep every order.\n\nIn Python, df holds the orders and customers holds the people; finish with df as the combined table. In SQL, data holds the orders and customers the people; build a table named result and that is what gets judged.",
+    "briefing": "The tables share a key, but the orders were typed by hand. Some customer ids have spaces around them, others are in lower case. A join treats ' c-007 ' and 'C-007' as strangers, so those orders find no customer.\n\nClean the key first, then join. Keep every order.\n\nIn Python, df holds the orders and customers holds the people; put your combined table in df (df = ...), and that is what gets judged.\n\nIn SQL, data holds the orders and customers the people.\n\nCreate a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
     "task": "Same goal as before, but the customer_id values in the orders have extra spaces and mixed letter case, so they do not match the customers table. Tidy customer_id into the form C-007 first, then combine the tables. Keep all 130 orders."
   },
   "starterCode": {
     "python": "# df = orders (130 rows). customers = people (45 rows).\n# Compare the customer_id values in both.\ndf['customer_id'].head(15)",
-    "sql": "-- data = orders (130 rows). customers = people (45 rows).\n-- Compare the customer_id values in both.\nSELECT DISTINCT customer_id FROM data LIMIT 15;"
+    "sql": "-- data = orders (130 rows). customers = people (45 rows).\n-- Compare the customer_id values in both.\n-- Your answer goes in a NEW table named result: CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT DISTINCT customer_id FROM data LIMIT 15;"
   },
   "columnHints": {
     "order_id": {

@@ -56,3 +56,21 @@ export function caseTechniques(caseData: {
 }): string[] {
   return caseData.skills ?? predicateKinds(caseData.winCondition);
 }
+
+/**
+ * The name of a table the code creates that is not called `result`, if any (for
+ * `CREATE TABLE joined AS ...`). In the worlds where the answer is the table
+ * named `result`, this is the usual slip, so the screen says so plainly.
+ */
+export function misnamedAnswerTable(code: string): string | null {
+  const withoutComments = code.replace(/--[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  const created = [
+    ...withoutComments.matchAll(
+      /\bcreate\s+(?:temp(?:orary)?\s+)?(?:table|view)\s+(?:if\s+not\s+exists\s+)?["`[]?([A-Za-z_][A-Za-z0-9_]*)/gi,
+    ),
+  ].map((m) => m[1] ?? "");
+  if (created.length === 0 || created.some((name) => name.toLowerCase() === "result")) {
+    return null;
+  }
+  return created[0] ?? null;
+}

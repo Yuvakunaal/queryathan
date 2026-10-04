@@ -50,13 +50,15 @@ export interface CodeEditorProps {
   onRun: () => void;
   /** Fires when text becomes selected or the selection is cleared. */
   onSelectionChange?: ((hasSelection: boolean) => void) | undefined;
+  /** Fires after every edit with the whole text. */
+  onChange?: ((value: string) => void) | undefined;
   onEscape: () => void;
 }
 
 const themeCompartment = new Compartment();
 
 const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEditor(
-  { initialValue, language, schema, dark, onRun, onEscape, onSelectionChange },
+  { initialValue, language, schema, dark, onRun, onEscape, onSelectionChange, onChange },
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -65,6 +67,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
   const onEscapeRef = useRef(onEscape);
   const onSelectionChangeRef = useRef(onSelectionChange);
   onSelectionChangeRef.current = onSelectionChange;
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
   onRunRef.current = onRun;
   onEscapeRef.current = onEscape;
 
@@ -223,6 +227,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
         themeCompartment.of(bossFightsEditorExtensions(dark)),
         runKeymap,
         EditorView.updateListener.of((update) => {
+          if (update.docChanged) onChangeRef.current?.(update.state.doc.toString());
           if (!update.selectionSet && !update.docChanged) return;
           const { from, to } = update.state.selection.main;
           onSelectionChangeRef.current?.(update.state.sliceDoc(from, to).trim() !== "");

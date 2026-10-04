@@ -17,6 +17,10 @@ import {
   recordCaseWin,
 } from "./lib/save";
 import type { SaveData } from "./lib/save";
+import { casePath } from "./lib/load-case";
+import { formatRoute, parseRoute } from "./lib/route";
+import type { Route } from "./lib/route";
+import { worldMeta as metaFor } from "./lib/world-meta";
 import { applyA11yToDocument, loadA11yState, persistA11yState } from "./lib/a11y";
 import type { A11yState } from "./lib/a11y";
 import { configureSound, preloadKeys, preloadSlice } from "./lib/sound";
@@ -90,9 +94,48 @@ function FightScreenFallback({
   );
 }
 
+function screenFromRoute(route: Route): Screen {
+  switch (route.name) {
+    case "hub":
+      return { name: "hub" };
+    case "roster":
+      return { name: "roster", world: route.world };
+    case "fight":
+      return {
+        name: "fight",
+        world: route.world,
+        casePath: casePath(route.world, route.caseId),
+      };
+    case "sandbox":
+      // A sandbox session holds the player's files in memory, so reopening starts at the picker.
+      return { name: "sandbox-setup" };
+  }
+}
+
+function routeFromScreen(screen: Screen): Route {
+  switch (screen.name) {
+    case "hub":
+      return { name: "hub" };
+    case "roster":
+      return { name: "roster", world: screen.world };
+    case "fight": {
+      const caseId =
+        screen.casePath
+          .split("/")
+          .pop()
+          ?.replace(/\.json$/, "") ?? "";
+      return { name: "fight", world: screen.world, caseId };
+    }
+    default:
+      return { name: "sandbox" };
+  }
+}
+
 export default function App() {
   const [saveData, setSaveData] = useState<SaveData>(loadSave);
-  const [screen, setScreen] = useState<Screen>({ name: "hub" });
+  const [screen, setScreen] = useState<Screen>(() =>
+    screenFromRoute(parseRoute(window.location.hash)),
+  );
   const [a11y, setA11y] = useState<A11yState>(loadA11yState);
 
   // Applied here, above the roster/fight switch, so a player's saved
@@ -107,6 +150,36 @@ export default function App() {
     persistA11yState(a11y);
   }, [a11y]);
 
+  // Moving between screens is recorded in the browser's history, so Back and Forward work.
+  function go(next: Screen): void {
+    setScreen(next);
+    const hash = formatRoute(routeFromScreen(next));
+    if (window.location.hash !== hash || next.name !== screen.name) {
+      window.history.pushState(null, "", hash);
+    }
+  }
+
+  useEffect(() => {
+    function onPopState(): void {
+      setScreen(screenFromRoute(parseRoute(window.location.hash)));
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, []);
+
+  // The tab's title says where you are, which also helps screen readers and the history list.
+  useEffect(() => {
+    const where =
+      screen.name === "roster" || screen.name === "fight"
+        ? metaFor(screen.world).name
+        : screen.name === "hub"
+          ? null
+          : "Sandbox";
+    document.title = where ? `${where} · Data Cleaning Quest` : "Data Cleaning Quest";
+  }, [screen]);
+
   function updateSave(next: SaveData): void {
     setSaveData(next);
     persistSave(next);
@@ -118,10 +191,10 @@ export default function App() {
         a11y={a11y}
         onA11yChange={setA11y}
         onBack={() => {
-          setScreen({ name: "hub" });
+          go({ name: "hub" });
         }}
         onStart={(fileName, prepared, extras) => {
-          setScreen({
+          go({
             name: "sandbox",
             session: {
               caseData: buildSandboxCase(fileName, prepared, extras),
@@ -148,7 +221,7 @@ export default function App() {
             a11y={a11y}
             onA11yChange={setA11y}
             onBack={() => {
-              setScreen({ name: "sandbox-setup" });
+              go({ name: "sandbox-setup" });
             }}
           />
         }
@@ -161,7 +234,7 @@ export default function App() {
           a11y={a11y}
           onA11yChange={setA11y}
           onExitToRoster={() => {
-            setScreen({ name: "sandbox-setup" });
+            go({ name: "sandbox-setup" });
           }}
           onWin={() => undefined}
         />
@@ -183,7 +256,7 @@ export default function App() {
             a11y={a11y}
             onA11yChange={setA11y}
             onBack={() => {
-              setScreen({ name: "roster", world });
+              go({ name: "roster", world });
             }}
           />
         }
@@ -195,7 +268,7 @@ export default function App() {
           a11y={a11y}
           onA11yChange={setA11y}
           onExitToRoster={() => {
-            setScreen({ name: "roster", world });
+            go({ name: "roster", world });
           }}
           onWin={(caseId, techniqueKinds, stamp) => {
             updateSave(recordCaseWin(saveData, world, caseId, techniqueKinds, stamp));
@@ -212,10 +285,10 @@ export default function App() {
         a11y={a11y}
         onA11yChange={setA11y}
         onSelectWorld={(world) => {
-          setScreen({ name: "roster", world });
+          go({ name: "roster", world });
         }}
         onOpenSandbox={() => {
-          setScreen({ name: "sandbox-setup" });
+          go({ name: "sandbox-setup" });
         }}
       />
     );
@@ -229,10 +302,10 @@ export default function App() {
       a11y={a11y}
       onA11yChange={setA11y}
       onBack={() => {
-        setScreen({ name: "hub" });
+        go({ name: "hub" });
       }}
       onSelectCase={(casePath) => {
-        setScreen({ name: "fight", world: rosterWorld, casePath });
+        go({ name: "fight", world: rosterWorld, casePath });
       }}
       onImportSave={updateSave}
     />

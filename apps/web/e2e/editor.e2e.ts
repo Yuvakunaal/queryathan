@@ -172,6 +172,10 @@ test.describe("resizable panels", () => {
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowRight");
     expect(await width()).toBeGreaterThan(start + 40);
+    // A reload now stays on the same screen; go home first so the test walks back in as before.
+    await page.evaluate(() => {
+      window.location.hash = "#/";
+    });
     await page.reload();
     await page.locator('[data-world-card="boss-fights"]').click();
     await page.getByRole("button", { name: /^NUL_SENTINEL,/ }).click();

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { formatWinCondition, getPrimaryNullColumn, predicateKinds } from "./caseFormat";
+import {
+  formatWinCondition,
+  getPrimaryNullColumn,
+  predicateKinds,
+  misnamedAnswerTable,
+} from "./caseFormat";
 import type { WinCondition } from "@dcq/content-schema";
 
 describe("getPrimaryNullColumn", () => {
@@ -75,5 +80,26 @@ describe("predicateKinds", () => {
       ],
     };
     expect(predicateKinds(winCondition)).toEqual(["no_nulls"]);
+  });
+});
+
+describe("misnamedAnswerTable", () => {
+  it("finds a table created under another name", () => {
+    expect(misnamedAnswerTable("CREATE TABLE joined AS SELECT 1;")).toBe("joined");
+    expect(misnamedAnswerTable("create view v as select 1")).toBe("v");
+    expect(misnamedAnswerTable('CREATE TABLE IF NOT EXISTS "totals" (a)')).toBe("totals");
+  });
+
+  it("is quiet when the answer is called result, or nothing is created", () => {
+    expect(misnamedAnswerTable("CREATE TABLE result AS SELECT 1;")).toBeNull();
+    expect(
+      misnamedAnswerTable(
+        "CREATE TABLE tmp AS SELECT 1; CREATE TABLE result AS SELECT 2;",
+      ),
+    ).toBeNull();
+    expect(misnamedAnswerTable("SELECT * FROM data;")).toBeNull();
+    expect(
+      misnamedAnswerTable("-- CREATE TABLE joined AS SELECT 1\nSELECT 1;"),
+    ).toBeNull();
   });
 });

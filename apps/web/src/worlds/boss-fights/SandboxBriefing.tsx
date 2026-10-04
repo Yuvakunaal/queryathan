@@ -74,7 +74,7 @@ export default function SandboxBriefing({
         </h2>
         <p className={styles.hint}>
           {language === "sql"
-            ? "Changes you make with UPDATE or DELETE apply to the table. "
+            ? "Changes you make with UPDATE or DELETE apply to the table. To keep a query's output as its own table, create it as result (CREATE TABLE result AS SELECT ...); it then shows on a Your answer tab and your data stays as it is. "
             : "Assign changes back to df, for example df = df.dropna(). "}
           When it looks right, use <strong>Download CSV</strong> above the table to save
           the cleaned data.

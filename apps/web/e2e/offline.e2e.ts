@@ -27,6 +27,9 @@ test("after one visit the app keeps working with no connection", async ({
     .poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null))
     .toBe(true);
 
+  await page.evaluate(() => {
+    window.location.hash = "#/";
+  });
   await context.setOffline(true);
   await page.reload();
   await expect(

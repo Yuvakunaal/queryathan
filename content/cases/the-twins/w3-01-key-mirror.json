@@ -16,12 +16,12 @@
   "strings": {
     "title": "KEY_MIRROR",
     "subtitle": "Skill: joining two tables",
-    "briefing": "Two tables describe the same business. orders knows what was bought and the customer's id. customers knows who each id belongs to. Neither has the whole story.\n\nJoin them so every order carries its customer_name and city, and no order is lost along the way.\n\nIn Python, df holds the orders and customers holds the people; finish with df as the combined table. In SQL, data holds the orders and customers the people; build a table named result and that is what gets judged.",
+    "briefing": "Two tables describe the same business. orders knows what was bought and the customer's id. customers knows who each id belongs to. Neither has the whole story.\n\nJoin them so every order carries its customer_name and city, and no order is lost along the way.\n\nIn Python, df holds the orders and customers holds the people; put your combined table in df (df = ...), and that is what gets judged.\n\nIn SQL, data holds the orders and customers the people.\n\nCreate a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
     "task": "Combine the orders with the customers table so every order also shows its customer_name and city. Keep all 120 orders."
   },
   "starterCode": {
     "python": "# df = orders (120 rows). customers = people (40 rows).\n# Inspect both before you join.\ndf.head()",
-    "sql": "-- data = orders (120 rows). customers = people (40 rows).\n-- Build a table named result.\nSELECT * FROM data LIMIT 5;"
+    "sql": "-- data = orders (120 rows). customers = people (40 rows).\n-- Build a table named result.\n-- Your answer goes in a NEW table named result: CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data LIMIT 5;"
   },
   "columnHints": {
     "order_id": {

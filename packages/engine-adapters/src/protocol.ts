@@ -90,7 +90,10 @@ export interface RunResultResponse {
   type: "run-result";
   requestId: string;
   /** Serializable snapshot of the resulting dataframe/table, engine-agnostic. */
+  /** The table the case is judged on: the player's `result` table in SQL when there is one, otherwise their data. */
   resultGrid: ResultGrid;
+  /** Present only when `resultGrid` is the answer table: the player's data table itself, which stays as it is. */
+  tableGrid?: ResultGrid;
   /**
    * Captured stdout (print()) plus the last expression's repr, like a real
    * notebook cell — null when the run produced neither (e.g. a bare

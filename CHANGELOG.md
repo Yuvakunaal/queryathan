@@ -5,6 +5,22 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## Unreleased (Phase 9)
 
+- **Your data stays your data.** In SQL, building a table named `result` no longer replaces what
+  "Your data" shows. The answer gets its own tab, **Your answer (result)**, and "Your data" keeps
+  your `data` table exactly as your code left it, with a note saying where the answer is. The tab
+  that shows what your code returned is now called **Output**. In Python, where `df` becomes the
+  answer, a **df (original)** tab keeps the table you started with in view.
+- Every case that needs `CREATE TABLE` now says so, with the table name: _create a NEW table named
+  result_, in the briefing and in the starter code. If you build a table under another name, the
+  Output tab tells you that the judged table is named `result` and how to write it.
+- **Back and Forward work.** Each screen has its own address (`#/world/the-vault`,
+  `#/fight/...`), so the browser's buttons move between screens, a screen can be bookmarked, and the
+  tab title says where you are.
+- **Your code is kept.** What you type for a case is saved on the device (per case and engine), so a
+  reload, Back, or a slip never loses work. Reset puts the starting code back.
+- A plain "Something went wrong" page with a Reload button replaces a blank screen if anything ever
+  crashes while drawing; storage that is blocked or full no longer crashes the app.
+
 - **Fixed: the SFX menu (and any menu dropping out of the top bar) opened behind the fight.** The
   top bar now sits above the stage, and a test opens the menu in every world and checks nothing is
   drawn over it. SQL help is checked the same way.

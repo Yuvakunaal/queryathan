@@ -131,3 +131,47 @@ test("the briefing says plainly to create a new table named result", async ({ pa
     "CREATE TABLE result AS SELECT",
   );
 });
+
+test("building the answer table leaves Your data alone and shows the answer on its own tab", async ({
+  page,
+}) => {
+  await openCase(page, "the-observatory", "w6-01-first-light", "sql");
+  const dataTab = page.getByRole("tab", { name: "Your data" });
+  await expect(page.getByRole("tab", { name: /Your answer/ })).toHaveCount(0);
+  await setCode(
+    page,
+    "CREATE TABLE result AS SELECT region, SUM(qty * unit_price) AS revenue FROM data WHERE status = 'completed' GROUP BY region;",
+  );
+  await run(page);
+  // The answer lands on its own, clearly named tab, which is where the player is taken.
+  const answerTab = page.getByRole("tab", { name: "Your answer (result)" });
+  await expect(answerTab).toBeVisible({ timeout: 30_000 });
+  await expect(answerTab).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator("#pane-answer")).toContainText("revenue");
+  await expect(page.locator("#pane-answer")).toContainText("3789.15");
+  // Your data is still the original table: the order columns, not the answer's.
+  await dataTab.click();
+  const data = page.locator("#pane-data");
+  await expect(data).toContainText("order_id");
+  await expect(data).toContainText("unit_price");
+  await expect(data).not.toContainText("revenue");
+  await expect(data).toContainText("Your answer is the table named");
+  // Running something that does not build result takes the answer tab away again.
+  await setCode(page, "SELECT COUNT(*) AS n FROM data;");
+  await run(page);
+  await expect(page.getByRole("tab", { name: /Your answer/ })).toHaveCount(0, {
+    timeout: 20_000,
+  });
+});
+
+test("a table built under another name is pointed out, with what to write instead", async ({
+  page,
+}) => {
+  await openCase(page, "the-observatory", "w6-01-first-light", "sql");
+  await setCode(page, "CREATE TABLE totals AS SELECT region FROM data GROUP BY region;");
+  await run(page);
+  await expect(page.locator("#pane-result")).toContainText(
+    'You created a table named "totals". The table that gets judged is named result.',
+    { timeout: 20_000 },
+  );
+});

@@ -16,11 +16,11 @@
   "strings": {
     "title": "THE_TWINS",
     "subtitle": "Problem: not disclosed. Read the data.",
-    "briefing": "Orders and customers from two systems. Make one table that tells the full story of every order.\n\nNothing is documented. In Python, df holds the orders and customers holds the people; finish with df as the combined table. In SQL, data holds the orders and customers the people; build a table named result and that is what gets judged."
+    "briefing": "Orders and customers from two systems. Make one table that tells the full story of every order.\n\nNothing is documented. In Python, df holds the orders and customers holds the people; put your combined table in df (df = ...), and that is what gets judged.\n\nIn SQL, data holds the orders and customers the people.\n\nCreate a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result."
   },
   "starterCode": {
     "python": "# df = orders (150 rows). customers = people.\ndf.head()",
-    "sql": "-- data = orders (150 rows). customers = people.\nSELECT * FROM data LIMIT 5;"
+    "sql": "-- data = orders (150 rows). customers = people.\n-- Your answer goes in a NEW table named result: CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data LIMIT 5;"
   },
   "columnHints": {
     "order_id": {

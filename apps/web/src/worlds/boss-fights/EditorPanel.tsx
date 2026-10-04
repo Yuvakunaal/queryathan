@@ -7,6 +7,9 @@ import styles from "./EditorPanel.module.css";
 export interface EditorPanelProps {
   language: "python" | "sql";
   starterCode: string;
+  /** What the editor opens with: the player's saved draft if they have one, else the starting code. */
+  initialCode?: string;
+  onCodeChange?: (value: string) => void;
   /** Table name -> column names. The first entry is the player's main table. */
   schema: Record<string, string[]>;
   dark: boolean;
@@ -21,7 +24,17 @@ export interface EditorPanelProps {
  * themselves at the cursor, so nobody has to remember or retype a name.
  */
 const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function EditorPanel(
-  { language, starterCode, schema, dark, onRun, onEscape, onSelectionChange },
+  {
+    language,
+    starterCode,
+    initialCode,
+    onCodeChange,
+    schema,
+    dark,
+    onRun,
+    onEscape,
+    onSelectionChange,
+  },
   ref,
 ) {
   const handle = ref && typeof ref === "object" ? ref : null;
@@ -116,7 +129,8 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
       <div className={styles.editor}>
         <CodeEditor
           ref={ref}
-          initialValue={starterCode}
+          initialValue={initialCode ?? starterCode}
+          onChange={onCodeChange}
           language={language}
           schema={schema}
           dark={dark}

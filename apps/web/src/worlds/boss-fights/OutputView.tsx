@@ -121,7 +121,7 @@ export default function OutputView({
     return (
       <div className={styles.tableView}>
         <div className={styles.bar}>
-          <span className={styles.barTitle}>Result</span>
+          <span className={styles.barTitle}>Output</span>
           <span className={styles.barMeta}>
             {totalRows === 0
               ? "No rows returned"

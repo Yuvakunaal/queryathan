@@ -123,8 +123,9 @@ export default function AboutDialog({ onClose, onStart }: AboutDialogProps) {
               </li>
               <li>
                 <strong>Press Run.</strong> The right side shows your data with the
-                problems highlighted. The Result tab shows what your code returned, and
-                Changes lists what it edited.
+                problems highlighted. The Output tab shows what your code returned, Your
+                answer shows the table named result when you build one, and Changes lists
+                what it edited.
               </li>
               <li>
                 <strong>Tick every box to win.</strong> The checklist updates as you work.

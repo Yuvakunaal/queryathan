@@ -16,12 +16,12 @@
   "strings": {
     "title": "DOUBLE_VISION",
     "subtitle": "Problem: repeated rows before a join",
-    "briefing": "The customers table lists some people twice. Join orders to it as is and every order for those people appears twice too: the result grows past the 120 orders you started with.\n\nRemove the repeated customers before you join, so each order appears once.\n\nIn Python, df holds the orders and customers holds the people; finish with df as the combined table. In SQL, data holds the orders and customers the people; build a table named result and that is what gets judged.",
+    "briefing": "The customers table lists some people twice. Join orders to it as is and every order for those people appears twice too: the result grows past the 120 orders you started with.\n\nRemove the repeated customers before you join, so each order appears once.\n\nIn Python, df holds the orders and customers holds the people; put your combined table in df (df = ...), and that is what gets judged.\n\nIn SQL, data holds the orders and customers the people.\n\nCreate a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
     "task": "The customers table lists some people twice, which would duplicate their orders in a join. Remove the repeated customers first, then add customer_name and city to the 120 orders."
   },
   "starterCode": {
     "python": "# df = orders (120 rows). customers = people (52 rows, but how many are distinct?).\ncustomers['customer_id'].nunique()",
-    "sql": "-- data = orders (120 rows). customers = people (52 rows, but how many are distinct?).\nSELECT COUNT(*), COUNT(DISTINCT customer_id) FROM customers;"
+    "sql": "-- data = orders (120 rows). customers = people (52 rows, but how many are distinct?).\n-- Your answer goes in a NEW table named result: CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT COUNT(*), COUNT(DISTINCT customer_id) FROM customers;"
   },
   "columnHints": {
     "order_id": {

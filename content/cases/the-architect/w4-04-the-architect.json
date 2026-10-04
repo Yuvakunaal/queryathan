@@ -10,11 +10,11 @@
   "strings": {
     "title": "THE_ARCHITECT",
     "subtitle": "Problem: not disclosed. Read the data.",
-    "briefing": "A regional sales export. Each region has quarterly figures and a block of metadata. Reshape it so an analyst can group by region, channel, manager and quarter without any further cleaning.\n\nNothing is documented. In Python, finish with df as the reshaped table. In SQL, build a table named result and that is what gets judged."
+    "briefing": "A regional sales export. Each region has quarterly figures and a block of metadata. Reshape it so an analyst can group by region, channel, manager and quarter without any further cleaning.\n\nNothing is documented. In Python, put your reshaped table in df (df = ...), and that is what gets judged.\n\nIn SQL, create a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result."
   },
   "starterCode": {
     "python": "# df has 16 rows.\ndf.head()",
-    "sql": "-- data has 16 rows.\nSELECT * FROM data LIMIT 5;"
+    "sql": "-- data has 16 rows.\n-- Your answer goes in a NEW table named result: CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data LIMIT 5;"
   },
   "columnHints": {
     "id": {

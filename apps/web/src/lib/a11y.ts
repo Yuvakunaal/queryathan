@@ -1,3 +1,5 @@
+import { writeStored } from "./safeStorage";
+
 export const TEXT_SCALES = [0.875, 1, 1.125, 1.25] as const;
 
 const A11Y_STORAGE_KEY = "dcq.a11y";
@@ -65,7 +67,7 @@ export function loadA11yState(): A11yState {
 
 export function persistA11yState(a11y: A11yState): void {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(A11Y_STORAGE_KEY, JSON.stringify(a11y));
+  writeStored(A11Y_STORAGE_KEY, JSON.stringify(a11y));
 }
 
 /**

@@ -402,3 +402,33 @@
   min-height: 0;
   overflow: auto;
 }
+
+/* A one-line explanation above a table: why it is showing what it shows. */
+.answerNote {
+  flex: 0 0 auto;
+  padding: 7px 12px;
+  background: var(--w1-bg-panel);
+  border-bottom: 1px solid var(--w1-rule);
+  font: 400 12.5px/1.5 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.answerNote code {
+  font: 600 12px/1 var(--w1-font-mono);
+  color: var(--w1-amber-500);
+}
+.answerNote strong {
+  color: var(--w1-text-primary);
+}
+.noteLink {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--w1-amber-500);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.noteLink:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}

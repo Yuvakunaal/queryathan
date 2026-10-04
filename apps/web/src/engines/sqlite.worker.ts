@@ -179,18 +179,18 @@ async function loadCsvIntoTable(
   }
 }
 
-function serializeTable(): ResultGrid {
+/** One table or view as a grid. Reads nothing of the player's data table unless asked. */
+function serializeNamed(name: string, rowIds: "rowid" | "sequence"): ResultGrid {
   if (!db) throw new Error("No dataset loaded yet.");
-  // A table or view named `result` takes priority over `data`: it lets a
-  // player express a join as CREATE TABLE result AS SELECT ... JOIN ...
-  // (World 3) without having to overwrite the source table.
-  const hasResult =
-    (db.exec("SELECT 1 FROM sqlite_master WHERE name = 'result';")[0]?.values.length ??
+  const exists =
+    (db.exec("SELECT 1 FROM sqlite_master WHERE name = ?;", [name])[0]?.values.length ??
       0) > 0;
+  if (!exists) return { columns: [], rows: [], dtypes: {}, index: [] };
+  const quoted = quoteIdentifier(name);
   const result = db.exec(
-    hasResult
-      ? `SELECT ROW_NUMBER() OVER () AS ${ROW_ID_ALIAS}, * FROM result;`
-      : `SELECT rowid AS ${ROW_ID_ALIAS}, * FROM ${TABLE_NAME} ORDER BY rowid;`,
+    rowIds === "rowid"
+      ? `SELECT rowid AS ${ROW_ID_ALIAS}, * FROM ${quoted} ORDER BY rowid;`
+      : `SELECT ROW_NUMBER() OVER () AS ${ROW_ID_ALIAS}, * FROM ${quoted};`,
   );
   const first = result[0];
   if (!first) return { columns: [], rows: [], dtypes: {}, index: [] };
@@ -219,6 +219,21 @@ function serializeTable(): ResultGrid {
   });
 
   return { columns, rows, dtypes: inferSqlDtypes(columns, dtypeRows), index };
+}
+
+/**
+ * What the screen needs after every run. A table or view named `result` is the
+ * player's answer (a join, a reshape, a question's answer): it is judged, and it
+ * is returned beside the data table, which is left exactly as the player's code
+ * left it. Without a `result`, the data table is what is judged.
+ */
+function serializeTables(): { resultGrid: ResultGrid; tableGrid?: ResultGrid } {
+  const answerExists =
+    (db?.exec("SELECT 1 FROM sqlite_master WHERE name = 'result';")[0]?.values.length ??
+      0) > 0;
+  const table = serializeNamed(TABLE_NAME, "rowid");
+  if (!answerExists) return { resultGrid: table };
+  return { resultGrid: serializeNamed("result", "sequence"), tableGrid: table };
 }
 
 /** Mirrors the Pyodide worker's notebook-style output (stdout + last-expression repr): the last statement's result set if the code ended in a SELECT, or a "rows affected" message for a mutating statement — real SQLite behavior either way, never fabricated. */
@@ -288,11 +303,12 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
       output = outputTable ? null : buildOutput(execResults);
     }
 
-    const resultGrid = serializeTable();
+    const { resultGrid, tableGrid } = serializeTables();
     postMessage({
       type: "run-result",
       requestId: request.requestId,
       resultGrid,
+      ...(tableGrid ? { tableGrid } : {}),
       output,
       outputTable,
       ...(elapsedMs === null ? {} : { stats: { elapsedMs } }),
