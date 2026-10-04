@@ -9,7 +9,7 @@
                    in its own cache that is dropped when the version changes.
   - jsdelivr pandas/numpy wheels (the one allowed cross-origin fetch, pinned by
                    exact version in the URL): cache first, same version rule.
-  - /datasets/*    seed CSVs: cache first.
+  - /datasets/*, /sounds/*  seed CSVs and keystroke recordings: cache first.
   - the page and /content/*.json (cases and rosters): network first, falling back to
                    the cache, so a deploy shows up straight away but a dropped
                    connection does not break the app.
@@ -74,7 +74,11 @@ self.addEventListener("fetch", (event) => {
   }
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname.startsWith("/assets/") || url.pathname.startsWith("/datasets/")) {
+  if (
+    url.pathname.startsWith("/assets/") ||
+    url.pathname.startsWith("/datasets/") ||
+    url.pathname.startsWith("/sounds/")
+  ) {
     event.respondWith(cacheFirst(request, ASSETS));
   } else if (url.pathname.startsWith("/pyodide/")) {
     event.respondWith(cacheFirst(request, PYODIDE));

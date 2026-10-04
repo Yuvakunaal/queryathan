@@ -11,8 +11,9 @@ follows [Keep a Changelog](https://keepachangelog.com/).
   table as it is now. The run bar says which of the two will happen.
 - `CREATE TABLE result` can be run again and again, and `CREATE OR REPLACE TABLE result`
   works.
-- Boot sequence typing now plays soft game-style text blips (pentatonic, every other
-  letter) instead of key clicks; the boot readout counts checks, not cells, for joins,
+- Boot sequence typing now plays real keyboard recordings (a CC0 pack recorded on a
+  Cherry keyboard; credits in `apps/web/public/sounds/LICENSES.md`), a different one each
+  time at a typing pace, instead of synthesized beeps; the boot readout counts checks, not cells, for joins,
   reshapes, speed jobs and answers.
 
 - **World 6, The Observatory**: six analysis questions (grouping and summing, ranking

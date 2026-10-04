@@ -1,5 +1,5 @@
 import gsap from "gsap";
-import { playBlip, playCue } from "../../lib/sound";
+import { playCue, playKey, preloadKeys } from "../../lib/sound";
 import { prefersReducedMotion } from "./motionContext";
 
 export interface BootLineSegment {
@@ -40,6 +40,7 @@ export function playBootSequence({
   containerEl,
   onComplete,
 }: BootSequenceOptions): BootSequenceHandle {
+  preloadKeys();
   if (prefersReducedMotion()) {
     for (const line of lines) revealLine(line, line.totalLength);
     gsap.set(cursorEl, { opacity: 0.6 });
@@ -85,8 +86,8 @@ export function playBootSequence({
           revealLine(line, counter.i);
           if (counter.i > typed) {
             typed = counter.i;
-            // Every other letter, never a space: a steady, readable patter instead of a buzz.
-            if (typed % 2 === 0 && charAt(line, typed - 1).trim() !== "") playBlip();
+            // About one letter in three, never a space: the pace of quick typing, not a buzz.
+            if (typed % 3 === 0 && charAt(line, typed - 1).trim() !== "") playKey();
           }
         },
         onComplete: () => {

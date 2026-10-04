@@ -76,36 +76,60 @@ export function playCue(cue: Cue): void {
   }
 }
 
-// A pentatonic set, so any random order of blips still sounds pleasant.
-const BLIP_NOTES = [523.25, 587.33, 659.25, 783.99, 880.0, 987.77] as const;
+const KEY_SAMPLES = 8;
+let keyBuffers: AudioBuffer[] | null = null;
+let keyLoading: Promise<void> | null = null;
+let lastKey = -1;
 
 /**
- * One text "blip", the little bleep a game plays as dialogue types itself out:
- * a short, soft triangle tone on a random note of a pentatonic scale, rounded
- * off by a low-pass filter so it is gentle rather than shrill.
+ * Starts fetching the keystroke recordings (public/sounds, a CC0 pack recorded
+ * on a real keyboard). Safe to call often and before sound is enabled; it only
+ * fetches once, and playKey stays silent until they have arrived.
  */
-export function playBlip(): void {
-  if (!enabled) return;
+export function preloadKeys(): void {
+  if (keyLoading || keyBuffers) return;
+  if (typeof window === "undefined" || typeof window.OfflineAudioContext !== "function") {
+    return;
+  }
+  // Decoding on an offline context needs no user gesture and its buffers play on any context.
+  const ctx = new window.OfflineAudioContext(1, 1, 44100);
+  keyLoading = (async () => {
+    try {
+      const buffers = await Promise.all(
+        Array.from({ length: KEY_SAMPLES }, async (_, i) => {
+          const response = await fetch(`/sounds/key-${String(i + 1)}.wav`);
+          if (!response.ok) throw new Error("missing keystroke sample");
+          return ctx.decodeAudioData(await response.arrayBuffer());
+        }),
+      );
+      keyBuffers = buffers;
+    } catch {
+      keyLoading = null; // try again next time; typing is simply silent meanwhile
+    }
+  })();
+}
+
+/**
+ * One keystroke from the recorded set. A different recording from the last one
+ * each time, with the pitch nudged a little and a slightly different loudness,
+ * so a run of them sounds like a person typing, not a loop.
+ */
+export function playKey(): void {
+  if (!enabled || !keyBuffers) return;
   try {
     const ctx = getContext();
     if (!ctx) return;
     if (ctx.state === "suspended") void ctx.resume();
-    const t0 = ctx.currentTime + 0.005;
-    const osc = ctx.createOscillator();
-    osc.type = "triangle";
-    osc.frequency.value =
-      (BLIP_NOTES[Math.floor(Math.random() * BLIP_NOTES.length)] ?? 659.25) *
-      (1 + (Math.random() - 0.5) * 0.02);
-    const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 2600;
+    let index = Math.floor(Math.random() * keyBuffers.length);
+    if (index === lastKey) index = (index + 1) % keyBuffers.length;
+    lastKey = index;
+    const source = ctx.createBufferSource();
+    source.buffer = keyBuffers[index] ?? null;
+    source.playbackRate.value = 0.96 + Math.random() * 0.08;
     const amp = ctx.createGain();
-    amp.gain.setValueAtTime(0.0001, t0);
-    amp.gain.exponentialRampToValueAtTime(0.06, t0 + 0.006);
-    amp.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.055);
-    osc.connect(filter).connect(amp).connect(ctx.destination);
-    osc.start(t0);
-    osc.stop(t0 + 0.07);
+    amp.gain.value = 0.28 + Math.random() * 0.1;
+    source.connect(amp).connect(ctx.destination);
+    source.start();
   } catch {
     // Audio is a nicety; a blocked or missing context just stays quiet.
   }
