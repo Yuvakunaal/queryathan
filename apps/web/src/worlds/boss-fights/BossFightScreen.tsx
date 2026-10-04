@@ -49,6 +49,7 @@ import BriefingPanel from "./BriefingPanel";
 import TopBar from "./TopBar";
 import { useTips } from "../../TipsContext";
 import ColumnTypeTip from "./ColumnTypeTip";
+import type { AnswerNote } from "./BriefingPanel";
 import { csvToGrid } from "../../lib/csvGrid";
 import { columnTipsFor } from "../../lib/mysqlType";
 import type { ColumnTip } from "../../lib/mysqlType";
@@ -135,8 +136,35 @@ function needsAnswerTable(caseData: Case): boolean {
     caseData.reshapes === true ||
     caseData.winCondition.all.some((p) => p.predicate === "result_matches") ||
     caseData.world === "the-twins" ||
-    caseData.world === "the-architect"
+    caseData.world === "the-architect" ||
+    caseData.starterCode.sql.includes("CREATE TABLE result")
   );
+}
+
+/**
+ * The note shown under the task when the answer must be handed in in a particular form:
+ * in SQL a table named result built with CREATE TABLE ... AS SELECT, in Python the answer in df.
+ */
+function answerNoteFor(caseData: Case, engine: "sql" | "python"): AnswerNote | undefined {
+  if (!needsAnswerTable(caseData)) return undefined;
+  if (engine === "sql") {
+    return {
+      title: "Note: create a table named result",
+      before:
+        "Your answer is a table, and it must be called result. Write your SELECT query inside a CREATE TABLE statement:",
+      code: "CREATE TABLE result AS\nSELECT ... ;",
+      after:
+        "Put your own query where the SELECT is. The table named result is what gets judged. You can run it as often as you like; each run replaces the old result.",
+    };
+  }
+  return {
+    title: "Note: your answer goes in df",
+    before:
+      "Your answer is a table, and it must be in df. Assign your result back to it:",
+    code: "df = df.groupby(...)...   # your code",
+    after:
+      "Whatever df holds when your code finishes is what gets judged. Every run starts from the original table.",
+  };
 }
 
 const LAYOUT_KEY = "dcq.dataLayout";
@@ -866,6 +894,7 @@ export default function BossFightScreen({
                 subtitle={caseData.strings.subtitle}
                 briefing={caseData.strings.briefing}
                 task={caseData.strings.task}
+                answerNote={answerNoteFor(caseData, engineKey)}
                 grid={grid}
                 winCondition={caseData.winCondition}
                 run={lastRun}

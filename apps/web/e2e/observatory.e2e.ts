@@ -175,3 +175,22 @@ test("a table built under another name is pointed out, with what to write instea
     { timeout: 20_000 },
   );
 });
+
+test("a clear note says to create a table named result, in SQL, and to use df, in Python", async ({
+  page,
+}) => {
+  await openCase(page, "the-observatory", "w6-01-first-light", "sql");
+  const note = page.getByRole("region", { name: /Note: create a table named result/ });
+  await expect(note).toBeVisible();
+  await expect(note).toContainText("must be called result");
+  await expect(note).toContainText("CREATE TABLE result AS");
+  await expect(note).toContainText("SELECT ...");
+  await expect(note).toContainText("is what gets judged");
+});
+
+test("the note is there for the final boss too, and for the joins in The Twins", async ({
+  page,
+}) => {
+  await openCase(page, "the-observatory", "w6-06-the-observatory", "sql");
+  await expect(page.getByText("Note: create a table named result")).toBeVisible();
+});

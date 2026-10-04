@@ -14,17 +14,17 @@ test("hovering a column name shows just its MySQL type, and a column chip does t
   // Only the type: nothing else about the column.
   await expect(tip).toHaveText("SMALLINT");
   await header("AMOUNT").hover();
-  await expect(page.getByRole("tooltip")).toHaveText(/^DECIMAL\(\d+,2\)$/);
+  await expect(page.getByRole("tooltip")).toHaveText(/^NUMBER\(\d+,2\)$/);
   await header("ITEM").hover();
-  await expect(page.getByRole("tooltip")).toHaveText(/^VARCHAR\(\d+\)$/);
+  await expect(page.getByRole("tooltip")).toHaveText("VARCHAR");
 
   // The chips above the editor work from the keyboard too, for both tables.
   await page.getByRole("button", { name: "city", exact: true }).focus();
-  await expect(page.getByRole("tooltip")).toHaveText(/^VARCHAR\(\d+\)$/);
+  await expect(page.getByRole("tooltip")).toHaveText("VARCHAR");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("tooltip")).toHaveCount(0);
   await page.getByRole("button", { name: "amount", exact: true }).focus();
-  await expect(page.getByRole("tooltip")).toHaveText(/^DECIMAL\(\d+,2\)$/);
+  await expect(page.getByRole("tooltip")).toHaveText(/^NUMBER\(\d+,2\)$/);
 });
 
 test("the tooltip never gets in the way: it disappears when the pointer leaves", async ({
@@ -34,7 +34,7 @@ test("the tooltip never gets in the way: it disappears when the pointer leaves",
   await page.waitForTimeout(1200);
   await page.locator('#pane-data [role="columnheader"]', { hasText: "TEMP_C" }).hover();
   const tip = page.getByRole("tooltip");
-  await expect(tip).toHaveText(/^DECIMAL\(\d+,\d+\)$/);
+  await expect(tip).toHaveText(/^NUMBER\(\d+,\d+\)$/);
   await page.mouse.move(5, 400);
   await expect(tip).toHaveCount(0);
 });

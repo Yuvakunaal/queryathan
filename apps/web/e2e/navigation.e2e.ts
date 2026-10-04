@@ -72,3 +72,15 @@ test("in Python the starting table stays visible after df becomes the answer", a
   await expect(pane).toContainText("order_id", { timeout: 20_000 });
   await expect(pane).toContainText("unit_price");
 });
+
+test("the answer note follows the language, and cleaning cases have none", async ({
+  page,
+}) => {
+  await openCase(page, "the-twins", "w3-01-key-mirror", "python");
+  const note = page.getByRole("region", { name: /Note: your answer goes in df/ });
+  await expect(note).toBeVisible();
+  await expect(note).toContainText("df = df.groupby");
+  await page.goto("/");
+  await openCase(page, "boss-fights", "w1-01-nul-sentinel", "sql");
+  await expect(page.getByText(/^Note: /)).toHaveCount(0);
+});

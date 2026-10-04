@@ -17,7 +17,7 @@
   },
   "starterCode": {
     "python": "# df has 150 orders. Columns: order_id, region, product, qty, unit_price, status.\n# Replace df with your answer table (columns: region, revenue).\ndf.head()",
-    "sql": "-- data has 150 orders. Columns: order_id, region, product, qty, unit_price, status.\n-- Your answer (columns: columns: region, revenue) goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data LIMIT 5;"
+    "sql": "-- data has 150 orders. Columns: order_id, region, product, qty, unit_price, status.\n-- Your answer (columns: region, revenue) goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data LIMIT 5;"
   },
   "columnHints": {
     "order_id": {

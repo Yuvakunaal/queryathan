@@ -8,20 +8,20 @@ import type { ResultGrid } from "@dcq/engine-adapters";
  *
  *  - whole numbers: the smallest of TINYINT, SMALLINT, MEDIUMINT, INT, BIGINT that
  *    holds every value (all signed);
- *  - numbers with decimals: DECIMAL(p,s) with exactly the decimals and digits the
+ *  - numbers with decimals: NUMBER(p,s) with exactly the digits and decimals the
  *    values need, or DOUBLE when they need more than 6 decimals;
- *  - dates and times written the standard way: DATE, TIME, DATETIME or DATETIME(3/6);
+ *  - dates and times written the standard way: DATE, TIME or DATETIME;
  *  - true/false values: BOOLEAN (stored as TINYINT(1));
- *  - everything else: VARCHAR(n) with n the longest value, or TEXT/MEDIUMTEXT
- *    beyond 255 characters;
- *  - a column that is empty everywhere: VARCHAR(255), as there is nothing to go on.
+ *  - everything else: VARCHAR (no length shown), or TEXT/MEDIUMTEXT beyond 255
+ *    characters;
+ *  - a column that is empty everywhere: VARCHAR, as there is nothing to go on.
  *
  * Only the type is shown: the tooltip answers one question and nothing else.
  */
 export type Cell = string | number | boolean | null | undefined;
 
 export interface ColumnTip {
-  /** e.g. "DECIMAL(5,2)". */
+  /** e.g. "NUMBER(5,2)", "VARCHAR", "DATE". */
   mysql: string;
 }
 
@@ -71,7 +71,7 @@ interface Inference {
 function inferFromValues(present: Cell[]): Inference {
   if (present.length === 0) {
     return {
-      mysql: "VARCHAR(255)",
+      mysql: "VARCHAR",
     };
   }
   if (present.every((v) => typeof v === "boolean")) return { mysql: "BOOLEAN" };
@@ -83,7 +83,7 @@ function inferFromValues(present: Cell[]): Inference {
     if (decimals > 6) return { mysql: "DOUBLE" };
     const digits = Math.max(...numbers.map(integerDigitsOf));
     return {
-      mysql: `DECIMAL(${String(Math.max(1, digits + decimals))},${String(decimals)})`,
+      mysql: `NUMBER(${String(Math.max(1, digits + decimals))},${String(decimals)})`,
     };
   }
 
@@ -110,21 +110,16 @@ function inferFromValues(present: Cell[]): Inference {
           m !== null && validDate(m[1] ?? "", m[2] ?? "", m[3] ?? ""),
       )
     ) {
-      const fraction = Math.max(...stamps.map((m) => (m[7] ?? "").length));
-      const precision = fraction === 0 ? "" : fraction <= 3 ? "(3)" : "(6)";
       return {
-        mysql: `DATETIME${precision}`,
+        mysql: "DATETIME",
       };
     }
     const longest = Math.max(...strings.map((s) => Array.from(s).length));
-    if (longest <= 255) return { mysql: `VARCHAR(${String(Math.max(1, longest))})` };
+    if (longest <= 255) return { mysql: "VARCHAR" };
     return { mysql: longest <= 65_535 ? "TEXT" : "MEDIUMTEXT" };
   }
 
-  const longest = Math.max(...present.map((v) => Array.from(String(v)).length));
-  return {
-    mysql: `VARCHAR(${String(Math.min(255, Math.max(1, longest)))})`,
-  };
+  return { mysql: "VARCHAR" };
 }
 
 /** The MySQL type of one column, from its values. */

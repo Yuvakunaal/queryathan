@@ -8,12 +8,24 @@ import { describePredicate } from "./predicateChecks";
 import type { RunContext } from "../../lib/run-context";
 import styles from "./BriefingPanel.module.css";
 
+/** A prominent note about the form the answer takes. */
+export interface AnswerNote {
+  title: string;
+  /** The sentences around the example. */
+  before: string;
+  /** An example to copy the shape of, shown as code. */
+  code: string;
+  after: string;
+}
+
 export interface BriefingPanelProps {
   title: string;
   subtitle?: string | undefined;
   briefing: string;
   /** Plain one-or-two-sentence statement of what to do. */
   task?: string | undefined;
+  /** How the answer must be handed in, when it is not just "edit the table" (e.g. build a table named result). */
+  answerNote?: AnswerNote | undefined;
   grid: ResultGrid;
   winCondition: WinCondition;
   /** The last run, for rules that judge speed. */
@@ -37,6 +49,7 @@ export default function BriefingPanel({
   subtitle,
   briefing,
   task,
+  answerNote,
   grid,
   winCondition,
   run,
@@ -93,6 +106,16 @@ export default function BriefingPanel({
             Your task
           </h2>
           <p className={styles.taskText}>{task}</p>
+        </section>
+      ) : null}
+      {answerNote ? (
+        <section className={styles.note} aria-labelledby="answer-note-heading">
+          <h2 id="answer-note-heading" className={styles.noteHeading}>
+            {answerNote.title}
+          </h2>
+          <p className={styles.noteText}>{answerNote.before}</p>
+          <pre className={styles.noteCode}>{answerNote.code}</pre>
+          <p className={styles.noteText}>{answerNote.after}</p>
         </section>
       ) : null}
       <section className={styles.winSection} aria-labelledby="win-heading">

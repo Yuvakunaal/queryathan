@@ -8,11 +8,15 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 - **Python help.** The editor toolbar has a **Python help** panel for pandas (look at the data,
   missing values, pick and filter, text, numbers and types, dates, groups, running totals and
   windows, join and reshape), the same click-to-insert panel as SQL help, with search.
-- **MySQL type on hover.** Hover a column name in any table (or focus a column chip above the
-  editor) and a small tooltip shows just that column's MySQL type: the smallest TINYINT to BIGINT
-  that holds the values, DECIMAL(p,s) with exactly the digits and decimals needed,
-  DATE/DATETIME/TIME, BOOLEAN, or VARCHAR(n) sized to the longest value. The rules are written
-  down in `src/lib/mysqlType.ts` and covered by tests.
+- **Type on hover.** Hover a column name in any table (or focus a column chip above the editor)
+  and a small tooltip shows just that column's type, kept short: whole numbers as TINYINT, SMALLINT,
+  MEDIUMINT, INT or BIGINT, decimals as NUMBER(digits, decimals) with exactly the precision the values
+  need (DOUBLE beyond 6 decimals), DATE, TIME or DATETIME, BOOLEAN, and plain VARCHAR with no length
+  (TEXT when very long). The rules are in `src/lib/mysqlType.ts` and covered by tests.
+- **A clear note about the answer.** Cases whose SQL answer is a table now show a highlighted note under
+  the task: _create a table named result_, with the `CREATE TABLE result AS SELECT ...` shape to copy,
+  and that the table named result is what gets judged. In Python the note says the answer goes in `df`.
+  Cleaning cases, where you simply edit the table, have no note.
 - **Tips (the book button).** The button in every top bar is now a book. It opens **Tips**: the SQL
   and Python references together, with search and topics. Inside a fight, clicking an entry for the
   language you are writing puts it in the editor; elsewhere it is a reading list. (An earlier
