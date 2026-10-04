@@ -129,3 +129,10 @@
   font: 400 12px/1 var(--w1-font-text);
   color: var(--w1-text-secondary);
 }
+
+.copyStatus {
+  min-height: 1.4em;
+  margin: 10px 0 0;
+  font: 400 13px/1.4 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}

@@ -7,6 +7,9 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 - Shareable progress card: a PNG drawn on the device plus a text version, opened from "Share progress" once a case is cleared. No name, account or upload.
 - The SQL formatter loads on first use; the fight-screen chunk shrank from 954 kB to 661 kB.
+- Sound cues (run, cleared, error, win), synthesized in the browser and off until switched on with SFX.
+- Today's case on the home page, chosen from the date alone, with a win streak. No server involved.
+- "Copy my solution" on the victory panel.
 - About dialog and card dialog no longer expose a second banner landmark.
 
 ## [Unreleased]

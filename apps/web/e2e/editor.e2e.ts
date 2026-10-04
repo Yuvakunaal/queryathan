@@ -204,6 +204,22 @@ test.describe("the win sequence", () => {
     await expect(page.getByText("Cleared").first()).toBeVisible();
   });
 
+  test("the winner can copy their own solution", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await openCase(page, "boss-fights", NUL, "python");
+    const code = "df['temp_c'] = df['temp_c'].fillna(df['temp_c'].mean())";
+    await setCode(page, code);
+    await run(page);
+    await page.keyboard.press("Escape");
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible({ timeout: 15_000 });
+    await dialog.getByRole("button", { name: "Copy my solution" }).click();
+    await expect(dialog).toContainText("Copied your solution");
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).toContain(code);
+    expect(copied.startsWith("# Data Cleaning Quest:")).toBe(true);
+  });
+
   test("a speed job earns a stamp that the roster keeps", async ({ page }) => {
     await openCase(page, "the-foundry", "w5-01-slow-lane", "python");
     await setCode(
