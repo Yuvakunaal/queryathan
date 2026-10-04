@@ -5,6 +5,7 @@ import { indentWithTab } from "@codemirror/commands";
 import { SQLite } from "@codemirror/lang-sql";
 import { pythonLanguage } from "@codemirror/lang-python";
 import { pythonCompletionSource } from "./editorCompletions";
+import { sqlFunctionCompletions } from "./sqlCompletions";
 import { basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
 import { sql } from "@codemirror/lang-sql";
@@ -195,12 +196,18 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
             : "Write code here, for example: df.head()",
         ),
         language === "sql"
-          ? sql({
-              dialect: SQLite,
-              schema,
-              defaultTable: "data",
-              upperCaseKeywords: true,
-            })
+          ? (() => {
+              const support = sql({
+                dialect: SQLite,
+                schema,
+                defaultTable: "data",
+                upperCaseKeywords: true,
+              });
+              return [
+                support,
+                support.language.data.of({ autocomplete: sqlFunctionCompletions }),
+              ];
+            })()
           : [
               python(),
               pythonLanguage.data.of({

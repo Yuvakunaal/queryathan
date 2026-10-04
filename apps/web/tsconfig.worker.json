@@ -10,7 +10,8 @@
     "src/**/*.worker.ts",
     "src/engines/csv.ts",
     "src/engines/sql-dtypes.ts",
-    "src/engines/sqlRewrite.ts"
+    "src/engines/sqlRewrite.ts",
+    "src/engines/sqlFunctions.ts"
   ],
   "references": [
     { "path": "../../packages/content-schema" },

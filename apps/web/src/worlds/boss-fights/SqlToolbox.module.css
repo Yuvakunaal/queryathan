@@ -1,0 +1,120 @@
+.root {
+  position: relative;
+}
+.button {
+  height: 26px;
+  padding: 0 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--w1-text-secondary);
+  font: 500 12px/1 var(--w1-font-text);
+  cursor: pointer;
+}
+.button:hover,
+.button:focus-visible,
+.button[aria-expanded="true"] {
+  color: var(--w1-amber-500);
+  border-color: var(--w1-rule-strong);
+}
+.button:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}
+.panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 40;
+  width: min(460px, 86vw);
+  max-height: min(460px, 60vh);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: var(--w1-bg-panel);
+  border: 1px solid var(--w1-rule-strong);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.38);
+}
+.search {
+  flex: 0 0 auto;
+  height: 32px;
+  padding: 0 10px;
+  background: var(--w1-bg-void);
+  border: 1px solid var(--w1-rule-strong);
+  color: var(--w1-text-primary);
+  font: 400 13px/1 var(--w1-font-text);
+}
+.search:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 1px;
+}
+.tabs {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.tab {
+  padding: 5px 9px;
+  background: transparent;
+  border: 1px solid var(--w1-rule-strong);
+  color: var(--w1-text-secondary);
+  font: 500 12px/1 var(--w1-font-text);
+  cursor: pointer;
+}
+.tab[aria-pressed="true"] {
+  color: var(--w1-text-inverse);
+  background: var(--w1-green-500);
+  border-color: var(--w1-green-500);
+}
+.tab:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.item {
+  width: 100%;
+  display: grid;
+  gap: 3px;
+  padding: 8px 10px;
+  text-align: left;
+  background: var(--w1-bg-panel-2);
+  border: 1px solid transparent;
+  color: var(--w1-text-primary);
+  cursor: pointer;
+}
+.item:hover,
+.item:focus-visible {
+  border-color: var(--w1-amber-500);
+}
+.item:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 1px;
+}
+.syntax {
+  font: 600 12px/1.35 var(--w1-font-mono);
+  color: var(--w1-amber-500);
+  overflow-wrap: anywhere;
+}
+.detail {
+  font: 400 12.5px/1.45 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.example {
+  font: 400 11.5px/1.4 var(--w1-font-mono);
+  color: var(--w1-text-dim);
+  overflow-wrap: anywhere;
+}
+.none {
+  padding: 10px;
+  font: 400 13px/1.4 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}

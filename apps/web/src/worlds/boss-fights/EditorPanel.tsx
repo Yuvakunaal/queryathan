@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import CodeEditor from "./CodeEditor";
 import type { CodeEditorHandle } from "./CodeEditor";
+import SqlToolbox from "./SqlToolbox";
 import styles from "./EditorPanel.module.css";
 
 export interface EditorPanelProps {
@@ -42,6 +43,13 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
         </h2>
         <span className={styles.lang}>{language === "sql" ? "SQL" : "Python"}</span>
         <span className={styles.spacer} />
+        {language === "sql" ? (
+          <SqlToolbox
+            onInsert={(text) => {
+              handle?.current?.insert(text);
+            }}
+          />
+        ) : null}
         {language === "sql" ? (
           <button
             type="button"

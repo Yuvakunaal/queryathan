@@ -1,4 +1,5 @@
-import { replaceableResult } from "./sqlRewrite";
+import { prepareSql } from "./sqlRewrite";
+import { registerFriendlyFunctions } from "./sqlFunctions";
 import initSqlJs from "sql.js";
 import type { Database, SqlValue } from "sql.js";
 // Vite resolves this to a hashed, self-hosted asset URL at build time — no
@@ -74,6 +75,7 @@ function compile(pattern: string): RegExp {
  * use JavaScript regex syntax.
  */
 function registerRegexFunctions(database: Database): void {
+  registerFriendlyFunctions(database);
   database.create_function("regexp", (pattern: unknown, text: unknown) => {
     if (typeof pattern !== "string" || !isScalar(text)) return null;
     return compile(pattern).test(String(text)) ? 1 : 0;
@@ -280,7 +282,7 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
     } else {
       if (!db) throw new Error("No dataset loaded yet.");
       const startedAt = performance.now();
-      const execResults = db.exec(replaceableResult(request.code));
+      const execResults = db.exec(prepareSql(request.code));
       elapsedMs = performance.now() - startedAt;
       outputTable = buildOutputTable(execResults);
       output = outputTable ? null : buildOutput(execResults);
