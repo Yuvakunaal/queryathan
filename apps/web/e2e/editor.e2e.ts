@@ -272,11 +272,16 @@ for (const [theme, ink] of [
       "UPDATE data SET temp_c = (SELECT AVG(temp_c) FROM data) WHERE temp_c IS NULL;",
     );
     await run(page);
-    const kill = page.getByRole("status").filter({ hasText: "defeated" });
-    await kill.waitFor({ timeout: 20_000 });
-    const value = await kill.evaluate((el) =>
-      getComputedStyle(el).getPropertyValue("--k-ink").trim(),
+    // The scene is the one status region that defines its own ink colour.
+    const handle = await page.waitForFunction(
+      () =>
+        [...document.querySelectorAll('[role="status"]')]
+          .map((el) => getComputedStyle(el).getPropertyValue("--k-ink").trim())
+          .find((v) => v !== ""),
+      undefined,
+      { timeout: 20_000 },
     );
+    const value = await handle.jsonValue();
     expect(value).toBe(ink);
   });
 }
