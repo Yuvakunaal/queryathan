@@ -1,5 +1,5 @@
 import gsap from "gsap";
-import { playCue, playKey } from "../../lib/sound";
+import { playBlip, playCue } from "../../lib/sound";
 import { prefersReducedMotion } from "./motionContext";
 
 export interface BootLineSegment {
@@ -85,7 +85,8 @@ export function playBootSequence({
           revealLine(line, counter.i);
           if (counter.i > typed) {
             typed = counter.i;
-            playKey();
+            // Every other letter, never a space: a steady, readable patter instead of a buzz.
+            if (typed % 2 === 0 && charAt(line, typed - 1).trim() !== "") playBlip();
           }
         },
         onComplete: () => {
@@ -105,6 +106,15 @@ export function playBootSequence({
   };
 
   return { skip };
+}
+
+function charAt(line: BootLine, index: number): string {
+  let offset = index;
+  for (const seg of line.segments) {
+    if (offset < seg.text.length) return seg.text.charAt(offset);
+    offset -= seg.text.length;
+  }
+  return "";
 }
 
 /** Exported for direct unit testing of the segment-boundary character math. */

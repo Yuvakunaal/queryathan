@@ -76,38 +76,36 @@ export function playCue(cue: Cue): void {
   }
 }
 
-let noise: AudioBuffer | null = null;
+// A pentatonic set, so any random order of blips still sounds pleasant.
+const BLIP_NOTES = [523.25, 587.33, 659.25, 783.99, 880.0, 987.77] as const;
 
 /**
- * One soft keystroke, for the boot sequence's typing: a few milliseconds of
- * filtered noise at a slightly different pitch each time, so a run of them
- * sounds like typing and not like a machine gun.
+ * One text "blip", the little bleep a game plays as dialogue types itself out:
+ * a short, soft triangle tone on a random note of a pentatonic scale, rounded
+ * off by a low-pass filter so it is gentle rather than shrill.
  */
-export function playKey(): void {
+export function playBlip(): void {
   if (!enabled) return;
   try {
     const ctx = getContext();
     if (!ctx) return;
     if (ctx.state === "suspended") void ctx.resume();
-    noise ??= (() => {
-      const length = Math.floor(ctx.sampleRate * 0.03);
-      const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < length; i += 1)
-        data[i] = (Math.random() * 2 - 1) * (1 - i / length);
-      return buffer;
-    })();
-    const source = ctx.createBufferSource();
-    source.buffer = noise;
-    source.playbackRate.value = 0.85 + Math.random() * 0.4;
+    const t0 = ctx.currentTime + 0.005;
+    const osc = ctx.createOscillator();
+    osc.type = "triangle";
+    osc.frequency.value =
+      (BLIP_NOTES[Math.floor(Math.random() * BLIP_NOTES.length)] ?? 659.25) *
+      (1 + (Math.random() - 0.5) * 0.02);
     const filter = ctx.createBiquadFilter();
-    filter.type = "bandpass";
-    filter.frequency.value = 2200 + Math.random() * 1400;
-    filter.Q.value = 0.9;
+    filter.type = "lowpass";
+    filter.frequency.value = 2600;
     const amp = ctx.createGain();
-    amp.gain.value = 0.16;
-    source.connect(filter).connect(amp).connect(ctx.destination);
-    source.start();
+    amp.gain.setValueAtTime(0.0001, t0);
+    amp.gain.exponentialRampToValueAtTime(0.06, t0 + 0.006);
+    amp.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.055);
+    osc.connect(filter).connect(amp).connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + 0.07);
   } catch {
     // Audio is a nicety; a blocked or missing context just stays quiet.
   }

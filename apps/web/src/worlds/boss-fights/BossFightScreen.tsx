@@ -19,7 +19,6 @@ import {
   clearedCells,
   totalDebt,
   isWholeTable,
-  predicateKindOrder,
 } from "../../lib/affliction-cells";
 import type { AfflictionKind } from "../../lib/affliction-cells";
 import { evaluateWinCondition } from "../../lib/evaluate-win-condition";
@@ -33,9 +32,9 @@ import { TEXT_SCALES } from "../../lib/a11y";
 import type { A11yState } from "../../lib/a11y";
 import { parseCsv } from "../../engines/csv";
 import { caseTechniques } from "./caseFormat";
+import { bootReadout } from "./bootReadout";
 import { formatCellValue } from "./formatCellValue";
 import { markJustCleared } from "./afflictionDom";
-import { SCAN_CODE } from "./afflictionPresentation";
 import { playBossHitRecoil } from "../../anim/world1/battlefieldRecoil";
 import { playFightReveal } from "../../anim/world1/fightReveal";
 import { playDiffFlashBatch } from "../../anim/world1/diffFlash";
@@ -433,11 +432,28 @@ export default function BossFightScreen({
   async function handleRun(): Promise<void> {
     const client = clientRef.current;
     if (!client || !grid || !caseData || isRunning) return;
-    const code = codeEditorRef.current?.getRunnableText().text ?? "";
+    const runnable = codeEditorRef.current?.getRunnableText();
+    const code = runnable?.text ?? "";
     if (!code.trim()) return;
 
     setIsRunning(true);
+    // The "before" picture the run is compared with. Running the whole editor
+    // always starts from the original table, so the code on screen fully
+    // decides the result and running it twice gives the same answer (no
+    // "column already exists", no melting an already melted table). Running a
+    // selection works on the table as it is now, like a worksheet.
+    let baseGrid = grid;
+    let baseCellMap = cellMap;
     try {
+      if (runnable?.isSelection !== true) {
+        const fresh = await client.initCase(
+          caseData.datasetPath,
+          initOptionsFor(caseData),
+        );
+        baseGrid = fresh.resultGrid;
+        baseCellMap = afflictionCellMap(baseGrid, caseData.winCondition);
+        setConsoleEntries([]);
+      }
       const result = await client.run(code);
       const nextGrid = result.resultGrid;
       const run: RunContext = {
@@ -449,14 +465,14 @@ export default function BossFightScreen({
       // so a per-cell diff against the old table would be noise: summarize the shape instead.
       const reshaped =
         caseData.reshapes === true &&
-        (nextGrid.rows.length !== grid.rows.length ||
-          nextGrid.columns.join("\u0000") !== grid.columns.join("\u0000"));
-      const changes = reshaped ? [] : diffGrids(grid, nextGrid);
-      const beforeAfflicted = cellMap.size;
+        (nextGrid.rows.length !== baseGrid.rows.length ||
+          nextGrid.columns.join("\u0000") !== baseGrid.columns.join("\u0000"));
+      const changes = reshaped ? [] : diffGrids(baseGrid, nextGrid);
+      const beforeAfflicted = baseCellMap.size;
       const nextCellMap = afflictionCellMap(nextGrid, caseData.winCondition);
       const afterAfflicted = nextCellMap.size;
       const clearedThisTurn = Math.max(0, beforeAfflicted - afterAfflicted);
-      const justCleared = clearedCells(grid, cellMap, nextGrid, nextCellMap);
+      const justCleared = clearedCells(baseGrid, baseCellMap, nextGrid, nextCellMap);
 
       const nextOutput: RunOutput = result.outputTable
         ? { kind: "table", table: result.outputTable }
@@ -490,7 +506,7 @@ export default function BossFightScreen({
             kind: "info",
             id: entryId,
             text: reshaped
-              ? `reshaped: ${String(grid.rows.length)} rows x ${String(grid.columns.length)} columns -> ${String(nextGrid.rows.length)} rows x ${String(nextGrid.columns.length)} columns`
+              ? `reshaped: ${String(baseGrid.rows.length)} rows x ${String(baseGrid.columns.length)} columns -> ${String(nextGrid.rows.length)} rows x ${String(nextGrid.columns.length)} columns`
               : sandbox
                 ? "no change to the data"
                 : `no change — ${String(totalDebt(nextGrid, caseData.winCondition, run)).padStart(3, "0")} left to fix`,
@@ -521,6 +537,8 @@ export default function BossFightScreen({
       }
     } catch (err) {
       playCue("error");
+      // The engine already holds the fresh table, so show that, not the last result.
+      if (baseGrid !== grid) setGrid(baseGrid);
       if (err instanceof RpcRunError) {
         setRunOutput({ kind: "error", message: err.message });
         setActiveTab("result");
@@ -601,11 +619,7 @@ export default function BossFightScreen({
     );
   }
 
-  const answerPredicate = caseData.winCondition.all.find(
-    (p) => p.predicate === "result_matches",
-  );
-  const answerRows =
-    answerPredicate?.predicate === "result_matches" ? answerPredicate.rows.length : null;
+  const bootText = bootReadout(grid, caseData.winCondition, world);
 
   if (phase === "boot") {
     return (
@@ -615,18 +629,8 @@ export default function BossFightScreen({
           datasetFileName={caseData.datasetPath.split("/").pop() ?? "dataset.csv"}
           datasetShape={`${String(grid.rows.length)}x${String(grid.columns.length)}`}
           afflictionCount={initialAfflictionRef.current ?? 0}
-          scanLabel={
-            answerRows === null
-              ? predicateKindOrder(caseData.winCondition)
-                  .map((kind) => SCAN_CODE[kind])
-                  .join("+")
-              : "ANSWER"
-          }
-          detectedText={
-            answerRows === null
-              ? undefined
-              : `${String(answerRows).padStart(3, "0")} ROWS  TO MATCH`
-          }
+          scanLabel={bootText.scanLabel}
+          detectedText={bootText.detected}
           engineLabel={engine === "sql" ? "sql.js/wasm" : "pyodide/wasm"}
           onEngage={() => {
             setPhase("fight");

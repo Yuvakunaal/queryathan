@@ -97,7 +97,7 @@ test("the boot sequence names the answer to match, not afflicted cells", async (
   await expect(page.getByText(/scanning for affliction \.\. ANSWER/)).toBeVisible({
     timeout: 120_000,
   });
-  await expect(page.getByText(/004 ROWS\s+TO MATCH/)).toBeVisible();
+  await expect(page.getByText(/001 CHECK\s+TO PASS/)).toBeVisible();
 });
 
 test("the answer table can be created again and again, in either spelling", async ({

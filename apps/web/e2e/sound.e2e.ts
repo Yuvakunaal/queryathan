@@ -25,8 +25,8 @@ test("the boot sequence types with sound, and silently when sound is off", async
     w.__keys = 0;
     const proto = AudioContext.prototype;
     // eslint-disable-next-line @typescript-eslint/unbound-method -- called with .call(this) below
-    const original = proto.createBufferSource;
-    AudioContext.prototype.createBufferSource = function patched(this: AudioContext) {
+    const original = proto.createOscillator;
+    AudioContext.prototype.createOscillator = function patched(this: AudioContext) {
       w.__keys += 1;
       return original.call(this);
     };

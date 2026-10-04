@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## Unreleased (Phase 9)
 
+- Running the whole editor now always starts from the original table, so running the
+  same code twice gives the same answer in every world (no "column already exists", no
+  melting or joining an already reshaped table). Running a selection still works on the
+  table as it is now. The run bar says which of the two will happen.
+- `CREATE TABLE result` can be run again and again, and `CREATE OR REPLACE TABLE result`
+  works.
+- Boot sequence typing now plays soft game-style text blips (pentatonic, every other
+  letter) instead of key clicks; the boot readout counts checks, not cells, for joins,
+  reshapes, speed jobs and answers.
+
 - **World 6, The Observatory**: six analysis questions (grouping and summing, ranking
   inside groups, 7-day moving average, cohort retention, sessionizing a click log,
   an ordered purchase funnel), each solvable in pandas and SQL.

@@ -43,8 +43,8 @@ export default function RunBar({
       </button>
       <span className={styles.hint}>
         {hasSelection
-          ? "Only the highlighted text will run."
-          : "Runs everything in the editor."}{" "}
+          ? "Only the highlighted text runs, on the table as it is now."
+          : "Runs everything in the editor, on the original table."}{" "}
         {RUN_SHORTCUT} also runs.
       </span>
     </div>
