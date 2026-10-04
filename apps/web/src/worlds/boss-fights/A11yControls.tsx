@@ -77,6 +77,17 @@ export default function A11yControls({ a11y, onChange }: A11yControlsProps) {
       <button
         type="button"
         className={styles.a11yButton}
+        aria-label="Sound effects"
+        aria-pressed={a11y.sound}
+        onClick={() => {
+          onChange({ ...a11y, sound: !a11y.sound });
+        }}
+      >
+        {a11y.sound ? "SFX on" : "SFX"}
+      </button>
+      <button
+        type="button"
+        className={styles.a11yButton}
         aria-label="High contrast mode"
         aria-pressed={a11y.highContrast}
         onClick={() => {

@@ -2,11 +2,13 @@ import { WORLDS } from "../../lib/world-meta";
 import type { WorldMeta } from "../../lib/world-meta";
 import { getWorldProgress, rankForWorld } from "../../lib/save";
 import type { SaveData } from "../../lib/save";
+import type { StreakState } from "../../lib/daily";
 import type { A11yState } from "../../lib/a11y";
 import type { WorldId } from "@dcq/content-schema";
 import { classNames } from "../../lib/classNames";
 import A11yControls from "./A11yControls";
 import AboutDialog from "./AboutDialog";
+import DailyCard from "./DailyCard";
 import RankCardDialog from "./RankCardDialog";
 import { useEffect, useRef, useState } from "react";
 import styles from "./WorldSelectScreen.module.css";
@@ -15,7 +17,9 @@ export interface WorldSelectScreenProps {
   saveData: SaveData;
   a11y: A11yState;
   onA11yChange: (next: A11yState) => void;
+  streak: StreakState;
   onSelectWorld: (world: WorldId) => void;
+  onPlayDaily: (world: WorldId, casePath: string) => void;
   onOpenSandbox: () => void;
 }
 
@@ -99,7 +103,9 @@ export default function WorldSelectScreen({
   saveData,
   a11y,
   onA11yChange,
+  streak,
   onSelectWorld,
+  onPlayDaily,
   onOpenSandbox,
 }: WorldSelectScreenProps) {
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -179,6 +185,7 @@ export default function WorldSelectScreen({
             {aboutSeen ? null : <span className={styles.newBadge}>Start here</span>}
           </button>
         </section>
+        <DailyCard saveData={saveData} streak={streak} onPlay={onPlayDaily} />
         <ul className={styles.grid}>
           {WORLDS.map((meta) => (
             <WorldCard

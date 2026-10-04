@@ -1,3 +1,4 @@
+import { playCue } from "../../lib/sound";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { RpcRunError, RpcTimeoutError } from "@dcq/engine-adapters";
@@ -505,8 +506,10 @@ export default function BossFightScreen({
       );
 
       setRunCount((n) => n + 1);
+      playCue(clearedThisTurn > 0 ? "clear" : "run");
       if (!sandbox && evaluateWinCondition(nextGrid, caseData.winCondition, run)) {
         setHasWon(true);
+        playCue("win");
         const stamp = stampFor(caseData.winCondition, caseData.forge, run);
         setEarnedStamp(stamp);
         // Let the last run's diff flash land, then play the kill; the victory panel follows it.
@@ -516,6 +519,7 @@ export default function BossFightScreen({
         onWin(caseData.id, predicateKinds(caseData.winCondition), stamp ?? undefined);
       }
     } catch (err) {
+      playCue("error");
       if (err instanceof RpcRunError) {
         setRunOutput({ kind: "error", message: err.message });
         setActiveTab("result");

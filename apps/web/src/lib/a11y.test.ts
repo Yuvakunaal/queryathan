@@ -19,6 +19,7 @@ describe("defaultA11y", () => {
       theme: "dark",
       crtReduced: true,
       highContrast: false,
+      sound: false,
     });
   });
 });
@@ -57,6 +58,7 @@ describe("loadA11yState / persistA11yState", () => {
       theme: "light",
       crtReduced: true,
       highContrast: true,
+      sound: true,
     };
     persistA11yState(state);
     expect(loadA11yState()).toEqual(state);
@@ -69,6 +71,7 @@ describe("loadA11yState / persistA11yState", () => {
       theme: "dark",
       crtReduced: true,
       highContrast: false,
+      sound: false,
     });
   });
 

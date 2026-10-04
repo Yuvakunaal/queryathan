@@ -9,6 +9,8 @@ export interface A11yState {
   theme: ThemeMode;
   crtReduced: boolean;
   highContrast: boolean;
+  /** Sound cues; off until the player turns them on. */
+  sound: boolean;
 }
 
 export function defaultA11y(): A11yState {
@@ -24,6 +26,7 @@ export function defaultA11y(): A11yState {
     theme: prefersLight ? "light" : "dark",
     crtReduced: true,
     highContrast: false,
+    sound: false,
   };
 }
 
@@ -42,6 +45,7 @@ export function loadA11yState(): A11yState {
           : fallback.theme,
       crtReduced: parsed.crtReduced ?? fallback.crtReduced,
       highContrast: parsed.highContrast ?? fallback.highContrast,
+      sound: parsed.sound ?? fallback.sound,
     };
   } catch {
     return defaultA11y();
