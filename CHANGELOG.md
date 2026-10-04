@@ -3,6 +3,12 @@
 All notable changes to this project are documented here. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/).
 
+## Unreleased (Phase 9)
+
+- Shareable progress card: a PNG drawn on the device plus a text version, opened from "Share progress" once a case is cleared. No name, account or upload.
+- The SQL formatter loads on first use; the fight-screen chunk shrank from 954 kB to 661 kB.
+- About dialog and card dialog no longer expose a second banner landmark.
+
 ## [Unreleased]
 
 ### Added (Phase 7: engineering hardening)

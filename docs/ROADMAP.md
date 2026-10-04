@@ -24,7 +24,7 @@ tests pass. The roster screen was redesigned in this pass.
    Firefox and WebKit in the E2E matrix.
 6. **Phase 8: open-source launch.** Contribution flow, RFC template, call
    for cases. _Docs done; publishing the repo is the owner's call._
-7. **Phase 9: sustain.** Sound, shareable rank cards, optional cloud sync.
+7. **Phase 9: sustain.** Sound, shareable rank cards (done), optional cloud sync.
 
 ## UI/UX backlog (apply to every world)
 

@@ -67,7 +67,7 @@ export default function AboutDialog({ onClose, onStart }: AboutDialogProps) {
         aria-labelledby="about-title"
         onKeyDown={handleKeyDown}
       >
-        <header className={styles.header}>
+        <div className={styles.header}>
           <h2 id="about-title" className={styles.title}>
             What is Data Cleaning Quest?
           </h2>
@@ -80,7 +80,7 @@ export default function AboutDialog({ onClose, onStart }: AboutDialogProps) {
           >
             Close
           </button>
-        </header>
+        </div>
 
         <div
           className={styles.body}
@@ -187,7 +187,7 @@ export default function AboutDialog({ onClose, onStart }: AboutDialogProps) {
           </section>
         </div>
 
-        <footer className={styles.footer}>
+        <div className={styles.footer}>
           <button
             type="button"
             className={styles.primary}
@@ -200,7 +200,7 @@ export default function AboutDialog({ onClose, onStart }: AboutDialogProps) {
           <button type="button" className={styles.secondary} onClick={onClose}>
             Got it
           </button>
-        </footer>
+        </div>
       </div>
     </div>
   );
