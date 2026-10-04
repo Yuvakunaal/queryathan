@@ -171,6 +171,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
       extensions: [
         basicSetup,
         EditorView.lineWrapping,
+        EditorView.contentAttributes.of({
+          "aria-label": language === "sql" ? "SQL editor" : "Python editor",
+        }),
         keymap.of([indentWithTab]),
         placeholder(
           language === "sql"

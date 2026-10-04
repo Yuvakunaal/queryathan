@@ -76,7 +76,7 @@ function buildEditorTheme(dark: boolean): Extension {
         backgroundColor: "color-mix(in srgb, var(--w1-green-500) 24%, transparent)",
       },
       ".cm-activeLine": {
-        backgroundColor: "color-mix(in srgb, var(--w1-text-primary) 6%, transparent)",
+        backgroundColor: "color-mix(in srgb, var(--w1-text-primary) 3%, transparent)",
       },
       ".cm-gutters": {
         backgroundColor: "var(--w1-bg-panel-2)",
@@ -98,7 +98,7 @@ const bossFightsHighlightStyle = HighlightStyle.define([
   { tag: tags.keyword, color: "var(--w1-amber-500)" },
   { tag: tags.string, color: "var(--w1-green-300)" },
   { tag: tags.number, color: "var(--w1-status-null)" },
-  { tag: tags.comment, color: "var(--w1-text-dim)", fontStyle: "italic" },
+  { tag: tags.comment, color: "var(--w1-text-secondary)", fontStyle: "italic" },
   {
     tag: [
       tags.function(tags.variableName),

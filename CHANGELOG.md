@@ -5,6 +5,25 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added (Phase 7: engineering hardening)
+
+- End-to-end suite (`pnpm e2e`, Playwright, `apps/web/e2e/`) that runs against the production build served with the exact headers from `vercel.json` (`scripts/serve-dist.mjs`), using the real engines. Every test fails on an uncaught error or a CSP violation. It plays all 19 cases in both languages from one table of known-good answers, checks that unchanged and near-miss answers never win, and covers the editor (selection run, format, completion, errors, results), tab and panel behaviour, the 20-second recovery, the sandbox (intake, cleaning, download), themes, and the About dialog.
+- Accessibility checks: axe-core scans of every kind of screen in both themes and high contrast, plus a token-level audit (`contrast.e2e.ts`) that checks every text, accent and status color against its surfaces for every world and theme (dark, light, both high-contrast modes) against WCAG AA.
+- CI: a separate end-to-end job (with report upload on failure) and a Lighthouse job enforcing budgets from `lighthouserc.json` (performance, accessibility, best practices, blocking time, layout shift, script size).
+- Offline support: a service worker (production only) caches the app's hashed assets, the Python runtime and pandas wheels, and seed datasets, so the app keeps working offline after a first visit; pages and case files are network-first so deploys take effect at once.
+
+### Fixed (found by the new accessibility checks)
+
+- Light theme: about 40 colors (dim text, accents, status colors, the green and amber used as text and button fills) were 3.5 to 4.4 to 1 against a 4.5 requirement; dark theme: the dim grey text token was 3.4 to 4.2 to 1 in every world. All now pass.
+- Locked world and boss cards faded their text with `opacity`, which made it unreadable; they now use a dashed border and a readable dimmer text color.
+- The About dialog's scrolling body could not be reached from the keyboard; it is now focusable.
+- The code editor had no accessible name; it is now "SQL editor" / "Python editor".
+- Code comments on the highlighted line in the light theme were below contrast.
+
+### Documentation
+
+- `SECURITY.md` described a sandbox-mode iframe that was never built; it now describes what is true (the worker boundary, files used only as data, the 20-second recovery, the offline cache, and how the CSP is tested).
+
 ### Changed (engine start-up)
 
 - Python no longer shows a bare, off-centre text screen for a couple of seconds after you pick it. A centred loading card explains the wait (Python and pandas load in your browser) with a moving bar.

@@ -17,8 +17,11 @@ tests pass. The roster screen was redesigned in this pass.
 3. **Phase 5: Worlds 3 and 4 (done).** World 3 (The Twins, joins) is done: 4 cases,
    multi-table engine support. World 4 (The Architect: pivot, melt, JSON) is done too: 4 cases.
 4. **Phase 6: World 5 and sandbox.** Sandbox (bring your own CSV) is done. World 5, The Foundry, is started: timing, the Forge gauge, stamps and 2 jobs. To add: memory and dtype optimization, chunked reading, data-validation fences, more jobs.
-5. **Phase 7: hardening.** Playwright E2E in CI, Lighthouse budgets, service
-   worker caching for WASM, CSP and accessibility audits.
+5. **Phase 7: hardening (mostly done).** Playwright E2E in CI against the
+   production build with real headers, axe and token-level contrast audits,
+   Lighthouse budgets, offline cache, security doc corrected. Still to do: a
+   manual screen-reader pass, a keyboard-only walkthrough of every screen, and
+   Firefox and WebKit in the E2E matrix.
 6. **Phase 8: open-source launch.** Contribution flow, RFC template, call
    for cases.
 7. **Phase 9: sustain.** Sound, shareable rank cards, optional cloud sync.

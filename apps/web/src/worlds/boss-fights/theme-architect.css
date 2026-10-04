@@ -21,7 +21,7 @@
 
   --w1-text-primary: #e8f2ff;
   --w1-text-secondary: #a9c1de;
-  --w1-text-dim: #6f8bad;
+  --w1-text-dim: #7b97b9;
   --w1-text-inverse: #07182f;
 
   --w1-rule-strong: #2c5384;
@@ -56,11 +56,11 @@ html [data-world="the-architect"] {
   --w1-green-500: #1565b3;
   --w1-green-700: #5a9ad6;
   --w1-amber-300: #8a5a00;
-  --w1-amber-500: #a86a00;
+  --w1-amber-500: #925f00;
   --w1-amber-700: #d9a23a;
   --w1-text-primary: #0c2340;
   --w1-text-secondary: #3c5878;
-  --w1-text-dim: #5a7ca0;
+  --w1-text-dim: #4a6c90;
   --w1-text-inverse: #ffffff;
   --w1-rule-strong: #9fbbdd;
   --w1-rule: #c2d6ec;

@@ -18,11 +18,18 @@ acknowledge within a reasonable timeframe and coordinate disclosure.
   `localStorage` of the main page.
 - `eval()` / `new Function()` are never used on untrusted content outside
   that sandboxed context.
-- Sandbox/freeplay mode (bring-your-own-dataset, Phase 6) adds an additional
-  sandboxed, cross-origin `<iframe>` layer (`sandbox` attribute, no
-  `allow-same-origin`, no `allow-top-navigation`) so a worst-case malicious
-  payload inside a user's own uploaded file can't reach the parent page, its
-  save data, or any other origin.
+- Sandbox mode (bring-your-own-CSV) uses the same worker boundary, not an
+  additional iframe. The file is read in the browser, tidied, and handed to
+  the engine as plain text: it is only ever _data_ to the CSV parser or to
+  `pandas.read_csv`, never executed. It is not uploaded anywhere and not
+  stored (a reload clears it). The code run against it is code the player
+  typed themselves, in the same worker, with the same `connect-src` limits as
+  every other case. (An earlier plan called for a cross-origin sandboxed
+  iframe; the worker boundary plus CSP was judged sufficient because nothing
+  in a user's file is ever evaluated as code.)
+- A run that does not finish within 20 seconds is abandoned: the worker is
+  terminated and a fresh one started, so runaway or hostile code cannot hold
+  the page's engine hostage.
 - A worker has no DOM access but **can still make network requests.** The
   Content-Security-Policy `connect-src` directive (below) is what actually
   bounds where a malicious payload could exfiltrate a user's dataset to —
@@ -65,11 +72,28 @@ acknowledge within a reasonable timeframe and coordinate disclosure.
   If you fork this project onto GitHub Pages, know that you are giving up
   part of this threat model.
 
+## Offline cache (service worker)
+
+`public/sw.js` caches the app's own hashed assets, the self-hosted Python
+runtime, seed datasets, and the pinned pandas/numpy wheels from the one
+allowed CDN origin, so the app keeps working offline after a first visit. It
+only touches `GET` requests to this origin and `cdn.jsdelivr.net/pyodide/`,
+registers in production builds only, and is covered by the existing
+`worker-src 'self'` directive (no CSP change). Case and page requests are
+network-first, so a deploy takes effect immediately.
+
+## How the CSP is tested
+
+`pnpm e2e` builds the app and serves `apps/web/dist` with the exact response
+headers from `vercel.json` (`scripts/serve-dist.mjs`); every end-to-end test
+fails on an uncaught page error or a Content-Security-Policy violation. CI runs
+this on every pull request.
+
 ## Privacy by design
 
 - Zero accounts, zero PII collected by default.
 - User-uploaded datasets in sandbox mode never leave the browser — all
-  processing happens client-side inside the worker/sandboxed iframe.
+  processing happens client-side inside the worker.
 - No third-party analytics by default. If analytics are ever added, they
   will be privacy-first, cookieless, and opt-in (e.g. Plausible/Umami), never
   silent.

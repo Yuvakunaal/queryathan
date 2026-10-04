@@ -157,9 +157,17 @@
 .card[data-status="cleared"] {
   border-color: var(--w1-green-700);
 }
+/* Locked is shown by a dashed border and dimmer (but still readable) text, never by fading the whole card: faded text fails contrast. */
 .card[data-status="locked"] {
-  opacity: 0.55;
   border-style: dashed;
+  background: transparent;
+}
+.card[data-status="locked"] .cardTitle,
+.card[data-status="locked"] .cardSub {
+  color: var(--w1-text-secondary);
+}
+.card[data-status="locked"] .sigil {
+  color: var(--w1-text-dim);
 }
 
 .cardHead {
@@ -191,7 +199,7 @@
   color: var(--w1-amber-500);
 }
 .card[data-status="cleared"] .sigil {
-  color: var(--w1-green-700);
+  color: var(--w1-green-500);
 }
 
 .cardTitle {

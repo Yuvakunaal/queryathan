@@ -82,7 +82,12 @@ export default function AboutDialog({ onClose, onStart }: AboutDialogProps) {
           </button>
         </header>
 
-        <div className={styles.body}>
+        <div
+          className={styles.body}
+          tabIndex={0}
+          role="region"
+          aria-label="About Data Cleaning Quest"
+        >
           <p className={styles.lead}>
             A free game that teaches you to clean messy data by writing real Python
             (pandas) or SQL. Everything runs in your browser. There is no account, and

@@ -33,6 +33,10 @@ PRs a data review, not a security review. See
   commit, CI runs the full check on every PR.
 - Add/extend Vitest coverage for anything touching game logic, diff
   computation, or the save system.
+- `pnpm e2e` builds the app and runs the end-to-end suite (real engines,
+  production headers, accessibility). A new case needs its known-good answer
+  added to `apps/web/e2e/solutions.ts`. New colors must keep `contrast.e2e.ts`
+  passing. First run: `pnpm --filter @dcq/web exec playwright install chromium`.
 - Keep GSAP/animation code inside `apps/web/src/anim/` — don't put animation
   state in React state.
 

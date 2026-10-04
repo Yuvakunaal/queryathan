@@ -20,7 +20,8 @@
     "validate-content": "tsx scripts/validate-content.mjs",
     "fetch-pyodide": "node scripts/fetch-pyodide.mjs",
     "postinstall": "node scripts/fetch-pyodide.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "e2e": "pnpm --filter @dcq/web e2e"
   },
   "devDependencies": {
     "@dcq/content-schema": "workspace:*",

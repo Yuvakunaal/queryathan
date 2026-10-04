@@ -1,4 +1,12 @@
-import { readFileSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import {
+  existsSync,
+  readFileSync,
+  mkdirSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
@@ -33,10 +41,39 @@ function contentCasesPlugin(): Plugin {
       });
     },
     closeBundle() {
-      const outDir = join(dirname(fileURLToPath(import.meta.url)), "dist/content");
-      copyJsonRecursive(CONTENT_DIR, outDir);
+      const distDir = join(dirname(fileURLToPath(import.meta.url)), "dist");
+      copyJsonRecursive(CONTENT_DIR, join(distDir, "content"));
+      stampServiceWorker(distDir);
     },
   };
+}
+
+/**
+ * Fills the two placeholders in the built service worker: a build id (a hash
+ * of index.html, which names every hashed asset, so it changes whenever the
+ * app does) and the Pyodide version (so the cached runtime is replaced only
+ * when it actually changes).
+ */
+function stampServiceWorker(distDir: string): void {
+  const swPath = join(distDir, "sw.js");
+  const indexPath = join(distDir, "index.html");
+  if (!existsSync(swPath) || !existsSync(indexPath)) return;
+  const buildId = createHash("sha1")
+    .update(readFileSync(indexPath))
+    .digest("hex")
+    .slice(0, 10);
+  const pyodideManifest = JSON.parse(
+    readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "node_modules/pyodide/package.json"),
+      "utf8",
+    ),
+  ) as { version: string };
+  writeFileSync(
+    swPath,
+    readFileSync(swPath, "utf8")
+      .replace("__BUILD_ID__", buildId)
+      .replace("__PYODIDE_VERSION__", pyodideManifest.version),
+  );
 }
 
 function copyJsonRecursive(srcDir: string, destDir: string): void {

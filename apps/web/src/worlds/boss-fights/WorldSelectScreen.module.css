@@ -112,8 +112,12 @@
   outline-offset: 3px;
 }
 .cardLocked {
-  opacity: 0.5;
   border-style: dashed;
+  background: transparent;
+}
+.cardLocked .cardName,
+.cardLocked .cardTagline {
+  color: var(--w1-text-secondary);
 }
 .cardNumber {
   font: 500 11px/1 var(--w1-font-text);

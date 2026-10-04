@@ -7,14 +7,14 @@ specific technical decisions.
 
 ## Current state
 
-**Phase 3 complete.** World 1 (Boss Fights) has four playable bosses
-(tutorial → two mid-bosses with stacked afflictions → a final boss
-stacking all six World 1 techniques), each playable against either of two
-real engines — Pyodide/pandas or sql.js/SQLite — picked on an engine-select
-screen before boot, with real diff feedback, win detection, a world-map
-front door, and a `localStorage` save/XP/rank system. See
-[`README.md`](../README.md#status) for the up-to-date phase marker and
-[`CHANGELOG.md`](../CHANGELOG.md) for what shipped in each phase.
+Five worlds and a sandbox are playable, every case in both engines (see
+[`README.md`](../README.md#status) and [`CHANGELOG.md`](../CHANGELOG.md)):
+Boss Fights (cell-level cleaning), The Vault (regex and encodings), The Twins
+(joins across two tables), The Architect (reshaping), The Foundry (speed jobs
+timed against a stopwatch), and a sandbox for your own CSV. Each world has its
+own theme (dark and light) and HUD; the fight screen, editor, result tabs and
+win sequence are shared. Content is data (`content/`), judged by declarative
+predicates (ADR 0003). The app works offline after a first visit.
 
 ## Monorepo layout
 
@@ -187,6 +187,25 @@ animation; CSS owns this one _ambient_ one. See `DataframeGrid.module.css`.
 Every animation has a `prefers-reduced-motion` branch that keeps the
 feedback (color, glyph, count changes) and removes only the motion — never a
 silent drop of the signal.
+
+## Testing
+
+- **Unit tests** (`pnpm test`, Vitest): game logic, diffing, CSV intake, win
+  predicates, schema, the stamp and timing logic. Fast, no browser.
+- **End-to-end tests** (`pnpm e2e`, Playwright, `apps/web/e2e/`): run against
+  the production build, served by `scripts/serve-dist.mjs` with the exact
+  headers from `vercel.json`, using the real Pyodide and SQLite engines.
+  Every test fails on an uncaught error or a CSP violation. Suites:
+  `solutions` (all 19 cases winnable in both engines, from one table of
+  known-good answers in `solutions.ts`), `starters` (unchanged or near-miss
+  answers never win), `editor`, `sandbox`, `smoke`, `a11y` (axe-core on every
+  kind of screen, both themes and high contrast), and `contrast` (every color
+  token pair for every world and theme against WCAG AA).
+- **Adding a case** also means adding its answer to `e2e/solutions.ts`; the
+  suite then proves it is winnable and that its starter code is not a win.
+- **CI** (`.github/workflows/ci.yml`): typecheck, lint, format, unit tests,
+  content validation and build; a separate end-to-end job; and a Lighthouse
+  job enforcing `lighthouserc.json` budgets.
 
 ## Deployment
 

@@ -6,6 +6,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: false,
+    exclude: ["e2e/**", "node_modules/**", "dist/**"],
     // No tests yet at scaffold stage — lib/diff.ts and lib/afflictions.ts
     // (Phase 1 implementation) will add real coverage here.
     passWithNoTests: true,
