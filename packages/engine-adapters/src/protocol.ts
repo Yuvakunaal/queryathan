@@ -1,3 +1,5 @@
+import type { GeneratedDataset } from "./generate";
+
 /**
  * The one place the main thread and a Pyodide/sql.js worker agree on message
  * shape. Both sides import this — never redeclare it independently.
@@ -36,6 +38,10 @@ export interface OutputTable {
 
 export const MAX_OUTPUT_ROWS = 200;
 
+export interface RunStats {
+  elapsedMs: number;
+}
+
 export interface InitCaseRequest {
   type: "init-case";
   requestId: string;
@@ -43,6 +49,8 @@ export interface InitCaseRequest {
   datasetUrl: string;
   /** When present, the engine loads this CSV text instead of fetching `datasetUrl` (sandbox mode: the player's own file, which never leaves the browser). */
   datasetText?: string;
+  /** When present, the engine builds the table from this recipe instead of loading a file (World 5 stress tests). */
+  generated?: GeneratedDataset;
   /** Optional reference tables (World 3 joins). The main dataset stays `df` / `data`. */
   extraTables?: ExtraTable[];
   /**
@@ -89,6 +97,8 @@ export interface RunResultResponse {
   output: string | null;
   /** Present when the run produced a table the player should see as a table (SELECT, DataFrame, Series). `output` then omits that table's text form. */
   outputTable?: OutputTable | null;
+  /** How long the player's code took, measured inside the worker around the run only (not loading, not serializing the table). */
+  stats?: RunStats;
 }
 
 export interface RunErrorResponse {

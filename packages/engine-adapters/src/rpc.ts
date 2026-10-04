@@ -1,3 +1,4 @@
+import type { GeneratedDataset } from "./generate";
 import type {
   ExtraTable,
   RunResultResponse,
@@ -7,6 +8,7 @@ import type {
 
 export interface InitCaseOptions {
   datasetText?: string;
+  generated?: GeneratedDataset;
   extraTables?: ExtraTable[];
   trackRowIdentity?: boolean;
 }
@@ -166,6 +168,7 @@ export class EngineRpcClient {
           datasetUrl: string;
           extraTables: ExtraTable[];
           datasetText?: string;
+          generated?: GeneratedDataset;
           trackRowIdentity: boolean;
         }
       | { type: "run-code"; code: string },

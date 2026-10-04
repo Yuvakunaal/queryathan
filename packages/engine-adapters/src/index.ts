@@ -4,6 +4,7 @@ export type {
   InitCaseRequest,
   ExtraTable,
   OutputTable,
+  RunStats,
   RunCodeRequest,
   CancelRequest,
   EngineReadyResponse,
@@ -16,3 +17,5 @@ export { MAX_OUTPUT_ROWS } from "./protocol";
 export { EngineRpcClient, RpcTimeoutError, RpcRunError, RpcEngineError } from "./rpc";
 export type { RpcTransport, InitCaseOptions } from "./rpc";
 export { WorkerEngineClient } from "./client";
+export { generatedValue, generatedColumnKind, pythonGenerateSource } from "./generate";
+export type { ColumnRecipe, GeneratedDataset, GeneratedValue } from "./generate";
