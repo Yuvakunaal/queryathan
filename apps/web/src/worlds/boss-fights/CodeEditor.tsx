@@ -5,7 +5,6 @@ import { indentWithTab } from "@codemirror/commands";
 import { SQLite } from "@codemirror/lang-sql";
 import { pythonLanguage } from "@codemirror/lang-python";
 import { pythonCompletionSource } from "./editorCompletions";
-import { format as formatSql } from "sql-formatter";
 import { basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
 import { sql } from "@codemirror/lang-sql";
@@ -115,20 +114,27 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
         const hasSelection = view.state.sliceDoc(from, to).trim() !== "";
         const start = hasSelection ? from : 0;
         const end = hasSelection ? to : view.state.doc.length;
-        try {
-          const formatted = formatSql(view.state.sliceDoc(start, end), {
-            language: "sqlite",
-            keywordCase: "upper",
-            tabWidth: 2,
+        const source = view.state.sliceDoc(start, end);
+        // Loaded on first use so the formatter stays out of the main bundle.
+        void import("sql-formatter")
+          .then(({ format: formatSql }) => {
+            if (view.state.sliceDoc(start, end) !== source) return;
+            const formatted = formatSql(source, {
+              language: "sqlite",
+              keywordCase: "upper",
+              tabWidth: 2,
+            });
+            view.dispatch({
+              changes: { from: start, to: end, insert: formatted },
+              selection: { anchor: start + formatted.length },
+            });
+          })
+          .catch(() => {
+            // Unparseable SQL is left exactly as typed; running it will show the engine's own error.
+          })
+          .finally(() => {
+            view.focus();
           });
-          view.dispatch({
-            changes: { from: start, to: end, insert: formatted },
-            selection: { anchor: start + formatted.length },
-          });
-        } catch {
-          // Unparseable SQL is left exactly as typed; running it will show the engine's own error.
-        }
-        view.focus();
       },
     };
     handleRef.current = api;
