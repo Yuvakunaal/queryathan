@@ -2,6 +2,7 @@ import { TEXT_SCALES } from "../../lib/a11y";
 import type { A11yState } from "../../lib/a11y";
 import { classNames } from "../../lib/classNames";
 import SoundMenu from "./SoundMenu";
+import { useOpenShortcuts } from "../../ShortcutsContext";
 import styles from "./A11yControls.module.css";
 
 export interface A11yControlsProps {
@@ -18,6 +19,7 @@ export interface A11yControlsProps {
  * to change them until entering a fight.
  */
 export default function A11yControls({ a11y, onChange }: A11yControlsProps) {
+  const openShortcuts = useOpenShortcuts();
   return (
     <div className={styles.a11yControls}>
       <button
@@ -76,6 +78,15 @@ export default function A11yControls({ a11y, onChange }: A11yControlsProps) {
         CRT
       </button>
       <SoundMenu a11y={a11y} onChange={onChange} />
+      <button
+        type="button"
+        className={styles.a11yButton}
+        aria-label="Keyboard shortcuts"
+        title="Keyboard shortcuts (press ?)"
+        onClick={openShortcuts}
+      >
+        ?
+      </button>
       <button
         type="button"
         className={styles.a11yButton}

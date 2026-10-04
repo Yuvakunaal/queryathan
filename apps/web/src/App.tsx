@@ -21,6 +21,9 @@ import { casePath } from "./lib/load-case";
 import { formatRoute, parseRoute } from "./lib/route";
 import type { Route } from "./lib/route";
 import { worldMeta as metaFor } from "./lib/world-meta";
+import { ShortcutsProvider } from "./ShortcutsContext";
+import ShortcutsDialog from "./worlds/boss-fights/ShortcutsDialog";
+import { isTypingTarget } from "./lib/shortcuts";
 import { applyA11yToDocument, loadA11yState, persistA11yState } from "./lib/a11y";
 import type { A11yState } from "./lib/a11y";
 import { configureSound, preloadKeys, preloadSlice } from "./lib/sound";
@@ -131,7 +134,7 @@ function routeFromScreen(screen: Screen): Route {
   }
 }
 
-export default function App() {
+function AppScreens() {
   const [saveData, setSaveData] = useState<SaveData>(loadSave);
   const [screen, setScreen] = useState<Screen>(() =>
     screenFromRoute(parseRoute(window.location.hash)),
@@ -309,5 +312,41 @@ export default function App() {
       }}
       onImportSave={updateSave}
     />
+  );
+}
+
+/** The app: the screens, plus the keyboard shortcuts sheet that "?" (or any screen's ? button) opens. */
+export default function App() {
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+
+  // "?" opens the sheet from anywhere, except while typing in a field or the editor.
+  useEffect(() => {
+    function onKey(event: KeyboardEvent): void {
+      if (event.key !== "?" || event.ctrlKey || event.metaKey || event.altKey) return;
+      if (isTypingTarget(event.target)) return;
+      event.preventDefault();
+      setShortcutsOpen(true);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+    };
+  }, []);
+
+  return (
+    <ShortcutsProvider
+      value={() => {
+        setShortcutsOpen(true);
+      }}
+    >
+      <AppScreens />
+      {shortcutsOpen ? (
+        <ShortcutsDialog
+          onClose={() => {
+            setShortcutsOpen(false);
+          }}
+        />
+      ) : null}
+    </ShortcutsProvider>
   );
 }
