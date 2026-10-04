@@ -11,6 +11,7 @@ import "./theme.css";
 import "./theme-vault.css";
 import "./theme-twins.css";
 import "./theme-architect.css";
+import "./theme-foundry.css";
 
 // BossFightScreen is deliberately NOT re-exported here — App.tsx imports it
 // directly (`import("./worlds/boss-fights/BossFightScreen")`) via

@@ -1,0 +1,125 @@
+{
+  "id": "w5-01-slow-lane",
+  "world": "the-foundry",
+  "tier": "tutorial",
+  "datasetPath": "generated://foundry/slow-lane",
+  "generated": {
+    "rows": 12000,
+    "columns": [
+      {
+        "name": "order_id",
+        "recipe": "int_mod",
+        "mul": 1,
+        "add": 1,
+        "mod": 1000000000
+      },
+      {
+        "name": "qty",
+        "recipe": "int_mod",
+        "mul": 31,
+        "add": 7,
+        "mod": 20
+      },
+      {
+        "name": "unit_price",
+        "recipe": "float_mod",
+        "mul": 977,
+        "add": 5,
+        "mod": 9973,
+        "div": 100
+      },
+      {
+        "name": "discount",
+        "recipe": "float_mod",
+        "mul": 13,
+        "add": 3,
+        "mod": 31,
+        "div": 100
+      }
+    ]
+  },
+  "datasetLicense": {
+    "license": "CC0-1.0",
+    "provenance": "Generated in the browser from closed-form recipes (see scripts/foundry-specs.mjs). No source data."
+  },
+  "forge": {
+    "referenceMs": {
+      "python": 2,
+      "sql": 4
+    },
+    "silverMs": {
+      "python": 15,
+      "sql": 20
+    },
+    "goldMs": {
+      "python": 5,
+      "sql": 8
+    }
+  },
+  "strings": {
+    "title": "SLOW_LANE",
+    "subtitle": "Skill: working on whole columns at once (vectorizing)",
+    "task": "The starter code adds a total column (quantity × unit price × (1 − discount)) one row at a time. The answer is right, but it is far too slow. Rewrite it so the whole column is worked out in one step, and make the run finish inside the time budget.",
+    "briefing": "The order desk's nightly job takes so long that nobody trusts it any more. It calculates the total for every one of 12,000 orders, but it does it the long way: one order, then the next, then the next.\n\nThe maths is fine. The method is the problem. Computers are very fast at doing the same sum to a whole column at once, and very slow at being asked the same question twelve thousand times.\n\nThis world has a stopwatch. A correct answer that takes too long does not count."
+  },
+  "starterCode": {
+    "python": "# Slow on purpose: this works out one row at a time (12,000 times).\n# Run it once to see how long it takes, then rewrite it.\ndf['total'] = df.apply(lambda row: row['qty'] * row['unit_price'] * (1 - row['discount']), axis=1)",
+    "sql": "-- Slow on purpose: this looks the row up again for every row.\n-- Run it once to see how long it takes, then rewrite it.\nALTER TABLE data ADD COLUMN total REAL;\nUPDATE data SET total = (SELECT d.qty * d.unit_price * (1 - d.discount) FROM data d WHERE d.order_id + 0 = data.order_id + 0);"
+  },
+  "columnHints": {
+    "order_id": {
+      "widthPx": 100,
+      "numeric": true
+    },
+    "qty": {
+      "widthPx": 70,
+      "numeric": true
+    },
+    "unit_price": {
+      "widthPx": 110,
+      "numeric": true
+    },
+    "discount": {
+      "widthPx": 100,
+      "numeric": true
+    },
+    "total": {
+      "widthPx": 120,
+      "numeric": true
+    }
+  },
+  "hints": {
+    "python": [
+      "apply with axis=1 calls your function once per row, so 12,000 times. pandas can do arithmetic on whole columns at once, in fast compiled code.",
+      "Multiply the columns directly: df['qty'] * df['unit_price'] * (1 - df['discount']). Each operation works on every row together.",
+      "df['total'] = df['qty'] * df['unit_price'] * (1 - df['discount'])"
+    ],
+    "sql": [
+      "The starter runs a separate lookup for every row. You do not need a lookup, because the numbers are already in the same row.",
+      "UPDATE can calculate from the row's own columns: SET total = qty * unit_price * (1 - discount).",
+      "If you already ran the starter, the total column exists, so do not ALTER again. Run just: UPDATE data SET total = qty * unit_price * (1 - discount);"
+    ]
+  },
+  "winCondition": {
+    "all": [
+      {
+        "predicate": "has_columns",
+        "columns": ["total"]
+      },
+      {
+        "predicate": "row_count",
+        "equals": 12000
+      },
+      {
+        "predicate": "column_sum",
+        "column": "total",
+        "equals": 4837591.82
+      },
+      {
+        "predicate": "runtime_under",
+        "pythonMs": 40,
+        "sqlMs": 50
+      }
+    ]
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "id": "w5-02-running-laps",
+  "world": "the-foundry",
+  "tier": "mid-boss",
+  "datasetPath": "generated://foundry/running-laps",
+  "generated": {
+    "rows": 8000,
+    "columns": [
+      {
+        "name": "order_id",
+        "recipe": "int_mod",
+        "mul": 1,
+        "add": 1,
+        "mod": 1000000000
+      },
+      {
+        "name": "customer_id",
+        "recipe": "int_mod",
+        "mul": 7919,
+        "add": 13,
+        "mod": 500
+      },
+      {
+        "name": "amount",
+        "recipe": "float_mod",
+        "mul": 331,
+        "add": 17,
+        "mod": 9001,
+        "div": 100
+      }
+    ]
+  },
+  "datasetLicense": {
+    "license": "CC0-1.0",
+    "provenance": "Generated in the browser from closed-form recipes (see scripts/foundry-specs.mjs). No source data."
+  },
+  "forge": {
+    "referenceMs": {
+      "python": 2,
+      "sql": 9
+    },
+    "silverMs": {
+      "python": 12,
+      "sql": 40
+    },
+    "goldMs": {
+      "python": 5,
+      "sql": 15
+    }
+  },
+  "strings": {
+    "title": "RUNNING_LAPS",
+    "subtitle": "Skill: running totals with groupby or window functions",
+    "task": "Add a running_total column: for each customer, the sum of their amounts so far, in order_id order. The starter gets it right but takes far too long. Rewrite it with a grouped cumulative sum (pandas) or a window function (SQL), and finish inside the time budget.",
+    "briefing": "Finance wants a running balance for each of 500 customers across 8,000 orders: after every order, how much has this customer spent in total so far?\n\nThe starter walks through the orders one by one and keeps a tally. It works. It also re-reads the data again and again, so the work grows much faster than the data does.\n\nThere is a built-in tool for exactly this: a cumulative sum that runs within each group. Use it, and the same answer arrives in a blink."
+  },
+  "starterCode": {
+    "python": "# Slow on purpose: a Python loop over every row.\n# Run it once to see how long it takes, then rewrite it.\ntotals = {}\nrunning = []\nfor _, row in df.iterrows():\n    totals[row['customer_id']] = totals.get(row['customer_id'], 0) + row['amount']\n    running.append(totals[row['customer_id']])\ndf['running_total'] = running",
+    "sql": "-- Slow on purpose: every row adds up all earlier rows again.\n-- Run it once to see how long it takes, then rewrite it.\nDROP TABLE IF EXISTS result;\nCREATE TABLE result AS\nSELECT d.*,\n  (SELECT SUM(d2.amount) FROM data d2\n   WHERE d2.customer_id + 0 = d.customer_id + 0 AND d2.order_id <= d.order_id) AS running_total\nFROM data d;"
+  },
+  "columnHints": {
+    "order_id": {
+      "widthPx": 100,
+      "numeric": true
+    },
+    "customer_id": {
+      "widthPx": 110,
+      "numeric": true
+    },
+    "amount": {
+      "widthPx": 100,
+      "numeric": true
+    },
+    "running_total": {
+      "widthPx": 140,
+      "numeric": true
+    }
+  },
+  "hints": {
+    "python": [
+      "The loop touches every row from Python, which is slow. pandas has a cumulative sum that works inside each group.",
+      "Group by customer_id, take the amount column, and call .cumsum(). The rows are already in order_id order.",
+      "df['running_total'] = df.groupby('customer_id')['amount'].cumsum()"
+    ],
+    "sql": [
+      "The starter's subquery adds up every earlier row again for each row. A window function does it in one pass.",
+      "SUM(amount) OVER (PARTITION BY customer_id ORDER BY order_id) is a running total within each customer.",
+      "DROP TABLE IF EXISTS result; CREATE TABLE result AS SELECT *, SUM(amount) OVER (PARTITION BY customer_id ORDER BY order_id) AS running_total FROM data;"
+    ]
+  },
+  "winCondition": {
+    "all": [
+      {
+        "predicate": "has_columns",
+        "columns": ["running_total"]
+      },
+      {
+        "predicate": "row_count",
+        "equals": 8000
+      },
+      {
+        "predicate": "column_sum",
+        "column": "running_total",
+        "equals": 3057594.11
+      },
+      {
+        "predicate": "runtime_under",
+        "pythonMs": 60,
+        "sqlMs": 100
+      }
+    ]
+  }
+}

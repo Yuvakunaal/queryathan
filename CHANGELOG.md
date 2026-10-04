@@ -5,6 +5,15 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added (Phase 6: World 5, The Foundry)
+
+- Two timed jobs, solved in Python and SQL on the real engines: SLOW_LANE (replace a row-by-row `apply` / per-row lookup with whole-column arithmetic) and RUNNING_LAPS (replace a loop / quadratic subquery with a grouped cumulative sum / window function).
+- Run timing: both engines report how long the player's code took, measured around the code only. New `runtime_under` rule judges the last run against a per-engine budget.
+- The Forge HUD: a log-scale gauge with the pass mark, silver and gold cut-offs, the reference solution and the last run's needle; bronze / silver / gold quality stamps shown on the victory panel, kept per case (best wins) in the save file, and badged on the roster.
+- Generated datasets: stress-test tables are built in the browser from closed-form column recipes (identical in numpy and JavaScript), so no large files are shipped.
+- Runaway code recovery: a run past 20 seconds now restarts the engine on the original table and explains what happened, instead of leaving every later run to time out.
+- Victory panel says "Checks passed" instead of "Cells cleaned" for cases with no cell-level rules.
+
 ### Added (victory moment and first-visit explainer)
 
 - Kill sequence before the "Boss cleared" panel: the boss's sigil appears with a health bar, a blade strikes along a diagonal, the sigil splits along the cut and bursts into data fragments, the bar empties, the name is struck through and the outcome is stamped. About 2.8 seconds, built from SVG and GSAP in the world's own colors. Click, Enter, Space, Escape or the Skip button jumps to the summary; with reduced motion on, it is a short fade of the same message. Not shown in the sandbox (nothing to win).

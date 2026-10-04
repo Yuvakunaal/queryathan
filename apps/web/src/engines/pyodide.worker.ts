@@ -1,5 +1,5 @@
 import { loadPyodide, type PyodideInterface } from "pyodide";
-import { MAX_OUTPUT_ROWS } from "@dcq/engine-adapters";
+import { MAX_OUTPUT_ROWS, pythonGenerateSource } from "@dcq/engine-adapters";
 import type {
   EngineErrorResponse,
   EngineReadyResponse,
@@ -240,15 +240,23 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
   try {
     let replValue: unknown;
     let outputTable: OutputTable | null = null;
+    let elapsedMs: number | null = null;
 
     if (request.type === "init-case") {
-      const csvText = request.datasetText ?? (await fetchText(request.datasetUrl));
-      // Pyodide's PyProxy.set() is untyped (any) in its own .d.ts — third-party limitation.
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      pyodide.globals.set("__dcq_csv_text", csvText);
-      await pyodide.runPythonAsync(
-        "import pandas as pd, io\ndf = pd.read_csv(io.StringIO(__dcq_csv_text))",
-      );
+      if (request.generated) {
+        // A stress-test table built from closed-form recipes (World 5), identical to the SQL side's.
+        await pyodide.runPythonAsync(
+          `import io\n${pythonGenerateSource(request.generated)}`,
+        );
+      } else {
+        const csvText = request.datasetText ?? (await fetchText(request.datasetUrl));
+        // Pyodide's PyProxy.set() is untyped (any) in its own .d.ts — third-party limitation.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        pyodide.globals.set("__dcq_csv_text", csvText);
+        await pyodide.runPythonAsync(
+          "import pandas as pd, io\ndf = pd.read_csv(io.StringIO(__dcq_csv_text))",
+        );
+      }
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       pyodide.globals.set("__dcq_track_row_ids", request.trackRowIdentity ?? true);
       pyodide.runPython("__dcq_reset_state()");
@@ -262,7 +270,9 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
         );
       }
     } else {
+      const startedAt = performance.now();
       replValue = await pyodide.runPythonAsync(request.code);
+      elapsedMs = performance.now() - startedAt;
       if (replValue !== undefined && replValue !== null) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         pyodide.globals.set("__dcq_last_value", replValue);
@@ -284,6 +294,7 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
       resultGrid,
       output: buildOutput(stdoutBuffer, replValue),
       outputTable,
+      ...(elapsedMs === null ? {} : { stats: { elapsedMs } }),
     } satisfies RunResultResponse);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

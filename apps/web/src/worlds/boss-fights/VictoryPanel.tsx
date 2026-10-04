@@ -1,10 +1,16 @@
 import { useEffect, useRef } from "react";
+import type { Stamp } from "../../lib/forge";
 import styles from "./VictoryPanel.module.css";
 
 export interface VictoryPanelProps {
   kicker: string;
+  /** World 5's quality stamp, if the case awards one. */
+  stamp?: Stamp | null;
+  elapsedMs?: number | null;
   bossName: string;
   runCount: number;
+  /** What the second number counts: cells for cleaning cases, checks for rules about the whole result. */
+  cleanedLabel: string;
   cellsCleared: number;
   techniques: string[];
   hintsUsed: number;
@@ -14,8 +20,11 @@ export interface VictoryPanelProps {
 
 export default function VictoryPanel({
   kicker,
+  stamp = null,
+  elapsedMs = null,
   bossName,
   runCount,
+  cleanedLabel,
   cellsCleared,
   techniques,
   hintsUsed,
@@ -43,13 +52,23 @@ export default function VictoryPanel({
         <h2 id="victory-title" className={styles.title}>
           {bossName}
         </h2>
+        {stamp ? (
+          <p className={styles.stamp} data-stamp={stamp}>
+            <span className={styles.stampName}>{stamp} stamp</span>
+            {elapsedMs === null ? null : (
+              <span className={styles.stampTime}>
+                last run {String(Math.round(elapsedMs))} ms
+              </span>
+            )}
+          </p>
+        ) : null}
         <dl className={styles.stats}>
           <div>
             <dt>Runs</dt>
             <dd>{runCount}</dd>
           </div>
           <div>
-            <dt>Cells cleaned</dt>
+            <dt>{cleanedLabel}</dt>
             <dd>{cellsCleared}</dd>
           </div>
           <div>

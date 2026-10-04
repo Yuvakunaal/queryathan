@@ -36,6 +36,8 @@ function formatPredicate(predicate: Predicate): string {
       return `row_count = ${String(predicate.equals)}`;
     case "has_columns":
       return `has_columns(${predicate.columns.join(",")})`;
+    case "runtime_under":
+      return `runtime_under(${String(predicate.pythonMs)} ms python, ${String(predicate.sqlMs)} ms sql)`;
     case "lacks_columns":
       return `lacks_columns(${predicate.columns.join(",")})`;
     case "column_sum":

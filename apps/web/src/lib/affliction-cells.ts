@@ -1,5 +1,7 @@
 import type { ResultGrid } from "@dcq/engine-adapters";
 import type { Predicate, WinCondition } from "@dcq/content-schema";
+import { NO_RUN } from "./run-context";
+import type { RunContext } from "./run-context";
 import {
   nullRowIndices,
   duplicateRowIndices,
@@ -47,6 +49,7 @@ export function kindForPredicate(predicate: Predicate): AfflictionKind {
     case "lacks_columns":
     case "column_sum":
     case "distinct_count":
+    case "runtime_under":
       return "shape";
   }
 }
@@ -60,6 +63,7 @@ function columnsForPredicate(predicate: Predicate): string[] {
     case "row_count":
     case "column_sum":
     case "distinct_count":
+    case "runtime_under":
       return [];
     default:
       return [predicate.column];
@@ -89,6 +93,7 @@ function rowIndicesForPredicate(grid: ResultGrid, predicate: Predicate): number[
     case "lacks_columns":
     case "column_sum":
     case "distinct_count":
+    case "runtime_under":
       // Whole-table rules: there is no single cell to blame. See predicateDebt.
       return [];
   }
@@ -156,7 +161,11 @@ export function afflictionKindAt(
  * `row_count`: 1 while the row count is wrong, else 0 (the size of the miss
  * is shown by the HUD, not folded into this number).
  */
-export function predicateDebt(grid: ResultGrid, predicate: Predicate): number {
+export function predicateDebt(
+  grid: ResultGrid,
+  predicate: Predicate,
+  run: RunContext = NO_RUN,
+): number {
   switch (predicate.predicate) {
     case "has_columns":
       return missingColumns(grid, predicate.columns).length;
@@ -168,6 +177,12 @@ export function predicateDebt(grid: ResultGrid, predicate: Predicate): number {
       return columnSumMatches(grid, predicate.column, predicate.equals) ? 0 : 1;
     case "distinct_count":
       return distinctCount(grid, predicate.column) === predicate.equals ? 0 : 1;
+    case "runtime_under":
+      return run.elapsedMs !== null &&
+        run.engine !== null &&
+        run.elapsedMs <= (run.engine === "sql" ? predicate.sqlMs : predicate.pythonMs)
+        ? 0
+        : 1;
     default:
       return getAfflictedCells(grid, predicate).length;
   }
@@ -181,6 +196,7 @@ export function isWholeTable(predicate: Predicate): boolean {
     case "lacks_columns":
     case "column_sum":
     case "distinct_count":
+    case "runtime_under":
       return true;
     default:
       return false;
@@ -192,9 +208,13 @@ export function isWholeTable(predicate: Predicate): boolean {
  * distinct afflicted cells (overlapping predicates count a cell once, like the
  * grid renders it) plus the whole-table shortfalls from has_columns/row_count.
  */
-export function totalDebt(grid: ResultGrid, winCondition: WinCondition): number {
+export function totalDebt(
+  grid: ResultGrid,
+  winCondition: WinCondition,
+  run: RunContext = NO_RUN,
+): number {
   const structural = winCondition.all.reduce(
-    (sum, p) => (isWholeTable(p) ? sum + predicateDebt(grid, p) : sum),
+    (sum, p) => (isWholeTable(p) ? sum + predicateDebt(grid, p, run) : sum),
     0,
   );
   return afflictionCellMap(grid, winCondition).size + structural;

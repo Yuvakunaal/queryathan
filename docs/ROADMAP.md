@@ -16,7 +16,7 @@ tests pass. The roster screen was redesigned in this pass.
    tumbler display in place of the shared HP strip.
 3. **Phase 5: Worlds 3 and 4 (done).** World 3 (The Twins, joins) is done: 4 cases,
    multi-table engine support. World 4 (The Architect: pivot, melt, JSON) is done too: 4 cases.
-4. **Phase 6: World 5 and sandbox.** Sandbox (bring your own CSV) is done. World 5, The Foundry (benchmark HUD, timing and memory readouts, reference-solution comparison), is next.
+4. **Phase 6: World 5 and sandbox.** Sandbox (bring your own CSV) is done. World 5, The Foundry, is started: timing, the Forge gauge, stamps and 2 jobs. To add: memory and dtype optimization, chunked reading, data-validation fences, more jobs.
 5. **Phase 7: hardening.** Playwright E2E in CI, Lighthouse budgets, service
    worker caching for WASM, CSP and accessibility audits.
 6. **Phase 8: open-source launch.** Contribution flow, RFC template, call

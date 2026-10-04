@@ -1,0 +1,140 @@
+.band {
+  min-width: 0;
+  padding: 10px 16px 12px;
+  background: var(--w1-bg-panel);
+  border-bottom: 1px solid var(--w1-rule-strong);
+}
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.label {
+  font: 700 11px/1 var(--w1-font-display);
+  letter-spacing: 0.14em;
+  color: var(--w1-green-500);
+}
+.rows {
+  font: 400 12px/1 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.spacer {
+  flex: 1;
+}
+.stamp {
+  padding: 3px 9px;
+  font: 800 11px/1 var(--w1-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 2px solid currentColor;
+}
+.stamp[data-stamp="bronze"] {
+  color: #b8742f;
+}
+.stamp[data-stamp="silver"] {
+  color: #8f9aa6;
+}
+.stamp[data-stamp="gold"] {
+  color: #d9a31b;
+}
+
+.gauge {
+  position: relative;
+  height: 30px;
+  margin: 10px 0 6px;
+}
+.track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 13px;
+  height: 4px;
+  background: var(--w1-rule-strong);
+}
+.passZone {
+  position: absolute;
+  top: 11px;
+  height: 8px;
+  background: color-mix(in srgb, var(--w1-green-500) 28%, transparent);
+  border: 1px solid var(--w1-green-700);
+}
+.tick {
+  position: absolute;
+  top: 6px;
+  width: 2px;
+  height: 18px;
+  margin-left: -1px;
+  background: currentColor;
+}
+.tick[data-kind="gold"] {
+  color: #d9a31b;
+}
+.tick[data-kind="silver"] {
+  color: #8f9aa6;
+}
+.tick[data-kind="bronze"] {
+  color: #b8742f;
+}
+.ref {
+  position: absolute;
+  top: 9px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border: 2px solid var(--w1-text-secondary);
+  border-radius: 50%;
+  background: var(--w1-bg-panel);
+}
+.needle {
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 0;
+  margin-left: -7px;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 12px solid var(--w1-diff-del);
+  filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.4));
+}
+.needle[data-ok="true"] {
+  border-top-color: var(--w1-green-500);
+}
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  font: 400 12px/1.4 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.legend li {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+.legend strong {
+  color: var(--w1-text-primary);
+  font-weight: 600;
+}
+.legendKey {
+  color: var(--w1-text-dim);
+}
+.last[data-ok="true"] strong {
+  color: var(--w1-green-500);
+}
+.last[data-ok="false"] strong {
+  color: var(--w1-diff-del);
+}
+
+@media (forced-colors: active) {
+  .track,
+  .tick {
+    background: CanvasText;
+  }
+  .needle {
+    border-top-color: CanvasText;
+  }
+}

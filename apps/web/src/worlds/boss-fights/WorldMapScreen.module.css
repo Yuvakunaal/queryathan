@@ -357,3 +357,22 @@
   outline: 2px solid var(--w1-focus);
   outline-offset: 3px;
 }
+
+.cardStamp {
+  margin-left: auto;
+  margin-right: 8px;
+  padding: 2px 6px;
+  font: 800 10px/1 var(--w1-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 2px solid currentColor;
+}
+.cardStamp[data-stamp="bronze"] {
+  color: #b8742f;
+}
+.cardStamp[data-stamp="silver"] {
+  color: #8f9aa6;
+}
+.cardStamp[data-stamp="gold"] {
+  color: #d9a31b;
+}

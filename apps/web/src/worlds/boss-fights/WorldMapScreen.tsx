@@ -209,6 +209,14 @@ export default function WorldMapScreen({
                 <>
                   <div className={styles.cardHead}>
                     <span className={styles.cardTier}>{caseItem.tier}</span>
+                    {progress.stamps?.[caseItem.id] ? (
+                      <span
+                        className={styles.cardStamp}
+                        data-stamp={progress.stamps[caseItem.id]}
+                      >
+                        {progress.stamps[caseItem.id]}
+                      </span>
+                    ) : null}
                     <span className={styles.cardStatus} data-status={status}>
                       {status === "cleared" ? "Cleared" : isLocked ? "Locked" : "Ready"}
                     </span>

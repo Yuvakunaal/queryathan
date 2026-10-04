@@ -5,6 +5,7 @@ import { renderSigil } from "./sigil";
 import type { ResultGrid } from "@dcq/engine-adapters";
 import type { WinCondition } from "@dcq/content-schema";
 import { describePredicate } from "./predicateChecks";
+import type { RunContext } from "../../lib/run-context";
 import styles from "./BriefingPanel.module.css";
 
 export interface BriefingPanelProps {
@@ -15,6 +16,8 @@ export interface BriefingPanelProps {
   task?: string | undefined;
   grid: ResultGrid;
   winCondition: WinCondition;
+  /** The last run, for rules that judge speed. */
+  run?: RunContext | undefined;
   remaining: number;
   initial: number;
   tier: CaseTier;
@@ -36,6 +39,7 @@ export default function BriefingPanel({
   task,
   grid,
   winCondition,
+  run,
   remaining,
   initial,
   tier,
@@ -102,7 +106,7 @@ export default function BriefingPanel({
         ) : (
           <ul className={styles.checklist}>
             {winCondition.all.map((predicate, i) => {
-              const check = describePredicate(grid, predicate);
+              const check = describePredicate(grid, predicate, run);
               return (
                 <li
                   key={`${predicate.predicate}-${String(i)}`}

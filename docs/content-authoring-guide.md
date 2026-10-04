@@ -111,6 +111,30 @@ task and the predicates saying the same thing. Final bosses omit `task`.
 | `column_sum`        | `{ column, equals }`                                              | Numeric cells of the column must add to `equals` (within 0.01). A checksum proving values survived a reshape. Whole-table rule.                                    |
 | `distinct_count`    | `{ column, equals }`                                              | The column must hold exactly this many distinct non-null values. Whole-table rule.                                                                                 |
 
+### Speed cases (World 5)
+
+World 5 judges how the code is written, not just what it returns, so the table
+must be big enough for that to show. Instead of a CSV, a case sets `"generated"`:
+a row count and one recipe per column (`int_mod`, `float_mod`, `choice`), each a
+pure function of the row number `i`, so the Python (numpy) and SQL (JavaScript)
+engines build identical tables and an expected checksum can be computed once
+with `npx tsx scripts/foundry-specs.mjs`. Set `datasetPath` to a
+`generated://...` placeholder. Rules:
+
+- `runtime_under { pythonMs, sqlMs }` is the pass mark. It is judged on the
+  last run only, timed inside the engine around the player's code (not loading,
+  not drawing the table).
+- `forge { referenceMs, silverMs, goldMs }` (per engine) feeds the gauge and the
+  bronze/silver/gold stamp. Bronze is the pass mark.
+- Pair it with `column_sum` and `row_count` so a fast wrong answer fails.
+- Measure before you choose numbers. Run the slow starter and the fast fix on
+  both engines: the starter must be clearly over the pass mark, the fix well
+  under silver, and the starter must finish in a few seconds (the engine is
+  stopped and restarted after 20).
+- Keep tables small enough that a quadratic starter finishes: SQLite checks about
+  100 million rows a second, so 12,000 rows squared is a few seconds and 60,000
+  is too long.
+
 ### Reshaping cases (World 4)
 
 Set `"reshapes": true` on a case where the player changes the table's rows and

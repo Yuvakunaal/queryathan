@@ -101,3 +101,31 @@
     animation: none;
   }
 }
+
+.stamp {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin: -12px 0 18px;
+}
+.stampName {
+  padding: 4px 10px;
+  font: 800 13px/1 var(--w1-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 2px solid currentColor;
+}
+.stamp[data-stamp="bronze"] {
+  color: #b8742f;
+}
+.stamp[data-stamp="silver"] {
+  color: #8f9aa6;
+}
+.stamp[data-stamp="gold"] {
+  color: #d9a31b;
+}
+.stampTime {
+  font: 400 12px/1 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}

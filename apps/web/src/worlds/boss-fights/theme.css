@@ -9,7 +9,8 @@
   [data-world="boss-fights"],
   [data-world="the-vault"],
   [data-world="the-twins"],
-  [data-world="the-architect"]
+  [data-world="the-architect"],
+  [data-world="the-foundry"]
 ) {
   /* --- surfaces: near-black, cool cast, stepped not shadowed --- */
   --w1-bg-void: #06080a;
@@ -133,7 +134,8 @@
     [data-world="boss-fights"],
     [data-world="the-vault"],
     [data-world="the-twins"],
-    [data-world="the-architect"]
+    [data-world="the-architect"],
+    [data-world="the-foundry"]
   ) {
   --w1-bg-void: #000000;
   --w1-bg-panel: #000000;
@@ -159,13 +161,15 @@
   [data-world="boss-fights"],
   [data-world="the-vault"],
   [data-world="the-twins"],
-  [data-world="the-architect"]
+  [data-world="the-architect"],
+  [data-world="the-foundry"]
 ),
 :is(
     [data-world="boss-fights"],
     [data-world="the-vault"],
     [data-world="the-twins"],
-    [data-world="the-architect"]
+    [data-world="the-architect"],
+    [data-world="the-foundry"]
   )
   * {
   border-radius: 0;
@@ -175,7 +179,8 @@
   [data-world="boss-fights"],
   [data-world="the-vault"],
   [data-world="the-twins"],
-  [data-world="the-architect"]
+  [data-world="the-architect"],
+  [data-world="the-foundry"]
 ) {
   font-variant-ligatures: none;
   font-feature-settings: "zero" 1;
@@ -185,7 +190,8 @@
     [data-world="boss-fights"],
     [data-world="the-vault"],
     [data-world="the-twins"],
-    [data-world="the-architect"]
+    [data-world="the-architect"],
+    [data-world="the-foundry"]
   )
   * {
   scrollbar-width: thin;
@@ -195,7 +201,8 @@
     [data-world="boss-fights"],
     [data-world="the-vault"],
     [data-world="the-twins"],
-    [data-world="the-architect"]
+    [data-world="the-architect"],
+    [data-world="the-foundry"]
   )
   *::-webkit-scrollbar {
   width: 10px;
@@ -205,7 +212,8 @@
     [data-world="boss-fights"],
     [data-world="the-vault"],
     [data-world="the-twins"],
-    [data-world="the-architect"]
+    [data-world="the-architect"],
+    [data-world="the-foundry"]
   )
   *::-webkit-scrollbar-thumb {
   background: var(--w1-rule-strong);
@@ -224,7 +232,8 @@
     [data-world="boss-fights"],
     [data-world="the-vault"],
     [data-world="the-twins"],
-    [data-world="the-architect"]
+    [data-world="the-architect"],
+    [data-world="the-foundry"]
   ) {
   --w1-bg-void: #f3f6f4;
   --w1-bg-panel: #ffffff;
@@ -317,7 +326,8 @@ html[data-dcq-theme="light"][data-dcq-contrast="high"]
     [data-world="boss-fights"],
     [data-world="the-vault"],
     [data-world="the-twins"],
-    [data-world="the-architect"]
+    [data-world="the-architect"],
+    [data-world="the-foundry"]
   ) {
   --w1-bg-void: #ffffff;
   --w1-bg-panel: #ffffff;

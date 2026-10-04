@@ -52,6 +52,15 @@ export const predicateSchema = z.discriminatedUnion("predicate", [
   z.object({ predicate: z.literal("row_count"), equals: z.number().int().min(0) }),
   /** Every listed column must exist in the result (World 3: a join must bring the other table's columns across). */
   z.object({ predicate: z.literal("has_columns"), columns: z.array(z.string()).min(1) }),
+  /**
+   * The last run of the player's code must finish within this many milliseconds (World 5).
+   * Timed inside the engine around the code only, so it is a fair test of how the code is written.
+   */
+  z.object({
+    predicate: z.literal("runtime_under"),
+    pythonMs: z.number().positive(),
+    sqlMs: z.number().positive(),
+  }),
   /** None of the listed columns may remain (World 4: a melt or flatten must drop the old shape). */
   z.object({
     predicate: z.literal("lacks_columns"),
@@ -151,6 +160,49 @@ export const extraTableSchema = z.object({
 });
 export type ExtraTableSpec = z.infer<typeof extraTableSchema>;
 
+/** Closed-form columns for stress-test tables (see packages/engine-adapters/src/generate.ts). */
+export const columnRecipeSchema = z.discriminatedUnion("recipe", [
+  z.object({
+    name: z.string().min(1),
+    recipe: z.literal("int_mod"),
+    mul: z.number().int(),
+    add: z.number().int(),
+    mod: z.number().int().positive(),
+  }),
+  z.object({
+    name: z.string().min(1),
+    recipe: z.literal("float_mod"),
+    mul: z.number().int(),
+    add: z.number().int(),
+    mod: z.number().int().positive(),
+    div: z.number().positive(),
+  }),
+  z.object({
+    name: z.string().min(1),
+    recipe: z.literal("choice"),
+    values: z.array(z.string()).min(1),
+    mul: z.number().int(),
+    add: z.number().int(),
+  }),
+]);
+export const generatedDatasetSchema = z.object({
+  rows: z.number().int().min(1).max(100_000),
+  columns: z.array(columnRecipeSchema).min(1),
+});
+
+const perEngineMs = z.object({
+  python: z.number().positive(),
+  sql: z.number().positive(),
+});
+/** Timings shown beside the player's own run, and the cut-offs for silver and gold stamps (World 5). */
+export const forgeSchema = z.object({
+  /** About how long a good solution takes, for the "reference" readout. */
+  referenceMs: perEngineMs,
+  silverMs: perEngineMs,
+  goldMs: perEngineMs,
+});
+export type Forge = z.infer<typeof forgeSchema>;
+
 export const caseSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   world: worldIdSchema,
@@ -158,6 +210,9 @@ export const caseSchema = z.object({
   datasetPath: z.string().min(1),
   /** Reference tables the player can join against (World 3). The main dataset stays `df` / `data`. */
   extraTables: z.array(extraTableSchema).optional(),
+  /** When present, the main table is built from these recipes instead of loaded from `datasetPath` (World 5). */
+  generated: generatedDatasetSchema.optional(),
+  forge: forgeSchema.optional(),
   /** True when the player is expected to change the table's shape (melt, pivot, flatten). Turns off per-cell diffing and row-identity tracking. */
   reshapes: z.boolean().optional(),
   datasetLicense: datasetLicenseSchema,

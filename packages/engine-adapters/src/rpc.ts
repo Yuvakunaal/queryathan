@@ -124,6 +124,7 @@ export class EngineRpcClient {
         ...(options.datasetText === undefined
           ? {}
           : { datasetText: options.datasetText }),
+        ...(options.generated === undefined ? {} : { generated: options.generated }),
         trackRowIdentity: options.trackRowIdentity ?? true,
       },
       timeoutMs,

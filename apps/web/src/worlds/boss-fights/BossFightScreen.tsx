@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
-import { RpcRunError } from "@dcq/engine-adapters";
-import type { ResultGrid, WorkerEngineClient } from "@dcq/engine-adapters";
+import { RpcRunError, RpcTimeoutError } from "@dcq/engine-adapters";
+import type {
+  InitCaseOptions,
+  ResultGrid,
+  WorkerEngineClient,
+} from "@dcq/engine-adapters";
+import { TIMEOUT_PREFIX } from "./explainError";
 import type { Case, WorldId } from "@dcq/content-schema";
 import { PyodideClient } from "../../engines/pyodide-client";
 import { SqliteClient } from "../../engines/sqlite-client";
@@ -12,10 +17,16 @@ import {
   afflictionCellMap,
   clearedCells,
   totalDebt,
+  isWholeTable,
   predicateKindOrder,
 } from "../../lib/affliction-cells";
 import type { AfflictionKind } from "../../lib/affliction-cells";
 import { evaluateWinCondition } from "../../lib/evaluate-win-condition";
+import { NO_RUN } from "../../lib/run-context";
+import type { RunContext } from "../../lib/run-context";
+import { stampFor } from "../../lib/forge";
+import type { Stamp } from "../../lib/forge";
+import ForgeBand from "./ForgeBand";
 import { classNames } from "../../lib/classNames";
 import { TEXT_SCALES } from "../../lib/a11y";
 import type { A11yState } from "../../lib/a11y";
@@ -81,7 +92,7 @@ export interface BossFightScreenProps {
   rankLabel: string;
   a11y: A11yState;
   onA11yChange: (next: A11yState) => void;
-  onWin: (caseId: string, techniqueKinds: string[]) => void;
+  onWin: (caseId: string, techniqueKinds: string[], stamp?: Stamp) => void;
   onExitToRoster: () => void;
 }
 
@@ -109,6 +120,8 @@ export default function BossFightScreen({
   const [showKill, setShowKill] = useState(false);
   const killTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [activeTab, setActiveTab] = useState("data");
+  const [lastRun, setLastRun] = useState<RunContext>(NO_RUN);
+  const [earnedStamp, setEarnedStamp] = useState<Stamp | null>(null);
   const [railWidth, setRailWidth] = useState<number | null>(() => loadPanelSize("rail"));
   const [briefingHeight, setBriefingHeight] = useState<number | null>(() =>
     loadPanelSize("briefing"),
@@ -204,6 +217,40 @@ export default function BossFightScreen({
     };
   }, [casePath, sandbox]);
 
+  /** What the engine needs to load this case's table (also used when it is restarted). */
+  function initOptionsFor(activeCase: Case): InitCaseOptions {
+    return {
+      extraTables: (activeCase.extraTables ?? []).map((t) => ({
+        name: t.name,
+        url: t.path,
+      })),
+      trackRowIdentity: !activeCase.reshapes,
+      ...(sandbox ? { datasetText: sandbox.csvText } : {}),
+      ...(activeCase.generated ? { generated: activeCase.generated } : {}),
+    };
+  }
+
+  /**
+   * A run that goes past the time limit cannot be interrupted (no
+   * SharedArrayBuffer), so the stuck worker is thrown away and a fresh one is
+   * started on the case's original table. Without this, every later run would
+   * time out too while the old one kept grinding.
+   */
+  async function restartEngine(activeCase: Case): Promise<void> {
+    clientRef.current?.terminate();
+    const fresh: WorkerEngineClient =
+      engine === "sql" ? new SqliteClient() : new PyodideClient();
+    clientRef.current = fresh;
+    fresh.spawn();
+    await fresh.ready();
+    const result = await fresh.initCase(
+      activeCase.datasetPath,
+      initOptionsFor(activeCase),
+    );
+    setGrid(result.resultGrid);
+    setLastRun(NO_RUN);
+  }
+
   // Runs once the player commits to an engine on the EngineSelect screen —
   // spawns that engine's worker, loads the dataset into it, and only then
   // reveals the BootSequence. See WorkerEngineClient's doc comment for why
@@ -228,14 +275,10 @@ export default function BossFightScreen({
         client.spawn();
         await client.ready();
         if (isCancelled()) return;
-        const result = await client.initCase(activeCase.datasetPath, {
-          extraTables: (activeCase.extraTables ?? []).map((t) => ({
-            name: t.name,
-            url: t.path,
-          })),
-          trackRowIdentity: !activeCase.reshapes,
-          ...(sandbox ? { datasetText: sandbox.csvText } : {}),
-        });
+        const result = await client.initCase(
+          activeCase.datasetPath,
+          initOptionsFor(activeCase),
+        );
         if (isCancelled()) return;
 
         initialColumnsRef.current = result.resultGrid.columns;
@@ -264,7 +307,11 @@ export default function BossFightScreen({
     return () => {
       cancelled = true;
       client.terminate();
+      // A restart after a timeout replaces the client held in the ref.
+      clientRef.current?.terminate();
     };
+    // initOptionsFor only reads `sandbox`, which is listed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [engine, caseData, sandbox]);
 
   // Post-run reconciliation: populate diff spans + fire the flash/recoil once
@@ -331,6 +378,11 @@ export default function BossFightScreen({
     try {
       const result = await client.run(code);
       const nextGrid = result.resultGrid;
+      const run: RunContext = {
+        elapsedMs: result.stats?.elapsedMs ?? null,
+        engine: engine === "sql" ? "sql" : "python",
+      };
+      setLastRun(run);
       // A reshaping case (melt, pivot, flatten) changes rows and columns wholesale,
       // so a per-cell diff against the old table would be noise: summarize the shape instead.
       const reshaped =
@@ -379,7 +431,7 @@ export default function BossFightScreen({
               ? `reshaped: ${String(grid.rows.length)} rows x ${String(grid.columns.length)} columns -> ${String(nextGrid.rows.length)} rows x ${String(nextGrid.columns.length)} columns`
               : sandbox
                 ? "no change to the data"
-                : `no change — ${String(totalDebt(nextGrid, caseData.winCondition)).padStart(3, "0")} left to fix`,
+                : `no change — ${String(totalDebt(nextGrid, caseData.winCondition, run)).padStart(3, "0")} left to fix`,
           },
         ]);
       }
@@ -389,23 +441,39 @@ export default function BossFightScreen({
       announcePolite(
         sandbox
           ? `Run complete. ${String(changes.length)} cells changed.`
-          : `Run complete. ${String(changes.length)} cells changed. ${String(totalDebt(nextGrid, caseData.winCondition))} left to fix.`,
+          : `Run complete. ${String(changes.length)} cells changed. ${String(totalDebt(nextGrid, caseData.winCondition, run))} left to fix.`,
       );
 
       setRunCount((n) => n + 1);
-      if (!sandbox && evaluateWinCondition(nextGrid, caseData.winCondition)) {
+      if (!sandbox && evaluateWinCondition(nextGrid, caseData.winCondition, run)) {
         setHasWon(true);
+        const stamp = stampFor(caseData.winCondition, caseData.forge, run);
+        setEarnedStamp(stamp);
         // Let the last run's diff flash land, then play the kill; the victory panel follows it.
         killTimerRef.current = setTimeout(() => {
           setShowKill(true);
         }, 750);
-        onWin(caseData.id, predicateKinds(caseData.winCondition));
+        onWin(caseData.id, predicateKinds(caseData.winCondition), stamp ?? undefined);
       }
     } catch (err) {
       if (err instanceof RpcRunError) {
         setRunOutput({ kind: "error", message: err.message });
         setActiveTab("result");
         setLiveErrorMessage(`Run failed. ${err.message.split("\n")[0] ?? ""}`);
+      } else if (err instanceof RpcTimeoutError) {
+        setRunOutput({
+          kind: "error",
+          message: `${TIMEOUT_PREFIX} your code ran for more than 20 seconds.`,
+        });
+        setActiveTab("result");
+        setLiveErrorMessage("Run timed out. The engine was restarted.");
+        try {
+          await restartEngine(caseData);
+        } catch (restartError) {
+          setLoadError(
+            restartError instanceof Error ? restartError.message : String(restartError),
+          );
+        }
       } else {
         throw err;
       }
@@ -490,7 +558,7 @@ export default function BossFightScreen({
     [mainTable]: initialColumnsRef.current ?? grid.columns,
     ...extraColumns,
   };
-  const remaining = totalDebt(grid, caseData.winCondition);
+  const remaining = totalDebt(grid, caseData.winCondition, lastRun);
   const bossNameStyles = classNames(
     styles.statusRailBoss,
     caseData.tier === "final-boss" && styles.statusRailBossFinal,
@@ -567,6 +635,7 @@ export default function BossFightScreen({
                 task={caseData.strings.task}
                 grid={grid}
                 winCondition={caseData.winCondition}
+                run={lastRun}
                 remaining={remaining}
                 initial={initialAfflictionRef.current ?? remaining}
                 tier={caseData.tier}
@@ -646,6 +715,14 @@ export default function BossFightScreen({
               winCondition={caseData.winCondition}
               leftName={engine === "sql" ? "data" : "df"}
               rightName={caseData.extraTables?.[0]?.name ?? "other"}
+            />
+          ) : world === "the-foundry" ? (
+            <ForgeBand
+              winCondition={caseData.winCondition}
+              forge={caseData.forge}
+              run={lastRun}
+              engine={engine === "sql" ? "sql" : "python"}
+              rows={grid.rows.length}
             />
           ) : world === "the-architect" ? (
             <BlueprintBand grid={grid} winCondition={caseData.winCondition} />
@@ -807,9 +884,20 @@ export default function BossFightScreen({
       {showVictory ? (
         <VictoryPanel
           kicker={worldMeta(world).clearedLabel}
+          stamp={earnedStamp}
+          elapsedMs={lastRun.elapsedMs}
           bossName={caseData.strings.title}
           runCount={runCount}
-          cellsCleared={initialAfflictionRef.current ?? 0}
+          cleanedLabel={
+            caseData.winCondition.all.some((p) => !isWholeTable(p))
+              ? "Cells cleaned"
+              : "Checks passed"
+          }
+          cellsCleared={
+            caseData.winCondition.all.some((p) => !isWholeTable(p))
+              ? (initialAfflictionRef.current ?? 0)
+              : caseData.winCondition.all.length
+          }
           techniques={predicateKinds(caseData.winCondition)}
           hintsUsed={hintsUsed}
           onContinue={() => {

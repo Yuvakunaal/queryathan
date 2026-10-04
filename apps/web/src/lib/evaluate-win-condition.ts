@@ -1,5 +1,7 @@
 import type { Predicate, WinCondition } from "@dcq/content-schema";
 import type { ResultGrid } from "@dcq/engine-adapters";
+import { NO_RUN } from "./run-context";
+import type { RunContext } from "./run-context";
 import {
   countNulls,
   countDuplicates,
@@ -15,7 +17,11 @@ import {
   distinctCount,
 } from "./afflictions";
 
-function evaluatePredicate(grid: ResultGrid, predicate: Predicate): boolean {
+function evaluatePredicate(
+  grid: ResultGrid,
+  predicate: Predicate,
+  run: RunContext,
+): boolean {
   switch (predicate.predicate) {
     case "no_nulls":
       return countNulls(grid, predicate.column) === 0;
@@ -35,6 +41,12 @@ function evaluatePredicate(grid: ResultGrid, predicate: Predicate): boolean {
       return grid.rows.length === predicate.equals;
     case "has_columns":
       return missingColumns(grid, predicate.columns).length === 0;
+    case "runtime_under": {
+      if (run.elapsedMs === null || run.engine === null) return false;
+      return (
+        run.elapsedMs <= (run.engine === "sql" ? predicate.sqlMs : predicate.pythonMs)
+      );
+    }
     case "lacks_columns":
       return presentColumns(grid, predicate.columns).length === 0;
     case "column_sum":
@@ -49,6 +61,7 @@ function evaluatePredicate(grid: ResultGrid, predicate: Predicate): boolean {
 export function evaluateWinCondition(
   grid: ResultGrid,
   winCondition: WinCondition,
+  run: RunContext = NO_RUN,
 ): boolean {
-  return winCondition.all.every((predicate) => evaluatePredicate(grid, predicate));
+  return winCondition.all.every((predicate) => evaluatePredicate(grid, predicate, run));
 }

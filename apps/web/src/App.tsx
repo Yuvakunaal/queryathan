@@ -135,8 +135,8 @@ export default function App() {
           onExitToRoster={() => {
             setScreen({ name: "roster", world });
           }}
-          onWin={(caseId, techniqueKinds) => {
-            updateSave(recordCaseWin(saveData, world, caseId, techniqueKinds));
+          onWin={(caseId, techniqueKinds, stamp) => {
+            updateSave(recordCaseWin(saveData, world, caseId, techniqueKinds, stamp));
           }}
         />
       </Suspense>

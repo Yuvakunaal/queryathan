@@ -1,3 +1,6 @@
+/** The message the fight screen shows when a run exceeds the engine's time limit. */
+export const TIMEOUT_PREFIX = "TimeoutError:";
+
 export interface ErrorExplanation {
   headline: string;
   explanation: string;
@@ -13,6 +16,13 @@ export function explainError(
   language: "python" | "sql",
   message: string,
 ): ErrorExplanation {
+  if (message.startsWith(TIMEOUT_PREFIX)) {
+    return {
+      headline: message.split("\n")[0] ?? message,
+      explanation:
+        "The code was still running after 20 seconds, so the engine was stopped and restarted. Your table is back to its starting state, but your code is still in the editor. Slow code usually repeats work for every row: look for a loop, an apply, or a subquery that re-reads the whole table.",
+    };
+  }
   const lines = message.split("\n").map((line) => line.trimEnd());
   if (language === "python") {
     const errorLines = lines.filter((line) =>

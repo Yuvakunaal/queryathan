@@ -14,7 +14,12 @@ import type {
   RunResultResponse,
   WorkerRequest,
 } from "@dcq/engine-adapters";
-import { MAX_OUTPUT_ROWS } from "@dcq/engine-adapters";
+import {
+  MAX_OUTPUT_ROWS,
+  generatedColumnKind,
+  generatedValue,
+} from "@dcq/engine-adapters";
+import type { GeneratedDataset } from "@dcq/engine-adapters";
 import { coerceCsvValue, inferColumnTypes, parseCsv } from "./csv";
 import type { CsvValue } from "./csv";
 import { inferSqlDtypes } from "./sql-dtypes";
@@ -87,6 +92,37 @@ function registerRegexFunctions(database: Database): void {
       );
     },
   );
+}
+
+/** Builds the stress-test table from its recipe, matching the Python side value for value. */
+async function loadGeneratedIntoTable(
+  spec: GeneratedDataset,
+  tableName: string,
+): Promise<void> {
+  const SQL = await sqlJsReady;
+  db?.close();
+  db = new SQL.Database();
+  registerRegexFunctions(db);
+  const definitions = spec.columns
+    .map((c) => `${quoteIdentifier(c.name)} ${generatedColumnKind(c)}`)
+    .join(", ");
+  db.run(`CREATE TABLE ${quoteIdentifier(tableName)} (${definitions});`);
+  const placeholders = spec.columns.map(() => "?").join(", ");
+  const stmt = db.prepare(
+    `INSERT INTO ${quoteIdentifier(tableName)} VALUES (${placeholders});`,
+  );
+  db.run("BEGIN TRANSACTION;");
+  try {
+    for (let i = 0; i < spec.rows; i += 1) {
+      stmt.run(spec.columns.map((c) => generatedValue(c, i)));
+    }
+    db.run("COMMIT;");
+  } catch (error) {
+    db.run("ROLLBACK;");
+    throw error;
+  } finally {
+    stmt.free();
+  }
 }
 
 async function loadCsvIntoTable(
@@ -229,15 +265,22 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
   try {
     let output: string | null = null;
     let outputTable: OutputTable | null = null;
+    let elapsedMs: number | null = null;
 
     if (request.type === "init-case") {
-      await loadCsvIntoTable(request.datasetUrl, TABLE_NAME, true, request.datasetText);
+      if (request.generated) {
+        await loadGeneratedIntoTable(request.generated, TABLE_NAME);
+      } else {
+        await loadCsvIntoTable(request.datasetUrl, TABLE_NAME, true, request.datasetText);
+      }
       for (const table of request.extraTables ?? []) {
         await loadCsvIntoTable(table.url, table.name, false);
       }
     } else {
       if (!db) throw new Error("No dataset loaded yet.");
+      const startedAt = performance.now();
       const execResults = db.exec(request.code);
+      elapsedMs = performance.now() - startedAt;
       outputTable = buildOutputTable(execResults);
       output = outputTable ? null : buildOutput(execResults);
     }
@@ -249,6 +292,7 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
       resultGrid,
       output,
       outputTable,
+      ...(elapsedMs === null ? {} : { stats: { elapsedMs } }),
     } satisfies RunResultResponse);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

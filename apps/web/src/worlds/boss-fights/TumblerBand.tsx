@@ -36,6 +36,8 @@ function labelFor(predicate: Predicate): string {
       return "row count";
     case "has_columns":
       return "columns";
+    case "runtime_under":
+      return "speed";
     case "lacks_columns":
       return "old columns";
     case "column_sum":

@@ -7,6 +7,8 @@ import {
   presentColumns,
 } from "../../lib/afflictions";
 import { predicateDebt } from "../../lib/affliction-cells";
+import { NO_RUN } from "../../lib/run-context";
+import type { RunContext } from "../../lib/run-context";
 
 const DTYPE_WORDS = {
   int: "whole numbers",
@@ -26,13 +28,14 @@ export interface Check {
 export function describePredicate(
   grid: ResultGrid,
   predicate: Predicate,
+  run: RunContext = NO_RUN,
 ): Omit<Check, "key"> {
-  const debt = predicateDebt(grid, predicate);
+  const debt = predicateDebt(grid, predicate, run);
   const met = debt === 0;
   switch (predicate.predicate) {
     case "row_count":
       return {
-        label: `Exactly ${String(predicate.equals)} rows`,
+        label: `Exactly ${predicate.equals.toLocaleString()} rows`,
         detail: met ? "yes" : `has ${String(grid.rows.length)}`,
         met,
       };
@@ -86,6 +89,17 @@ export function describePredicate(
         detail: met ? "yes" : `${String(debt)} cells`,
         met,
       };
+    case "runtime_under": {
+      const budget = run.engine === "sql" ? predicate.sqlMs : predicate.pythonMs;
+      return {
+        label: `Last run finishes in under ${String(budget)} ms`,
+        detail:
+          run.elapsedMs === null
+            ? "run your code to time it"
+            : `last run took ${String(Math.round(run.elapsedMs))} ms`,
+        met,
+      };
+    }
     case "lacks_columns":
       return {
         label: `Without ${predicate.columns.join(", ")}`,
@@ -96,7 +110,7 @@ export function describePredicate(
       };
     case "column_sum":
       return {
-        label: `${predicate.column} adds up to ${String(predicate.equals)}`,
+        label: `${predicate.column} adds up to ${predicate.equals.toLocaleString()}`,
         detail: met
           ? "yes"
           : grid.columns.includes(predicate.column)

@@ -1,11 +1,15 @@
 import { z } from "zod";
 import { worldIdSchema } from "@dcq/content-schema";
+import { betterStamp } from "./forge";
+import type { Stamp } from "./forge";
 import type { WorldId } from "@dcq/content-schema";
 
 const worldProgressSchema = z.object({
   clearedCaseIds: z.array(z.string()),
   masteredTechniques: z.array(z.string()),
   xp: z.number().int().min(0),
+  /** Best quality stamp per case (World 5). Optional so older saves still load. */
+  stamps: z.record(z.string(), z.enum(["bronze", "silver", "gold"])).optional(),
 });
 export type WorldProgress = z.infer<typeof worldProgressSchema>;
 
@@ -42,9 +46,21 @@ export function recordCaseWin(
   world: WorldId,
   caseId: string,
   techniqueKinds: string[],
+  stamp?: Stamp,
 ): SaveData {
   const current = getWorldProgress(save, world);
-  if (current.clearedCaseIds.includes(caseId)) return save;
+  if (current.clearedCaseIds.includes(caseId)) {
+    // Re-clearing earns no XP, but a better stamp is still kept.
+    const best = betterStamp(current.stamps?.[caseId], stamp);
+    if (!best || best === current.stamps?.[caseId]) return save;
+    return {
+      ...save,
+      worlds: {
+        ...save.worlds,
+        [world]: { ...current, stamps: { ...current.stamps, [caseId]: best } },
+      },
+    };
+  }
 
   const next: WorldProgress = {
     clearedCaseIds: [...current.clearedCaseIds, caseId],
@@ -52,6 +68,11 @@ export function recordCaseWin(
       new Set([...current.masteredTechniques, ...techniqueKinds]),
     ),
     xp: current.xp + techniqueKinds.length * XP_PER_TECHNIQUE,
+    ...(stamp
+      ? { stamps: { ...current.stamps, [caseId]: stamp } }
+      : current.stamps
+        ? { stamps: current.stamps }
+        : {}),
   };
   return { ...save, worlds: { ...save.worlds, [world]: next } };
 }
@@ -135,7 +156,12 @@ const RANK_TIERS: Record<WorldId, RankTier[]> = {
     { label: "Designer", minTechniques: 3 },
     { label: "Architect", minTechniques: 6 },
   ],
-  "the-foundry": [{ label: "Recruit", minTechniques: 0 }],
+  "the-foundry": [
+    { label: "Recruit", minTechniques: 0 },
+    { label: "Apprentice", minTechniques: 1 },
+    { label: "Smith", minTechniques: 3 },
+    { label: "Master Smith", minTechniques: 4 },
+  ],
 };
 
 export function rankForWorld(world: WorldId, masteredTechniqueCount: number): string {

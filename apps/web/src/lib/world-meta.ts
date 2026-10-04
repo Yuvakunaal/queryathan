@@ -68,13 +68,13 @@ export const WORLDS: readonly WorldMeta[] = [
     id: "the-foundry",
     number: 5,
     name: "The Foundry",
-    tagline: "Performance, scale and validation.",
-    lede: "",
+    tagline: "Speed at scale: vectorizing, window functions and timing.",
+    lede: "Correct is not enough. These jobs run on tens of thousands of rows against a stopwatch. Rewrite slow code until it finishes inside the budget, and earn a bronze, silver or gold stamp.",
     caseNoun: "job",
-    startLabel: "Start",
-    clearedLabel: "Cleared",
+    startLabel: "Fire up the forge",
+    clearedLabel: "Quality stamped",
     statusRailName: "THE-FOUNDRY",
-    available: false,
+    available: true,
   },
 ];
 

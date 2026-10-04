@@ -484,3 +484,7 @@
   min-width: 0;
   max-width: 100%;
 }
+
+[data-world="the-foundry"] .battlefield {
+  grid-template-rows: auto minmax(0, 1fr);
+}
