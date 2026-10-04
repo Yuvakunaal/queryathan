@@ -1,9 +1,12 @@
 .root {
-  position: relative;
+  /* Static on purpose: the panel is placed against the whole toolbar, not this button. */
+  position: static;
+  flex: 0 0 auto;
 }
 .button {
   height: 26px;
   padding: 0 10px;
+  white-space: nowrap;
   background: transparent;
   border: 1px solid transparent;
   color: var(--w1-text-secondary);
@@ -21,12 +24,8 @@
   outline-offset: 2px;
 }
 .panel {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  z-index: 40;
-  width: min(460px, 86vw);
-  max-height: min(460px, 60vh);
+  position: fixed;
+  z-index: 90;
   display: flex;
   flex-direction: column;
   gap: 8px;

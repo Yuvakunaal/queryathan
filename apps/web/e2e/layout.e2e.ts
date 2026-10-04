@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { openCase, seed } from "./helpers";
+import { openCase, rosterOf, seed } from "./helpers";
 
 /**
  * A layout floor for every width a person is likely to use, desktop to phone: nothing makes the
@@ -79,6 +79,51 @@ for (const size of SIZES) {
       // The top bar's controls are reachable at every width.
       await expect(page.getByRole("button", { name: "Sound settings" })).toBeInViewport();
       await expect(page.getByRole("button", { name: "< Roster" })).toBeInViewport();
+    });
+  });
+}
+
+// The largest text size (A+) is where layouts break first.
+for (const size of SIZES) {
+  test.describe(`largest text, ${size.name} (${String(size.width)}px)`, () => {
+    test.use({
+      viewport: { width: size.width, height: size.height },
+      reducedMotion: "reduce",
+    });
+
+    test("home, a roster and a fight still fit", async ({ page }) => {
+      test.setTimeout(150_000);
+      await page.addInitScript(() => {
+        window.localStorage.setItem(
+          "dcq.a11y",
+          JSON.stringify({
+            textScaleIndex: 3,
+            theme: "dark",
+            crtReduced: true,
+            highContrast: false,
+          }),
+        );
+      });
+      await seed(page, { cleared: { "the-twins": rosterOf("the-twins").slice(0, 4) } });
+      await page.goto("/");
+      await page.waitForTimeout(400);
+      let o = await overflow(page);
+      expect(o.page, "home scrolls sideways").toBeLessThanOrEqual(1);
+      expect(o.offenders).toEqual([]);
+      await page.locator('[data-world-card="the-observatory"]').click();
+      await page.waitForTimeout(400);
+      o = await overflow(page);
+      expect(o.page, "roster scrolls sideways").toBeLessThanOrEqual(1);
+      expect(o.offenders).toEqual([]);
+      await openCase(page, "the-twins", "w3-06-four-corners", "sql", { skipBoot: true });
+      await page.getByText(/ENTER \]/).waitFor({ timeout: 120_000 });
+      await page.waitForTimeout(500);
+      await page.keyboard.press("Enter");
+      await page.locator(".cm-content").waitFor();
+      await page.waitForTimeout(900);
+      o = await overflow(page);
+      expect(o.page, "fight scrolls sideways").toBeLessThanOrEqual(1);
+      expect(o.offenders, "fight controls outside the screen").toEqual([]);
     });
   });
 }

@@ -54,3 +54,25 @@ test("typing a question mark in the editor writes a question mark and does not o
   await page.keyboard.press("?");
   await expect(page.getByRole("dialog", { name: "Keyboard shortcuts" })).toBeVisible();
 });
+
+test("the sheet is drawn with the app's own look: a solid panel and the mono font", async ({
+  page,
+}) => {
+  await seed(page);
+  await page.goto("/");
+  await page.keyboard.press("?");
+  const dialog = page.getByRole("dialog", { name: "Keyboard shortcuts" });
+  await expect(dialog).toBeVisible();
+  const style = await dialog.evaluate((el) => {
+    const s = getComputedStyle(el);
+    const kbd = el.querySelector("kbd");
+    return {
+      background: s.backgroundColor,
+      border: s.borderTopWidth,
+      kbdFont: kbd ? getComputedStyle(kbd).fontFamily : "",
+    };
+  });
+  expect(style.background).not.toBe("rgba(0, 0, 0, 0)");
+  expect(style.border).not.toBe("0px");
+  expect(style.kbdFont).toContain("Mono");
+});

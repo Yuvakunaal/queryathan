@@ -55,3 +55,44 @@ test("SQL help opens over the editor and the data, not behind them", async ({ pa
   await expect(page.getByRole("region", { name: "SQL help" })).toBeVisible();
   expect(await onTop(page, '[role="region"][aria-label="SQL help"]')).toBe(true);
 });
+
+for (const [engine, label] of [
+  ["sql", "SQL help"],
+  ["python", "Python help"],
+] as const) {
+  for (const width of [1100, 1440] as const) {
+    test(`${label} stays fully inside the window at ${String(width)}px wide`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await openCase(page, "boss-fights", "w1-01-nul-sentinel", engine);
+      await page.waitForTimeout(1000);
+      await page.getByRole("button", { name: label }).click();
+      const box = await page.getByRole("region", { name: label }).boundingBox();
+      if (!box) throw new Error("no panel");
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(width);
+      expect(box.y + box.height).toBeLessThanOrEqual(800);
+      expect(box.width).toBeGreaterThan(300);
+      // The search box can be seen and used.
+      await expect(
+        page.getByRole("searchbox", { name: `Search ${label}` }),
+      ).toBeInViewport();
+    });
+  }
+}
+
+test("the type tooltip is set in the mono font, not a fallback", async ({ page }) => {
+  await openCase(page, "boss-fights", "w1-01-nul-sentinel", "sql");
+  await page.waitForTimeout(1000);
+  await page
+    .locator('#pane-data [role="columnheader"]', { hasText: "READING_ID" })
+    .hover();
+  const tip = page.getByRole("tooltip");
+  await expect(tip).toBeVisible();
+  const family = await tip.evaluate((el) => {
+    const type = el.querySelector("span:last-child");
+    return type ? getComputedStyle(type).fontFamily : "";
+  });
+  expect(family).toContain("Mono");
+});

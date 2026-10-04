@@ -317,7 +317,14 @@ function AppScreens() {
 
 /** The app: the screens, plus the keyboard shortcuts sheet that "?" (or any screen's ? button) opens. */
 export default function App() {
-  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [shortcutsWorld, setShortcutsWorld] = useState<string | null>(null);
+  const shortcutsOpen = shortcutsWorld !== null;
+  // The sheet is drawn outside the screens, so it borrows the look of the world you are in.
+  const openShortcuts = (): void => {
+    setShortcutsWorld(
+      document.querySelector("[data-world]")?.getAttribute("data-world") ?? "boss-fights",
+    );
+  };
 
   // "?" opens the sheet from anywhere, except while typing in a field or the editor.
   useEffect(() => {
@@ -325,7 +332,7 @@ export default function App() {
       if (event.key !== "?" || event.ctrlKey || event.metaKey || event.altKey) return;
       if (isTypingTarget(event.target)) return;
       event.preventDefault();
-      setShortcutsOpen(true);
+      openShortcuts();
     }
     window.addEventListener("keydown", onKey);
     return () => {
@@ -334,18 +341,16 @@ export default function App() {
   }, []);
 
   return (
-    <ShortcutsProvider
-      value={() => {
-        setShortcutsOpen(true);
-      }}
-    >
+    <ShortcutsProvider value={openShortcuts}>
       <AppScreens />
       {shortcutsOpen ? (
-        <ShortcutsDialog
-          onClose={() => {
-            setShortcutsOpen(false);
-          }}
-        />
+        <div data-world={shortcutsWorld} style={{ display: "contents" }}>
+          <ShortcutsDialog
+            onClose={() => {
+              setShortcutsWorld(null);
+            }}
+          />
+        </div>
       ) : null}
     </ShortcutsProvider>
   );

@@ -5,6 +5,23 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## Unreleased (Phase 9)
 
+- **Python help.** The editor toolbar has a **Python help** panel for pandas (look at the data,
+  missing values, pick and filter, text, numbers and types, dates, groups, running totals and
+  windows, join and reshape), the same click-to-insert panel as SQL help, with search.
+- **MySQL type on hover.** Hover a column name in any table (or focus a column chip above the
+  editor) to see the exact MySQL type that column would be: the smallest TINYINT to BIGINT that
+  holds the values, DECIMAL(p,s) with exactly the digits and decimals needed, DATE/DATETIME/TIME,
+  BOOLEAN, or VARCHAR(n) sized to the longest value. It also says whether NULL is needed, whether
+  the column could be a key, and the engine's own type. The rules are written down in
+  `src/lib/mysqlType.ts` and covered by tests.
+- **Keyboard shortcuts sheet.** Press **?** (outside the editor) or the **?** button in the top bar:
+  run, format, suggestions, the panel dividers, moving and resizing tables, and more.
+- **Polish found by an audit.** The sheet and the tooltip had been drawn without the app's fonts and
+  colours because a design token was never defined (a new test now fails if any style uses an
+  undefined token); the help panels are drawn above everything so no neighbouring panel clips them,
+  open towards the side with room, and stay inside the window; the editor toolbar wraps instead of
+  squeezing its buttons; and the largest text size is checked at every window width.
+
 - **Resizable tables in the collage.** The lines between tables are now drag handles, like the
   one between the left and right panels: drag to give a table more room and its neighbour less,
   with the arrow keys for small steps, Home/End for the limits and double-click or Enter to centre.

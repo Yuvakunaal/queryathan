@@ -36,5 +36,15 @@ for (const theme of ["dark", "light"] as Theme[]) {
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Sound settings" }).click();
     await scan(page, `sound menu in a fight, ${theme}`);
+    await page.keyboard.press("Escape");
+    await page
+      .locator('#pane-data [role="columnheader"][data-tip-title]')
+      .first()
+      .hover();
+    await expect(page.getByRole("tooltip")).toBeVisible();
+    await scan(page, `column type tooltip, ${theme}`);
+    await page.mouse.move(4, 400);
+    await page.getByRole("button", { name: "Keyboard shortcuts" }).click();
+    await scan(page, `shortcuts sheet in a fight, ${theme}`);
   });
 }

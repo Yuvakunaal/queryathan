@@ -6,12 +6,14 @@
   background: var(--w1-bg-void);
 }
 .toolbar {
+  position: relative;
   flex: 0 0 auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  height: 40px;
-  padding: 0 12px;
+  gap: 4px 10px;
+  min-height: 40px;
+  padding: 4px 12px;
   background: var(--w1-bg-panel-2);
   border-top: 1px solid var(--w1-rule-strong);
   border-bottom: 1px solid var(--w1-rule);
@@ -33,6 +35,7 @@
 .toolButton {
   height: 26px;
   padding: 0 10px;
+  white-space: nowrap;
   background: transparent;
   border: 1px solid transparent;
   color: var(--w1-text-secondary);

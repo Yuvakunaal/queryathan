@@ -110,6 +110,8 @@
     "Martian Mono Variable", "Martian Mono", "IBM Plex Mono", ui-monospace, monospace;
   --w1-font-text:
     "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* The same mono family, named for places that show code, types and key caps. */
+  --w1-font-mono: var(--w1-font-text);
 
   --w1-fs-boot: calc(13px * var(--dcq-text-scale, 1));
   --w1-fs-title: calc(26px * var(--dcq-text-scale, 1));
