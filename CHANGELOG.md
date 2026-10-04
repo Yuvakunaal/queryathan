@@ -5,6 +5,10 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## Unreleased (Phase 9)
 
+- **Wide tables end cleanly.** When a table is wider than its panel and you scroll sideways, the header
+  and the row stripes now run to the last column instead of stopping at the panel's edge and leaving a
+  bare strip (a test scrolls a wide table to the end and checks the header and rows reach it).
+
 - **Your data stays your data.** In SQL, building a table named `result` no longer replaces what
   "Your data" shows. The answer gets its own tab, **Your answer (result)**, and "Your data" keeps
   your `data` table exactly as your code left it, with a note saying where the answer is. The tab

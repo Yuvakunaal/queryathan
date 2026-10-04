@@ -12,6 +12,8 @@ import styles from "./DataframeGrid.module.css";
 
 const ROW_HEIGHT_PX = 28;
 const OVERSCAN = 8;
+/** Width of the row-number column on the left (matches the stylesheet). */
+const INDEX_COLUMN_WIDTH = 56;
 const DEFAULT_COLUMN_WIDTH = 110;
 
 type CSSVarStyle = CSSProperties & Record<`--${string}`, string | number>;
@@ -123,6 +125,11 @@ const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
     function isNumericColumn(column: string): boolean {
       return columnHints?.[column]?.numeric ?? false;
     }
+    // The full width of a row. Without it a wide table scrolls sideways while the header and
+    // the row stripes stop at the pane's edge, leaving a bare, unstyled strip at the right end.
+    const contentWidth =
+      INDEX_COLUMN_WIDTH +
+      grid.columns.reduce((sum, column) => sum + columnWidth(column), 0);
 
     return (
       <div
@@ -132,7 +139,11 @@ const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
         aria-rowcount={grid.rows.length}
         onKeyDown={handleKeyDown}
       >
-        <div className={styles.headerRow} role="row">
+        <div
+          className={styles.headerRow}
+          role="row"
+          style={{ width: contentWidth, minWidth: "100%" }}
+        >
           <div
             className={styles.indexHeaderCell}
             role="columnheader"
@@ -152,7 +163,11 @@ const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
         <div
           className={styles.body}
           role="rowgroup"
-          style={{ height: virtualizer.getTotalSize() }}
+          style={{
+            height: virtualizer.getTotalSize(),
+            width: contentWidth,
+            minWidth: "100%",
+          }}
         >
           {items.map((item) => {
             const row = grid.rows[item.index];
