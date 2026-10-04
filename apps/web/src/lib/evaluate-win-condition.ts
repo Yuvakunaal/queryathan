@@ -15,6 +15,7 @@ import {
   presentColumns,
   columnSumMatches,
   distinctCount,
+  compareAnswer,
 } from "./afflictions";
 
 function evaluatePredicate(
@@ -53,6 +54,8 @@ function evaluatePredicate(
       return columnSumMatches(grid, predicate.column, predicate.equals);
     case "distinct_count":
       return distinctCount(grid, predicate.column) === predicate.equals;
+    case "result_matches":
+      return compareAnswer(grid, predicate).ok;
     case "no_mojibake":
       return countMojibake(grid, predicate.column) === 0;
   }

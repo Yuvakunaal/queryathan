@@ -5,6 +5,17 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## Unreleased (Phase 9)
 
+- **World 6, The Observatory**: six analysis questions (grouping and summing, ranking
+  inside groups, 7-day moving average, cohort retention, sessionizing a click log,
+  an ordered purchase funnel), each solvable in pandas and SQL.
+- New `result_matches` predicate: judges an answer table by column name, with exact
+  row matching, numeric tolerance and optional order. Its checks report what is wrong
+  (missing column, row count, rows right) without revealing the answer, and the HUD
+  shows one star per correct row.
+- Cases can list `skills`, which rank uses instead of predicate kinds.
+- Expected answers are computed by `scripts/generate-observatory.mjs` from the
+  briefing's definitions and verified by real SQL and real pandas in the E2E suite.
+
 - The SQL formatter loads on first use; the fight-screen chunk shrank from 954 kB to 661 kB.
 - Sound cues (run, cleared, error, win), synthesized in the browser and off until switched on with SFX.
 - "Copy my solution" on the victory panel.

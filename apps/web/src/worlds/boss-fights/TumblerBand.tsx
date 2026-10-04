@@ -44,6 +44,8 @@ function labelFor(predicate: Predicate): string {
       return `${predicate.column} total`;
     case "distinct_count":
       return `${predicate.column} variety`;
+    case "result_matches":
+      return "answer";
   }
 }
 

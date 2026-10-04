@@ -15,6 +15,7 @@ import {
   presentColumns,
   columnSumMatches,
   distinctCount,
+  answerDebt,
 } from "./afflictions";
 
 /** The visual affliction kinds the game renders ("shape" never marks a cell: it labels whole-table rules) — see docs/design/world-1-phase-2-visual-spec.md §0 for the predicate -> kind mapping. */
@@ -50,6 +51,7 @@ export function kindForPredicate(predicate: Predicate): AfflictionKind {
     case "column_sum":
     case "distinct_count":
     case "runtime_under":
+    case "result_matches":
       return "shape";
   }
 }
@@ -64,6 +66,7 @@ function columnsForPredicate(predicate: Predicate): string[] {
     case "column_sum":
     case "distinct_count":
     case "runtime_under":
+    case "result_matches":
       return [];
     default:
       return [predicate.column];
@@ -94,6 +97,7 @@ function rowIndicesForPredicate(grid: ResultGrid, predicate: Predicate): number[
     case "column_sum":
     case "distinct_count":
     case "runtime_under":
+    case "result_matches":
       // Whole-table rules: there is no single cell to blame. See predicateDebt.
       return [];
   }
@@ -177,6 +181,8 @@ export function predicateDebt(
       return columnSumMatches(grid, predicate.column, predicate.equals) ? 0 : 1;
     case "distinct_count":
       return distinctCount(grid, predicate.column) === predicate.equals ? 0 : 1;
+    case "result_matches":
+      return answerDebt(grid, predicate);
     case "runtime_under":
       return run.elapsedMs !== null &&
         run.engine !== null &&
@@ -197,6 +203,7 @@ export function isWholeTable(predicate: Predicate): boolean {
     case "column_sum":
     case "distinct_count":
     case "runtime_under":
+    case "result_matches":
       return true;
     default:
       return false;

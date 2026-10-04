@@ -147,3 +147,34 @@ describe("worldRosterSchema", () => {
     expect(result.success).toBe(false);
   });
 });
+
+describe("result_matches", () => {
+  const withAnswer = (rows: unknown[][]) => ({
+    ...validCase,
+    world: "the-observatory",
+    skills: ["aggregation"],
+    winCondition: {
+      all: [{ predicate: "result_matches", columns: ["region", "revenue"], rows }],
+    },
+  });
+
+  it("accepts an answer table with text, numbers and nulls", () => {
+    const parsed = caseSchema.safeParse(
+      withAnswer([
+        ["North", 1.5],
+        ["South", null],
+      ]),
+    );
+    expect(parsed.success).toBe(true);
+  });
+
+  it("rejects a row whose length does not match the columns", () => {
+    expect(caseSchema.safeParse(withAnswer([["North"]])).success).toBe(false);
+  });
+
+  it("rejects a malformed skill name", () => {
+    expect(
+      caseSchema.safeParse({ ...withAnswer([["N", 1]]), skills: ["Not Valid"] }).success,
+    ).toBe(false);
+  });
+});

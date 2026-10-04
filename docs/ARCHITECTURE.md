@@ -7,11 +7,12 @@ specific technical decisions.
 
 ## Current state
 
-Five worlds and a sandbox are playable, every case in both engines (see
+Six worlds and a sandbox are playable, every case in both engines (see
 [`README.md`](../README.md#status) and [`CHANGELOG.md`](../CHANGELOG.md)):
 Boss Fights (cell-level cleaning), The Vault (regex and encodings), The Twins
 (joins across two tables), The Architect (reshaping), The Foundry (speed jobs
-timed against a stopwatch), and a sandbox for your own CSV. Each world has its
+timed against a stopwatch), The Observatory (analysis questions judged by
+comparing an answer table), and a sandbox for your own CSV. Each world has its
 own theme (dark and light) and HUD; the fight screen, editor, result tabs and
 win sequence are shared. Content is data (`content/`), judged by declarative
 predicates (ADR 0003). The app works offline after a first visit.

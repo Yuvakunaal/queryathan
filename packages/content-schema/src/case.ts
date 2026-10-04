@@ -78,14 +78,41 @@ export const predicateSchema = z.discriminatedUnion("predicate", [
     column: z.string(),
     equals: z.number().int().min(0),
   }),
+  /**
+   * The answer table must equal this one (World 6). Judged on the listed columns by name: extra
+   * columns are ignored, every expected row must appear exactly once, numbers match within
+   * `tolerance` (default 0.01), text matches exactly. Row order only counts when `ordered` is true.
+   */
+  z.object({
+    predicate: z.literal("result_matches"),
+    columns: z.array(z.string()).min(1),
+    rows: z.array(z.array(z.union([z.string(), z.number(), z.null()]))),
+    ordered: z.boolean().optional(),
+    tolerance: z.number().min(0).optional(),
+  }),
   /** No cell may contain UTF-8-read-as-Latin-1 garbage such as "Ã©" or "â€™". */
   z.object({ predicate: z.literal("no_mojibake"), column: z.string() }),
 ]);
 export type Predicate = z.infer<typeof predicateSchema>;
 
-export const winConditionSchema = z.object({
-  all: z.array(predicateSchema).min(1),
-});
+export const winConditionSchema = z
+  .object({
+    all: z.array(predicateSchema).min(1),
+  })
+  .superRefine((value, ctx) => {
+    value.all.forEach((predicate, index) => {
+      if (predicate.predicate !== "result_matches") return;
+      predicate.rows.forEach((row, rowIndex) => {
+        if (row.length !== predicate.columns.length) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["all", index, "rows", rowIndex],
+            message: `row has ${String(row.length)} values but there are ${String(predicate.columns.length)} columns`,
+          });
+        }
+      });
+    });
+  });
 export type WinCondition = z.infer<typeof winConditionSchema>;
 
 /** Display strings live separately from logic so translations don't touch case behavior. */
@@ -122,6 +149,7 @@ export const worldIdSchema = z.enum([
   "the-twins",
   "the-architect",
   "the-foundry",
+  "the-observatory",
 ]);
 export type WorldId = z.infer<typeof worldIdSchema>;
 
@@ -221,6 +249,15 @@ export const caseSchema = z.object({
   starterCode: starterCodeSchema,
   columnHints: columnHintsSchema.optional(),
   hints: hintsSchema.optional(),
+  /**
+   * The skills this case teaches, used for rank and the "practiced" list. When omitted, the
+   * kinds of predicate in the win condition stand in (fine for cleaning worlds, too coarse
+   * for analysis questions that are all judged by comparing an answer table).
+   */
+  skills: z
+    .array(z.string().regex(/^[a-z0-9_]+$/))
+    .min(1)
+    .optional(),
   winCondition: winConditionSchema,
 });
 export type Case = z.infer<typeof caseSchema>;

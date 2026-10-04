@@ -202,9 +202,12 @@ export default function WorldMapScreen({
             {cases.map((caseItem, index) => {
               const status = statusFor(index, caseItem);
               const kinds = predicateKindOrder(caseItem.winCondition);
+              const chipLabels = caseItem.skills
+                ? caseItem.skills.map((skill) => skill.replaceAll("_", " "))
+                : kinds;
               const isLocked = status === "locked";
               const sigil = renderSigil(isLocked || status === "unlocked" ? 1 : 0, 1);
-              const label = `${caseItem.strings.title}, ${caseItem.tier}, ${status}, techniques: ${kinds.join(", ")}`;
+              const label = `${caseItem.strings.title}, ${caseItem.tier}, ${status}, techniques: ${chipLabels.join(", ")}`;
               const body = (
                 <>
                   <div className={styles.cardHead}>
@@ -229,12 +232,17 @@ export default function WorldMapScreen({
                     <p className={styles.cardSub}>{caseItem.strings.subtitle}</p>
                   ) : null}
                   <ul className={styles.chips} aria-hidden="true">
-                    {kinds.map((kind) => (
-                      <li key={kind} className={styles.chip} data-kind={kind}>
-                        <span className={styles.chipGlyph}>{BADGE_GLYPH[kind]}</span>
-                        {kind}
-                      </li>
-                    ))}
+                    {chipLabels.map((label, chipIndex) => {
+                      const kind = caseItem.skills
+                        ? "shape"
+                        : (kinds[chipIndex] ?? "shape");
+                      return (
+                        <li key={label} className={styles.chip} data-kind={kind}>
+                          <span className={styles.chipGlyph}>{BADGE_GLYPH[kind]}</span>
+                          {label}
+                        </li>
+                      );
+                    })}
                   </ul>
                   <span className={styles.cardCta} aria-hidden="true">
                     {status === "cleared"

@@ -218,3 +218,102 @@ export function distinctCount(grid: ResultGrid, column: string): number {
   }
   return seen.size;
 }
+
+export type ExpectedCell = string | number | null;
+
+export interface AnswerSpec {
+  columns: string[];
+  rows: ExpectedCell[][];
+  ordered?: boolean | undefined;
+  tolerance?: number | undefined;
+}
+
+export interface AnswerReport {
+  /** Expected columns the result does not have. */
+  missingColumns: string[];
+  rowCount: number;
+  expectedRows: number;
+  /** For each expected row, whether the result holds a row that matches it (each result row used once). */
+  matched: boolean[];
+  matchedCount: number;
+  /** False only when the spec asks for an order and the matching rows are not in it. */
+  orderOk: boolean;
+  ok: boolean;
+}
+
+export const ANSWER_TOLERANCE = 0.01;
+
+function cellsEqual(
+  actual: string | number | boolean | null | undefined,
+  expected: ExpectedCell,
+  tolerance: number,
+): boolean {
+  if (expected === null) return actual === null || actual === undefined;
+  if (typeof expected === "number") {
+    // Float round-off aside, a number is a number: true/false are not answers.
+    return typeof actual === "number" && Math.abs(actual - expected) <= tolerance;
+  }
+  return typeof actual === "string" && actual === expected;
+}
+
+/**
+ * Compares a result table with the expected answer. Pure and order-insensitive
+ * unless the spec asks otherwise, so "the right rows, any order" passes and
+ * "the right numbers in the wrong column" does not.
+ */
+export function compareAnswer(grid: ResultGrid, spec: AnswerSpec): AnswerReport {
+  const tolerance = spec.tolerance ?? ANSWER_TOLERANCE;
+  const missing = missingColumns(grid, spec.columns);
+  const expectedRows = spec.rows.length;
+  const matched: boolean[] = spec.rows.map(() => false);
+  let orderOk = true;
+
+  if (missing.length === 0) {
+    const used = new Set<number>();
+    let lastPosition = -1;
+    spec.rows.forEach((expected, expectedIndex) => {
+      const position = grid.rows.findIndex(
+        (row, rowIndex) =>
+          !used.has(rowIndex) &&
+          spec.columns.every((column, c) =>
+            cellsEqual(row[column], expected[c] ?? null, tolerance),
+          ),
+      );
+      if (position === -1) return;
+      used.add(position);
+      matched[expectedIndex] = true;
+      if (position < lastPosition) orderOk = false;
+      lastPosition = Math.max(lastPosition, position);
+    });
+  }
+
+  const matchedCount = matched.filter(Boolean).length;
+  const orderMatters = spec.ordered === true;
+  const ok =
+    missing.length === 0 &&
+    grid.rows.length === expectedRows &&
+    matchedCount === expectedRows &&
+    (!orderMatters || orderOk);
+  return {
+    missingColumns: missing,
+    rowCount: grid.rows.length,
+    expectedRows,
+    matched,
+    matchedCount,
+    orderOk: orderMatters ? orderOk : true,
+    ok,
+  };
+}
+
+/** How far an answer is from right, as a count: missing columns, wrong or missing rows, extra rows, and a wrong order. */
+export function answerDebt(grid: ResultGrid, spec: AnswerSpec): number {
+  const report = compareAnswer(grid, spec);
+  if (report.ok) return 0;
+  const extraRows = Math.max(0, report.rowCount - report.expectedRows);
+  return (
+    report.missingColumns.length +
+    (report.expectedRows - report.matchedCount) +
+    extraRows +
+    (report.orderOk ? 0 : 1)
+  );
+}

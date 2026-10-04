@@ -42,7 +42,17 @@ function formatPredicate(predicate: Predicate): string {
       return `lacks_columns(${predicate.columns.join(",")})`;
     case "column_sum":
       return `column_sum(${predicate.column}) = ${String(predicate.equals)}`;
+    case "result_matches":
+      return `result_matches(${predicate.columns.join(",")}; ${String(predicate.rows.length)} rows)`;
     case "distinct_count":
       return `distinct_count(${predicate.column}) = ${String(predicate.equals)}`;
   }
+}
+
+/** What a case teaches: its authored skills, or else the kinds of predicate it is judged by. */
+export function caseTechniques(caseData: {
+  skills?: string[] | undefined;
+  winCondition: WinCondition;
+}): string[] {
+  return caseData.skills ?? predicateKinds(caseData.winCondition);
 }

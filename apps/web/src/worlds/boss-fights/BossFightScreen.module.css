@@ -488,3 +488,7 @@
 [data-world="the-foundry"] .battlefield {
   grid-template-rows: auto minmax(0, 1fr);
 }
+
+[data-world="the-observatory"] .battlefield {
+  grid-template-rows: auto minmax(0, 1fr);
+}

@@ -32,7 +32,7 @@ import { classNames } from "../../lib/classNames";
 import { TEXT_SCALES } from "../../lib/a11y";
 import type { A11yState } from "../../lib/a11y";
 import { parseCsv } from "../../engines/csv";
-import { predicateKinds } from "./caseFormat";
+import { caseTechniques } from "./caseFormat";
 import { formatCellValue } from "./formatCellValue";
 import { markJustCleared } from "./afflictionDom";
 import { SCAN_CODE } from "./afflictionPresentation";
@@ -52,6 +52,7 @@ import HpHeatmap from "./HpHeatmap";
 import TumblerBand from "./TumblerBand";
 import TwinBand from "./TwinBand";
 import BlueprintBand from "./BlueprintBand";
+import StarChartBand from "./StarChartBand";
 import ReferenceTable from "./ReferenceTable";
 import DataframeGrid from "./DataframeGrid";
 import type { DataframeGridHandle } from "./DataframeGrid";
@@ -516,7 +517,7 @@ export default function BossFightScreen({
         killTimerRef.current = setTimeout(() => {
           setShowKill(true);
         }, 750);
-        onWin(caseData.id, predicateKinds(caseData.winCondition), stamp ?? undefined);
+        onWin(caseData.id, caseTechniques(caseData), stamp ?? undefined);
       }
     } catch (err) {
       playCue("error");
@@ -791,6 +792,8 @@ export default function BossFightScreen({
               engine={engine === "sql" ? "sql" : "python"}
               rows={grid.rows.length}
             />
+          ) : world === "the-observatory" ? (
+            <StarChartBand grid={grid} winCondition={caseData.winCondition} />
           ) : world === "the-architect" ? (
             <BlueprintBand grid={grid} winCondition={caseData.winCondition} />
           ) : (
@@ -965,7 +968,7 @@ export default function BossFightScreen({
               ? (initialAfflictionRef.current ?? 0)
               : caseData.winCondition.all.length
           }
-          techniques={predicateKinds(caseData.winCondition)}
+          techniques={caseTechniques(caseData)}
           hintsUsed={hintsUsed}
           getSolution={() => {
             const code = codeEditorRef.current?.getValue() ?? "";

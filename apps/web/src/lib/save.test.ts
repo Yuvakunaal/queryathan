@@ -101,6 +101,7 @@ describe("maxTechniquesForWorld", () => {
     expect(maxTechniquesForWorld("the-twins")).toBe(6);
     expect(maxTechniquesForWorld("the-architect")).toBe(6);
     expect(maxTechniquesForWorld("the-foundry")).toBe(4);
+    expect(maxTechniquesForWorld("the-observatory")).toBe(6);
   });
 });
 

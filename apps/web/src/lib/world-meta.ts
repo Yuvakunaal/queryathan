@@ -76,6 +76,18 @@ export const WORLDS: readonly WorldMeta[] = [
     statusRailName: "THE-FOUNDRY",
     available: true,
   },
+  {
+    id: "the-observatory",
+    number: 6,
+    name: "The Observatory",
+    tagline: "From clean tables to answers: grouping, ranking, windows and cohorts.",
+    lede: "The data is clean. Now it has to say something. Each case asks a real business question; write the query or pandas code whose answer table matches the one the observatory expects.",
+    caseNoun: "question",
+    startLabel: "Chart the question",
+    clearedLabel: "Question answered",
+    statusRailName: "THE-OBSERVATORY",
+    available: true,
+  },
 ];
 
 export function worldMeta(id: WorldId): WorldMeta {

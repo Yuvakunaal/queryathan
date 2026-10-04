@@ -6,6 +6,7 @@ import {
   missingColumns,
   presentColumns,
 } from "../../lib/afflictions";
+import { compareAnswer } from "../../lib/afflictions";
 import { predicateDebt } from "../../lib/affliction-cells";
 import { NO_RUN } from "../../lib/run-context";
 import type { RunContext } from "../../lib/run-context";
@@ -124,6 +125,25 @@ export function describePredicate(
         detail: met ? "yes" : `has ${String(distinctCount(grid, predicate.column))}`,
         met,
       };
+    case "result_matches": {
+      const report = compareAnswer(grid, predicate);
+      const wrong = report.expectedRows - report.matchedCount;
+      let detail = "yes";
+      if (!report.ok) {
+        if (report.missingColumns.length > 0)
+          detail = `missing column ${report.missingColumns.join(", ")}`;
+        else if (report.rowCount !== report.expectedRows)
+          detail = `has ${String(report.rowCount)} rows, expected ${String(report.expectedRows)}`;
+        else if (wrong > 0)
+          detail = `${String(report.matchedCount)} of ${String(report.expectedRows)} rows right`;
+        else detail = "right rows, wrong order";
+      }
+      return {
+        label: `Your answer has ${predicate.columns.join(", ")} with the expected ${String(predicate.rows.length)} ${predicate.rows.length === 1 ? "row" : "rows"}`,
+        detail,
+        met,
+      };
+    }
     case "no_mojibake":
       return {
         label: `${predicate.column} readable`,

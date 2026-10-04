@@ -1,0 +1,151 @@
+order_id,region,product,qty,unit_price,status
+1001,East,Cable Kit,1,18.95,completed
+1002,West,Mouse Pad,5,11.00,completed
+1003,West,USB Hub,4,27.90,completed
+1004,West,Notebook,4,12.50,completed
+1005,South,Cable Kit,4,18.95,completed
+1006,South,Mouse Pad,6,11.00,cancelled
+1007,East,Notebook,3,12.50,completed
+1008,South,Notebook,6,12.50,completed
+1009,North,Mouse Pad,5,11.00,cancelled
+1010,North,Mouse Pad,4,11.00,refunded
+1011,East,Webcam,5,44.50,refunded
+1012,North,Mouse Pad,2,11.00,completed
+1013,East,Headset,1,72.00,completed
+1014,North,Mouse Pad,4,11.00,completed
+1015,West,Headset,1,72.00,refunded
+1016,East,Webcam,2,44.50,completed
+1017,South,Headset,2,72.00,completed
+1018,West,Headset,5,72.00,completed
+1019,North,Keyboard,4,59.00,refunded
+1020,South,USB Hub,2,27.90,cancelled
+1021,North,Cable Kit,3,18.95,refunded
+1022,South,Cable Kit,6,18.95,completed
+1023,East,Cable Kit,4,18.95,completed
+1024,South,Cable Kit,5,18.95,completed
+1025,South,Notebook,1,12.50,completed
+1026,North,Desk Lamp,3,34.90,completed
+1027,North,Webcam,3,44.50,completed
+1028,North,Desk Lamp,3,34.90,completed
+1029,North,Cable Kit,6,18.95,refunded
+1030,West,Cable Kit,6,18.95,completed
+1031,West,Cable Kit,2,18.95,completed
+1032,East,Keyboard,5,59.00,cancelled
+1033,West,Keyboard,2,59.00,cancelled
+1034,South,Webcam,6,44.50,completed
+1035,South,Mouse Pad,2,11.00,completed
+1036,South,Desk Lamp,1,34.90,completed
+1037,South,Desk Lamp,2,34.90,cancelled
+1038,South,Cable Kit,6,18.95,refunded
+1039,West,Webcam,2,44.50,cancelled
+1040,West,Cable Kit,6,18.95,completed
+1041,West,Desk Lamp,3,34.90,refunded
+1042,West,Mouse Pad,2,11.00,refunded
+1043,East,Headset,1,72.00,completed
+1044,North,USB Hub,6,27.90,completed
+1045,South,Keyboard,1,59.00,completed
+1046,East,Notebook,3,12.50,completed
+1047,North,Keyboard,4,59.00,completed
+1048,West,Mouse Pad,2,11.00,completed
+1049,North,Headset,2,72.00,completed
+1050,West,Webcam,6,44.50,completed
+1051,West,Mouse Pad,2,11.00,cancelled
+1052,North,Headset,5,72.00,refunded
+1053,South,Headset,1,72.00,completed
+1054,South,Cable Kit,5,18.95,cancelled
+1055,West,Cable Kit,4,18.95,completed
+1056,West,Mouse Pad,6,11.00,refunded
+1057,West,Notebook,6,12.50,completed
+1058,South,USB Hub,5,27.90,completed
+1059,West,Keyboard,1,59.00,completed
+1060,West,Webcam,5,44.50,completed
+1061,North,Cable Kit,4,18.95,completed
+1062,West,Keyboard,1,59.00,completed
+1063,East,Cable Kit,5,18.95,refunded
+1064,West,Keyboard,3,59.00,cancelled
+1065,West,Mouse Pad,5,11.00,completed
+1066,North,Webcam,2,44.50,refunded
+1067,North,Cable Kit,4,18.95,completed
+1068,South,Keyboard,2,59.00,completed
+1069,East,Notebook,6,12.50,refunded
+1070,North,Mouse Pad,1,11.00,cancelled
+1071,South,Webcam,1,44.50,completed
+1072,North,Mouse Pad,4,11.00,completed
+1073,West,Cable Kit,2,18.95,completed
+1074,South,Notebook,3,12.50,completed
+1075,North,Notebook,6,12.50,completed
+1076,North,Keyboard,5,59.00,completed
+1077,North,Webcam,2,44.50,completed
+1078,West,Headset,1,72.00,completed
+1079,East,Mouse Pad,5,11.00,cancelled
+1080,West,Keyboard,5,59.00,completed
+1081,East,Mouse Pad,5,11.00,completed
+1082,North,Keyboard,4,59.00,completed
+1083,East,Mouse Pad,6,11.00,completed
+1084,North,Desk Lamp,5,34.90,completed
+1085,East,Desk Lamp,3,34.90,completed
+1086,South,Notebook,4,12.50,completed
+1087,South,Webcam,5,44.50,cancelled
+1088,North,Mouse Pad,6,11.00,completed
+1089,East,Webcam,5,44.50,refunded
+1090,West,USB Hub,6,27.90,completed
+1091,West,Webcam,6,44.50,completed
+1092,North,Mouse Pad,1,11.00,completed
+1093,East,Mouse Pad,5,11.00,completed
+1094,North,Desk Lamp,3,34.90,refunded
+1095,East,Cable Kit,2,18.95,completed
+1096,South,Webcam,5,44.50,completed
+1097,South,Mouse Pad,5,11.00,completed
+1098,West,Webcam,1,44.50,refunded
+1099,East,Cable Kit,4,18.95,completed
+1100,West,USB Hub,2,27.90,completed
+1101,West,Desk Lamp,6,34.90,completed
+1102,West,Keyboard,1,59.00,completed
+1103,East,Desk Lamp,6,34.90,completed
+1104,South,Headset,2,72.00,completed
+1105,North,Desk Lamp,3,34.90,completed
+1106,East,Keyboard,3,59.00,completed
+1107,East,Notebook,5,12.50,cancelled
+1108,South,Webcam,2,44.50,cancelled
+1109,South,Keyboard,1,59.00,completed
+1110,West,Keyboard,3,59.00,completed
+1111,West,Mouse Pad,6,11.00,cancelled
+1112,North,Mouse Pad,4,11.00,refunded
+1113,East,Desk Lamp,3,34.90,completed
+1114,West,Cable Kit,6,18.95,completed
+1115,East,Desk Lamp,1,34.90,cancelled
+1116,East,Desk Lamp,6,34.90,refunded
+1117,East,Mouse Pad,2,11.00,completed
+1118,West,Keyboard,4,59.00,completed
+1119,East,USB Hub,2,27.90,refunded
+1120,West,Headset,6,72.00,completed
+1121,North,Desk Lamp,5,34.90,completed
+1122,East,Keyboard,2,59.00,cancelled
+1123,East,Mouse Pad,1,11.00,cancelled
+1124,North,Webcam,4,44.50,completed
+1125,East,Webcam,3,44.50,completed
+1126,South,Keyboard,6,59.00,completed
+1127,North,Mouse Pad,1,11.00,completed
+1128,East,Mouse Pad,5,11.00,completed
+1129,North,Keyboard,2,59.00,completed
+1130,North,Desk Lamp,5,34.90,completed
+1131,East,Webcam,3,44.50,completed
+1132,North,Webcam,2,44.50,completed
+1133,South,Notebook,5,12.50,completed
+1134,West,Webcam,3,44.50,completed
+1135,West,Cable Kit,3,18.95,refunded
+1136,North,USB Hub,5,27.90,completed
+1137,North,Desk Lamp,3,34.90,completed
+1138,North,Cable Kit,3,18.95,completed
+1139,North,Mouse Pad,5,11.00,completed
+1140,North,Keyboard,3,59.00,completed
+1141,North,Desk Lamp,6,34.90,cancelled
+1142,South,Desk Lamp,6,34.90,completed
+1143,North,Keyboard,4,59.00,completed
+1144,East,Mouse Pad,5,11.00,completed
+1145,East,Notebook,6,12.50,completed
+1146,West,Webcam,4,44.50,refunded
+1147,North,Headset,1,72.00,completed
+1148,East,Notebook,4,12.50,completed
+1149,West,Notebook,4,12.50,completed
+1150,West,Keyboard,3,59.00,completed

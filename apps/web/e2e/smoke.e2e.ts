@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 import { seed } from "./helpers";
 
-test("the home screen lists all five worlds and the sandbox", async ({ page }) => {
+test("the home screen lists all six worlds and the sandbox", async ({ page }) => {
   await seed(page);
   await page.goto("/");
   await expect(
@@ -13,6 +13,7 @@ test("the home screen lists all five worlds and the sandbox", async ({ page }) =
     "the-twins",
     "the-architect",
     "the-foundry",
+    "the-observatory",
   ]) {
     await expect(page.locator(`[data-world-card="${world}"]`)).toBeVisible();
   }

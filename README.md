@@ -13,7 +13,7 @@ Full product vision, world designs, and architecture rationale:
 
 ## Status
 
-Five worlds are playable, 19 cases in all, each winnable in either engine:
+Six worlds are playable, 25 cases in all, each winnable in either engine:
 
 1. **Boss Fights**: nulls, duplicates, whitespace and casing, wrong dtypes,
    outliers, bad dates.
@@ -21,6 +21,9 @@ Five worlds are playable, 19 cases in all, each winnable in either engine:
 3. **The Twins**: joins and relational cleanup.
 4. **The Architect**: reshaping.
 5. **The Foundry**: timed jobs against a stopwatch, with quality stamps.
+6. **The Observatory**: business questions answered with grouping, ranking,
+   moving averages, cohorts, sessions and funnels. The answer table is checked
+   against the expected one.
 
 Also in place: a sandbox for your own CSV, dark, light and high-contrast
 themes, resizable panels, a worksheet-style SQL editor (run selection, else

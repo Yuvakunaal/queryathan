@@ -139,8 +139,9 @@ export default function WorldSelectScreen({
         <section className={styles.hero}>
           <h1 className={styles.heading}>Fight your data clean.</h1>
           <p className={styles.lede}>
-            Learn real pandas and SQL on messy tables. Everything runs in your browser. No
-            account, no server. Progress stays on this device.
+            Learn real pandas and SQL: clean messy tables, then make them answer
+            questions. Everything runs in your browser. No account, no server. Progress
+            stays on this device.
           </p>
           <button
             ref={aboutButtonRef}

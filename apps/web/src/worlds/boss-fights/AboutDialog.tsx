@@ -15,6 +15,7 @@ const LOOK: Record<WorldId, string> = {
   "the-twins": "Graphite, two accent colors",
   "the-architect": "Blueprint blue",
   "the-foundry": "Forge orange",
+  "the-observatory": "Midnight violet and star gold",
 };
 
 const FOCUSABLE =
@@ -100,7 +101,8 @@ export default function AboutDialog({ onClose, onStart }: AboutDialogProps) {
               Real data is messy: empty cells, rows entered twice, typos, dates in five
               formats. People who work with data spend a large part of their time fixing
               exactly this. This game is practice for that, one small, clear problem at a
-              time.
+              time. Once a table is clean, the last world uses it to answer real
+              questions.
             </p>
           </section>
 

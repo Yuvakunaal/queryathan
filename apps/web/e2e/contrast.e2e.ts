@@ -15,6 +15,7 @@ const WORLDS = [
   "the-twins",
   "the-architect",
   "the-foundry",
+  "the-observatory",
 ] as const;
 const MODES = [
   { name: "dark", theme: "dark", contrast: null },

@@ -98,6 +98,7 @@ test("every world in its own palette passes", async ({ page }) => {
     ["the-twins", "w3-01-key-mirror"],
     ["the-architect", "w4-01-melt-form"],
     ["the-foundry", "w5-01-slow-lane"],
+    ["the-observatory", "w6-01-first-light"],
   ] as const) {
     await openCase(page, world, caseId, "sql");
     await page.waitForTimeout(1200); // let the entrance animation finish

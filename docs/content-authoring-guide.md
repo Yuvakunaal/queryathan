@@ -110,6 +110,46 @@ task and the predicates saying the same thing. Final bosses omit `task`.
 | `lacks_columns`     | `{ columns }`                                                     | None of the listed columns may remain. Whole-table rule (World 4).                                                                                                 |
 | `column_sum`        | `{ column, equals }`                                              | Numeric cells of the column must add to `equals` (within 0.01). A checksum proving values survived a reshape. Whole-table rule.                                    |
 | `distinct_count`    | `{ column, equals }`                                              | The column must hold exactly this many distinct non-null values. Whole-table rule.                                                                                 |
+| `result_matches`    | `{ columns, rows, ordered?, tolerance? }`                         | The answer table must equal the expected one (World 6). See "Answer cases" below. Whole-table rule.                                                                |
+
+### Answer cases (World 6)
+
+World 6 asks a business question and judges the answer table. One predicate does
+the judging:
+
+```json
+{
+  "predicate": "result_matches",
+  "columns": ["region", "revenue"],
+  "rows": [
+    ["North", 3789.15],
+    ["South", 2466.55]
+  ],
+  "ordered": false,
+  "tolerance": 0.01
+}
+```
+
+- Columns are matched **by name**; extra columns in the player's table are
+  ignored, missing ones are reported by name. State the exact column names in
+  the briefing.
+- Every expected row must appear exactly once (extra or duplicated rows fail).
+  Rows may come in any order unless `ordered` is true.
+- Numbers match within `tolerance` (default 0.01); text matches exactly; a
+  number is never accepted as text or the reverse. For rounded answers, set the
+  tolerance to just over half of the last digit the briefing asks for (0.06 for
+  one decimal).
+- The check never shows the expected values, only how many rows are right.
+- Set `"reshapes": true` (the answer is a new table) and list `"skills"`
+  (for example `["cohorts"]`): rank counts these, since every case here is judged
+  by the same predicate.
+- **Compute the expected rows in code from the definition in the briefing**, not
+  by hand. `scripts/generate-observatory.mjs` does this and writes the case files.
+  Then add a known-good SQL and pandas answer to `apps/web/e2e/solutions.ts`; the
+  suite proves both engines reach the same table.
+- Avoid ties, exact-boundary values and anything where SQLite and pandas
+  legitimately differ, unless the briefing settles it. A fair question has one
+  right answer.
 
 ### Speed cases (World 5)
 

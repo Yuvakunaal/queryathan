@@ -10,7 +10,8 @@
   [data-world="the-vault"],
   [data-world="the-twins"],
   [data-world="the-architect"],
-  [data-world="the-foundry"]
+  [data-world="the-foundry"],
+  [data-world="the-observatory"]
 ) {
   /* --- surfaces: near-black, cool cast, stepped not shadowed --- */
   --w1-bg-void: #06080a;
@@ -135,7 +136,8 @@
     [data-world="the-vault"],
     [data-world="the-twins"],
     [data-world="the-architect"],
-    [data-world="the-foundry"]
+    [data-world="the-foundry"],
+    [data-world="the-observatory"]
   ) {
   --w1-bg-void: #000000;
   --w1-bg-panel: #000000;
@@ -162,14 +164,16 @@
   [data-world="the-vault"],
   [data-world="the-twins"],
   [data-world="the-architect"],
-  [data-world="the-foundry"]
+  [data-world="the-foundry"],
+  [data-world="the-observatory"]
 ),
 :is(
     [data-world="boss-fights"],
     [data-world="the-vault"],
     [data-world="the-twins"],
     [data-world="the-architect"],
-    [data-world="the-foundry"]
+    [data-world="the-foundry"],
+    [data-world="the-observatory"]
   )
   * {
   border-radius: 0;
@@ -180,7 +184,8 @@
   [data-world="the-vault"],
   [data-world="the-twins"],
   [data-world="the-architect"],
-  [data-world="the-foundry"]
+  [data-world="the-foundry"],
+  [data-world="the-observatory"]
 ) {
   font-variant-ligatures: none;
   font-feature-settings: "zero" 1;
@@ -191,7 +196,8 @@
     [data-world="the-vault"],
     [data-world="the-twins"],
     [data-world="the-architect"],
-    [data-world="the-foundry"]
+    [data-world="the-foundry"],
+    [data-world="the-observatory"]
   )
   * {
   scrollbar-width: thin;
@@ -202,7 +208,8 @@
     [data-world="the-vault"],
     [data-world="the-twins"],
     [data-world="the-architect"],
-    [data-world="the-foundry"]
+    [data-world="the-foundry"],
+    [data-world="the-observatory"]
   )
   *::-webkit-scrollbar {
   width: 10px;
@@ -213,7 +220,8 @@
     [data-world="the-vault"],
     [data-world="the-twins"],
     [data-world="the-architect"],
-    [data-world="the-foundry"]
+    [data-world="the-foundry"],
+    [data-world="the-observatory"]
   )
   *::-webkit-scrollbar-thumb {
   background: var(--w1-rule-strong);
@@ -233,7 +241,8 @@
     [data-world="the-vault"],
     [data-world="the-twins"],
     [data-world="the-architect"],
-    [data-world="the-foundry"]
+    [data-world="the-foundry"],
+    [data-world="the-observatory"]
   ) {
   --w1-bg-void: #f3f6f4;
   --w1-bg-panel: #ffffff;
@@ -327,7 +336,8 @@ html[data-dcq-theme="light"][data-dcq-contrast="high"]
     [data-world="the-vault"],
     [data-world="the-twins"],
     [data-world="the-architect"],
-    [data-world="the-foundry"]
+    [data-world="the-foundry"],
+    [data-world="the-observatory"]
   ) {
   --w1-bg-void: #ffffff;
   --w1-bg-panel: #ffffff;
