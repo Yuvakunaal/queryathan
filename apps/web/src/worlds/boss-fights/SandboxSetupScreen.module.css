@@ -222,3 +222,64 @@
     border-color: CanvasText;
   }
 }
+
+.tables {
+  margin: 18px 0 4px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+  border: 1px dashed var(--w1-rule-strong);
+}
+.tablesTitle {
+  margin: 0;
+  font: 700 15px/1.3 var(--w1-font-display);
+  color: var(--w1-text-primary);
+}
+.tablesHint {
+  margin: 0;
+  font: 400 13px/1.5 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.extras {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.extra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 8px 10px;
+  background: var(--w1-bg-panel-2);
+  border: 1px solid var(--w1-rule);
+}
+.extraFile {
+  flex: 1 1 200px;
+  min-width: 0;
+  font: 500 13px/1.3 var(--w1-font-text);
+  color: var(--w1-text-primary);
+  overflow-wrap: anywhere;
+}
+.extraName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 12px/1 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.extraName input {
+  width: 150px;
+  height: 30px;
+  padding: 0 8px;
+  background: var(--w1-bg-void);
+  border: 1px solid var(--w1-rule-strong);
+  color: var(--w1-text-primary);
+  font: 500 13px/1 var(--w1-font-mono);
+}
+.extraName input:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 1px;
+}

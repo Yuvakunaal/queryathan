@@ -5,6 +5,23 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## Unreleased (Phase 9)
 
+- **Collage view for joins.** A case with several tables shows them together under "Your
+  data": two stack one above the other, three put two on top and one below, four make a 2 by 2. Drag a table's grip onto another to swap places (or use the arrow keys); "One at a time"
+  brings back tabs. The choice and the order are remembered per device.
+- **Two new joins in The Twins:** THREE_WAY (three tables) and FOUR_CORNERS (four tables,
+  with a discount to apply), both judged by exact values.
+- **The sandbox takes up to four tables** (your own files, or a ready-made join sample), each
+  with a name you choose, shown in the same collage.
+- **SQL toolbox.** Dozens of everyday MySQL/PostgreSQL/Snowflake functions now work in the SQL
+  engine (YEAR, MONTH, DATE_TRUNC, DATE_ADD, DATEDIFF, TIMESTAMPDIFF, EXTRACT, DATE_FORMAT,
+  TO_CHAR, TO_DATE, LEFT, RIGHT, LPAD, SPLIT_PART, INITCAP, NVL, GREATEST, MOD and more), with
+  the usual spellings (`EXTRACT(month FROM d)`, `DATEDIFF(day, a, b)`, `DATE_ADD(d, INTERVAL 7
+DAY)`, `ILIKE`). A "SQL help" panel groups them by task, and function names autocomplete.
+- **Sound menu:** effects, typing and volume are separate controls. The finishing cut has a real
+  knife sound, and its scene is now the opposite of the theme (light on dark, dark on light).
+- **One opening for both engines:** the intro starts as soon as an engine is chosen and waits on
+  its "mounting engine" line, instead of a separate loading screen for Python.
+
 - Running the whole editor now always starts from the original table, so running the
   same code twice gives the same answer in every world (no "column already exists", no
   melting or joining an already reshaped table). Running a selection still works on the

@@ -13,7 +13,7 @@ Full product vision, world designs, and architecture rationale:
 
 ## Status
 
-Six worlds are playable, 25 cases in all, each winnable in either engine:
+Six worlds are playable, 27 cases in all, each winnable in either engine:
 
 1. **Boss Fights**: nulls, duplicates, whitespace and casing, wrong dtypes,
    outliers, bad dates.
@@ -25,7 +25,7 @@ Six worlds are playable, 25 cases in all, each winnable in either engine:
    moving averages, cohorts, sessions and funnels. The answer table is checked
    against the expected one.
 
-Also in place: a sandbox for your own CSV, dark, light and high-contrast
+Also in place: a sandbox for your own CSVs (up to four tables, to practise joins in a rearrangeable collage), dark, light and high-contrast
 themes, resizable panels, a worksheet-style SQL editor (run selection, else
 all), plain-language error views, and an offline cache so the app keeps working
 after one visit. Progress lives in `localStorage` and is exportable as JSON.

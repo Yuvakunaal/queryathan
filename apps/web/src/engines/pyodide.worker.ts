@@ -267,7 +267,10 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         pyodide.globals.set("__dcq_extra_name", table.name);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        pyodide.globals.set("__dcq_extra_csv", await fetchText(table.url));
+        pyodide.globals.set(
+          "__dcq_extra_csv",
+          table.text ?? (await fetchText(table.url)),
+        );
         await pyodide.runPythonAsync(
           "globals()[__dcq_extra_name] = pd.read_csv(io.StringIO(__dcq_extra_csv))",
         );

@@ -185,7 +185,7 @@ per-cell diff with a "reshaped: A x B -> C x D" summary. Win with
 with the right shape but wrong numbers does not pass. Compute the checksum
 from the CSV, never by hand. SQLite has `json_extract` built in.
 
-### Two tables (World 3)
+### Several tables (World 3)
 
 A case can add reference tables with `"extraTables": [{ "name": "customers", "path": "/datasets/world-3/x.csv" }]`.
 In Python each becomes a DataFrame with that name beside `df`. In SQL each is
@@ -194,6 +194,13 @@ judged: `df` in Python; in SQL a table or view named `result` if one exists,
 otherwise `data`. Say this in the briefing. Pair `has_columns` and
 `row_count` (a join must bring columns across without losing or multiplying
 rows) with cell rules like `no_nulls` on a joined column.
+
+A case can have up to **three** extra tables (four in all). The right-hand panel
+shows them as a collage the player can rearrange: two tables stack one above the
+other, three put two on top and one below, four make a 2 by 2. For a join of three
+or four tables, judge the answer with `result_matches` (see "Answer cases") so the
+values are checked, not just the shape; `scripts/generate-twins-multi.mjs` is a worked
+example that computes the expected rows from the briefing's own definition.
 
 ### Regex in SQL (World 2)
 

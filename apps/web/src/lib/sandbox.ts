@@ -22,6 +22,44 @@ export interface PreparedSandbox {
   notes: string[];
 }
 
+/** The most tables a sandbox can hold: the main one and up to three more, for practising joins. */
+export const SANDBOX_MAX_TABLES = 4;
+
+/** A table added beside the main upload. */
+export interface SandboxExtra {
+  /** The name used in code: a table in SQL, a DataFrame in Python. */
+  name: string;
+  fileName: string;
+  csvText: string;
+  columns: string[];
+  rowCount: number;
+}
+
+const RESERVED_TABLE_NAMES = new Set(["data", "df", "result", "pd"]);
+
+/** Turns a file name or typed name into a safe table name (lower case letters, digits and underscores, not starting with a digit). */
+export function sanitizeTableName(raw: string): string {
+  const base = raw
+    .replace(/\.[a-z0-9]+$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9_]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  const named = base === "" ? "table" : /^[0-9]/.test(base) ? `t_${base}` : base;
+  return RESERVED_TABLE_NAMES.has(named) ? `${named}_2` : named;
+}
+
+/** A name nobody else is using: adds _2, _3 ... when the wanted one is taken. */
+export function uniqueTableName(wanted: string, taken: string[]): string {
+  const base = sanitizeTableName(wanted);
+  let name = base;
+  let n = 2;
+  while (taken.includes(name)) {
+    name = `${base}_${String(n)}`;
+    n += 1;
+  }
+  return name;
+}
+
 export type SandboxResult =
   { ok: true; data: PreparedSandbox } | { ok: false; message: string };
 
@@ -157,8 +195,24 @@ function columnHints(
   return hints;
 }
 
+function allColumnHints(
+  columns: string[],
+  rows: string[][],
+  extras: SandboxExtra[],
+): NonNullable<Case["columnHints"]> {
+  const hints: NonNullable<Case["columnHints"]> = {};
+  for (const extra of extras) {
+    Object.assign(hints, columnHints(extra.columns, parseCsv(extra.csvText).rows));
+  }
+  return Object.assign(hints, columnHints(columns, rows));
+}
+
 /** Wraps a prepared upload in the Case shape the fight screen consumes. There is no win condition; the screen knows not to use it. */
-export function buildSandboxCase(fileName: string, prepared: PreparedSandbox): Case {
+export function buildSandboxCase(
+  fileName: string,
+  prepared: PreparedSandbox,
+  extras: SandboxExtra[] = [],
+): Case {
   const { rows } = parseCsv(prepared.csvText);
   const first = prepared.columns[0] ?? "x";
   return {
@@ -166,6 +220,11 @@ export function buildSandboxCase(fileName: string, prepared: PreparedSandbox): C
     world: "boss-fights",
     tier: "tutorial",
     datasetPath: "sandbox://upload",
+    ...(extras.length > 0
+      ? {
+          extraTables: extras.map((e) => ({ name: e.name, path: `sandbox://${e.name}` })),
+        }
+      : {}),
     datasetLicense: {
       license: "user-supplied",
       provenance: "Loaded from your device. It is never uploaded.",
@@ -179,7 +238,7 @@ export function buildSandboxCase(fileName: string, prepared: PreparedSandbox): C
       python: "# df is your data. Try one of the ideas on the left.\ndf.head()",
       sql: "-- data is your table. Try one of the ideas on the left.\nSELECT * FROM data LIMIT 20;",
     },
-    columnHints: columnHints(prepared.columns, rows),
+    columnHints: allColumnHints(prepared.columns, rows, extras),
     // Never evaluated: the screen skips win checks in sandbox mode.
     winCondition: { all: [{ predicate: "has_columns", columns: [first] }] },
   };
@@ -243,4 +302,29 @@ export function starterIdeas(
         .join(", ")}\nHAVING n > 1;`,
     },
   ];
+}
+
+/** Ideas for practising joins, built from whichever column names two tables share. */
+export function joinIdeas(
+  language: "python" | "sql",
+  mainColumns: string[],
+  extras: SandboxExtra[],
+): { label: string; code: string }[] {
+  const ideas: { label: string; code: string }[] = [];
+  for (const extra of extras) {
+    const shared = mainColumns.find((c) => extra.columns.includes(c));
+    if (!shared) continue;
+    ideas.push(
+      language === "sql"
+        ? {
+            label: `Join with ${extra.name} on ${shared}`,
+            code: `SELECT *\nFROM data d\nLEFT JOIN ${extra.name} x ON x."${shared}" = d."${shared}"\nLIMIT 20;`,
+          }
+        : {
+            label: `Join with ${extra.name} on ${shared}`,
+            code: `df.merge(${extra.name}, on='${shared}', how='left').head(20)`,
+          },
+    );
+  }
+  return ideas;
 }

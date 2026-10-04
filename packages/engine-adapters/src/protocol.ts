@@ -26,6 +26,8 @@ export interface ResultGrid {
 export interface ExtraTable {
   name: string;
   url: string;
+  /** The CSV text itself, when it comes from the player's own files (the sandbox) and there is nothing to fetch. */
+  text?: string;
 }
 
 /** A query's returned table (a SELECT result, or a DataFrame/Series the last expression evaluated to). Capped for display. */

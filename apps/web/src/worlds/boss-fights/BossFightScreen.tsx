@@ -28,6 +28,7 @@ import { stampFor } from "../../lib/forge";
 import type { Stamp } from "../../lib/forge";
 import ForgeBand from "./ForgeBand";
 import { classNames } from "../../lib/classNames";
+import type { SandboxExtra } from "../../lib/sandbox";
 import { TEXT_SCALES } from "../../lib/a11y";
 import type { A11yState } from "../../lib/a11y";
 import { parseCsv } from "../../engines/csv";
@@ -46,6 +47,9 @@ import LoadingCard from "./LoadingCard";
 import type { EngineChoice } from "./EngineSelect";
 import BriefingPanel from "./BriefingPanel";
 import TopBar from "./TopBar";
+import TableCollage from "./TableCollage";
+import DataLayoutBar from "./DataLayoutBar";
+import type { DataLayout } from "./DataLayoutBar";
 import SandboxBriefing from "./SandboxBriefing";
 import SandboxBand from "./SandboxBand";
 import HpHeatmap from "./HpHeatmap";
@@ -80,6 +84,8 @@ interface PendingReconciliation {
 
 export interface SandboxSession {
   caseData: Case;
+  /** Tables added beside the main one, for practising joins. */
+  extras: SandboxExtra[];
   csvText: string;
   fileName: string;
   rowCount: number;
@@ -114,6 +120,28 @@ function writeLastEngine(engine: EngineChoice): void {
     window.localStorage.setItem(LAST_ENGINE_KEY, engine);
   } catch {
     // Not remembered; the engine just is not started early next time.
+  }
+}
+
+const LAYOUT_KEY = "dcq.dataLayout";
+
+function readDataLayout(): DataLayout {
+  try {
+    return window.localStorage.getItem(LAYOUT_KEY) === "tabs" ? "tabs" : "collage";
+  } catch {
+    return "collage";
+  }
+}
+
+function readCollageOrder(caseId: string): string[] {
+  try {
+    const raw = window.localStorage.getItem(`dcq.collage.${caseId}`);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((x): x is string => typeof x === "string")
+      : [];
+  } catch {
+    return [];
   }
 }
 
@@ -155,6 +183,8 @@ export default function BossFightScreen({
   const [showTutorial, setShowTutorial] = useState(() => !sandbox && !hasSeenTutorial());
   const [runCount, setRunCount] = useState(0);
   const [hintsUsed, setHintsUsed] = useState(0);
+  const [dataLayout, setDataLayout] = useState<DataLayout>(readDataLayout);
+  const [collageOrder, setCollageOrder] = useState<string[]>([]);
   const [narrowNoticeDismissed, setNarrowNoticeDismissed] = useState(false);
   const [liveMessage, setLiveMessage] = useState("");
   const [liveErrorMessage, setLiveErrorMessage] = useState("");
@@ -260,6 +290,7 @@ export default function BossFightScreen({
         const loadedCase = sandbox ? sandbox.caseData : await loadCase(casePath);
         if (cancelled) return;
         setCaseData(loadedCase);
+        setCollageOrder(readCollageOrder(loadedCase.id));
         setPhase("engine-select");
       } catch (err) {
         if (!cancelled) setLoadError(err instanceof Error ? err.message : String(err));
@@ -276,10 +307,10 @@ export default function BossFightScreen({
   /** What the engine needs to load this case's table (also used when it is restarted). */
   function initOptionsFor(activeCase: Case): InitCaseOptions {
     return {
-      extraTables: (activeCase.extraTables ?? []).map((t) => ({
-        name: t.name,
-        url: t.path,
-      })),
+      extraTables: (activeCase.extraTables ?? []).map((t) => {
+        const own = sandbox?.extras.find((e) => e.name === t.name);
+        return { name: t.name, url: t.path, ...(own ? { text: own.csvText } : {}) };
+      }),
       trackRowIdentity: !activeCase.reshapes,
       ...(sandbox ? { datasetText: sandbox.csvText } : {}),
       ...(activeCase.generated ? { generated: activeCase.generated } : {}),
@@ -346,7 +377,8 @@ export default function BossFightScreen({
         initialColumnsRef.current = result.resultGrid.columns;
         const loadedExtras: Record<string, string[]> = {};
         for (const table of activeCase.extraTables ?? []) {
-          const text = await (await fetch(table.path)).text();
+          const own = sandbox?.extras.find((e) => e.name === table.name);
+          const text = own ? own.csvText : await (await fetch(table.path)).text();
           loadedExtras[table.name] = parseCsv(text).columns;
         }
         if (isCancelled()) return;
@@ -672,6 +704,17 @@ export default function BossFightScreen({
     ...extraColumns,
   };
   const remaining = totalDebt(grid, caseData.winCondition, lastRun);
+  const extraTables = caseData.extraTables ?? [];
+  const inCollage = extraTables.length > 0 && dataLayout === "collage";
+  const mainGrid = (
+    <DataframeGrid
+      ref={gridRef}
+      grid={grid}
+      afflictionCellMap={cellMap}
+      textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
+      columnHints={caseData.columnHints}
+    />
+  );
 
   return (
     <div className={styles.fightRoot} data-world={world} ref={fightRootRef}>
@@ -712,6 +755,7 @@ export default function BossFightScreen({
           <div className={styles.briefingPane} ref={briefingPaneRef}>
             {sandbox ? (
               <SandboxBriefing
+                extras={sandbox.extras}
                 fileName={sandbox.fileName}
                 language={engine === "sql" ? "sql" : "python"}
                 columns={initialColumnsRef.current ?? grid.columns}
@@ -803,6 +847,8 @@ export default function BossFightScreen({
             <SandboxBand grid={grid} fileName={sandbox.fileName} />
           ) : world === "the-vault" ? (
             <TumblerBand grid={grid} winCondition={caseData.winCondition} />
+          ) : caseData.winCondition.all.some((p) => p.predicate === "result_matches") ? (
+            <StarChartBand grid={grid} winCondition={caseData.winCondition} />
           ) : world === "the-twins" ? (
             <TwinBand
               grid={grid}
@@ -834,10 +880,12 @@ export default function BossFightScreen({
                   id: "changes",
                   label: `Changes${consoleEntries.length ? ` (${String(consoleEntries.length)})` : ""}`,
                 },
-                ...(caseData.extraTables ?? []).map((t) => ({
-                  id: t.name,
-                  label: `${t.name} (original)`,
-                })),
+                ...(inCollage
+                  ? []
+                  : (caseData.extraTables ?? []).map((t) => ({
+                      id: t.name,
+                      label: `${t.name} (original)`,
+                    }))),
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -868,13 +916,65 @@ export default function BossFightScreen({
                 aria-labelledby="tab-data"
                 hidden={activeTab !== "data"}
               >
-                <DataframeGrid
-                  ref={gridRef}
-                  grid={grid}
-                  afflictionCellMap={cellMap}
-                  textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
-                  columnHints={caseData.columnHints}
-                />
+                {extraTables.length > 0 ? (
+                  <DataLayoutBar
+                    layout={dataLayout}
+                    tableCount={extraTables.length + 1}
+                    onChange={(next) => {
+                      setDataLayout(next);
+                      try {
+                        window.localStorage.setItem(LAYOUT_KEY, next);
+                      } catch {
+                        // The choice just is not remembered.
+                      }
+                      if (
+                        next === "collage" &&
+                        !["data", "result", "changes"].includes(activeTab)
+                      ) {
+                        setActiveTab("data");
+                      }
+                    }}
+                  />
+                ) : null}
+                {inCollage ? (
+                  <TableCollage
+                    panes={[
+                      {
+                        id: "main",
+                        title: engine === "sql" ? "data" : "df",
+                        note: "your table",
+                        content: mainGrid,
+                      },
+                      ...extraTables.map((t) => ({
+                        id: t.name,
+                        title: t.name,
+                        note: "original",
+                        content: (
+                          <ReferenceTable
+                            url={t.path}
+                            text={sandbox?.extras.find((e) => e.name === t.name)?.csvText}
+                            columnHints={caseData.columnHints}
+                            textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
+                          />
+                        ),
+                      })),
+                    ]}
+                    order={collageOrder}
+                    onOrderChange={(next) => {
+                      setCollageOrder(next);
+                      try {
+                        window.localStorage.setItem(
+                          `dcq.collage.${caseData.id}`,
+                          JSON.stringify(next),
+                        );
+                      } catch {
+                        // The order just is not remembered.
+                      }
+                    }}
+                  />
+                ) : (
+                  mainGrid
+                )}
               </div>
               <div
                 className={styles.tablePane}
@@ -912,6 +1012,7 @@ export default function BossFightScreen({
                 >
                   <ReferenceTable
                     url={t.path}
+                    text={sandbox?.extras.find((e) => e.name === t.name)?.csvText}
                     columnHints={caseData.columnHints}
                     textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
                   />

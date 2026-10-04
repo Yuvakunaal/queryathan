@@ -1,7 +1,13 @@
 import { useRef, useState } from "react";
 import type { DragEvent } from "react";
-import { prepareSandboxCsv, SANDBOX_LIMITS } from "../../lib/sandbox";
-import type { PreparedSandbox } from "../../lib/sandbox";
+import {
+  prepareSandboxCsv,
+  sanitizeTableName,
+  SANDBOX_LIMITS,
+  SANDBOX_MAX_TABLES,
+  uniqueTableName,
+} from "../../lib/sandbox";
+import type { PreparedSandbox, SandboxExtra } from "../../lib/sandbox";
 import type { A11yState } from "../../lib/a11y";
 import { classNames } from "../../lib/classNames";
 import A11yControls from "./A11yControls";
@@ -11,12 +17,21 @@ export interface SandboxSetupScreenProps {
   a11y: A11yState;
   onA11yChange: (next: A11yState) => void;
   onBack: () => void;
-  onStart: (fileName: string, prepared: PreparedSandbox) => void;
+  onStart: (fileName: string, prepared: PreparedSandbox, extras: SandboxExtra[]) => void;
 }
 
 const SAMPLE = {
   url: "/datasets/world-1/case-shift.csv",
   name: "messy-products.csv",
+};
+
+/** Three related tables, for trying joins straight away. */
+const JOIN_SAMPLE = {
+  main: { url: "/datasets/world-3/three-way-orders.csv", name: "orders.csv" },
+  extras: [
+    { url: "/datasets/world-3/three-way-customers.csv", name: "customers.csv" },
+    { url: "/datasets/world-3/three-way-products.csv", name: "products.csv" },
+  ],
 };
 
 export default function SandboxSetupScreen({
@@ -33,7 +48,10 @@ export default function SandboxSetupScreen({
   const [dragging, setDragging] = useState(false);
   const [pasted, setPasted] = useState("");
   const [busy, setBusy] = useState(false);
+  const [extras, setExtras] = useState<SandboxExtra[]>([]);
+  const [extraError, setExtraError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const extraInputRef = useRef<HTMLInputElement>(null);
 
   function accept(fileName: string, text: string): void {
     const result = prepareSandboxCsv(text);
@@ -64,6 +82,83 @@ export default function SandboxSetupScreen({
         setError(
           "That file could not be read. Try saving it as CSV and choosing it again.",
         );
+      })
+      .finally(() => {
+        setBusy(false);
+      });
+  }
+
+  function addExtra(fileName: string, text: string): void {
+    const result = prepareSandboxCsv(text);
+    if (!result.ok) {
+      setExtraError(`${fileName}: ${result.message}`);
+      return;
+    }
+    setExtraError(null);
+    setExtras((current) =>
+      current.length + 1 >= SANDBOX_MAX_TABLES
+        ? current
+        : [
+            ...current,
+            {
+              name: uniqueTableName(
+                fileName,
+                current.map((e) => e.name),
+              ),
+              fileName,
+              csvText: result.data.csvText,
+              columns: result.data.columns,
+              rowCount: result.data.rowCount,
+            },
+          ],
+    );
+  }
+
+  function readExtraFile(file: File): void {
+    file
+      .text()
+      .then((text) => {
+        addExtra(file.name, text);
+      })
+      .catch(() => {
+        setExtraError("That file could not be read. Try saving it as CSV.");
+      });
+  }
+
+  function loadJoinSample(): void {
+    setBusy(true);
+    Promise.all(
+      [JOIN_SAMPLE.main, ...JOIN_SAMPLE.extras].map(async (file) => ({
+        name: file.name,
+        text: await (await fetch(file.url)).text(),
+      })),
+    )
+      .then(([main, ...rest]) => {
+        if (!main) return;
+        const prepared = prepareSandboxCsv(main.text);
+        if (!prepared.ok) throw new Error(prepared.message);
+        const loadedExtras: SandboxExtra[] = [];
+        for (const item of rest) {
+          const result = prepareSandboxCsv(item.text);
+          if (!result.ok) throw new Error(result.message);
+          loadedExtras.push({
+            name: uniqueTableName(
+              item.name,
+              loadedExtras.map((e) => e.name),
+            ),
+            fileName: item.name,
+            csvText: result.data.csvText,
+            columns: result.data.columns,
+            rowCount: result.data.rowCount,
+          });
+        }
+        setError(null);
+        setExtraError(null);
+        setLoaded({ fileName: main.name, prepared: prepared.data });
+        setExtras(loadedExtras);
+      })
+      .catch(() => {
+        setError("The sample could not be loaded. Check your connection and try again.");
       })
       .finally(() => {
         setBusy(false);
@@ -143,6 +238,9 @@ export default function SandboxSetupScreen({
             <button type="button" className={styles.secondary} onClick={loadSample}>
               Try a sample
             </button>
+            <button type="button" className={styles.secondary} onClick={loadJoinSample}>
+              Try a join sample (3 tables)
+            </button>
           </div>
           <input
             ref={inputRef}
@@ -216,11 +314,93 @@ export default function SandboxSetupScreen({
                 ))}
               </ul>
             ) : null}
+            <div className={styles.tables}>
+              <h3 className={styles.tablesTitle}>Practise joins</h3>
+              <p className={styles.tablesHint}>
+                Add up to {String(SANDBOX_MAX_TABLES - 1)} more tables. Each one gets a
+                name you use in your code, and they appear together in a collage you can
+                rearrange.
+              </p>
+              {extras.length > 0 ? (
+                <ul className={styles.extras}>
+                  {extras.map((extra, index) => (
+                    <li key={extra.fileName + String(index)} className={styles.extra}>
+                      <span className={styles.extraFile}>
+                        {extra.fileName} · {extra.rowCount.toLocaleString()} rows
+                      </span>
+                      <label className={styles.extraName}>
+                        <span>Name in code</span>
+                        <input
+                          type="text"
+                          value={extra.name}
+                          spellCheck={false}
+                          onChange={(event) => {
+                            const wanted = sanitizeTableName(event.target.value);
+                            setExtras((current) =>
+                              current.map((e, i) =>
+                                i === index
+                                  ? {
+                                      ...e,
+                                      name: uniqueTableName(
+                                        wanted,
+                                        current
+                                          .filter((_, j) => j !== index)
+                                          .map((x) => x.name),
+                                      ),
+                                    }
+                                  : e,
+                              ),
+                            );
+                          }}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        className={styles.secondary}
+                        onClick={() => {
+                          setExtras((current) => current.filter((_, i) => i !== index));
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {extras.length + 1 < SANDBOX_MAX_TABLES ? (
+                <button
+                  type="button"
+                  className={styles.secondary}
+                  onClick={() => {
+                    extraInputRef.current?.click();
+                  }}
+                >
+                  Add a table
+                </button>
+              ) : null}
+              <input
+                ref={extraInputRef}
+                type="file"
+                accept=".csv,.tsv,.txt,text/csv,text/plain"
+                className={styles.hidden}
+                aria-label="Choose another CSV file to join"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) readExtraFile(file);
+                  event.target.value = "";
+                }}
+              />
+              {extraError ? (
+                <p className={styles.error} role="alert">
+                  {extraError}
+                </p>
+              ) : null}
+            </div>
             <button
               type="button"
               className={styles.primary}
               onClick={() => {
-                onStart(loaded.fileName, loaded.prepared);
+                onStart(loaded.fileName, loaded.prepared, extras);
               }}
             >
               Open in the editor

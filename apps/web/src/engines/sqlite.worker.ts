@@ -277,7 +277,7 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
         await loadCsvIntoTable(request.datasetUrl, TABLE_NAME, true, request.datasetText);
       }
       for (const table of request.extraTables ?? []) {
-        await loadCsvIntoTable(table.url, table.name, false);
+        await loadCsvIntoTable(table.url, table.name, false, table.text);
       }
     } else {
       if (!db) throw new Error("No dataset loaded yet.");

@@ -187,6 +187,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
           },
         }),
         EditorView.contentAttributes.of({
+          // An explicit tab stop: a long query makes the editor scroll, and a scrolling
+          // region must contain something focusable for keyboard users.
+          tabindex: "0",
           "aria-label": language === "sql" ? "SQL editor" : "Python editor",
         }),
         keymap.of([indentWithTab]),

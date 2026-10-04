@@ -37,6 +37,8 @@ function csvToGrid(text: string): ResultGrid {
 
 export interface ReferenceTableProps {
   url: string;
+  /** The CSV itself, for a table the player brought (nothing to fetch). */
+  text?: string | undefined;
   columnHints?: ColumnHints | undefined;
   textScale: number;
 }
@@ -44,6 +46,7 @@ export interface ReferenceTableProps {
 /** A read-only view of a case's extra table as originally loaded. Changes the player makes to it in code are not reflected. */
 export default function ReferenceTable({
   url,
+  text,
   textScale,
   columnHints,
 }: ReferenceTableProps) {
@@ -52,14 +55,18 @@ export default function ReferenceTable({
 
   useEffect(() => {
     let cancelled = false;
+    if (text !== undefined) {
+      setGrid(csvToGrid(text));
+      return;
+    }
     fetch(url)
       .then((response) => {
         if (!response.ok)
           throw new Error(`${String(response.status)} ${response.statusText}`);
         return response.text();
       })
-      .then((text) => {
-        if (!cancelled) setGrid(csvToGrid(text));
+      .then((body) => {
+        if (!cancelled) setGrid(csvToGrid(body));
       })
       .catch((err: unknown) => {
         if (!cancelled) setError(err instanceof Error ? err.message : String(err));
@@ -67,7 +74,7 @@ export default function ReferenceTable({
     return () => {
       cancelled = true;
     };
-  }, [url]);
+  }, [url, text]);
 
   if (error) return <div role="alert">Could not load the reference table: {error}</div>;
   if (!grid) return <div role="status">Loading...</div>;

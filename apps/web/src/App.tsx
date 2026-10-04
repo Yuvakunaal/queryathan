@@ -120,11 +120,12 @@ export default function App() {
         onBack={() => {
           setScreen({ name: "hub" });
         }}
-        onStart={(fileName, prepared) => {
+        onStart={(fileName, prepared, extras) => {
           setScreen({
             name: "sandbox",
             session: {
-              caseData: buildSandboxCase(fileName, prepared),
+              caseData: buildSandboxCase(fileName, prepared, extras),
+              extras,
               csvText: prepared.csvText,
               fileName,
               rowCount: prepared.rowCount,

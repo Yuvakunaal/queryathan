@@ -145,6 +145,20 @@ df['status'] = df['status'].str.strip().str.lower()`,
     python: `${KEY_FIX_PY}df = df.merge(customers.drop_duplicates('customer_id'), on='customer_id', how='left')\ndf['customer_name'] = df['customer_name'].fillna('UNKNOWN')`,
     sql: `${KEY_FIX_SQL}CREATE TABLE result AS SELECT d.order_id, d.customer_id, d.item, d.amount, COALESCE(c.customer_name, 'UNKNOWN') AS customer_name, c.city FROM data d LEFT JOIN (SELECT DISTINCT * FROM customers) c ON c.customer_id = d.customer_id;`,
   },
+  {
+    world: "the-twins",
+    caseId: "w3-05-three-way",
+    python:
+      "df = df.merge(customers, on='customer_id', how='left').merge(products, on='product_id', how='left')\ndf['line_total'] = df['qty'] * df['unit_price']\ndf = df[['order_id', 'customer_name', 'city', 'product_name', 'qty', 'line_total']]",
+    sql: "CREATE TABLE result AS SELECT d.order_id, c.customer_name, c.city, p.product_name, d.qty, d.qty * p.unit_price AS line_total FROM data d LEFT JOIN customers c ON c.customer_id = d.customer_id LEFT JOIN products p ON p.product_id = d.product_id;",
+  },
+  {
+    world: "the-twins",
+    caseId: "w3-06-four-corners",
+    python:
+      "df = df.merge(customers, on='customer_id', how='left').merge(products, on='product_id', how='left').merge(stores, on='store_id', how='left')\ndf['line_total'] = df['qty'] * df['unit_price'] * (1 - df['discount_pct'] / 100)\ndf = df[['order_id', 'customer_name', 'product_name', 'store_name', 'region', 'line_total']]",
+    sql: "CREATE TABLE result AS SELECT d.order_id, c.customer_name, p.product_name, s.store_name, s.region, d.qty * p.unit_price * (1 - d.discount_pct / 100.0) AS line_total FROM data d LEFT JOIN customers c ON c.customer_id = d.customer_id LEFT JOIN products p ON p.product_id = d.product_id LEFT JOIN stores s ON s.store_id = d.store_id;",
+  },
   // World 4: The Architect
   {
     world: "the-architect",

@@ -1,4 +1,5 @@
-import { starterIdeas } from "../../lib/sandbox";
+import { joinIdeas, starterIdeas } from "../../lib/sandbox";
+import type { SandboxExtra } from "../../lib/sandbox";
 import styles from "./SandboxBriefing.module.css";
 
 export interface SandboxBriefingProps {
@@ -7,6 +8,7 @@ export interface SandboxBriefingProps {
   columns: string[];
   rowCount: number;
   notes: string[];
+  extras?: SandboxExtra[];
   onUse: (code: string) => void;
 }
 
@@ -16,9 +18,13 @@ export default function SandboxBriefing({
   columns,
   rowCount,
   notes,
+  extras = [],
   onUse,
 }: SandboxBriefingProps) {
-  const ideas = starterIdeas(language, columns);
+  const ideas = [
+    ...starterIdeas(language, columns),
+    ...joinIdeas(language, columns, extras),
+  ];
   const table = language === "sql" ? "data" : "df";
   return (
     <div className={styles.panel} tabIndex={0}>
@@ -29,6 +35,18 @@ export default function SandboxBriefing({
         loaded as <code>{table}</code>. Nothing here is graded, and the file never leaves
         your browser.
       </p>
+      {extras.length > 0 ? (
+        <p className={styles.lead}>
+          Also loaded for joins:{" "}
+          {extras.map((e, i) => (
+            <span key={e.name}>
+              {i > 0 ? ", " : ""}
+              <code>{e.name}</code> ({e.rowCount.toLocaleString()} rows)
+            </span>
+          ))}
+          . They show beside your table on the right, and you can drag them around.
+        </p>
+      ) : null}
       <section className={styles.section} aria-labelledby="sb-ideas">
         <h2 id="sb-ideas" className={styles.heading}>
           Good first questions
