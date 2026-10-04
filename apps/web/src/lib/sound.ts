@@ -76,10 +76,31 @@ export function playCue(cue: Cue): void {
   }
 }
 
+export type TypingKey = "letter" | "space" | "enter" | "back";
+
+/**
+ * Which keystroke sound, if any, a key event deserves while typing in the editor.
+ * Shortcuts (Ctrl/Cmd/Alt combinations), arrows, Tab, function keys and a lone
+ * modifier press stay silent: only keys that put something in the text or take it out.
+ */
+export function typingKeyFor(event: {
+  key: string;
+  ctrlKey: boolean;
+  metaKey: boolean;
+  altKey: boolean;
+}): TypingKey | null {
+  if (event.ctrlKey || event.metaKey || event.altKey) return null;
+  if (event.key === "Enter") return "enter";
+  if (event.key === " ") return "space";
+  if (event.key === "Backspace" || event.key === "Delete") return "back";
+  return event.key.length === 1 ? "letter" : null;
+}
+
 const KEY_SAMPLES = 8;
 let keyBuffers: AudioBuffer[] | null = null;
 let keyLoading: Promise<void> | null = null;
 let lastKey = -1;
+let lastKeyAt = 0;
 
 /**
  * Starts fetching the keystroke recordings (public/sounds, a CC0 pack recorded
@@ -114,8 +135,12 @@ export function preloadKeys(): void {
  * each time, with the pitch nudged a little and a slightly different loudness,
  * so a run of them sounds like a person typing, not a loop.
  */
-export function playKey(): void {
+export function playKey(kind: TypingKey = "letter"): void {
   if (!enabled || !keyBuffers) return;
+  // A held key repeats far faster than anyone types; keep it a patter, not a buzz.
+  const now = performance.now();
+  if (now - lastKeyAt < 35) return;
+  lastKeyAt = now;
   try {
     const ctx = getContext();
     if (!ctx) return;
@@ -125,9 +150,11 @@ export function playKey(): void {
     lastKey = index;
     const source = ctx.createBufferSource();
     source.buffer = keyBuffers[index] ?? null;
-    source.playbackRate.value = 0.96 + Math.random() * 0.08;
+    // Big keys sound deeper and a touch fuller, like a real keyboard's space bar and enter.
+    const deeper = kind === "space" || kind === "enter";
+    source.playbackRate.value = (deeper ? 0.82 : 0.96) + Math.random() * 0.08;
     const amp = ctx.createGain();
-    amp.gain.value = 0.28 + Math.random() * 0.1;
+    amp.gain.value = (deeper ? 0.36 : 0.28) + Math.random() * 0.1;
     source.connect(amp).connect(ctx.destination);
     source.start();
   } catch {

@@ -35,3 +35,30 @@ test("the boot sequence types with sound, and silently when sound is off", async
   await page.getByText(/ENTER \]/).waitFor({ timeout: 120_000 });
   expect(await count()).toBeGreaterThan(40);
 });
+
+test("typing in the editor plays a key sound per keystroke, and none for shortcuts", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __keys: number };
+    w.__keys = 0;
+    const proto = AudioContext.prototype;
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- called with .call(this) below
+    const original = proto.createBufferSource;
+    AudioContext.prototype.createBufferSource = function patched(this: AudioContext) {
+      w.__keys += 1;
+      return original.call(this);
+    };
+  });
+  await openCase(page, "boss-fights", "w1-01-nul-sentinel", "sql");
+  const count = async (): Promise<number> =>
+    page.evaluate(() => (window as unknown as { __keys: number }).__keys);
+  await page.locator(".cm-content").click();
+  await page.waitForTimeout(300);
+  const before = await count();
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.waitForTimeout(100);
+  expect(await count()).toBe(before);
+  await page.keyboard.type("SELECT 1", { delay: 80 });
+  expect(await count()).toBeGreaterThanOrEqual(before + 8);
+});

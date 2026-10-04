@@ -9,6 +9,7 @@ import { basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
 import { sql } from "@codemirror/lang-sql";
 import { bossFightsEditorExtensions } from "./editorTheme";
+import { playKey, preloadKeys, typingKeyFor } from "../../lib/sound";
 import styles from "./CodeEditor.module.css";
 
 export interface CodeEditorHandle {
@@ -177,6 +178,13 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
       extensions: [
         basicSetup,
         EditorView.lineWrapping,
+        EditorView.domEventHandlers({
+          keydown: (event) => {
+            const kind = typingKeyFor(event);
+            if (kind) playKey(kind);
+            return false;
+          },
+        }),
         EditorView.contentAttributes.of({
           "aria-label": language === "sql" ? "SQL editor" : "Python editor",
         }),
@@ -212,6 +220,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEd
       ],
     });
 
+    preloadKeys();
     const view = new EditorView({ state, parent: container });
     viewRef.current = view;
 

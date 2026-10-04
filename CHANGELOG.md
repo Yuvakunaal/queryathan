@@ -11,6 +11,7 @@ follows [Keep a Changelog](https://keepachangelog.com/).
   table as it is now. The run bar says which of the two will happen.
 - `CREATE TABLE result` can be run again and again, and `CREATE OR REPLACE TABLE result`
   works.
+- Typing in the SQL and Python editors plays the same real keyboard recordings (space and enter deeper, shortcuts and arrows silent).
 - Boot sequence typing now plays real keyboard recordings (a CC0 pack recorded on a
   Cherry keyboard; credits in `apps/web/public/sounds/LICENSES.md`), a different one each
   time at a typing pace, instead of synthesized beeps; the boot readout counts checks, not cells, for joins,
