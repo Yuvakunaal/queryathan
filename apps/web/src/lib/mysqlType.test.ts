@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { describeColumn } from "./mysqlType";
 
 const type = (values: (string | number | boolean | null)[]): string =>
-  describeColumn("c", values, undefined, "sql").mysql;
+  describeColumn(values).mysql;
 
 describe("MySQL type of a column", () => {
   it("picks the smallest integer type that holds every value", () => {
@@ -43,23 +43,6 @@ describe("MySQL type of a column", () => {
     expect(type(["true", "FALSE"])).toBe("BOOLEAN");
     expect(type([null, null])).toBe("VARCHAR(255)");
     expect(type([1, "a"])).toBe("VARCHAR(1)");
-  });
-
-  it("says whether NULL is needed and whether it could be a key", () => {
-    const withGaps = describeColumn("c", [1, null, 3], "int64", "python");
-    expect(withGaps.lines[0]).toContain("NULL allowed: 1 of 3");
-    const key = describeColumn("c", [1, 2, 3], "int64", "sql");
-    expect(key.lines[0]).toContain("NOT NULL fits");
-    expect(key.lines.join(" ")).toContain("could be a key");
-    expect(key.lines.join(" ")).toContain("SQLite stores it as INTEGER");
-    expect(withGaps.lines.join(" ")).toContain("pandas dtype: int64");
-  });
-
-  it("notes whole numbers kept as text, and the Z on UTC times", () => {
-    const text = describeColumn("c", ["12", "340"], "object", "sql");
-    expect(text.mysql).toBe("VARCHAR(3)");
-    expect(text.lines.join(" ")).toContain("INT column would hold them");
-    const utc = describeColumn("c", ["2026-01-01T00:00:00.000Z"], "object", "sql");
-    expect(utc.lines.join(" ")).toContain("drop the Z");
+    expect(type(["12", "340"])).toBe("VARCHAR(3)");
   });
 });

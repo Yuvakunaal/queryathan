@@ -47,6 +47,7 @@ import LoadingCard from "./LoadingCard";
 import type { EngineChoice } from "./EngineSelect";
 import BriefingPanel from "./BriefingPanel";
 import TopBar from "./TopBar";
+import { useTips } from "../../TipsContext";
 import ColumnTypeTip from "./ColumnTypeTip";
 import { csvToGrid } from "../../lib/csvGrid";
 import { columnTipsFor } from "../../lib/mysqlType";
@@ -255,6 +256,21 @@ export default function BossFightScreen({
     if (activeTab === "answer" && !tableGrid) setActiveTab("data");
   }, [activeTab, tableGrid]);
 
+  // While this fight is open, the Tips dialog can insert entries into its editor.
+  const { registerInserter } = useTips();
+  useEffect(() => {
+    if (!engine || phase !== "fight") return;
+    registerInserter({
+      language: engine === "sql" ? "sql" : "python",
+      insert: (text) => {
+        codeEditorRef.current?.insert(text);
+      },
+    });
+    return () => {
+      registerInserter(null);
+    };
+  }, [engine, phase, registerInserter]);
+
   const fightRootRef = useRef<HTMLDivElement>(null);
   const statusRailRef = useRef<HTMLDivElement>(null);
   const commandRailRef = useRef<HTMLDivElement>(null);
@@ -408,10 +424,7 @@ export default function BossFightScreen({
           const own = sandbox?.extras.find((e) => e.name === table.name);
           const text = own ? own.csvText : await (await fetch(table.path)).text();
           loadedExtras[table.name] = parseCsv(text).columns;
-          loadedTips[table.name] = columnTipsFor(
-            csvToGrid(text),
-            engine === "sql" ? "sql" : "python",
-          );
+          loadedTips[table.name] = columnTipsFor(csvToGrid(text));
         }
         if (isCancelled()) return;
         setExtraColumns(loadedExtras);
@@ -783,8 +796,8 @@ export default function BossFightScreen({
     caseData.generated === undefined &&
     needsAnswerTable(caseData);
   const dataView = tableGrid ?? grid;
-  const mainTips = columnTipsFor(dataView, engineKey);
-  const answerTips = columnTipsFor(grid, engineKey);
+  const mainTips = columnTipsFor(dataView);
+  const answerTips = columnTipsFor(grid);
   const textScale = TEXT_SCALES[a11y.textScaleIndex] ?? 1;
   const mainGrid = (
     <DataframeGrid
@@ -1059,7 +1072,6 @@ export default function BossFightScreen({
                             text={sandbox?.extras.find((e) => e.name === t.name)?.csvText}
                             columnHints={caseData.columnHints}
                             textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
-                            engine={engineKey}
                           />
                         ),
                       })),
@@ -1098,7 +1110,6 @@ export default function BossFightScreen({
                     url={caseData.datasetPath}
                     columnHints={caseData.columnHints}
                     textScale={textScale}
-                    engine={engineKey}
                   />
                 </div>
               ) : null}
@@ -1164,7 +1175,6 @@ export default function BossFightScreen({
                     text={sandbox?.extras.find((e) => e.name === t.name)?.csvText}
                     columnHints={caseData.columnHints}
                     textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
-                    engine={engineKey}
                   />
                 </div>
               ))}

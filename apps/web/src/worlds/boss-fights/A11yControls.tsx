@@ -2,7 +2,7 @@ import { TEXT_SCALES } from "../../lib/a11y";
 import type { A11yState } from "../../lib/a11y";
 import { classNames } from "../../lib/classNames";
 import SoundMenu from "./SoundMenu";
-import { useOpenShortcuts } from "../../ShortcutsContext";
+import { useTips } from "../../TipsContext";
 import styles from "./A11yControls.module.css";
 
 export interface A11yControlsProps {
@@ -19,7 +19,7 @@ export interface A11yControlsProps {
  * to change them until entering a fight.
  */
 export default function A11yControls({ a11y, onChange }: A11yControlsProps) {
-  const openShortcuts = useOpenShortcuts();
+  const tips = useTips();
   return (
     <div className={styles.a11yControls}>
       <button
@@ -81,11 +81,25 @@ export default function A11yControls({ a11y, onChange }: A11yControlsProps) {
       <button
         type="button"
         className={styles.a11yButton}
-        aria-label="Keyboard shortcuts"
-        title="Keyboard shortcuts (press ?)"
-        onClick={openShortcuts}
+        aria-label="Tips: SQL and Python"
+        title="Tips: SQL and Python"
+        onClick={tips.open}
       >
-        ?
+        <svg
+          viewBox="0 0 24 24"
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" />
+          <path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" />
+          <path d="M9 8h7M9 12h5" />
+        </svg>
       </button>
       <button
         type="button"

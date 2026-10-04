@@ -90,9 +90,6 @@ test("the type tooltip is set in the mono font, not a fallback", async ({ page }
     .hover();
   const tip = page.getByRole("tooltip");
   await expect(tip).toBeVisible();
-  const family = await tip.evaluate((el) => {
-    const type = el.querySelector("span:last-child");
-    return type ? getComputedStyle(type).fontFamily : "";
-  });
+  const family = await tip.evaluate((el) => getComputedStyle(el).fontFamily);
   expect(family).toContain("Mono");
 });

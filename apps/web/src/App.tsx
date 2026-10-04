@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
   SandboxSetupScreen,
   WorldMapScreen,
@@ -21,9 +21,9 @@ import { casePath } from "./lib/load-case";
 import { formatRoute, parseRoute } from "./lib/route";
 import type { Route } from "./lib/route";
 import { worldMeta as metaFor } from "./lib/world-meta";
-import { ShortcutsProvider } from "./ShortcutsContext";
-import ShortcutsDialog from "./worlds/boss-fights/ShortcutsDialog";
-import { isTypingTarget } from "./lib/shortcuts";
+import { TipsProvider } from "./TipsContext";
+import type { Inserter } from "./TipsContext";
+import TipsDialog from "./worlds/boss-fights/TipsDialog";
 import { applyA11yToDocument, loadA11yState, persistA11yState } from "./lib/a11y";
 import type { A11yState } from "./lib/a11y";
 import { configureSound, preloadKeys, preloadSlice } from "./lib/sound";
@@ -315,43 +315,39 @@ function AppScreens() {
   );
 }
 
-/** The app: the screens, plus the keyboard shortcuts sheet that "?" (or any screen's ? button) opens. */
+/** The app: the screens, plus the Tips dialog that the book button in any top bar opens. */
 export default function App() {
-  const [shortcutsWorld, setShortcutsWorld] = useState<string | null>(null);
-  const shortcutsOpen = shortcutsWorld !== null;
-  // The sheet is drawn outside the screens, so it borrows the look of the world you are in.
-  const openShortcuts = (): void => {
-    setShortcutsWorld(
-      document.querySelector("[data-world]")?.getAttribute("data-world") ?? "boss-fights",
-    );
-  };
-
-  // "?" opens the sheet from anywhere, except while typing in a field or the editor.
-  useEffect(() => {
-    function onKey(event: KeyboardEvent): void {
-      if (event.key !== "?" || event.ctrlKey || event.metaKey || event.altKey) return;
-      if (isTypingTarget(event.target)) return;
-      event.preventDefault();
-      openShortcuts();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-    };
-  }, []);
+  const [tipsWorld, setTipsWorld] = useState<string | null>(null);
+  const inserterRef = useRef<Inserter | null>(null);
+  const api = useMemo(
+    () => ({
+      // The dialog is drawn outside the screens, so it borrows the look of the world you are in.
+      open: () => {
+        setTipsWorld(
+          document.querySelector("[data-world]")?.getAttribute("data-world") ??
+            "boss-fights",
+        );
+      },
+      registerInserter: (inserter: Inserter | null) => {
+        inserterRef.current = inserter;
+      },
+    }),
+    [],
+  );
 
   return (
-    <ShortcutsProvider value={openShortcuts}>
+    <TipsProvider value={api}>
       <AppScreens />
-      {shortcutsOpen ? (
-        <div data-world={shortcutsWorld} style={{ display: "contents" }}>
-          <ShortcutsDialog
+      {tipsWorld !== null ? (
+        <div data-world={tipsWorld} style={{ display: "contents" }}>
+          <TipsDialog
+            inserter={inserterRef.current}
             onClose={() => {
-              setShortcutsWorld(null);
+              setTipsWorld(null);
             }}
           />
         </div>
       ) : null}
-    </ShortcutsProvider>
+    </TipsProvider>
   );
 }

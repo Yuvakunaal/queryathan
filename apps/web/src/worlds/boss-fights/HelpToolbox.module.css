@@ -117,3 +117,11 @@
   font: 400 13px/1.4 var(--w1-font-text);
   color: var(--w1-text-secondary);
 }
+
+/* An entry in the Tips dialog's reading list, where nothing is inserted. */
+.item[data-plain="true"] {
+  cursor: default;
+}
+.item[data-plain="true"]:hover {
+  border-color: transparent;
+}

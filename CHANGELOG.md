@@ -9,14 +9,15 @@ follows [Keep a Changelog](https://keepachangelog.com/).
   missing values, pick and filter, text, numbers and types, dates, groups, running totals and
   windows, join and reshape), the same click-to-insert panel as SQL help, with search.
 - **MySQL type on hover.** Hover a column name in any table (or focus a column chip above the
-  editor) to see the exact MySQL type that column would be: the smallest TINYINT to BIGINT that
-  holds the values, DECIMAL(p,s) with exactly the digits and decimals needed, DATE/DATETIME/TIME,
-  BOOLEAN, or VARCHAR(n) sized to the longest value. It also says whether NULL is needed, whether
-  the column could be a key, and the engine's own type. The rules are written down in
-  `src/lib/mysqlType.ts` and covered by tests.
-- **Keyboard shortcuts sheet.** Press **?** (outside the editor) or the **?** button in the top bar:
-  run, format, suggestions, the panel dividers, moving and resizing tables, and more.
-- **Polish found by an audit.** The sheet and the tooltip had been drawn without the app's fonts and
+  editor) and a small tooltip shows just that column's MySQL type: the smallest TINYINT to BIGINT
+  that holds the values, DECIMAL(p,s) with exactly the digits and decimals needed,
+  DATE/DATETIME/TIME, BOOLEAN, or VARCHAR(n) sized to the longest value. The rules are written
+  down in `src/lib/mysqlType.ts` and covered by tests.
+- **Tips (the book button).** The button in every top bar is now a book. It opens **Tips**: the SQL
+  and Python references together, with search and topics. Inside a fight, clicking an entry for the
+  language you are writing puts it in the editor; elsewhere it is a reading list. (An earlier
+  keyboard shortcuts sheet was removed in favour of this.)
+- **Polish found by an audit.** The dialogs and the tooltip had been drawn without the app's fonts and
   colours because a design token was never defined (a new test now fails if any style uses an
   undefined token); the help panels are drawn above everything so no neighbouring panel clips them,
   open towards the side with room, and stay inside the window; the editor toolbar wraps instead of

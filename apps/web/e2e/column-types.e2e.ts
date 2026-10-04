@@ -1,36 +1,30 @@
 import { expect, test } from "./fixtures";
 import { openCase } from "./helpers";
 
-test("hovering a column name shows its MySQL type, and a column chip does the same on focus", async ({
+test("hovering a column name shows just its MySQL type, and a column chip does the same on focus", async ({
   page,
 }) => {
   await openCase(page, "the-twins", "w3-02-ghost-twin", "sql");
   await page.waitForTimeout(1200);
-  // The table header: whole numbers, decimals and text each get their exact type.
   const header = (name: string) =>
     page.locator('#pane-data [role="columnheader"]', { hasText: name }).first();
-  await header("ORDER_ID").hover();
   const tip = page.getByRole("tooltip");
+  await header("ORDER_ID").hover();
   await expect(tip).toBeVisible();
-  await expect(tip).toContainText("SMALLINT");
-  await expect(tip).toContainText("MySQL type");
-  await expect(tip).toContainText("none of the 130 values is empty");
-  await expect(tip).toContainText("could be a key");
+  // Only the type: nothing else about the column.
+  await expect(tip).toHaveText("SMALLINT");
   await header("AMOUNT").hover();
-  await expect(page.getByRole("tooltip")).toContainText(/DECIMAL\(\d+,2\)/);
+  await expect(page.getByRole("tooltip")).toHaveText(/^DECIMAL\(\d+,2\)$/);
   await header("ITEM").hover();
-  await expect(page.getByRole("tooltip")).toContainText(/VARCHAR\(\d+\)/);
-  // The text type notes the stray spaces: it is sized to the longest value, spaces included.
-  await header("CUSTOMER_ID").hover();
-  await expect(page.getByRole("tooltip")).toContainText(/VARCHAR\(\d+\)/);
+  await expect(page.getByRole("tooltip")).toHaveText(/^VARCHAR\(\d+\)$/);
 
   // The chips above the editor work from the keyboard too, for both tables.
   await page.getByRole("button", { name: "city", exact: true }).focus();
-  await expect(page.getByRole("tooltip")).toContainText("VARCHAR");
+  await expect(page.getByRole("tooltip")).toHaveText(/^VARCHAR\(\d+\)$/);
   await page.keyboard.press("Escape");
   await expect(page.getByRole("tooltip")).toHaveCount(0);
   await page.getByRole("button", { name: "amount", exact: true }).focus();
-  await expect(page.getByRole("tooltip")).toContainText(/DECIMAL/);
+  await expect(page.getByRole("tooltip")).toHaveText(/^DECIMAL\(\d+,2\)$/);
 });
 
 test("the tooltip never gets in the way: it disappears when the pointer leaves", async ({
@@ -40,7 +34,7 @@ test("the tooltip never gets in the way: it disappears when the pointer leaves",
   await page.waitForTimeout(1200);
   await page.locator('#pane-data [role="columnheader"]', { hasText: "TEMP_C" }).hover();
   const tip = page.getByRole("tooltip");
-  await expect(tip).toContainText("NULL allowed");
+  await expect(tip).toHaveText(/^DECIMAL\(\d+,\d+\)$/);
   await page.mouse.move(5, 400);
   await expect(tip).toHaveCount(0);
 });

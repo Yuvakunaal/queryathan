@@ -13,8 +13,6 @@ export interface ReferenceTableProps {
   text?: string | undefined;
   columnHints?: ColumnHints | undefined;
   textScale: number;
-  /** Which engine's wording the type tooltip uses. */
-  engine?: "python" | "sql";
 }
 
 /** A read-only view of a case's extra table as originally loaded. Changes the player makes to it in code are not reflected. */
@@ -23,7 +21,6 @@ export default function ReferenceTable({
   text,
   textScale,
   columnHints,
-  engine = "sql",
 }: ReferenceTableProps) {
   const [grid, setGrid] = useState<ResultGrid | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +56,7 @@ export default function ReferenceTable({
       afflictionCellMap={NO_AFFLICTIONS}
       textScale={textScale}
       columnHints={columnHints}
-      columnTips={columnTipsFor(grid, engine)}
+      columnTips={columnTipsFor(grid)}
     />
   );
 }

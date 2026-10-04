@@ -2,23 +2,19 @@ import { useEffect, useId, useRef, useState } from "react";
 import styles from "./ColumnTypeTip.module.css";
 
 interface Shown {
-  name: string;
-  title: string;
-  lines: string[];
+  type: string;
   left: number;
   top: number;
   above: boolean;
 }
 
 const SHOW_DELAY_MS = 120;
-const TIP_WIDTH = 320;
 
 /**
- * One tooltip for the whole screen. Anything carrying data-tip-title (a column
- * name in the table header, a column chip above the editor) shows its MySQL type
- * and what it was worked out from, on mouse hover or keyboard focus. It is a real
- * tooltip (role=tooltip, tied to its target with aria-describedby), is dismissed
- * with Escape, and never appears for touch, where hover does not exist.
+ * One tooltip for the whole screen: anything carrying data-tip-title (a column name in
+ * a table header, a column chip above the editor) shows that text, the column's MySQL
+ * type, on mouse hover or keyboard focus. It is a real tooltip (role=tooltip, tied to its
+ * target with aria-describedby), is dismissed with Escape, and never appears for touch.
  */
 export default function ColumnTypeTip() {
   const [shown, setShown] = useState<Shown | null>(null);
@@ -37,18 +33,14 @@ export default function ColumnTypeTip() {
     function show(target: Element): void {
       if (!(target instanceof HTMLElement) || !target.dataset.tipTitle) return;
       const rect = target.getBoundingClientRect();
-      const roomBelow = window.innerHeight - rect.bottom;
-      const above = roomBelow < 190 && rect.top > roomBelow;
-      const left = Math.max(8, Math.min(rect.left, window.innerWidth - TIP_WIDTH - 8));
+      const above = window.innerHeight - rect.bottom < 60 && rect.top > 60;
       targetRef.current?.removeAttribute("aria-describedby");
       targetRef.current = target;
       target.setAttribute("aria-describedby", id);
       setShown({
-        name: target.dataset.tipName ?? "",
-        title: target.dataset.tipTitle,
-        lines: (target.dataset.tipDetail ?? "").split("\n").filter(Boolean),
-        left,
-        top: above ? rect.top - 8 : rect.bottom + 8,
+        type: target.dataset.tipTitle,
+        left: Math.max(8, Math.min(rect.left, window.innerWidth - 220)),
+        top: above ? rect.top - 6 : rect.bottom + 6,
         above,
       });
     }
@@ -111,20 +103,10 @@ export default function ColumnTypeTip() {
       style={{
         left: shown.left,
         top: shown.top,
-        width: TIP_WIDTH,
         transform: shown.above ? "translateY(-100%)" : undefined,
       }}
     >
-      <div className={styles.head}>
-        <span className={styles.column}>{shown.name}</span>
-        <span className={styles.type}>{shown.title}</span>
-      </div>
-      <p className={styles.label}>MySQL type</p>
-      {shown.lines.map((line) => (
-        <p key={line} className={styles.line}>
-          {line}
-        </p>
-      ))}
+      {shown.type}
     </div>
   );
 }

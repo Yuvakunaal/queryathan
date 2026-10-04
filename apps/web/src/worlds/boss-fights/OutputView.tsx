@@ -153,7 +153,7 @@ export default function OutputView({
               textScale={textScale}
               columnHints={converted.hints}
               nullLabel={language === "sql" ? "NULL" : "NaN"}
-              columnTips={columnTipsFor(converted.grid, language)}
+              columnTips={columnTipsFor(converted.grid)}
             />
           </div>
         )}

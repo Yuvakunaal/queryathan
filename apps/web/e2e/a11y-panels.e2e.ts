@@ -44,7 +44,7 @@ for (const theme of ["dark", "light"] as Theme[]) {
     await expect(page.getByRole("tooltip")).toBeVisible();
     await scan(page, `column type tooltip, ${theme}`);
     await page.mouse.move(4, 400);
-    await page.getByRole("button", { name: "Keyboard shortcuts" }).click();
-    await scan(page, `shortcuts sheet in a fight, ${theme}`);
+    await page.getByRole("button", { name: "Tips: SQL and Python" }).click();
+    await scan(page, `tips dialog in a fight, ${theme}`);
   });
 }

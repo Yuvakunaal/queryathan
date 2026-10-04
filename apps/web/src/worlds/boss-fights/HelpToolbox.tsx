@@ -1,6 +1,7 @@
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { SqlRef as RefItem, SqlRefGroup as RefGroup } from "../../lib/sqlReference";
+import type { SqlRefGroup as RefGroup } from "../../lib/sqlReference";
+import HelpBody from "./HelpBody";
 import styles from "./HelpToolbox.module.css";
 
 export interface HelpToolboxProps {
@@ -23,8 +24,6 @@ export default function HelpToolbox({
   onInsert,
 }: HelpToolboxProps) {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [groupId, setGroupId] = useState(groups[0]?.id ?? "");
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -82,21 +81,6 @@ export default function HelpToolbox({
     if (open && placed) searchRef.current?.focus();
   }, [open, placed]);
 
-  const needle = query.trim().toLowerCase();
-  const results = useMemo(() => {
-    if (!needle) return null;
-    const hits: RefItem[] = [];
-    for (const group of groups) {
-      for (const item of group.items) {
-        const haystack = `${item.name} ${item.detail} ${item.syntax}`.toLowerCase();
-        if (haystack.includes(needle)) hits.push(item);
-      }
-    }
-    return hits;
-  }, [needle, groups]);
-  const group = groups.find((g) => g.id === groupId) ?? groups[0];
-  const shown = results ?? group?.items ?? [];
-
   return (
     <div className={styles.root} ref={rootRef}>
       <button
@@ -128,57 +112,16 @@ export default function HelpToolbox({
               role="region"
               aria-label={label}
             >
-              <input
+              <HelpBody
                 ref={searchRef}
-                type="search"
-                className={styles.search}
-                placeholder={searchHint}
-                aria-label={`Search ${label}`}
-                value={query}
-                onChange={(event) => {
-                  setQuery(event.target.value);
+                label={label}
+                groups={groups}
+                searchHint={searchHint}
+                onPick={(item) => {
+                  onInsert(item.insert);
+                  setOpen(false);
                 }}
               />
-              {results ? null : (
-                <div className={styles.tabs} role="group" aria-label="Topics">
-                  {groups.map((g) => (
-                    <button
-                      key={g.id}
-                      type="button"
-                      className={styles.tab}
-                      aria-pressed={g.id === groupId}
-                      onClick={() => {
-                        setGroupId(g.id);
-                      }}
-                    >
-                      {g.title}
-                    </button>
-                  ))}
-                </div>
-              )}
-              <ul className={styles.list}>
-                {shown.map((item) => (
-                  <li key={item.name}>
-                    <button
-                      type="button"
-                      className={styles.item}
-                      onClick={() => {
-                        onInsert(item.insert);
-                        setOpen(false);
-                      }}
-                    >
-                      <span className={styles.syntax}>{item.syntax}</span>
-                      <span className={styles.detail}>{item.detail}</span>
-                      {item.example ? (
-                        <span className={styles.example}>{item.example}</span>
-                      ) : null}
-                    </button>
-                  </li>
-                ))}
-                {shown.length === 0 ? (
-                  <li className={styles.none}>Nothing matches &quot;{query}&quot;.</li>
-                ) : null}
-              </ul>
             </div>,
             rootRef.current?.closest("[data-world]") ?? document.body,
           )
