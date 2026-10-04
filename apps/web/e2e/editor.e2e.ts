@@ -1,5 +1,5 @@
 import { test, expect } from "./fixtures";
-import { openCase, run, setCode } from "./helpers";
+import { openCase, run, seed, setCode } from "./helpers";
 
 const NUL = "w1-01-nul-sentinel";
 
@@ -256,3 +256,27 @@ test("a run that goes on for more than 20 seconds restarts the engine and the ne
   await run(page);
   await expect(result).toContainText("240");
 });
+
+// Dark text on a light scene for the dark theme, light text on a dark scene for the light theme.
+for (const [theme, ink] of [
+  ["dark", "#10161b"],
+  ["light", "#e8eef2"],
+] as const) {
+  test(`the finishing cut is the opposite of the theme (${theme} theme)`, async ({
+    page,
+  }) => {
+    await seed(page, { theme });
+    await openCase(page, "boss-fights", NUL, "sql");
+    await setCode(
+      page,
+      "UPDATE data SET temp_c = (SELECT AVG(temp_c) FROM data) WHERE temp_c IS NULL;",
+    );
+    await run(page);
+    const kill = page.getByRole("status").filter({ hasText: "defeated" });
+    await kill.waitFor({ timeout: 20_000 });
+    const value = await kill.evaluate((el) =>
+      getComputedStyle(el).getPropertyValue("--k-ink").trim(),
+    );
+    expect(value).toBe(ink);
+  });
+}

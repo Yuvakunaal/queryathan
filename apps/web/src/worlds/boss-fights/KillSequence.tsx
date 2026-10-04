@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import gsap from "gsap";
 import { renderSigil } from "./sigil";
 import { prefersReducedMotion } from "../../anim/world1/motionContext";
+import { SLICE_LEAD_SECONDS, playCue, playSlice, preloadSlice } from "../../lib/sound";
 import styles from "./KillSequence.module.css";
 
 export interface KillSequenceProps {
@@ -94,6 +95,7 @@ export default function KillSequence({
   }
 
   useEffect(() => {
+    preloadSlice();
     skipRef.current?.focus();
     function onKey(event: KeyboardEvent): void {
       if (event.key === "Escape" || event.key === "Enter" || event.key === " ") {
@@ -116,6 +118,7 @@ export default function KillSequence({
     const ctx = gsap.context(() => {
       const caption = captionRef.current;
       if (prefersReducedMotion()) {
+        playCue("win");
         gsap.set([bossRef.current, hpRef.current, bladeRef.current, streakRef.current], {
           display: "none",
         });
@@ -237,6 +240,15 @@ export default function KillSequence({
 
       // 4. Impact: one soft flash, a shake, the health bar empties, the halves part.
       const impact = strike + 0.1;
+      // The knife recording starts early enough that its loudest moment is the cut.
+      tl.call(playSlice, [], impact - SLICE_LEAD_SECONDS);
+      tl.call(
+        () => {
+          playCue("win");
+        },
+        [],
+        impact + 0.6,
+      );
       tl.fromTo(
         flashRef.current,
         { opacity: 0.4 },
@@ -374,16 +386,23 @@ export default function KillSequence({
           <svg viewBox="0 0 24 124" className={styles.bladeSvg}>
             <defs>
               <linearGradient id="kill-steel" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0" stopColor="#dfe7ee" />
-                <stop offset="0.5" stopColor="#ffffff" />
-                <stop offset="1" stopColor="#7d8a96" />
+                <stop offset="0" style={{ stopColor: "var(--k-steel-1)" }} />
+                <stop offset="0.5" style={{ stopColor: "var(--k-steel-2)" }} />
+                <stop offset="1" style={{ stopColor: "var(--k-steel-3)" }} />
               </linearGradient>
             </defs>
             <polygon
               points="12,122 5.5,58 6.5,30 17.5,30 18.5,58"
               fill="url(#kill-steel)"
             />
-            <line x1="12" y1="34" x2="12" y2="104" stroke="#9aa7b2" strokeWidth="0.8" />
+            <line
+              x1="12"
+              y1="34"
+              x2="12"
+              y2="104"
+              style={{ stroke: "var(--k-vein)" }}
+              strokeWidth="0.8"
+            />
             <rect x="1" y="24" width="22" height="6" rx="1.5" className={styles.guard} />
             <rect x="9" y="6" width="6" height="19" rx="1.5" className={styles.grip} />
             <circle cx="12" cy="4" r="3.6" className={styles.guard} />

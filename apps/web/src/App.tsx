@@ -19,7 +19,7 @@ import {
 import type { SaveData } from "./lib/save";
 import { applyA11yToDocument, loadA11yState, persistA11yState } from "./lib/a11y";
 import type { A11yState } from "./lib/a11y";
-import { preloadKeys, setSoundEnabled } from "./lib/sound";
+import { configureSound, preloadKeys, preloadSlice } from "./lib/sound";
 
 // Code-split from WorldMapScreen (the actual landing screen): CodeMirror
 // and GSAP have no reason to download before a player has even picked a
@@ -101,8 +101,9 @@ export default function App() {
   // preferences on the app's actual landing screen since Phase 2.
   useEffect(() => {
     applyA11yToDocument(a11y);
-    setSoundEnabled(a11y.sound);
-    if (a11y.sound) preloadKeys();
+    configureSound({ effects: a11y.sound, typing: a11y.typing, volume: a11y.volume });
+    if (a11y.typing) preloadKeys();
+    if (a11y.sound) preloadSlice();
     persistA11yState(a11y);
   }, [a11y]);
 

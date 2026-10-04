@@ -526,7 +526,6 @@ export default function BossFightScreen({
       playCue(clearedThisTurn > 0 ? "clear" : "run");
       if (!sandbox && evaluateWinCondition(nextGrid, caseData.winCondition, run)) {
         setHasWon(true);
-        playCue("win");
         const stamp = stampFor(caseData.winCondition, caseData.forge, run);
         setEarnedStamp(stamp);
         // Let the last run's diff flash land, then play the kill; the victory panel follows it.

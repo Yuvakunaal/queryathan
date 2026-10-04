@@ -36,11 +36,29 @@ export const CUES: Record<Cue, readonly Note[]> = {
   ],
 };
 
-let enabled = false;
+let effectsOn = false;
+let typingOn = false;
+let volume = 0.8;
 let context: AudioContext | null = null;
+let master: GainNode | null = null;
 
+/** What the player chose in the sound menu. Volume is 0 to 1 and applies to everything. */
+export interface SoundPrefs {
+  effects: boolean;
+  typing: boolean;
+  volume: number;
+}
+
+export function configureSound(prefs: SoundPrefs): void {
+  effectsOn = prefs.effects;
+  typingOn = prefs.typing;
+  volume = Math.min(1, Math.max(0, prefs.volume));
+  if (master) master.gain.value = volume * volume;
+}
+
+/** Turns the effect tones (not typing) on or off. */
 export function setSoundEnabled(on: boolean): void {
-  enabled = on;
+  effectsOn = on;
 }
 
 function getContext(): AudioContext | null {
@@ -51,12 +69,24 @@ function getContext(): AudioContext | null {
   return context;
 }
 
+/** Everything plays through one gain node, so the volume control reaches every sound. */
+function getOutput(ctx: AudioContext): AudioNode {
+  if (!master) {
+    master = ctx.createGain();
+    // Perceived loudness is roughly the square of the slider, so the middle sounds like the middle.
+    master.gain.value = volume * volume;
+    master.connect(ctx.destination);
+  }
+  return master;
+}
+
 export function playCue(cue: Cue): void {
-  if (!enabled) return;
+  if (!effectsOn) return;
   try {
     const ctx = getContext();
     if (!ctx) return;
     if (ctx.state === "suspended") void ctx.resume();
+    const out = getOutput(ctx);
     const start = ctx.currentTime + 0.01;
     for (const note of CUES[cue]) {
       const osc = ctx.createOscillator();
@@ -67,10 +97,88 @@ export function playCue(cue: Cue): void {
       amp.gain.setValueAtTime(0.0001, t0);
       amp.gain.exponentialRampToValueAtTime(note.gain, t0 + 0.01);
       amp.gain.exponentialRampToValueAtTime(0.0001, t0 + note.dur);
-      osc.connect(amp).connect(ctx.destination);
+      osc.connect(amp).connect(out);
       osc.start(t0);
       osc.stop(t0 + note.dur + 0.02);
     }
+  } catch {
+    // Audio is a nicety; a blocked or missing context just stays quiet.
+  }
+}
+
+/** Decoded recordings from public/sounds, by file name. */
+const samples = new Map<string, AudioBuffer>();
+const sampleLoads = new Map<string, Promise<void>>();
+
+/**
+ * Starts fetching recordings (public/sounds) so they are ready when needed.
+ * Safe to call often; each file is fetched once. Playing stays silent until
+ * a file has arrived.
+ */
+export function preloadSamples(names: readonly string[]): void {
+  if (typeof window === "undefined" || typeof window.OfflineAudioContext !== "function") {
+    return;
+  }
+  // Decoding on an offline context needs no user gesture and its buffers play on any context.
+  const decoder = new window.OfflineAudioContext(1, 1, 44100);
+  for (const name of names) {
+    if (samples.has(name) || sampleLoads.has(name)) continue;
+    sampleLoads.set(
+      name,
+      (async () => {
+        try {
+          const response = await fetch(`/sounds/${name}.wav`);
+          if (!response.ok) throw new Error(`missing sound ${name}`);
+          samples.set(name, await decoder.decodeAudioData(await response.arrayBuffer()));
+        } catch {
+          sampleLoads.delete(name); // try again next time; it is simply silent meanwhile
+        }
+      })(),
+    );
+  }
+}
+
+/** How long before its loudest moment the knife recording starts, so the hit can be timed to the cut. */
+export const SLICE_LEAD_SECONDS = 0.2;
+
+export function preloadSlice(): void {
+  preloadSamples(["slice-1"]);
+}
+
+/**
+ * The knife cut: a real knife recording (whoosh into the strike) with a low
+ * thump under the moment of impact for weight. Starts immediately; the loudest
+ * part lands SLICE_LEAD_SECONDS later.
+ */
+export function playSlice(): void {
+  if (!effectsOn) return;
+  const buffer = samples.get("slice-1");
+  if (!buffer) return;
+  try {
+    const ctx = getContext();
+    if (!ctx) return;
+    if (ctx.state === "suspended") void ctx.resume();
+    const out = getOutput(ctx);
+    const t0 = ctx.currentTime + 0.005;
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    const amp = ctx.createGain();
+    amp.gain.value = 0.9;
+    source.connect(amp).connect(out);
+    source.start(t0);
+
+    const hit = t0 + SLICE_LEAD_SECONDS;
+    const thump = ctx.createOscillator();
+    thump.type = "sine";
+    thump.frequency.setValueAtTime(130, hit);
+    thump.frequency.exponentialRampToValueAtTime(48, hit + 0.18);
+    const thumpAmp = ctx.createGain();
+    thumpAmp.gain.setValueAtTime(0.0001, hit);
+    thumpAmp.gain.exponentialRampToValueAtTime(0.35, hit + 0.012);
+    thumpAmp.gain.exponentialRampToValueAtTime(0.0001, hit + 0.26);
+    thump.connect(thumpAmp).connect(out);
+    thump.start(hit);
+    thump.stop(hit + 0.3);
   } catch {
     // Audio is a nicety; a blocked or missing context just stays quiet.
   }
@@ -97,37 +205,13 @@ export function typingKeyFor(event: {
 }
 
 const KEY_SAMPLES = 8;
-let keyBuffers: AudioBuffer[] | null = null;
-let keyLoading: Promise<void> | null = null;
+const KEY_NAMES = Array.from({ length: KEY_SAMPLES }, (_, i) => `key-${String(i + 1)}`);
 let lastKey = -1;
 let lastKeyAt = 0;
 
-/**
- * Starts fetching the keystroke recordings (public/sounds, a CC0 pack recorded
- * on a real keyboard). Safe to call often and before sound is enabled; it only
- * fetches once, and playKey stays silent until they have arrived.
- */
+/** Starts fetching the keystroke recordings (a CC0 pack recorded on a real keyboard). */
 export function preloadKeys(): void {
-  if (keyLoading || keyBuffers) return;
-  if (typeof window === "undefined" || typeof window.OfflineAudioContext !== "function") {
-    return;
-  }
-  // Decoding on an offline context needs no user gesture and its buffers play on any context.
-  const ctx = new window.OfflineAudioContext(1, 1, 44100);
-  keyLoading = (async () => {
-    try {
-      const buffers = await Promise.all(
-        Array.from({ length: KEY_SAMPLES }, async (_, i) => {
-          const response = await fetch(`/sounds/key-${String(i + 1)}.wav`);
-          if (!response.ok) throw new Error("missing keystroke sample");
-          return ctx.decodeAudioData(await response.arrayBuffer());
-        }),
-      );
-      keyBuffers = buffers;
-    } catch {
-      keyLoading = null; // try again next time; typing is simply silent meanwhile
-    }
-  })();
+  preloadSamples(KEY_NAMES);
 }
 
 /**
@@ -136,7 +220,11 @@ export function preloadKeys(): void {
  * so a run of them sounds like a person typing, not a loop.
  */
 export function playKey(kind: TypingKey = "letter"): void {
-  if (!enabled || !keyBuffers) return;
+  if (!typingOn) return;
+  const keyBuffers = KEY_NAMES.map((name) => samples.get(name)).filter(
+    (buffer): buffer is AudioBuffer => buffer !== undefined,
+  );
+  if (keyBuffers.length === 0) return;
   // A held key repeats far faster than anyone types; keep it a patter, not a buzz.
   const now = performance.now();
   if (now - lastKeyAt < 35) return;
@@ -155,7 +243,7 @@ export function playKey(kind: TypingKey = "letter"): void {
     source.playbackRate.value = (deeper ? 0.82 : 0.96) + Math.random() * 0.08;
     const amp = ctx.createGain();
     amp.gain.value = (deeper ? 0.36 : 0.28) + Math.random() * 0.1;
-    source.connect(amp).connect(ctx.destination);
+    source.connect(amp).connect(getOutput(ctx));
     source.start();
   } catch {
     // Audio is a nicety; a blocked or missing context just stays quiet.

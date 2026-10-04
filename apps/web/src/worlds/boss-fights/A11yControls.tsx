@@ -1,6 +1,7 @@
 import { TEXT_SCALES } from "../../lib/a11y";
 import type { A11yState } from "../../lib/a11y";
 import { classNames } from "../../lib/classNames";
+import SoundMenu from "./SoundMenu";
 import styles from "./A11yControls.module.css";
 
 export interface A11yControlsProps {
@@ -74,17 +75,7 @@ export default function A11yControls({ a11y, onChange }: A11yControlsProps) {
       >
         CRT
       </button>
-      <button
-        type="button"
-        className={styles.a11yButton}
-        aria-label="Sound effects"
-        aria-pressed={a11y.sound}
-        onClick={() => {
-          onChange({ ...a11y, sound: !a11y.sound });
-        }}
-      >
-        SFX
-      </button>
+      <SoundMenu a11y={a11y} onChange={onChange} />
       <button
         type="button"
         className={styles.a11yButton}

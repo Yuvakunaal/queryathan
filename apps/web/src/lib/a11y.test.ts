@@ -20,6 +20,8 @@ describe("defaultA11y", () => {
       crtReduced: true,
       highContrast: false,
       sound: true,
+      typing: true,
+      volume: 0.8,
     });
   });
 });
@@ -59,6 +61,8 @@ describe("loadA11yState / persistA11yState", () => {
       crtReduced: true,
       highContrast: true,
       sound: true,
+      typing: true,
+      volume: 0.8,
     };
     persistA11yState(state);
     expect(loadA11yState()).toEqual(state);
@@ -72,6 +76,8 @@ describe("loadA11yState / persistA11yState", () => {
       crtReduced: true,
       highContrast: false,
       sound: true,
+      typing: true,
+      volume: 0.8,
     });
   });
 

@@ -1,18 +1,28 @@
 import { expect, test } from "./fixtures";
 import { openCase, seed } from "./helpers";
 
-test("the sound toggle starts on and remembers its state", async ({ page }) => {
+test("effects, typing and volume are separate, and they are remembered", async ({
+  page,
+}) => {
   await seed(page);
   await page.goto("/");
-  const sound = page.getByRole("button", { name: "Sound effects" });
-  await expect(sound).toHaveAttribute("aria-pressed", "true");
-  await sound.click();
-  await expect(sound).toHaveAttribute("aria-pressed", "false");
+  await page.getByRole("button", { name: "Sound settings" }).click();
+  const menu = page.getByRole("group", { name: "Sound settings" });
+  const effects = menu.getByRole("checkbox", { name: /Effects/ });
+  const typing = menu.getByRole("checkbox", { name: /Typing/ });
+  await expect(effects).toBeChecked();
+  await expect(typing).toBeChecked();
+  await typing.uncheck();
+  await menu.getByRole("slider", { name: /Volume/ }).fill("40");
+  await expect(effects).toBeChecked();
   await page.reload();
-  await expect(page.getByRole("button", { name: "Sound effects" })).toHaveAttribute(
-    "aria-pressed",
-    "false",
-  );
+  await page.getByRole("button", { name: "Sound settings" }).click();
+  const again = page.getByRole("group", { name: "Sound settings" });
+  await expect(again.getByRole("checkbox", { name: /Typing/ })).not.toBeChecked();
+  await expect(again.getByRole("checkbox", { name: /Effects/ })).toBeChecked();
+  await expect(again.getByRole("slider", { name: /Volume/ })).toHaveValue("40");
+  await page.keyboard.press("Escape");
+  await expect(again).toBeHidden();
 });
 
 test("the boot sequence types with sound, and silently when sound is off", async ({

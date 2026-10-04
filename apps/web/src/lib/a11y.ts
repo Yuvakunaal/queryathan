@@ -11,6 +11,10 @@ export interface A11yState {
   highContrast: boolean;
   /** Sound cues (quiet). On by default; the SFX button turns them off. */
   sound: boolean;
+  /** Keyboard sounds while typing, separate from the effect tones. */
+  typing: boolean;
+  /** Master volume for every sound, 0 to 1. */
+  volume: number;
 }
 
 export function defaultA11y(): A11yState {
@@ -27,6 +31,8 @@ export function defaultA11y(): A11yState {
     crtReduced: true,
     highContrast: false,
     sound: true,
+    typing: true,
+    volume: 0.8,
   };
 }
 
@@ -46,6 +52,11 @@ export function loadA11yState(): A11yState {
       crtReduced: parsed.crtReduced ?? fallback.crtReduced,
       highContrast: parsed.highContrast ?? fallback.highContrast,
       sound: parsed.sound ?? fallback.sound,
+      typing: parsed.typing ?? fallback.typing,
+      volume:
+        typeof parsed.volume === "number"
+          ? Math.min(1, Math.max(0, parsed.volume))
+          : fallback.volume,
     };
   } catch {
     return defaultA11y();

@@ -7,18 +7,52 @@
   justify-content: center;
   overflow: hidden;
   cursor: pointer;
-  background: radial-gradient(
-    ellipse 70% 60% at 50% 50%,
-    rgb(10 12 16 / 0.82),
-    rgb(4 5 7 / 0.96)
-  );
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, var(--k-bg1), var(--k-bg2));
+  /*
+    The scene is the opposite of the theme: light on a dark theme, dark on a light
+    theme, so it always stands out from the screen it covers.
+  */
+  --k-bg1: rgb(248 249 252 / 0.985);
+  --k-bg2: rgb(224 229 236 / 1);
+  --k-ink: #10161b;
+  --k-edge: rgb(16 22 27 / 0.38);
+  --k-track: rgb(16 22 27 / 0.12);
+  --k-fill: rgb(16 22 27 / 0.08);
+  --k-flash: #10161b;
+  --k-slash: #10161b;
+  --k-streak: 16 22 27;
+  --k-steel-1: #2f3943;
+  --k-steel-2: #6f7b87;
+  --k-steel-3: #1c232a;
+  --k-vein: #4a5560;
+  --k-grip: #cfd6dd;
+  --k-accent: color-mix(in srgb, var(--w1-title, #35f06b) 55%, #000000);
+  --k-bladeshadow: rgb(255 255 255 / 0.7);
+}
+:global(html[data-dcq-theme="light"]) .root {
+  --k-bg1: rgb(12 14 18 / 0.95);
+  --k-bg2: rgb(4 5 7 / 0.96);
+  --k-ink: #e8eef2;
+  --k-edge: rgb(255 255 255 / 0.35);
+  --k-track: rgb(255 255 255 / 0.14);
+  --k-fill: rgb(255 255 255 / 0.08);
+  --k-flash: #ffffff;
+  --k-slash: #ffffff;
+  --k-streak: 255 255 255;
+  --k-steel-1: #dfe7ee;
+  --k-steel-2: #ffffff;
+  --k-steel-3: #7d8a96;
+  --k-vein: #9aa7b2;
+  --k-grip: #2a2f36;
+  --k-accent: color-mix(in srgb, var(--w1-title, #35f06b) 45%, #ffffff);
+  --k-bladeshadow: rgb(0 0 0 / 0.55);
 }
 
 .stage {
   position: relative;
   width: min(620px, 90vw);
   height: min(470px, 74vw);
-  color: var(--w1-title, var(--w1-status-null));
+  color: var(--k-accent);
 }
 
 .halo {
@@ -41,7 +75,7 @@
   align-items: center;
   gap: 12px;
   font: 700 13px/1 var(--w1-font-display);
-  color: #e8eef2;
+  color: var(--k-ink);
 }
 .hpName {
   flex: 0 0 auto;
@@ -49,8 +83,8 @@
 .hpTrack {
   flex: 1;
   height: 8px;
-  background: rgb(255 255 255 / 0.14);
-  border: 1px solid rgb(255 255 255 / 0.35);
+  background: var(--k-track);
+  border: 1px solid var(--k-edge);
 }
 .hpFill {
   display: block;
@@ -89,10 +123,10 @@
   pointer-events: none;
 }
 .slash {
-  stroke: #ffffff;
+  stroke: var(--k-slash);
   stroke-width: 3;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 6px #ffffff) drop-shadow(0 0 14px currentColor);
+  filter: drop-shadow(0 0 6px var(--k-slash)) drop-shadow(0 0 14px currentColor);
 }
 
 .streak {
@@ -104,8 +138,8 @@
   background: linear-gradient(
     to bottom,
     transparent,
-    rgb(255 255 255 / 0.55) 40%,
-    rgb(255 255 255 / 0.15) 70%,
+    rgb(var(--k-streak) / 0.55) 40%,
+    rgb(var(--k-streak) / 0.15) 70%,
     transparent
   );
   filter: blur(7px);
@@ -119,7 +153,7 @@
   width: 56px;
   height: 289px;
   pointer-events: none;
-  filter: drop-shadow(0 4px 10px rgb(0 0 0 / 0.55));
+  filter: drop-shadow(0 4px 10px var(--k-bladeshadow));
 }
 .bladeSvg {
   display: block;
@@ -130,7 +164,7 @@
   fill: var(--w1-amber-500, #ffb000);
 }
 .grip {
-  fill: #2a2f36;
+  fill: var(--k-grip);
 }
 
 .fragment {
@@ -157,7 +191,7 @@
 .captionName {
   position: relative;
   font: 700 15px/1.2 var(--w1-font-display);
-  color: #e8eef2;
+  color: var(--k-ink);
 }
 .strike {
   position: absolute;
@@ -170,14 +204,14 @@
 .captionLabel {
   font: 800 clamp(26px, 6vw, 44px) / 1 var(--w1-font-display);
   letter-spacing: -0.02em;
-  color: #ffffff;
+  color: var(--k-ink);
   text-shadow: 0 0 22px color-mix(in srgb, currentColor 65%, transparent);
 }
 
 .flash {
   position: absolute;
   inset: 0;
-  background: #ffffff;
+  background: var(--k-flash);
   opacity: 0;
   pointer-events: none;
 }
@@ -188,18 +222,18 @@
   bottom: 18px;
   height: 32px;
   padding: 0 14px;
-  background: rgb(255 255 255 / 0.08);
-  border: 1px solid rgb(255 255 255 / 0.4);
-  color: #e8eef2;
+  background: var(--k-fill);
+  border: 1px solid var(--k-edge);
+  color: var(--k-ink);
   font: 600 12px/1 var(--w1-font-display);
   cursor: pointer;
 }
 .skip:hover,
 .skip:focus-visible {
-  background: rgb(255 255 255 / 0.2);
+  background: var(--k-track);
 }
 .skip:focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid var(--k-ink);
   outline-offset: 2px;
 }
 
