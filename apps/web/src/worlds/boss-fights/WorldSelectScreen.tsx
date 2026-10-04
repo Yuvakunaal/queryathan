@@ -2,14 +2,11 @@ import { WORLDS } from "../../lib/world-meta";
 import type { WorldMeta } from "../../lib/world-meta";
 import { getWorldProgress, rankForWorld } from "../../lib/save";
 import type { SaveData } from "../../lib/save";
-import type { StreakState } from "../../lib/daily";
 import type { A11yState } from "../../lib/a11y";
 import type { WorldId } from "@dcq/content-schema";
 import { classNames } from "../../lib/classNames";
 import A11yControls from "./A11yControls";
 import AboutDialog from "./AboutDialog";
-import DailyCard from "./DailyCard";
-import RankCardDialog from "./RankCardDialog";
 import { useEffect, useRef, useState } from "react";
 import styles from "./WorldSelectScreen.module.css";
 
@@ -17,9 +14,7 @@ export interface WorldSelectScreenProps {
   saveData: SaveData;
   a11y: A11yState;
   onA11yChange: (next: A11yState) => void;
-  streak: StreakState;
   onSelectWorld: (world: WorldId) => void;
-  onPlayDaily: (world: WorldId, casePath: string) => void;
   onOpenSandbox: () => void;
 }
 
@@ -103,19 +98,11 @@ export default function WorldSelectScreen({
   saveData,
   a11y,
   onA11yChange,
-  streak,
   onSelectWorld,
-  onPlayDaily,
   onOpenSandbox,
 }: WorldSelectScreenProps) {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [aboutSeen, setAboutSeen] = useState(readAboutSeen);
-  const [cardOpen, setCardOpen] = useState(false);
-  const cardButtonRef = useRef<HTMLButtonElement>(null);
-  const cardWasOpenRef = useRef(false);
-  const anyCleared = WORLDS.some(
-    (w) => getWorldProgress(saveData, w.id).clearedCaseIds.length > 0,
-  );
   const aboutButtonRef = useRef<HTMLButtonElement>(null);
   const wasOpenRef = useRef(false);
 
@@ -124,11 +111,6 @@ export default function WorldSelectScreen({
     if (wasOpenRef.current && !aboutOpen) aboutButtonRef.current?.focus();
     wasOpenRef.current = aboutOpen;
   }, [aboutOpen]);
-
-  useEffect(() => {
-    if (cardWasOpenRef.current && !cardOpen) cardButtonRef.current?.focus();
-    cardWasOpenRef.current = cardOpen;
-  }, [cardOpen]);
 
   function openAbout(): void {
     setAboutOpen(true);
@@ -151,18 +133,6 @@ export default function WorldSelectScreen({
             <button type="button" className={styles.aboutLink} onClick={openAbout}>
               What is this?
             </button>
-            {anyCleared ? (
-              <button
-                ref={cardButtonRef}
-                type="button"
-                className={styles.aboutLink}
-                onClick={() => {
-                  setCardOpen(true);
-                }}
-              >
-                Share progress
-              </button>
-            ) : null}
             <A11yControls a11y={a11y} onChange={onA11yChange} />
           </div>
         </header>
@@ -185,7 +155,6 @@ export default function WorldSelectScreen({
             {aboutSeen ? null : <span className={styles.newBadge}>Start here</span>}
           </button>
         </section>
-        <DailyCard saveData={saveData} streak={streak} onPlay={onPlayDaily} />
         <ul className={styles.grid}>
           {WORLDS.map((meta) => (
             <WorldCard
@@ -207,14 +176,6 @@ export default function WorldSelectScreen({
           <span className={styles.cardCta}>Open</span>
         </button>
       </div>
-      {cardOpen ? (
-        <RankCardDialog
-          saveData={saveData}
-          onClose={() => {
-            setCardOpen(false);
-          }}
-        />
-      ) : null}
       {aboutOpen ? (
         <AboutDialog
           onClose={() => {

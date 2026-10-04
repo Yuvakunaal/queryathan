@@ -18,8 +18,6 @@ import type { SaveData } from "./lib/save";
 import { applyA11yToDocument, loadA11yState, persistA11yState } from "./lib/a11y";
 import type { A11yState } from "./lib/a11y";
 import { setSoundEnabled } from "./lib/sound";
-import { dateKey, loadStreak, persistStreak, recordStreakWin } from "./lib/daily";
-import type { StreakState } from "./lib/daily";
 
 // Code-split from WorldMapScreen (the actual landing screen): CodeMirror
 // and GSAP have no reason to download before a player has even picked a
@@ -64,7 +62,6 @@ function FightScreenFallback() {
 export default function App() {
   const [saveData, setSaveData] = useState<SaveData>(loadSave);
   const [screen, setScreen] = useState<Screen>({ name: "hub" });
-  const [streak, setStreak] = useState<StreakState>(loadStreak);
   const [a11y, setA11y] = useState<A11yState>(loadA11yState);
 
   // Applied here, above the roster/fight switch, so a player's saved
@@ -76,14 +73,6 @@ export default function App() {
     setSoundEnabled(a11y.sound);
     persistA11yState(a11y);
   }, [a11y]);
-
-  function noteWin(): void {
-    const next = recordStreakWin(streak, dateKey(new Date()));
-    if (next !== streak) {
-      setStreak(next);
-      persistStreak(next);
-    }
-  }
 
   function updateSave(next: SaveData): void {
     setSaveData(next);
@@ -150,7 +139,6 @@ export default function App() {
           }}
           onWin={(caseId, techniqueKinds, stamp) => {
             updateSave(recordCaseWin(saveData, world, caseId, techniqueKinds, stamp));
-            noteWin();
           }}
         />
       </Suspense>
@@ -163,12 +151,8 @@ export default function App() {
         saveData={saveData}
         a11y={a11y}
         onA11yChange={setA11y}
-        streak={streak}
         onSelectWorld={(world) => {
           setScreen({ name: "roster", world });
-        }}
-        onPlayDaily={(world, casePath) => {
-          setScreen({ name: "fight", world, casePath });
         }}
         onOpenSandbox={() => {
           setScreen({ name: "sandbox-setup" });

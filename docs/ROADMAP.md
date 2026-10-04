@@ -24,7 +24,9 @@ tests pass. The roster screen was redesigned in this pass.
    Firefox and WebKit in the E2E matrix.
 6. **Phase 8: open-source launch.** Contribution flow, RFC template, call
    for cases. _Docs done; publishing the repo is the owner's call._
-7. **Phase 9: sustain.** Sound and shareable rank cards (done). There is no cloud sync and no backend, by decision: progress stays on the device and moves by JSON export/import.
+7. **Phase 9: sustain.** Sound and copy-my-solution (done). Shareable cards, streaks
+   and cloud sync were dropped on purpose: progress lives only in this browser, so
+   there is nothing durable to share or sync.
 
 ## UI/UX backlog (apply to every world)
 
