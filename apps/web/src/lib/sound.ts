@@ -16,7 +16,7 @@ interface Note {
   gain: number;
 }
 
-// Short tones for running code, clearing afflictions and errors: readable by ear, never harsh. The win stinger is built separately below.
+// Short tones for running code, clearing afflictions and errors: readable by ear, never harsh. The win ending is built separately below.
 export const CUES: Record<Exclude<Cue, "win">, readonly Note[]> = {
   run: [{ f: 660, at: 0, dur: 0.05, type: "square", gain: 0.04 }],
   error: [
@@ -68,7 +68,7 @@ function getOutput(ctx: AudioContext): AudioNode {
     master = ctx.createGain();
     // Perceived loudness is roughly the square of the slider, so the middle sounds like the middle.
     master.gain.value = volume * volume;
-    // A limiter at the end: the knife and the stinger stack several layers, and this keeps
+    // A limiter at the end: the knife and the ending stack several layers, and this keeps
     // their sum from ever clipping, however loud the volume is set.
     const limiter = ctx.createDynamicsCompressor();
     limiter.threshold.value = -9;
@@ -84,7 +84,7 @@ function getOutput(ctx: AudioContext): AudioNode {
 export function playCue(cue: Cue): void {
   if (!effectsOn) return;
   if (cue === "win") {
-    playVictoryStinger();
+    playVictoryEnding();
     return;
   }
   try {
@@ -302,7 +302,7 @@ export function playSlice(): void {
 
 let reverbImpulse: AudioBuffer | null = null;
 
-/** A soft, short room: decaying noise, used only to give the kill stinger some air. */
+/** A soft, short room: decaying noise, used only to give the ending some air. */
 function getReverb(ctx: AudioContext): AudioBuffer {
   if (reverbImpulse?.sampleRate !== ctx.sampleRate) {
     const length = Math.floor(ctx.sampleRate * 1.7);
@@ -317,24 +317,14 @@ function getReverb(ctx: AudioContext): AudioBuffer {
   return reverbImpulse;
 }
 
-/** A hard-clipping curve: turns a plain saw into a snarling, amp-like power chord. */
-function distortionCurve(amount: number): Float32Array<ArrayBuffer> {
-  const curve = new Float32Array(new ArrayBuffer(2048 * 4));
-  for (let i = 0; i < curve.length; i += 1) {
-    const x = (i / (curve.length - 1)) * 2 - 1;
-    curve[i] = ((1 + amount) * x) / (1 + amount * Math.abs(x));
-  }
-  return curve;
-}
-
 /**
- * The kill stinger: what plays as "Boss cleared" slams onto the screen. Two heavy
- * hits in D minor, like a boss falling in a dark action game: a short punch, then
- * a big distorted power chord with a sub boom, a cymbal-like crash and a long
- * decaying room. Built from saws through a distortion stage, so it sounds
- * aggressive and final, not cheerful. About 2.4 seconds.
+ * The ending after the cut: smooth and settled, the sound of a problem solved.
+ * A warm D major chord swells in like strings and holds, soft felt-piano notes
+ * climb through the scale and land on a ringing top note, a gentle low note gives
+ * the moment some weight, and a long, quiet room carries it all away. No
+ * distortion, nothing sharp. About 3 seconds.
  */
-function playVictoryStinger(): void {
+function playVictoryEnding(): void {
   try {
     const ctx = getContext();
     if (!ctx) return;
@@ -343,89 +333,67 @@ function playVictoryStinger(): void {
     const t0 = ctx.currentTime + 0.02;
 
     const dry = ctx.createGain();
-    dry.gain.value = 0.85;
+    dry.gain.value = 0.8;
     dry.connect(out);
     const reverb = ctx.createConvolver();
     reverb.buffer = getReverb(ctx);
     const wet = ctx.createGain();
-    wet.gain.value = 0.34;
+    wet.gain.value = 0.46;
     reverb.connect(wet).connect(out);
     const bus = ctx.createGain();
     bus.connect(dry);
     bus.connect(reverb);
 
-    const drive = ctx.createWaveShaper();
-    drive.curve = distortionCurve(38);
-    drive.oversample = "2x";
-    const tone = ctx.createBiquadFilter();
-    tone.type = "lowpass";
-    tone.frequency.value = 2400;
-    drive.connect(tone).connect(bus);
-
-    // A distorted power chord: saws (a little detuned) through the drive.
-    const chord = (freqs: number[], at: number, hold: number, level: number): void => {
-      for (const freq of freqs) {
-        for (const detune of [-9, 9]) {
-          const osc = ctx.createOscillator();
-          osc.type = "sawtooth";
-          osc.frequency.value = freq;
-          osc.detune.value = detune;
-          const amp = ctx.createGain();
-          amp.gain.setValueAtTime(0.0001, t0 + at);
-          amp.gain.exponentialRampToValueAtTime(level, t0 + at + 0.006);
-          amp.gain.exponentialRampToValueAtTime(level * 0.45, t0 + at + hold * 0.3);
-          amp.gain.exponentialRampToValueAtTime(0.0001, t0 + at + hold);
-          osc.connect(amp).connect(drive);
-          osc.start(t0 + at);
-          osc.stop(t0 + at + hold + 0.05);
-        }
+    // Felt piano: a sine with a quiet octave above, a soft strike and a long, even decay.
+    const note = (freq: number, at: number, hold: number, level: number): void => {
+      const partials: [number, number, number][] = [
+        [1, 1, hold],
+        [2, 0.22, hold * 0.6],
+        [3, 0.07, hold * 0.3],
+      ];
+      for (const [ratio, gain, length] of partials) {
+        const osc = ctx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.value = freq * ratio;
+        const amp = ctx.createGain();
+        amp.gain.setValueAtTime(0.0001, t0 + at);
+        amp.gain.exponentialRampToValueAtTime(level * gain, t0 + at + 0.014);
+        amp.gain.exponentialRampToValueAtTime(0.0001, t0 + at + length);
+        osc.connect(amp).connect(bus);
+        osc.start(t0 + at);
+        osc.stop(t0 + at + length + 0.05);
       }
     };
+    // D major pentatonic, climbing and landing: D5 F#5 A5 D6, then the high D rings.
+    note(587.33, 0.0, 1.6, 0.16);
+    note(739.99, 0.16, 1.6, 0.15);
+    note(880.0, 0.32, 1.7, 0.15);
+    note(1174.66, 0.52, 2.6, 0.17);
 
-    // Hit one: a short, tight punch (D3, A3, D4).
-    chord([146.83, 220, 293.66], 0, 0.3, 0.07);
-    noiseBurst(ctx, bus, {
-      at: t0,
-      dur: 0.09,
-      type: "bandpass",
-      from: 1800,
-      q: 0.7,
-      peak: 0.3,
-      attack: 0.002,
-    });
-    glide(ctx, bus, { at: t0, dur: 0.2, from: 140, to: 55, peak: 0.45 });
-
-    // Hit two: the big one (D2, A2, D3, F3, A3), with the boom, the crash and the ring.
-    const big = 0.34;
-    chord([73.42, 110, 146.83, 174.61, 220], big, 1.9, 0.075);
-    glide(ctx, bus, { at: t0 + big, dur: 1.1, from: 95, to: 32, peak: 0.6 });
-    noiseBurst(ctx, bus, {
-      at: t0 + big,
-      dur: 0.12,
-      type: "bandpass",
-      from: 2400,
-      q: 0.6,
-      peak: 0.34,
-      attack: 0.002,
-    });
-    noiseBurst(ctx, bus, {
-      at: t0 + big,
-      dur: 1.6,
-      type: "highpass",
-      from: 6200,
-      to: 4200,
-      peak: 0.2,
-      attack: 0.01,
-    });
-    noiseBurst(ctx, bus, {
-      at: t0 + big,
-      dur: 0.9,
-      type: "lowpass",
-      from: 420,
-      to: 120,
-      peak: 0.34,
-      attack: 0.02,
-    });
+    // The pad: D2 root underneath, then D3, A3, F#4, E5 (a D major add9 chord) swelling in slowly.
+    const pad = ctx.createBiquadFilter();
+    pad.type = "lowpass";
+    pad.frequency.setValueAtTime(700, t0 + 0.1);
+    pad.frequency.exponentialRampToValueAtTime(2300, t0 + 1.5);
+    pad.connect(bus);
+    for (const freq of [146.83, 220, 369.99, 659.25]) {
+      for (const detune of [-6, 6]) {
+        const osc = ctx.createOscillator();
+        osc.type = "triangle";
+        osc.frequency.value = freq;
+        osc.detune.value = detune;
+        const amp = ctx.createGain();
+        amp.gain.setValueAtTime(0.0001, t0 + 0.1);
+        amp.gain.exponentialRampToValueAtTime(0.034, t0 + 0.8);
+        amp.gain.exponentialRampToValueAtTime(0.02, t0 + 1.8);
+        amp.gain.exponentialRampToValueAtTime(0.0001, t0 + 3.1);
+        osc.connect(amp).connect(pad);
+        osc.start(t0 + 0.1);
+        osc.stop(t0 + 3.2);
+      }
+    }
+    // A soft low note for weight: D2, rounded off, fading under everything.
+    glide(ctx, bus, { at: t0, dur: 1.6, from: 73.42, to: 71.5, peak: 0.26 });
   } catch {
     // Audio is a nicety; a blocked or missing context just stays quiet.
   }

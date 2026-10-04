@@ -26,8 +26,8 @@ follows [Keep a Changelog](https://keepachangelog.com/).
   drawn over it. SQL help is checked the same way.
 - **A fuller finishing cut.** The knife recording now sits under a rising air swish, a bright crack,
   a juicy burst, a low thud and two small drops, in the spirit of a fruit-slicing game. The win
-  sound is a heavy two-hit boss-kill stinger (distorted D-minor power chords, sub boom, crash and a
-  long room) instead of beeps. A limiter on
+  sound is a smooth, settled ending (a warm D major pad, soft felt-piano notes climbing to a ringing
+  top note, a gentle low note and a long quiet room) instead of beeps. A limiter on
   the output keeps the layers from ever clipping.
 - **Layout fixes found by a width check** (desktop, laptop, tablet, phone): the home top bar and the
   editor toolbar no longer run off the edge on a phone. A new test fails if any screen scrolls
