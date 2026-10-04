@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## Unreleased (Phase 9)
 
+- **Resizable tables in the collage.** The lines between tables are now drag handles, like the
+  one between the left and right panels: drag to give a table more room and its neighbour less,
+  with the arrow keys for small steps, Home/End for the limits and double-click or Enter to centre.
+  Two tables share one horizontal line, three have a vertical line above and a horizontal one, four
+  have both and the vertical line moves both rows together. Sizes are remembered per case; no table
+  can be pushed out of sight.
+- **A calmer join checklist.** The checks above the tables show a tick (or an open circle) and the
+  rule; the extra "yes" after every met check is gone, and a rule that is not met shows what is wrong
+  in brackets.
+
 - **Wide tables end cleanly.** When a table is wider than its panel and you scroll sideways, the header
   and the row stripes now run to the last column instead of stopping at the panel's edge and leaving a
   bare strip (a test scrolls a wide table to the end and checks the header and rows reach it).

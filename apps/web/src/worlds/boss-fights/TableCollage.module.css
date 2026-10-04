@@ -3,31 +3,82 @@
   flex: 1 1 0;
   min-height: 0;
   display: grid;
-  gap: 8px;
-  padding: 8px;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-}
-/* Two tables: one above the other. */
-.collage[data-count="2"] {
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-}
-/* Three: two on top, one across the bottom. */
-.collage[data-count="3"] {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-}
-.collage[data-count="3"] > .pane[data-slot="2"] {
-  grid-column: 1 / -1;
-}
-/* Four: a 2 by 2. */
-.collage[data-count="4"] {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  /* The tracks (and the gutters between tables, which hold the drag handles) are set from the code. */
 }
 .collage[data-dragging="true"] {
   cursor: grabbing;
   user-select: none;
+}
+
+/* The lines between tables: a wide, easy target with a thin line and a grip in the middle. */
+.split {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  background: transparent;
+}
+.splitV {
+  cursor: col-resize;
+}
+.splitH {
+  cursor: row-resize;
+}
+.split::before {
+  content: "";
+  position: absolute;
+  background: var(--w1-rule-strong);
+  transition: background-color 120ms ease;
+}
+.splitV::before {
+  top: 0;
+  bottom: 0;
+  width: 2px;
+}
+.splitH::before {
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+.splitGrip {
+  position: relative;
+  border-radius: 3px;
+  background: var(--w1-text-dim);
+  opacity: 0.55;
+  transition:
+    opacity 120ms ease,
+    background-color 120ms ease;
+}
+.splitV .splitGrip {
+  width: 4px;
+  height: 36px;
+}
+.splitH .splitGrip {
+  width: 36px;
+  height: 4px;
+}
+.split:hover::before,
+.split:focus-visible::before,
+.splitActive::before {
+  background: var(--w1-amber-500);
+}
+.split:hover .splitGrip,
+.split:focus-visible .splitGrip,
+.splitActive .splitGrip {
+  background: var(--w1-amber-500);
+  opacity: 1;
+}
+.split:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: -2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .split::before,
+  .splitGrip {
+    transition: none;
+  }
 }
 
 .pane {

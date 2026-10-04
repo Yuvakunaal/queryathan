@@ -1,7 +1,18 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { KeyboardEvent, PointerEvent, ReactNode } from "react";
 import { classNames } from "../../lib/classNames";
-import { orderPanes, swapOrder } from "./collageOrder";
+import {
+  clampSplit,
+  collagePlacement,
+  collageTracks,
+  DEFAULT_SPLIT,
+  GUTTER_PX,
+  orderPanes,
+  PADDING_PX,
+  swapOrder,
+} from "./collageOrder";
+import type { Split } from "./collageOrder";
+import { readStored, writeStored } from "../../lib/safeStorage";
 import styles from "./TableCollage.module.css";
 
 export interface CollagePane {
@@ -17,6 +28,8 @@ export interface TableCollageProps {
   /** Pane ids in display order. Ids that are missing are placed last. */
   order: string[];
   onOrderChange: (next: string[]) => void;
+  /** Where the sizes of this collage are remembered on this device (one per case). */
+  splitKey: string;
 }
 
 interface DragState {
@@ -31,17 +44,155 @@ interface DragState {
 
 const DRAG_THRESHOLD_PX = 5;
 
+const splitStorageKey = (key: string): string => `dcq.collage.${key}.split`;
+
+function readSplit(key: string): Split {
+  try {
+    const parsed: unknown = JSON.parse(readStored(splitStorageKey(key)) ?? "null");
+    if (parsed && typeof parsed === "object") {
+      const { col, row } = parsed as Record<string, unknown>;
+      return {
+        col: typeof col === "number" ? clampSplit(col) : DEFAULT_SPLIT.col,
+        row: typeof row === "number" ? clampSplit(row) : DEFAULT_SPLIT.row,
+      };
+    }
+  } catch {
+    // Fall through to the default.
+  }
+  return DEFAULT_SPLIT;
+}
+
+interface SplitHandleProps {
+  orientation: "vertical" | "horizontal";
+  value: number;
+  /** The collage, to measure how far a drag is as a share of its size. */
+  container: React.RefObject<HTMLDivElement | null>;
+  onChange: (next: number) => void;
+  onCommit: (next: number) => void;
+  label: string;
+  style: React.CSSProperties;
+  /** A second grip for the same line (drag only): left out of the tab order and the accessibility tree. */
+  duplicate?: boolean;
+}
+
+const KEY_STEP = 0.03;
+
+/**
+ * The line between tables. Drag it (mouse, touch or pen) to give one table more
+ * room and the other less; arrow keys nudge it, Home and End go to the limits,
+ * double-click or Enter put it back in the middle.
+ */
+function SplitHandle({
+  orientation,
+  value,
+  container,
+  onChange,
+  onCommit,
+  label,
+  style,
+  duplicate = false,
+}: SplitHandleProps) {
+  const [dragging, setDragging] = useState(false);
+  const lastRef = useRef(value);
+  const vertical = orientation === "vertical";
+
+  function ratioAt(event: PointerEvent<HTMLDivElement>): number {
+    const rect = container.current?.getBoundingClientRect();
+    if (!rect) return value;
+    const along = vertical ? event.clientX - rect.left : event.clientY - rect.top;
+    const size = (vertical ? rect.width : rect.height) - 2 * PADDING_PX - GUTTER_PX;
+    return clampSplit((along - PADDING_PX - GUTTER_PX / 2) / Math.max(1, size));
+  }
+
+  function onPointerDown(event: PointerEvent<HTMLDivElement>): void {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDragging(true);
+  }
+
+  function onPointerMove(event: PointerEvent<HTMLDivElement>): void {
+    if (!dragging) return;
+    lastRef.current = ratioAt(event);
+    onChange(lastRef.current);
+  }
+
+  function end(event: PointerEvent<HTMLDivElement>): void {
+    if (!dragging) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    setDragging(false);
+    onCommit(lastRef.current);
+  }
+
+  function onKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
+    const more = vertical ? "ArrowRight" : "ArrowDown";
+    const less = vertical ? "ArrowLeft" : "ArrowUp";
+    let next: number | null = null;
+    if (event.key === more) next = value + (event.shiftKey ? KEY_STEP * 3 : KEY_STEP);
+    else if (event.key === less)
+      next = value - (event.shiftKey ? KEY_STEP * 3 : KEY_STEP);
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = 1;
+    else if (event.key === "Enter") next = DEFAULT_SPLIT.col;
+    if (next === null) return;
+    event.preventDefault();
+    const clamped = clampSplit(next);
+    onChange(clamped);
+    onCommit(clamped);
+  }
+
+  return (
+    <div
+      role="separator"
+      tabIndex={duplicate ? -1 : 0}
+      aria-hidden={duplicate ? true : undefined}
+      aria-orientation={orientation}
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(value * 100)}
+      title="Drag to resize. Double-click to centre."
+      className={classNames(
+        styles.split,
+        vertical ? styles.splitV : styles.splitH,
+        dragging && styles.splitActive,
+      )}
+      style={style}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={end}
+      onPointerCancel={end}
+      onDoubleClick={() => {
+        onChange(DEFAULT_SPLIT.col);
+        onCommit(DEFAULT_SPLIT.col);
+      }}
+      onKeyDown={onKeyDown}
+    >
+      <span className={styles.splitGrip} aria-hidden="true" />
+    </div>
+  );
+}
+
 /**
  * The tables of a case side by side as a collage: two tables stack one above
  * the other, three put two on top and one underneath, four make a 2 by 2. Drag
  * a pane by its grip to swap places with another (or focus the grip and use the
  * arrow keys), so the table you are looking at most can have the room.
  */
-export default function TableCollage({ panes, order, onOrderChange }: TableCollageProps) {
+export default function TableCollage({
+  panes,
+  order,
+  onOrderChange,
+  splitKey,
+}: TableCollageProps) {
   const shown = orderPanes(panes, order);
   const ids = shown.map((p) => p.id);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [announcement, setAnnouncement] = useState("");
+  const [split, setSplit] = useState<Split>(() => readSplit(splitKey));
+  const collageRef = useRef<HTMLDivElement>(null);
   const count = Math.min(shown.length, 4);
 
   function paneUnder(x: number, y: number): string | null {
@@ -108,11 +259,23 @@ export default function TableCollage({ panes, order, onOrderChange }: TableColla
 
   const dragging = drag?.active ? shown.find((p) => p.id === drag.id) : undefined;
 
+  const tracks = collageTracks(count, split);
+  function commitSplit(next: Split): void {
+    setSplit(next);
+    writeStored(splitStorageKey(splitKey), JSON.stringify(next));
+  }
+
   return (
     <div
+      ref={collageRef}
       className={styles.collage}
       data-count={count}
       data-dragging={dragging ? "true" : "false"}
+      style={{
+        gridTemplateColumns: tracks.columns,
+        gridTemplateRows: tracks.rows,
+        padding: PADDING_PX,
+      }}
     >
       {shown.map((pane, index) => (
         <section
@@ -125,6 +288,10 @@ export default function TableCollage({ panes, order, onOrderChange }: TableColla
           data-collage-pane={pane.id}
           data-slot={index}
           aria-label={pane.title}
+          style={{
+            gridColumn: collagePlacement(count, index).column,
+            gridRow: collagePlacement(count, index).row,
+          }}
         >
           <header className={styles.header}>
             <button
@@ -154,6 +321,52 @@ export default function TableCollage({ panes, order, onOrderChange }: TableColla
           <div className={styles.body}>{pane.content}</div>
         </section>
       ))}
+      {count >= 3 ? (
+        <SplitHandle
+          orientation="vertical"
+          value={split.col}
+          container={collageRef}
+          label="Width of the tables on the left"
+          style={{ gridColumn: "2", gridRow: "1" }}
+          onChange={(col) => {
+            setSplit((s) => ({ ...s, col }));
+          }}
+          onCommit={(col) => {
+            commitSplit({ ...split, col });
+          }}
+        />
+      ) : null}
+      {count === 4 ? (
+        <SplitHandle
+          orientation="vertical"
+          value={split.col}
+          container={collageRef}
+          label="Width of the tables on the left, lower row"
+          duplicate
+          style={{ gridColumn: "2", gridRow: "3" }}
+          onChange={(col) => {
+            setSplit((s) => ({ ...s, col }));
+          }}
+          onCommit={(col) => {
+            commitSplit({ ...split, col });
+          }}
+        />
+      ) : null}
+      {count >= 2 ? (
+        <SplitHandle
+          orientation="horizontal"
+          value={split.row}
+          container={collageRef}
+          label={count === 2 ? "Height of the top table" : "Height of the upper tables"}
+          style={{ gridColumn: "1 / -1", gridRow: "2" }}
+          onChange={(row) => {
+            setSplit((s) => ({ ...s, row }));
+          }}
+          onCommit={(row) => {
+            commitSplit({ ...split, row });
+          }}
+        />
+      ) : null}
       {dragging && drag ? (
         <div className={styles.ghost} style={{ left: drag.x + 12, top: drag.y + 12 }}>
           {dragging.title}

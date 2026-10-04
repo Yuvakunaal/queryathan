@@ -95,3 +95,60 @@ test("the arrow keys move a table too, and One at a time brings back the tabs", 
   await expect(page.locator("[data-collage-pane]")).toHaveCount(3);
   await expect(page.getByRole("tab", { name: "customers (original)" })).toHaveCount(0);
 });
+
+test("the line between two tables resizes them, double-click centres it, and it is remembered", async ({
+  page,
+}) => {
+  await openCase(page, "the-twins", "w3-01-key-mirror", "sql");
+  await page.waitForTimeout(1500);
+  const handle = page.getByRole("separator", { name: "Height of the top table" });
+  const before = await boxes(page);
+  const h = await handle.boundingBox();
+  if (!h) throw new Error("no handle");
+  await page.mouse.move(h.x + h.width / 2, h.y + h.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(h.x + h.width / 2, h.y + h.height / 2 + 120, { steps: 8 });
+  await page.mouse.up();
+  const after = await boxes(page);
+  expect(after.main?.h ?? 0).toBeGreaterThan((before.main?.h ?? 0) + 90);
+  expect(after.customers?.h ?? 0).toBeLessThan((before.customers?.h ?? 0) - 90);
+  // Together they still fill the same room.
+  expect((after.main?.h ?? 0) + (after.customers?.h ?? 0)).toBeCloseTo(
+    (before.main?.h ?? 0) + (before.customers?.h ?? 0),
+    0,
+  );
+  const saved = await page.evaluate(() =>
+    window.localStorage.getItem("dcq.collage.w3-01-key-mirror.split"),
+  );
+  expect((JSON.parse(saved ?? "{}") as { row: number }).row).toBeGreaterThan(0.55);
+  await handle.dblclick();
+  const centred = await boxes(page);
+  expect(centred.main?.h).toBeCloseTo(before.main?.h ?? 0, 0);
+});
+
+test("with four tables the vertical line resizes both rows at once, and the keyboard works", async ({
+  page,
+}) => {
+  await openCase(page, "the-twins", "w3-06-four-corners", "sql");
+  await page.waitForTimeout(1500);
+  const before = await boxes(page);
+  const handle = page.getByRole("separator", {
+    name: "Width of the tables on the left",
+    exact: true,
+  });
+  await handle.focus();
+  for (let i = 0; i < 4; i += 1) await page.keyboard.press("ArrowRight");
+  const after = await boxes(page);
+  // Both left tables grew, both right tables shrank, by the same amount.
+  expect(after.main?.w ?? 0).toBeGreaterThan((before.main?.w ?? 0) + 30);
+  expect(after.products?.w ?? 0).toBeCloseTo(after.main?.w ?? 0, 0);
+  expect(after.customers?.w ?? 0).toBeLessThan((before.customers?.w ?? 0) - 30);
+  expect(after.stores?.w ?? 0).toBeCloseTo(after.customers?.w ?? 0, 0);
+  // They cannot be pushed out of sight.
+  await page.keyboard.press("End");
+  const end = await boxes(page);
+  expect(end.customers?.w ?? 0).toBeGreaterThan(100);
+  await page.keyboard.press("Enter");
+  const centred = await boxes(page);
+  expect(centred.main?.w).toBeCloseTo(before.main?.w ?? 0, 0);
+});

@@ -50,20 +50,17 @@
 }
 .check {
   display: grid;
-  grid-template-columns: 14px 1fr auto;
+  grid-template-columns: 14px minmax(0, 1fr);
   gap: 8px;
   color: var(--w1-text-secondary);
 }
 .check[data-met="true"] .mark {
   color: var(--w1-green-500);
 }
-.check[data-met="true"] .checkLabel {
+.check[data-met="true"] .checkText {
   color: var(--w1-text-primary);
 }
 .checkDetail {
-  color: var(--w1-text-dim);
-}
-.check[data-met="false"] .checkDetail {
   color: var(--w1-diff-del);
 }
 .readout {

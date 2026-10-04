@@ -1046,6 +1046,7 @@ export default function BossFightScreen({
                       })),
                     ]}
                     order={collageOrder}
+                    splitKey={caseData.id}
                     onOrderChange={(next) => {
                       setCollageOrder(next);
                       try {

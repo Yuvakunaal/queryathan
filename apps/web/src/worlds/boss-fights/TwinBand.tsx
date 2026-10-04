@@ -51,12 +51,12 @@ export default function TwinBand({
         {checks.map((c) => (
           <li key={c.key} className={styles.check} data-met={c.met ? "true" : "false"}>
             <span className={styles.mark} aria-hidden="true">
-              {c.met ? "✓" : "•"}
+              {c.met ? "✓" : "○"}
             </span>
-            <span className={styles.checkLabel}>{c.label}</span>
-            <span className={styles.checkDetail}>
-              <span className={styles.srOnly}>{c.met ? "met" : "not met"}: </span>
-              {c.detail}
+            <span className={styles.checkText}>
+              <span className={styles.srOnly}>{c.met ? "Met: " : "Not met: "}</span>
+              {c.label}
+              {c.met ? null : <span className={styles.checkDetail}> ({c.detail})</span>}
             </span>
           </li>
         ))}
