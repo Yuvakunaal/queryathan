@@ -13,29 +13,29 @@ Full product vision, world designs, and architecture rationale:
 
 ## Status
 
-**Phases 1-4 in progress: Worlds 2 (The Vault), 3 (The Twins), 4 (The Architect) and 5 (The Foundry, speed jobs against a stopwatch) are playable, plus a sandbox for your own CSV. Phase 3 complete — World 1 (Boss Fights) is fully playable, four bosses
-deep, in either of two real engines.** Open the app to a boss roster
-(locked/unlocked/cleared state, rank, XP), pick a fight, choose Python
-(pandas/Pyodide) or SQL (SQLite/sql.js) on an engine-select screen, and edit
-real code against that real in-browser engine — watch the HP heatmap drop,
-cells flash a git-diff-style red/green, the boss's ASCII sigil decay as
-afflictions clear. All six of World 1's content areas are live (nulls,
-duplicates, whitespace/casing, wrong dtypes, outliers, bad dates), stacked
-1–6 at a time depending on the boss, solvable the same way in either
-language. Real interpreter errors surface as an unmodified traceback/SQLite
-error, exactly as they would in a notebook or a `sqlite3` shell. Progress
-(cleared bosses, XP, rank) persists in `localStorage` and is
-exportable/importable as JSON — no login, no server.
+Five worlds are playable, 19 cases in all, each winnable in either engine:
 
-No other worlds yet, no sandbox mode, no offline caching, no
-Playwright/Lighthouse CI — all explicitly later phases. See
+1. **Boss Fights**: nulls, duplicates, whitespace and casing, wrong dtypes,
+   outliers, bad dates.
+2. **The Vault**: pattern extraction and mojibake.
+3. **The Twins**: joins and relational cleanup.
+4. **The Architect**: reshaping.
+5. **The Foundry**: timed jobs against a stopwatch, with quality stamps.
+
+Also in place: a sandbox for your own CSV, dark, light and high-contrast
+themes, resizable panels, a worksheet-style SQL editor (run selection, else
+all), plain-language error views, and an offline cache so the app keeps working
+after one visit. Progress lives in `localStorage` and is exportable as JSON.
+There is no login and no server.
+
+Quality gates: strict TypeScript, unit tests, and an end-to-end suite that
+proves every case is winnable, runs accessibility and contrast audits, and
+checks offline use against a production build with the real CSP headers. See
+[`docs/ROADMAP.md`](./docs/ROADMAP.md) for what is next, and
 [`data-cleaning-quest-master-plan.md`](./data-cleaning-quest-master-plan.md#14-build-roadmap)
-Section 14 for the full 9-phase roadmap. Architecture decisions are recorded
-in [`docs/adr/`](./docs/adr/); World 1's visual/motion design specs are in
-[`docs/design/world-1-visual-spec.md`](./docs/design/world-1-visual-spec.md)
-(Phase 1) and
-[`docs/design/world-1-phase-2-visual-spec.md`](./docs/design/world-1-phase-2-visual-spec.md)
-(Phase 2).
+for the full plan. Architecture decisions are recorded in
+[`docs/adr/`](./docs/adr/); visual specs are in
+[`docs/design/`](./docs/design/).
 
 For a structural map of the codebase, see
 [`graphify-out/GRAPH_REPORT.md`](./graphify-out/GRAPH_REPORT.md) (generated —

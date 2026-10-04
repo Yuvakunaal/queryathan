@@ -9,7 +9,8 @@ code or understanding Pyodide/Web Worker internals.
 Every boss/puzzle is a JSON file conforming to the schema in
 `packages/content-schema`, plus a seed dataset in `apps/web/public/datasets/`.
 Read [`docs/content-authoring-guide.md`](./docs/content-authoring-guide.md)
-for the full walkthrough. In short:
+for the full walkthrough, and [`docs/call-for-cases.md`](./docs/call-for-cases.md)
+for the kinds of cases we want. In short:
 
 1. Fork the repo.
 2. Add your dataset under `apps/web/public/datasets/<world>/`, with an entry
@@ -42,7 +43,7 @@ PRs a data review, not a security review. See
 
 ## Changes to architecture (new world, new engine, breaking schema change)
 
-Open a GitHub Discussion using the RFC template first. This is deliberately
+Open a GitHub Discussion using the [RFC template](./docs/rfc-template.md) first. This is deliberately
 lightweight — a short writeup of the problem and proposed approach — not a
 formal process. See existing [`docs/adr/`](./docs/adr/) entries for the level
 of detail expected.
