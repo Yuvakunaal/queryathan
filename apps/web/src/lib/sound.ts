@@ -75,3 +75,40 @@ export function playCue(cue: Cue): void {
     // Audio is a nicety; a blocked or missing context just stays quiet.
   }
 }
+
+let noise: AudioBuffer | null = null;
+
+/**
+ * One soft keystroke, for the boot sequence's typing: a few milliseconds of
+ * filtered noise at a slightly different pitch each time, so a run of them
+ * sounds like typing and not like a machine gun.
+ */
+export function playKey(): void {
+  if (!enabled) return;
+  try {
+    const ctx = getContext();
+    if (!ctx) return;
+    if (ctx.state === "suspended") void ctx.resume();
+    noise ??= (() => {
+      const length = Math.floor(ctx.sampleRate * 0.03);
+      const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < length; i += 1)
+        data[i] = (Math.random() * 2 - 1) * (1 - i / length);
+      return buffer;
+    })();
+    const source = ctx.createBufferSource();
+    source.buffer = noise;
+    source.playbackRate.value = 0.85 + Math.random() * 0.4;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 2200 + Math.random() * 1400;
+    filter.Q.value = 0.9;
+    const amp = ctx.createGain();
+    amp.gain.value = 0.16;
+    source.connect(filter).connect(amp).connect(ctx.destination);
+    source.start();
+  } catch {
+    // Audio is a nicety; a blocked or missing context just stays quiet.
+  }
+}

@@ -601,6 +601,12 @@ export default function BossFightScreen({
     );
   }
 
+  const answerPredicate = caseData.winCondition.all.find(
+    (p) => p.predicate === "result_matches",
+  );
+  const answerRows =
+    answerPredicate?.predicate === "result_matches" ? answerPredicate.rows.length : null;
+
   if (phase === "boot") {
     return (
       <div className={styles.fightRoot} data-world={world}>
@@ -609,9 +615,18 @@ export default function BossFightScreen({
           datasetFileName={caseData.datasetPath.split("/").pop() ?? "dataset.csv"}
           datasetShape={`${String(grid.rows.length)}x${String(grid.columns.length)}`}
           afflictionCount={initialAfflictionRef.current ?? 0}
-          scanLabel={predicateKindOrder(caseData.winCondition)
-            .map((kind) => SCAN_CODE[kind])
-            .join("+")}
+          scanLabel={
+            answerRows === null
+              ? predicateKindOrder(caseData.winCondition)
+                  .map((kind) => SCAN_CODE[kind])
+                  .join("+")
+              : "ANSWER"
+          }
+          detectedText={
+            answerRows === null
+              ? undefined
+              : `${String(answerRows).padStart(3, "0")} ROWS  TO MATCH`
+          }
           engineLabel={engine === "sql" ? "sql.js/wasm" : "pyodide/wasm"}
           onEngage={() => {
             setPhase("fight");

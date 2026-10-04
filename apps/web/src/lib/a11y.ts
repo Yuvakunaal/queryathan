@@ -9,7 +9,7 @@ export interface A11yState {
   theme: ThemeMode;
   crtReduced: boolean;
   highContrast: boolean;
-  /** Sound cues; off until the player turns them on. */
+  /** Sound cues (quiet). On by default; the SFX button turns them off. */
   sound: boolean;
 }
 
@@ -26,7 +26,7 @@ export function defaultA11y(): A11yState {
     theme: prefersLight ? "light" : "dark",
     crtReduced: true,
     highContrast: false,
-    sound: false,
+    sound: true,
   };
 }
 

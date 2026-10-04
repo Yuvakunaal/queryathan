@@ -1,4 +1,5 @@
 import gsap from "gsap";
+import { playCue, playKey } from "../../lib/sound";
 import { prefersReducedMotion } from "./motionContext";
 
 export interface BootLineSegment {
@@ -61,6 +62,7 @@ export function playBootSequence({
 
   lines.forEach((line, lineIndex) => {
     const counter = { i: 0 };
+    let typed = 0;
     master.to(
       counter,
       {
@@ -81,6 +83,13 @@ export function playBootSequence({
         },
         onUpdate: () => {
           revealLine(line, counter.i);
+          if (counter.i > typed) {
+            typed = counter.i;
+            playKey();
+          }
+        },
+        onComplete: () => {
+          if (lineIndex < lines.length - 1) playCue("run");
         },
       },
       lineIndex === 0 ? 0 : `+=${String(LINE_GAP_S)}`,

@@ -89,3 +89,13 @@ test("a final-boss funnel that ignores the order of events does not win", async 
   ).toContainText("/ 3", { timeout: 30_000 });
   await noWin(page);
 });
+
+test("the boot sequence names the answer to match, not afflicted cells", async ({
+  page,
+}) => {
+  await openCase(page, "the-observatory", "w6-01-first-light", "sql", { skipBoot: true });
+  await expect(page.getByText(/scanning for affliction \.\. ANSWER/)).toBeVisible({
+    timeout: 120_000,
+  });
+  await expect(page.getByText(/004 ROWS\s+TO MATCH/)).toBeVisible();
+});

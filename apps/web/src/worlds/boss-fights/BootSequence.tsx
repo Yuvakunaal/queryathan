@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { makeBootLine, playBootSequence } from "../../anim/world1/bootType";
+import { playCue } from "../../lib/sound";
 import styles from "./BootSequence.module.css";
 
 export interface BootSequenceProps {
@@ -10,6 +11,8 @@ export interface BootSequenceProps {
   afflictionCount: number;
   /** e.g. "NUL" or "NUL+DUP" for a stacked case — the actual predicate kinds being scanned for, never hardcoded (design spec §4.2's escalation principle: the state itself is the signal). */
   scanLabel: string;
+  /** Overrides the "N CELLS DETECTED" readout for cases that are not about afflicted cells. */
+  detectedText?: string | undefined;
   /** "pyodide/wasm" or "sql.js/wasm" — reflects the engine the player actually picked on the previous screen, not a fixed assumption. */
   engineLabel: string;
   onEngage: () => void;
@@ -21,6 +24,7 @@ export default function BootSequence({
   datasetShape,
   afflictionCount,
   scanLabel,
+  detectedText,
   engineLabel,
   onEngage,
 }: BootSequenceProps) {
@@ -86,7 +90,7 @@ export default function BootSequence({
         ]),
         makeBootLine([
           { text: `scanning for affliction .. ${scanLabel}   `, el: l4a },
-          { text: `${countStr} CELLS  DETECTED`, el: l4b },
+          { text: detectedText ?? `${countStr} CELLS  DETECTED`, el: l4b },
         ]),
         makeBootLine([{ text: `[ ENTER ]  engage ${bossName}`, el: l5 }]),
       ];
@@ -113,6 +117,7 @@ export default function BootSequence({
         datasetFileName,
         datasetShape,
         scanLabel,
+        detectedText,
         engineLabel,
       ],
     },
@@ -124,7 +129,10 @@ export default function BootSequence({
         skipRef.current();
         return;
       }
-      if (event.key === "Enter") onEngage();
+      if (event.key === "Enter") {
+        playCue("clear");
+        onEngage();
+      }
     }
     function handleClick() {
       if (!complete) skipRef.current();

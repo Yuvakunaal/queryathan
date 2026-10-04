@@ -19,7 +19,7 @@ describe("defaultA11y", () => {
       theme: "dark",
       crtReduced: true,
       highContrast: false,
-      sound: false,
+      sound: true,
     });
   });
 });
@@ -71,7 +71,7 @@ describe("loadA11yState / persistA11yState", () => {
       theme: "dark",
       crtReduced: true,
       highContrast: false,
-      sound: false,
+      sound: true,
     });
   });
 
