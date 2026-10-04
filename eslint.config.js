@@ -13,6 +13,7 @@ export default tseslint.config(
       "**/build/**",
       "**/node_modules/**",
       "**/public/pyodide/**",
+      "**/public/sw.js",
       "**/*.d.ts",
       "graphify-out/**",
     ],
