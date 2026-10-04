@@ -21,14 +21,6 @@ function mulberry32(seed) {
 const random = mulberry32(0x54574d4c); // "TWML"
 const pick = (list) => list[Math.floor(random() * list.length)];
 const int = (lo, hi) => lo + Math.floor(random() * (hi - lo + 1));
-function shuffle(list) {
-  const out = [...list];
-  for (let i = out.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
-}
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
