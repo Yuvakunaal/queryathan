@@ -47,6 +47,10 @@ import LoadingCard from "./LoadingCard";
 import type { EngineChoice } from "./EngineSelect";
 import BriefingPanel from "./BriefingPanel";
 import TopBar from "./TopBar";
+import ColumnTypeTip from "./ColumnTypeTip";
+import { csvToGrid } from "../../lib/csvGrid";
+import { columnTipsFor } from "../../lib/mysqlType";
+import type { ColumnTip } from "../../lib/mysqlType";
 import { readDraft, writeDraft } from "../../lib/drafts";
 import TableCollage from "./TableCollage";
 import DataLayoutBar from "./DataLayoutBar";
@@ -193,6 +197,9 @@ export default function BossFightScreen({
   const briefingPaneRef = useRef<HTMLDivElement>(null);
   const [hasSelection, setHasSelection] = useState(false);
   const [extraColumns, setExtraColumns] = useState<Record<string, string[]>>({});
+  const [extraTips, setExtraTips] = useState<Record<string, Record<string, ColumnTip>>>(
+    {},
+  );
   const [runOutput, setRunOutput] = useState<RunOutput | null>(null);
   const [showTutorial, setShowTutorial] = useState(() => !sandbox && !hasSeenTutorial());
   const [runCount, setRunCount] = useState(0);
@@ -396,13 +403,19 @@ export default function BossFightScreen({
 
         initialColumnsRef.current = result.resultGrid.columns;
         const loadedExtras: Record<string, string[]> = {};
+        const loadedTips: Record<string, Record<string, ColumnTip>> = {};
         for (const table of activeCase.extraTables ?? []) {
           const own = sandbox?.extras.find((e) => e.name === table.name);
           const text = own ? own.csvText : await (await fetch(table.path)).text();
           loadedExtras[table.name] = parseCsv(text).columns;
+          loadedTips[table.name] = columnTipsFor(
+            csvToGrid(text),
+            engine === "sql" ? "sql" : "python",
+          );
         }
         if (isCancelled()) return;
         setExtraColumns(loadedExtras);
+        setExtraTips(loadedTips);
         setGrid(result.resultGrid);
         setTableGrid(result.tableGrid ?? null);
         initialAfflictionRef.current = totalDebt(
@@ -770,6 +783,8 @@ export default function BossFightScreen({
     caseData.generated === undefined &&
     needsAnswerTable(caseData);
   const dataView = tableGrid ?? grid;
+  const mainTips = columnTipsFor(dataView, engineKey);
+  const answerTips = columnTipsFor(grid, engineKey);
   const textScale = TEXT_SCALES[a11y.textScaleIndex] ?? 1;
   const mainGrid = (
     <DataframeGrid
@@ -778,12 +793,14 @@ export default function BossFightScreen({
       afflictionCellMap={tableGrid ? NO_CELLS : cellMap}
       textScale={textScale}
       columnHints={caseData.columnHints}
+      columnTips={mainTips}
     />
   );
 
   return (
     <div className={styles.fightRoot} data-world={world} ref={fightRootRef}>
       {renderRail(statusRailRef)}
+      <ColumnTypeTip />
       {narrowNoticeDismissed ? null : (
         <div className={styles.narrowNotice}>
           <span>NARROW DISPLAY // EDITOR IS CRAMPED BELOW 720PX</span>
@@ -888,6 +905,7 @@ export default function BossFightScreen({
                 if (!sandbox) writeDraft(caseData.id, engineKey, value, starterCode);
               }}
               schema={editorSchema}
+              columnTips={{ [mainTable]: mainTips, ...extraTips }}
               dark={a11y.theme === "dark"}
               onSelectionChange={setHasSelection}
               onRun={() => {
@@ -1041,6 +1059,7 @@ export default function BossFightScreen({
                             text={sandbox?.extras.find((e) => e.name === t.name)?.csvText}
                             columnHints={caseData.columnHints}
                             textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
+                            engine={engineKey}
                           />
                         ),
                       })),
@@ -1079,6 +1098,7 @@ export default function BossFightScreen({
                     url={caseData.datasetPath}
                     columnHints={caseData.columnHints}
                     textScale={textScale}
+                    engine={engineKey}
                   />
                 </div>
               ) : null}
@@ -1101,6 +1121,7 @@ export default function BossFightScreen({
                     afflictionCellMap={cellMap}
                     textScale={textScale}
                     columnHints={caseData.columnHints}
+                    columnTips={answerTips}
                   />
                 </div>
               ) : null}
@@ -1143,6 +1164,7 @@ export default function BossFightScreen({
                     text={sandbox?.extras.find((e) => e.name === t.name)?.csvText}
                     columnHints={caseData.columnHints}
                     textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
+                    engine={engineKey}
                   />
                 </div>
               ))}

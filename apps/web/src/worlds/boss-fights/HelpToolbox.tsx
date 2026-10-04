@@ -1,21 +1,29 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { SQL_REFERENCE } from "../../lib/sqlReference";
-import type { SqlRef } from "../../lib/sqlReference";
-import styles from "./SqlToolbox.module.css";
+import type { SqlRef as RefItem, SqlRefGroup as RefGroup } from "../../lib/sqlReference";
+import styles from "./HelpToolbox.module.css";
 
-export interface SqlToolboxProps {
+export interface HelpToolboxProps {
+  /** The button's name and the panel's, e.g. "SQL help" or "Python help". */
+  label: string;
+  groups: RefGroup[];
+  searchHint: string;
   onInsert: (text: string) => void;
 }
 
 /**
- * "SQL help": the everyday functions and clauses grouped by what you want to
- * do (dates, missing values, text, numbers, groups and windows, joins). Click
- * an entry to put it into the query; each shows how it is written and an example.
+ * The help panel: the everyday building blocks of the chosen language grouped by
+ * what you want to do. Click an entry to put it into the editor; each shows how it
+ * is written, what it does and a small example. Search finds entries across topics.
  */
-export default function SqlToolbox({ onInsert }: SqlToolboxProps) {
+export default function HelpToolbox({
+  label,
+  groups,
+  searchHint,
+  onInsert,
+}: HelpToolboxProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [groupId, setGroupId] = useState(SQL_REFERENCE[0]?.id ?? "");
+  const [groupId, setGroupId] = useState(groups[0]?.id ?? "");
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -47,16 +55,16 @@ export default function SqlToolbox({ onInsert }: SqlToolboxProps) {
   const needle = query.trim().toLowerCase();
   const results = useMemo(() => {
     if (!needle) return null;
-    const hits: SqlRef[] = [];
-    for (const group of SQL_REFERENCE) {
+    const hits: RefItem[] = [];
+    for (const group of groups) {
       for (const item of group.items) {
         const haystack = `${item.name} ${item.detail} ${item.syntax}`.toLowerCase();
         if (haystack.includes(needle)) hits.push(item);
       }
     }
     return hits;
-  }, [needle]);
-  const group = SQL_REFERENCE.find((g) => g.id === groupId) ?? SQL_REFERENCE[0];
+  }, [needle, groups]);
+  const group = groups.find((g) => g.id === groupId) ?? groups[0];
   const shown = results ?? group?.items ?? [];
 
   return (
@@ -70,18 +78,18 @@ export default function SqlToolbox({ onInsert }: SqlToolboxProps) {
         onClick={() => {
           setOpen((o) => !o);
         }}
-        title="Dates, missing values, text, windows, joins: click to insert"
+        title={`${label}: click an entry to insert it`}
       >
-        SQL help
+        {label}
       </button>
       {open ? (
-        <div id={panelId} className={styles.panel} role="region" aria-label="SQL help">
+        <div id={panelId} className={styles.panel} role="region" aria-label={label}>
           <input
             ref={searchRef}
             type="search"
             className={styles.search}
-            placeholder="Search: date, null, join, rank..."
-            aria-label="Search SQL help"
+            placeholder={searchHint}
+            aria-label={`Search ${label}`}
             value={query}
             onChange={(event) => {
               setQuery(event.target.value);
@@ -89,7 +97,7 @@ export default function SqlToolbox({ onInsert }: SqlToolboxProps) {
           />
           {results ? null : (
             <div className={styles.tabs} role="group" aria-label="Topics">
-              {SQL_REFERENCE.map((g) => (
+              {groups.map((g) => (
                 <button
                   key={g.id}
                   type="button"

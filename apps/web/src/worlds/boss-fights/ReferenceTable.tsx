@@ -1,39 +1,11 @@
 import { useEffect, useState } from "react";
 import type { ResultGrid } from "@dcq/engine-adapters";
 import type { ColumnHints } from "@dcq/content-schema";
-import { parseCsv } from "../../engines/csv";
+import { csvToGrid } from "../../lib/csvGrid";
+import { columnTipsFor } from "../../lib/mysqlType";
 import DataframeGrid from "./DataframeGrid";
 
 const NO_AFFLICTIONS = new Map<string, never>();
-
-function csvToGrid(text: string): ResultGrid {
-  const { columns, rows } = parseCsv(text);
-  const asNumber = (value: string): number | null => {
-    const trimmed = value.trim();
-    return trimmed !== "" && Number.isFinite(Number(trimmed)) ? Number(trimmed) : null;
-  };
-  const numericColumns = new Set(
-    columns.filter((_, c) =>
-      rows.every((row) => (row[c] ?? "") === "" || asNumber(row[c] ?? "") !== null),
-    ),
-  );
-  return {
-    columns,
-    rows: rows.map((row) => {
-      const out: Record<string, string | number | null> = {};
-      columns.forEach((column, c) => {
-        const value = row[c] ?? "";
-        out[column] =
-          value === "" ? null : numericColumns.has(column) ? Number(value) : value;
-      });
-      return out;
-    }),
-    dtypes: Object.fromEntries(
-      columns.map((c) => [c, numericColumns.has(c) ? "int64" : "object"]),
-    ),
-    index: rows.map((_, i) => i),
-  };
-}
 
 export interface ReferenceTableProps {
   url: string;
@@ -41,6 +13,8 @@ export interface ReferenceTableProps {
   text?: string | undefined;
   columnHints?: ColumnHints | undefined;
   textScale: number;
+  /** Which engine's wording the type tooltip uses. */
+  engine?: "python" | "sql";
 }
 
 /** A read-only view of a case's extra table as originally loaded. Changes the player makes to it in code are not reflected. */
@@ -49,6 +23,7 @@ export default function ReferenceTable({
   text,
   textScale,
   columnHints,
+  engine = "sql",
 }: ReferenceTableProps) {
   const [grid, setGrid] = useState<ResultGrid | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +59,7 @@ export default function ReferenceTable({
       afflictionCellMap={NO_AFFLICTIONS}
       textScale={textScale}
       columnHints={columnHints}
+      columnTips={columnTipsFor(grid, engine)}
     />
   );
 }

@@ -1,7 +1,11 @@
 import { forwardRef } from "react";
 import CodeEditor from "./CodeEditor";
 import type { CodeEditorHandle } from "./CodeEditor";
-import SqlToolbox from "./SqlToolbox";
+import HelpToolbox from "./HelpToolbox";
+import { SQL_REFERENCE } from "../../lib/sqlReference";
+import { PANDAS_REFERENCE } from "../../lib/pandasReference";
+import { tipAttributes } from "../../lib/columnTip";
+import type { ColumnTip } from "../../lib/mysqlType";
 import styles from "./EditorPanel.module.css";
 
 export interface EditorPanelProps {
@@ -12,6 +16,8 @@ export interface EditorPanelProps {
   onCodeChange?: (value: string) => void;
   /** Table name -> column names. The first entry is the player's main table. */
   schema: Record<string, string[]>;
+  /** MySQL type tooltips: table name -> column name -> tip. */
+  columnTips?: Record<string, Record<string, ColumnTip>>;
   dark: boolean;
   onRun: () => void;
   onSelectionChange?: (hasSelection: boolean) => void;
@@ -30,6 +36,7 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
     initialCode,
     onCodeChange,
     schema,
+    columnTips,
     dark,
     onRun,
     onEscape,
@@ -56,13 +63,18 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
         </h2>
         <span className={styles.lang}>{language === "sql" ? "SQL" : "Python"}</span>
         <span className={styles.spacer} />
-        {language === "sql" ? (
-          <SqlToolbox
-            onInsert={(text) => {
-              handle?.current?.insert(text);
-            }}
-          />
-        ) : null}
+        <HelpToolbox
+          label={language === "sql" ? "SQL help" : "Python help"}
+          groups={language === "sql" ? SQL_REFERENCE : PANDAS_REFERENCE}
+          searchHint={
+            language === "sql"
+              ? "Search: date, null, join, rank..."
+              : "Search: missing, group, merge, rolling..."
+          }
+          onInsert={(text) => {
+            handle?.current?.insert(text);
+          }}
+        />
         {language === "sql" ? (
           <button
             type="button"
@@ -119,6 +131,7 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
                 onClick={() => {
                   insertColumn(table, column, index === 0);
                 }}
+                {...tipAttributes(column, columnTips?.[table]?.[column])}
               >
                 {column}
               </button>

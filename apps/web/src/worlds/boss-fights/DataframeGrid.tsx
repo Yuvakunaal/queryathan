@@ -4,6 +4,8 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import type { ResultGrid } from "@dcq/engine-adapters";
 import type { ColumnHints } from "@dcq/content-schema";
 import { formatCellValue } from "./formatCellValue";
+import { tipAttributes } from "../../lib/columnTip";
+import type { ColumnTip } from "../../lib/mysqlType";
 import { afflictionKindAt } from "../../lib/affliction-cells";
 import type { AfflictionKind } from "../../lib/affliction-cells";
 import { ariaLabelForAffliction, BADGE_GLYPH } from "./afflictionPresentation";
@@ -33,11 +35,13 @@ export interface DataframeGridProps {
   columnHints?: ColumnHints | undefined;
   /** How an empty cell reads: "NaN" for pandas, "NULL" for SQL results. */
   nullLabel?: string;
+  /** MySQL type tooltips per column, shown on hover over the column name. */
+  columnTips?: Record<string, ColumnTip> | undefined;
 }
 
 const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
   function DataframeGrid(
-    { grid, afflictionCellMap, textScale, columnHints, nullLabel = "NaN" },
+    { grid, afflictionCellMap, textScale, columnHints, nullLabel = "NaN", columnTips },
     ref,
   ) {
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -155,6 +159,7 @@ const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
               className={styles.headerCell}
               role="columnheader"
               style={{ width: columnWidth(column) }}
+              {...tipAttributes(column, columnTips?.[column])}
             >
               {column}
             </div>

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import type { OutputTable, ResultGrid } from "@dcq/engine-adapters";
 import type { ColumnHints } from "@dcq/content-schema";
 import DataframeGrid from "./DataframeGrid";
+import { columnTipsFor } from "../../lib/mysqlType";
 import { explainError } from "./explainError";
 import styles from "./OutputView.module.css";
 
@@ -152,6 +153,7 @@ export default function OutputView({
               textScale={textScale}
               columnHints={converted.hints}
               nullLabel={language === "sql" ? "NULL" : "NaN"}
+              columnTips={columnTipsFor(converted.grid, language)}
             />
           </div>
         )}
