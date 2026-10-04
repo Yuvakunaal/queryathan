@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Propose a bigger change (RFC)
-    url: https://github.com/YuvaKunaal/Data-Cleaning-Quest/discussions/new?category=ideas
+    url: https://github.com/Yuvakunaal/data-cleaning-quest/discussions/new?category=ideas
     about: New world, new engine or a schema change. Start with the short template in docs/rfc-template.md.
