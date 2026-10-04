@@ -154,6 +154,9 @@ async function initPyodide(): Promise<PyodideInterface> {
   });
   await pyodide.loadPackage(RUNTIME_WHEELS);
   await pyodide.runPythonAsync(SERIALIZE_HELPER_PY);
+  // Importing pandas takes over a second the first time, so do it during startup
+  // (while a warmed-up engine is idle) rather than when the table is first loaded.
+  await pyodide.runPythonAsync("import numpy, pandas");
   pyodide.setStdout({
     batched: (line: string) => {
       stdoutBuffer.push(line);

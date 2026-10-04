@@ -9,6 +9,8 @@ export type EngineChoice = "python" | "sql";
 export interface EngineSelectProps {
   bossName: string;
   onSelect: (engine: EngineChoice) => void;
+  /** Called when the player points at or focuses an engine, so it can start loading before the click. */
+  onWarm?: ((engine: EngineChoice) => void) | undefined;
 }
 
 const ENGINES: {
@@ -39,7 +41,7 @@ const ENGINES: {
  * subclass spawns until the player commits to one, so picking SQL never pays
  * Pyodide's cold-start cost and vice versa.
  */
-export default function EngineSelect({ bossName, onSelect }: EngineSelectProps) {
+export default function EngineSelect({ bossName, onSelect, onWarm }: EngineSelectProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const tileRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -67,6 +69,12 @@ export default function EngineSelect({ bossName, onSelect }: EngineSelectProps) 
               tileRefs.current[i] = el;
             }}
             className={classNames(styles.tile, styles[`tile_${engine.id}`])}
+            onPointerEnter={() => {
+              onWarm?.(engine.id);
+            }}
+            onFocus={() => {
+              onWarm?.(engine.id);
+            }}
             onClick={() => {
               onSelect(engine.id);
             }}

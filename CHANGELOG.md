@@ -5,6 +5,12 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Changed (engine start-up)
+
+- Python no longer shows a bare, off-centre text screen for a couple of seconds after you pick it. A centred loading card explains the wait (Python and pandas load in your browser) with a moving bar.
+- The wait itself is shorter: pointing at or focusing an engine on the choice screen starts it straight away, and the last engine you used starts as soon as the screen opens. Importing pandas (over a second) now happens during start-up instead of when the table loads. Measured in dev: a returning player waits about 0.3 s instead of about 3.9 s; a first-time player who hovers for 1.5 s waits about 2.3 s. SQL is unchanged (about 50 ms).
+- Engine workers are kept in a small pool and shut down when the screen closes, so a warmed-up engine survives React re-running effects.
+
 ### Added (Phase 6: World 5, The Foundry)
 
 - Two timed jobs, solved in Python and SQL on the real engines: SLOW_LANE (replace a row-by-row `apply` / per-row lookup with whole-column arithmetic) and RUNNING_LAPS (replace a loop / quadratic subquery with a grouped cumulative sum / window function).

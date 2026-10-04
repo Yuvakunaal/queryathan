@@ -42,6 +42,7 @@ import type { DiffCellRefs } from "../../anim/world1/diffFlash";
 import { mountCrtIdle } from "../../anim/world1/crtIdle";
 import BootSequence from "./BootSequence";
 import EngineSelect from "./EngineSelect";
+import LoadingCard from "./LoadingCard";
 import type { EngineChoice } from "./EngineSelect";
 import BriefingPanel from "./BriefingPanel";
 import SandboxBriefing from "./SandboxBriefing";
@@ -96,6 +97,25 @@ export interface BossFightScreenProps {
   onExitToRoster: () => void;
 }
 
+const LAST_ENGINE_KEY = "dcq.lastEngine";
+
+function readLastEngine(): EngineChoice | null {
+  try {
+    const value = window.localStorage.getItem(LAST_ENGINE_KEY);
+    return value === "python" || value === "sql" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeLastEngine(engine: EngineChoice): void {
+  try {
+    window.localStorage.setItem(LAST_ENGINE_KEY, engine);
+  } catch {
+    // Not remembered; the engine just is not started early next time.
+  }
+}
+
 export default function BossFightScreen({
   sandbox,
   world,
@@ -140,6 +160,41 @@ export default function BossFightScreen({
   const liveMessageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clientRef = useRef<WorkerEngineClient | null>(null);
+  /**
+   * Engine workers by kind. Python takes a few seconds to start (an interpreter
+   * and pandas, compiled to WebAssembly), so it starts as soon as the player
+   * points at it on the engine screen, and is usually ready by the click.
+   */
+  const poolRef = useRef<Record<EngineChoice, WorkerEngineClient | undefined>>({
+    python: undefined,
+    sql: undefined,
+  });
+
+  function ensureClient(kind: EngineChoice): WorkerEngineClient {
+    let client = poolRef.current[kind];
+    if (!client) {
+      client = kind === "sql" ? new SqliteClient() : new PyodideClient();
+      client.spawn();
+      poolRef.current[kind] = client;
+    }
+    return client;
+  }
+
+  // Someone who picked an engine last time almost always picks it again, so
+  // start it as soon as the choice screen appears.
+  useEffect(() => {
+    if (phase !== "engine-select") return;
+    const last = readLastEngine();
+    if (last) ensureClient(last);
+    // ensureClient only touches refs
+  }, [phase]);
+
+  useEffect(() => {
+    const pool = poolRef.current;
+    return () => {
+      for (const client of Object.values(pool)) client?.terminate();
+    };
+  }, []);
 
   const gridRef = useRef<DataframeGridHandle>(null);
   const codeEditorRef = useRef<CodeEditorHandle>(null);
@@ -237,11 +292,11 @@ export default function BossFightScreen({
    * time out too while the old one kept grinding.
    */
   async function restartEngine(activeCase: Case): Promise<void> {
-    clientRef.current?.terminate();
-    const fresh: WorkerEngineClient =
-      engine === "sql" ? new SqliteClient() : new PyodideClient();
+    const kind: EngineChoice = engine === "sql" ? "sql" : "python";
+    poolRef.current[kind]?.terminate();
+    poolRef.current[kind] = undefined;
+    const fresh = ensureClient(kind);
     clientRef.current = fresh;
-    fresh.spawn();
     await fresh.ready();
     const result = await fresh.initCase(
       activeCase.datasetPath,
@@ -265,8 +320,14 @@ export default function BossFightScreen({
     let cancelled = false;
     const isCancelled = (): boolean => cancelled;
     const activeCase = caseData;
-    const client: WorkerEngineClient =
-      engine === "sql" ? new SqliteClient() : new PyodideClient();
+    // Drop an engine that was warmed up but not chosen.
+    for (const kind of ["python", "sql"] as const) {
+      if (kind !== engine) {
+        poolRef.current[kind]?.terminate();
+        poolRef.current[kind] = undefined;
+      }
+    }
+    const client = ensureClient(engine);
     clientRef.current = client;
     setPhase("spawning");
 
@@ -305,10 +366,9 @@ export default function BossFightScreen({
     void boot();
 
     return () => {
+      // Workers are shut down when the screen unmounts (see the pool above), not
+      // here, so a warmed-up engine survives React re-running this effect.
       cancelled = true;
-      client.terminate();
-      // A restart after a timeout replaces the client held in the ref.
-      clientRef.current?.terminate();
     };
     // initOptionsFor only reads `sandbox`, which is listed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -499,10 +559,7 @@ export default function BossFightScreen({
   if (phase === "loading" || !caseData) {
     return (
       <div className={styles.fightRoot} data-world={world}>
-        <div className={styles.loadingScreen} role="status" aria-live="polite">
-          <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
-          <span className={styles.loadingLine}>loading case data .......</span>
-        </div>
+        <LoadingCard title="Loading" text="Fetching the case." />
       </div>
     );
   }
@@ -513,7 +570,11 @@ export default function BossFightScreen({
         <EngineSelect
           bossName={caseData.strings.title}
           onSelect={(choice) => {
+            writeLastEngine(choice);
             setEngine(choice);
+          }}
+          onWarm={(choice) => {
+            ensureClient(choice);
           }}
         />
       </div>
@@ -523,12 +584,14 @@ export default function BossFightScreen({
   if (phase === "spawning" || !grid) {
     return (
       <div className={styles.fightRoot} data-world={world}>
-        <div className={styles.loadingScreen} role="status" aria-live="polite">
-          <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
-          <span className={styles.loadingLine}>
-            mounting engine ......... {engine === "sql" ? "sql.js/wasm" : "pyodide/wasm"}
-          </span>
-        </div>
+        <LoadingCard
+          title={engine === "sql" ? "Starting SQL" : "Starting Python"}
+          text={
+            engine === "sql"
+              ? "SQLite runs inside your browser. It is small, so this takes a moment."
+              : "Python and pandas run inside your browser, so they have to load first. That takes a few seconds the first time and is quicker after that."
+          }
+        />
       </div>
     );
   }
