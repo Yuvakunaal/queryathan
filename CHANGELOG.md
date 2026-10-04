@@ -5,6 +5,12 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added (victory moment and first-visit explainer)
+
+- Kill sequence before the "Boss cleared" panel: the boss's sigil appears with a health bar, a blade strikes along a diagonal, the sigil splits along the cut and bursts into data fragments, the bar empties, the name is struck through and the outcome is stamped. About 2.8 seconds, built from SVG and GSAP in the world's own colors. Click, Enter, Space, Escape or the Skip button jumps to the summary; with reduced motion on, it is a short fade of the same message. Not shown in the sandbox (nothing to win).
+- "What is this?" on the home page (a button under the intro, a link in the top bar, and a "Start here" badge until it is first opened): a plain-language dialog covering what the site is, why data gets cleaned, how a round works, what happens on a win, what the monster theme means, the worlds, and good-to-know items. Focus is trapped while open and returns to the button on close.
+- Plain-language subtitles for all 21 cases (`Problem: ...` / `Skill: ...`) replace the codenames.
+
 ### Added (Phase 6: Sandbox)
 
 - Sandbox mode, from a card on the world select screen: load your own CSV (file picker, drag and drop, pasted text, or a built-in sample) and explore or clean it with pandas or SQL in the same editor. Ungraded; the file is never uploaded (the CSV text goes straight to the in-browser engine).

@@ -1,0 +1,221 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 96;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 50%,
+    rgb(10 12 16 / 0.82),
+    rgb(4 5 7 / 0.96)
+  );
+}
+
+.stage {
+  position: relative;
+  width: min(620px, 90vw);
+  height: min(470px, 74vw);
+  color: var(--w1-title, var(--w1-status-null));
+}
+
+.halo {
+  position: absolute;
+  inset: -12%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, currentColor 34%, transparent),
+    transparent 62%
+  );
+  pointer-events: none;
+}
+
+.hp {
+  position: absolute;
+  top: -2%;
+  left: 8%;
+  right: 8%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 700 13px/1 var(--w1-font-display);
+  color: #e8eef2;
+}
+.hpName {
+  flex: 0 0 auto;
+}
+.hpTrack {
+  flex: 1;
+  height: 8px;
+  background: rgb(255 255 255 / 0.14);
+  border: 1px solid rgb(255 255 255 / 0.35);
+}
+.hpFill {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  transform-origin: 0 50%;
+}
+
+.boss {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.half {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 700 clamp(26px, 7.4vw, 56px) / 1.12 var(--w1-font-text);
+  letter-spacing: 0;
+  color: currentColor;
+  white-space: pre;
+  text-shadow: 0 0 18px color-mix(in srgb, currentColor 55%, transparent);
+}
+
+.slashSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.slash {
+  stroke: #ffffff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px #ffffff) drop-shadow(0 0 14px currentColor);
+}
+
+.streak {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 130%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(255 255 255 / 0.55) 40%,
+    rgb(255 255 255 / 0.15) 70%,
+    transparent
+  );
+  filter: blur(7px);
+  pointer-events: none;
+}
+
+.blade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 56px;
+  height: 289px;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 10px rgb(0 0 0 / 0.55));
+}
+.bladeSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.guard {
+  fill: var(--w1-amber-500, #ffb000);
+}
+.grip {
+  fill: #2a2f36;
+}
+
+.fragment {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font: 700 18px/1 var(--w1-font-text);
+  color: currentColor;
+  pointer-events: none;
+  text-shadow: 0 0 8px color-mix(in srgb, currentColor 70%, transparent);
+}
+
+.caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.captionName {
+  position: relative;
+  font: 700 15px/1.2 var(--w1-font-display);
+  color: #e8eef2;
+}
+.strike {
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  top: 52%;
+  height: 2px;
+  background: var(--w1-diff-del, #ff6b3d);
+}
+.captionLabel {
+  font: 800 clamp(26px, 6vw, 44px) / 1 var(--w1-font-display);
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  text-shadow: 0 0 22px color-mix(in srgb, currentColor 65%, transparent);
+}
+
+.flash {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.skip {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  height: 32px;
+  padding: 0 14px;
+  background: rgb(255 255 255 / 0.08);
+  border: 1px solid rgb(255 255 255 / 0.4);
+  color: #e8eef2;
+  font: 600 12px/1 var(--w1-font-display);
+  cursor: pointer;
+}
+.skip:hover,
+.skip:focus-visible {
+  background: rgb(255 255 255 / 0.2);
+}
+.skip:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (forced-colors: active) {
+  .half,
+  .captionLabel {
+    color: CanvasText;
+    text-shadow: none;
+  }
+}

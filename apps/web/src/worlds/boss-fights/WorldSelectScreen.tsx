@@ -6,6 +6,8 @@ import type { A11yState } from "../../lib/a11y";
 import type { WorldId } from "@dcq/content-schema";
 import { classNames } from "../../lib/classNames";
 import A11yControls from "./A11yControls";
+import AboutDialog from "./AboutDialog";
+import { useEffect, useRef, useState } from "react";
 import styles from "./WorldSelectScreen.module.css";
 
 export interface WorldSelectScreenProps {
@@ -74,6 +76,24 @@ function WorldCard({
   );
 }
 
+const ABOUT_KEY = "dcq.aboutSeen";
+
+function readAboutSeen(): boolean {
+  try {
+    return window.localStorage.getItem(ABOUT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writeAboutSeen(): void {
+  try {
+    window.localStorage.setItem(ABOUT_KEY, "1");
+  } catch {
+    // Not remembered; the hint badge just shows again next time.
+  }
+}
+
 export default function WorldSelectScreen({
   saveData,
   a11y,
@@ -81,6 +101,24 @@ export default function WorldSelectScreen({
   onSelectWorld,
   onOpenSandbox,
 }: WorldSelectScreenProps) {
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const [aboutSeen, setAboutSeen] = useState(readAboutSeen);
+  const aboutButtonRef = useRef<HTMLButtonElement>(null);
+  const wasOpenRef = useRef(false);
+
+  // Return focus to the button that opened the dialog once it closes.
+  useEffect(() => {
+    if (wasOpenRef.current && !aboutOpen) aboutButtonRef.current?.focus();
+    wasOpenRef.current = aboutOpen;
+  }, [aboutOpen]);
+
+  function openAbout(): void {
+    setAboutOpen(true);
+    if (!aboutSeen) {
+      setAboutSeen(true);
+      writeAboutSeen();
+    }
+  }
   return (
     <div className={styles.screen} data-world="boss-fights">
       <div className={styles.shell}>
@@ -91,7 +129,12 @@ export default function WorldSelectScreen({
             </span>
             Data Cleaning Quest
           </span>
-          <A11yControls a11y={a11y} onChange={onA11yChange} />
+          <div className={styles.topRight}>
+            <button type="button" className={styles.aboutLink} onClick={openAbout}>
+              What is this?
+            </button>
+            <A11yControls a11y={a11y} onChange={onA11yChange} />
+          </div>
         </header>
         <section className={styles.hero}>
           <h1 className={styles.heading}>Fight your data clean.</h1>
@@ -99,6 +142,18 @@ export default function WorldSelectScreen({
             Learn real pandas and SQL on messy tables. Everything runs in your browser. No
             account, no server. Progress stays on this device.
           </p>
+          <button
+            ref={aboutButtonRef}
+            type="button"
+            className={styles.aboutButton}
+            onClick={openAbout}
+          >
+            <span className={styles.aboutMark} aria-hidden="true">
+              ?
+            </span>
+            What is this?
+            {aboutSeen ? null : <span className={styles.newBadge}>Start here</span>}
+          </button>
         </section>
         <ul className={styles.grid}>
           {WORLDS.map((meta) => (
@@ -121,6 +176,17 @@ export default function WorldSelectScreen({
           <span className={styles.cardCta}>Open</span>
         </button>
       </div>
+      {aboutOpen ? (
+        <AboutDialog
+          onClose={() => {
+            setAboutOpen(false);
+          }}
+          onStart={(world) => {
+            setAboutOpen(false);
+            onSelectWorld(world);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

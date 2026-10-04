@@ -210,3 +210,77 @@
     transition: none;
   }
 }
+
+.topRight {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 16px;
+}
+.aboutLink {
+  padding: 4px 6px;
+  background: transparent;
+  border: none;
+  color: var(--w1-text-secondary);
+  font: 600 12px/1 var(--w1-font-display);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.aboutLink:hover,
+.aboutLink:focus-visible {
+  color: var(--w1-amber-500);
+}
+.aboutLink:focus-visible,
+.aboutButton:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 3px;
+}
+.aboutButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  height: 42px;
+  padding: 0 18px 0 8px;
+  background: transparent;
+  color: var(--w1-text-primary);
+  border: 1px solid var(--w1-green-700);
+  font: 700 14px/1 var(--w1-font-display);
+  cursor: pointer;
+  transition:
+    background-color 200ms cubic-bezier(0.32, 0.72, 0, 1),
+    border-color 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.aboutButton:hover {
+  background: var(--w1-bg-panel);
+  border-color: var(--w1-green-500);
+}
+.aboutMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--w1-green-500);
+  color: var(--w1-text-inverse);
+  font: 800 14px/1 var(--w1-font-display);
+}
+.newBadge {
+  padding: 3px 8px;
+  background: var(--w1-amber-500);
+  color: var(--w1-text-inverse);
+  font: 700 11px/1 var(--w1-font-display);
+}
+@media (prefers-reduced-motion: reduce) {
+  .aboutButton {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  .aboutMark {
+    border: 1px solid CanvasText;
+  }
+}

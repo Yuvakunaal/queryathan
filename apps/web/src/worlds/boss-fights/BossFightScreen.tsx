@@ -54,6 +54,7 @@ import type { ConsoleEntry } from "./DiffConsole";
 import A11yControls from "./A11yControls";
 import { worldMeta } from "../../lib/world-meta";
 import VictoryPanel from "./VictoryPanel";
+import KillSequence from "./KillSequence";
 import TutorialOverlay from "./TutorialOverlay";
 import { hasSeenTutorial, markTutorialSeen } from "../../lib/tutorial";
 import styles from "./BossFightScreen.module.css";
@@ -105,6 +106,8 @@ export default function BossFightScreen({
   const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([]);
   const [hasWon, setHasWon] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
+  const [showKill, setShowKill] = useState(false);
+  const killTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [activeTab, setActiveTab] = useState("data");
   const [railWidth, setRailWidth] = useState<number | null>(() => loadPanelSize("rail"));
   const [briefingHeight, setBriefingHeight] = useState<number | null>(() =>
@@ -139,6 +142,12 @@ export default function BossFightScreen({
   const justClearedRef = useRef<{ rowIndex: number; column: string }[]>([]);
   const entryIdRef = useRef(0);
   const pendingRef = useRef<PendingReconciliation | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (killTimerRef.current) clearTimeout(killTimerRef.current);
+    };
+  }, []);
 
   const cellMap = useMemo(
     () =>
@@ -386,7 +395,10 @@ export default function BossFightScreen({
       setRunCount((n) => n + 1);
       if (!sandbox && evaluateWinCondition(nextGrid, caseData.winCondition)) {
         setHasWon(true);
-        setShowVictory(true);
+        // Let the last run's diff flash land, then play the kill; the victory panel follows it.
+        killTimerRef.current = setTimeout(() => {
+          setShowKill(true);
+        }, 750);
         onWin(caseData.id, predicateKinds(caseData.winCondition));
       }
     } catch (err) {
@@ -779,6 +791,16 @@ export default function BossFightScreen({
           onClose={() => {
             markTutorialSeen();
             setShowTutorial(false);
+          }}
+        />
+      ) : null}
+      {showKill ? (
+        <KillSequence
+          bossName={caseData.strings.title}
+          clearedLabel={worldMeta(world).clearedLabel}
+          onDone={() => {
+            setShowKill(false);
+            setShowVictory(true);
           }}
         />
       ) : null}
