@@ -32,9 +32,25 @@ export interface Split {
   col: number;
   col2: number;
   row: number;
+  /** Four tables, "columns" mode: the height share of the left column's top table and of the right column's. */
+  rowL: number;
+  rowR: number;
 }
 
-export const DEFAULT_SPLIT: Split = { col: 0.5, col2: 0.5, row: 0.5 };
+/**
+ * With four tables the room can be divided in two ways, and only one at a time (four
+ * rectangles filling a rectangle always have a shared line one way): "rows" gives each row its
+ * own vertical line, "columns" gives each column its own horizontal line.
+ */
+export type CollageMode = "rows" | "columns";
+
+export const DEFAULT_SPLIT: Split = {
+  col: 0.5,
+  col2: 0.5,
+  row: 0.5,
+  rowL: 0.5,
+  rowR: 0.5,
+};
 export const SPLIT_MIN = 0.18;
 export const SPLIT_MAX = 0.82;
 /** Width of the gap between tables, which is also the handle you drag. */

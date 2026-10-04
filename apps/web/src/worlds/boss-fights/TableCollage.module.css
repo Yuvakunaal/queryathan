@@ -181,3 +181,11 @@
   display: grid;
   grid-template-rows: minmax(0, 1fr);
 }
+
+/* A column of two tables with the line between them (the "columns" way of dividing four tables). */
+.colWrap {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}

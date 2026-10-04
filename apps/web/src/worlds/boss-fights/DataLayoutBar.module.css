@@ -1,6 +1,7 @@
 .bar {
   flex: 0 0 auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -52,4 +53,15 @@
   outline-offset: 1px;
   position: relative;
   z-index: 1;
+}
+
+.modeRow {
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding-top: 4px;
+  border-top: 1px solid var(--w1-rule-faint);
 }

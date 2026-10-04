@@ -122,7 +122,7 @@ export default function AboutDialog({ onClose, onStart }: AboutDialogProps) {
                 Click a table or column name to insert it. Stuck? Open a hint.
               </li>
               <li>
-                <strong>Press Run.</strong> The right side shows your data with the
+                <strong>Press Run.</strong> The right side shows the data table with the
                 problems highlighted. The Output tab shows what your code returned, Your
                 answer shows the table named result when you build one, and Changes lists
                 what it edited.

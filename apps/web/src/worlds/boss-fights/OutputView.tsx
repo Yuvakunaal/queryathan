@@ -85,8 +85,8 @@ export default function OutputView({
         <p className={styles.placeholderTitle}>Nothing has run yet</p>
         <p className={styles.placeholderText}>
           Write {language === "sql" ? "a query" : "some code"} on the left and press Run.
-          What it returns appears here. The changes it makes to your data appear in the
-          Your data tab.
+          What it returns appears here. The changes it makes to the table appear in the
+          Data (original) tab.
         </p>
       </div>
     );
@@ -110,7 +110,7 @@ export default function OutputView({
           ))}
         </ul>
         <button type="button" className={styles.linkButton} onClick={onShowData}>
-          Back to your data
+          Back to the data
         </button>
       </div>
     );
@@ -134,7 +134,7 @@ export default function OutputView({
             {output.table.columns.length === 1 ? "column" : "columns"}
           </span>
           <button type="button" className={styles.linkButton} onClick={onShowData}>
-            Back to your data
+            Back to the data
           </button>
         </div>
         {totalRows === 0 ? (
@@ -167,7 +167,7 @@ export default function OutputView({
         <div className={styles.bar}>
           <span className={styles.barTitle}>Output</span>
           <button type="button" className={styles.linkButton} onClick={onShowData}>
-            Back to your data
+            Back to the data
           </button>
         </div>
         <pre className={styles.text}>{output.text}</pre>
@@ -184,7 +184,7 @@ export default function OutputView({
         {language === "sql" ? "a SELECT query" : "df.head() or print(...)"}.
       </p>
       <button type="button" className={styles.linkButton} onClick={onShowData}>
-        Back to your data
+        Back to the data
       </button>
     </div>
   );

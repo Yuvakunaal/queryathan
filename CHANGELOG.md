@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## Unreleased (Phase 9)
 
+- **"Data (original)".** The first tab is now called **Data (original)** in every world, with
+  matching wording on the buttons and notes. In Python answer cases it shows the table you started
+  with, untouched, and **Your answer (df)** shows what df holds after your code runs, the same as
+  SQL's **Your answer (result)**; the separate "df (original)" tab is gone.
+- **Every table resizable on its own, both ways.** With four tables the room can be divided only one
+  way at a time (four rectangles filling a rectangle always share one line in one direction), so the
+  bar above the tables now has **Resize by row** (each row has its own vertical line) and **Resize by
+  column** (each column has its own horizontal line, with one vertical line between the columns).
+  The choice is remembered, and each line is saved separately per case.
+
 - **Python help.** The editor toolbar has a **Python help** panel for pandas (look at the data,
   missing values, pick and filter, text, numbers and types, dates, groups, running totals and
   windows, join and reshape), the same click-to-insert panel as SQL help, with search.

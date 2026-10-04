@@ -55,22 +55,29 @@ test("Back from a fight returns to the roster, and the code typed there is kept"
   await run(page);
 });
 
-test("in Python the starting table stays visible after df becomes the answer", async ({
+test("in Python the original table stays on its own tab while df becomes the answer", async ({
   page,
 }) => {
   await openCase(page, "the-observatory", "w6-01-first-light", "python");
-  const original = page.getByRole("tab", { name: "df (original)" });
+  const original = page.getByRole("tab", { name: "Data (original)" });
+  const answer = page.getByRole("tab", { name: "Your answer (df)" });
   await expect(original).toBeVisible();
+  await expect(answer).toBeVisible();
   await setCode(
     page,
     "df = df[df['status'] == 'completed'].assign(revenue=lambda d: d['qty'] * d['unit_price']).groupby('region', as_index=False)['revenue'].sum()",
   );
   await run(page);
-  await expect(page.getByRole("tab", { name: "Your data" })).toBeVisible();
+  // The run takes you to the answer...
+  await expect(answer).toHaveAttribute("aria-selected", "true", { timeout: 30_000 });
+  await expect(page.locator("#pane-answer")).toContainText("revenue");
+  await expect(page.locator("#pane-answer")).toContainText("3789.15");
+  // ...and the original table is untouched on its own tab.
   await original.click();
-  const pane = page.locator("#pane-original");
-  await expect(pane).toContainText("order_id", { timeout: 20_000 });
+  const pane = page.locator("#pane-data");
+  await expect(pane).toContainText("order_id");
   await expect(pane).toContainText("unit_price");
+  await expect(pane).not.toContainText("revenue");
 });
 
 test("the answer note follows the language, and cleaning cases have none", async ({

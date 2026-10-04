@@ -169,3 +169,55 @@ test("with four tables each row has its own vertical line, and the keyboard work
   expect(parsed.col).toBeCloseTo(0.5, 2);
   expect(parsed.col2).toBeLessThan(0.45);
 });
+
+test("with four tables, 'Resize by column' gives each column its own horizontal line", async ({
+  page,
+}) => {
+  await openCase(page, "the-twins", "w3-06-four-corners", "sql");
+  await page.waitForTimeout(1500);
+  await page.getByRole("button", { name: "Resize by column" }).click();
+  const before = await boxes(page);
+  const left = page.getByRole("separator", { name: "Height of the left tables" });
+  const right = page.getByRole("separator", { name: "Height of the right tables" });
+  await expect(left).toBeVisible();
+  await expect(right).toBeVisible();
+
+  // Dragging the left column's line changes only the left column's two tables.
+  const h = await left.boundingBox();
+  if (!h) throw new Error("no handle");
+  await page.mouse.move(h.x + h.width / 2, h.y + h.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(h.x + h.width / 2, h.y + h.height / 2 + 80, { steps: 8 });
+  await page.mouse.up();
+  let after = await boxes(page);
+  expect(after.main?.h ?? 0).toBeGreaterThan((before.main?.h ?? 0) + 60);
+  expect(after.products?.h ?? 0).toBeLessThan((before.products?.h ?? 0) - 60);
+  expect(after.customers?.h ?? 0).toBeCloseTo(before.customers?.h ?? 0, 0);
+  expect(after.stores?.h ?? 0).toBeCloseTo(before.stores?.h ?? 0, 0);
+
+  // The right column goes the other way, on its own.
+  await right.focus();
+  for (let i = 0; i < 4; i += 1) await page.keyboard.press("ArrowUp");
+  after = await boxes(page);
+  expect(after.customers?.h ?? 0).toBeLessThan((before.customers?.h ?? 0) - 30);
+  expect(after.stores?.h ?? 0).toBeGreaterThan((before.stores?.h ?? 0) + 30);
+  expect(after.main?.h ?? 0).toBeGreaterThan((before.main?.h ?? 0) + 60); // the left kept its setting
+
+  // One vertical line now divides both columns.
+  const width = page.getByRole("separator", { name: "Width of the left tables" });
+  await width.focus();
+  for (let i = 0; i < 3; i += 1) await page.keyboard.press("ArrowRight");
+  const wide = await boxes(page);
+  expect(wide.main?.w ?? 0).toBeGreaterThan((before.main?.w ?? 0) + 20);
+  expect(wide.products?.w ?? 0).toBeCloseTo(wide.main?.w ?? 0, 0);
+  expect(wide.stores?.w ?? 0).toBeCloseTo(wide.customers?.w ?? 0, 0);
+
+  // The choice is remembered, and the other way still works.
+  await page.getByRole("button", { name: "Resize by row" }).click();
+  await expect(
+    page.getByRole("separator", { name: "Width of the upper tables" }),
+  ).toBeVisible();
+  expect(await page.evaluate(() => window.localStorage.getItem("dcq.collageMode"))).toBe(
+    "rows",
+  );
+});

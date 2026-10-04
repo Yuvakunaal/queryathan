@@ -67,8 +67,8 @@ test.describe("results and errors appear on the right", () => {
     const result = page.locator("#pane-result");
     await expect(result).toContainText("6 rows");
     await expect(result).toContainText("ST-19");
-    await result.getByRole("button", { name: "Back to your data" }).click();
-    await expect(page.getByRole("tab", { name: "Your data" })).toHaveAttribute(
+    await result.getByRole("button", { name: "Back to the data" }).click();
+    await expect(page.getByRole("tab", { name: "Data (original)" })).toHaveAttribute(
       "aria-selected",
       "true",
     );
@@ -120,7 +120,7 @@ test.describe("the data table", () => {
     await setCode(page, "SELECT 1;");
     await run(page);
     await page.getByRole("tab", { name: "Changes" }).click();
-    await page.getByRole("tab", { name: "Your data" }).click();
+    await page.getByRole("tab", { name: "Data (original)" }).click();
     const state = await grid.evaluate((el) => {
       const header = el.querySelector('[role="row"]')?.getBoundingClientRect();
       const rows = [...el.querySelectorAll('[role="row"]')].slice(1);

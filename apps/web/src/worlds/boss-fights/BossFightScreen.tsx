@@ -57,6 +57,7 @@ import { readDraft, writeDraft } from "../../lib/drafts";
 import TableCollage from "./TableCollage";
 import DataLayoutBar from "./DataLayoutBar";
 import type { DataLayout } from "./DataLayoutBar";
+import type { CollageMode } from "./collageOrder";
 import SandboxBriefing from "./SandboxBriefing";
 import SandboxBand from "./SandboxBand";
 import HpHeatmap from "./HpHeatmap";
@@ -167,7 +168,28 @@ function answerNoteFor(caseData: Case, engine: "sql" | "python"): AnswerNote | u
   };
 }
 
+/** Python answer cases: df becomes the answer, so the table you started with is kept apart, as it was loaded. */
+function keepsOriginal(caseData: Case, engine: string | null, sandbox: boolean): boolean {
+  return (
+    engine === "python" &&
+    !sandbox &&
+    caseData.generated === undefined &&
+    needsAnswerTable(caseData)
+  );
+}
+
 const LAYOUT_KEY = "dcq.dataLayout";
+const COLLAGE_MODE_KEY = "dcq.collageMode";
+
+function readCollageMode(): CollageMode {
+  try {
+    return window.localStorage.getItem(COLLAGE_MODE_KEY) === "columns"
+      ? "columns"
+      : "rows";
+  } catch {
+    return "rows";
+  }
+}
 const NO_CELLS = new Map<string, never>();
 
 function readDataLayout(): DataLayout {
@@ -209,6 +231,10 @@ export default function BossFightScreen({
   const [grid, setGrid] = useState<ResultGrid | null>(null);
   // Set only when the player has made a `result` table: `grid` is then that answer and this is their data table, left alone.
   const [tableGrid, setTableGrid] = useState<ResultGrid | null>(null);
+  // Python answer cases only: the table as it was loaded, which stays on screen while df becomes the answer.
+  const originalGridRef = useRef<ResultGrid | null>(null);
+  const tableOf = (r: { tableGrid?: ResultGrid }): ResultGrid | null =>
+    r.tableGrid ?? originalGridRef.current;
   const [isRunning, setIsRunning] = useState(false);
   const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([]);
   const [hasWon, setHasWon] = useState(false);
@@ -235,6 +261,7 @@ export default function BossFightScreen({
   const [hintsUsed, setHintsUsed] = useState(0);
   const [dataLayout, setDataLayout] = useState<DataLayout>(readDataLayout);
   const [collageOrder, setCollageOrder] = useState<string[]>([]);
+  const [collageMode, setCollageMode] = useState<CollageMode>(readCollageMode);
   const [narrowNoticeDismissed, setNarrowNoticeDismissed] = useState(false);
   const [liveMessage, setLiveMessage] = useState("");
   const [liveErrorMessage, setLiveErrorMessage] = useState("");
@@ -405,7 +432,7 @@ export default function BossFightScreen({
       initOptionsFor(activeCase),
     );
     setGrid(result.resultGrid);
-    setTableGrid(result.tableGrid ?? null);
+    setTableGrid(tableOf(result));
     setLastRun(NO_RUN);
   }
 
@@ -457,8 +484,16 @@ export default function BossFightScreen({
         if (isCancelled()) return;
         setExtraColumns(loadedExtras);
         setExtraTips(loadedTips);
+        if (keepsOriginal(activeCase, engine, sandbox !== undefined)) {
+          originalGridRef.current = csvToGrid(
+            await (await fetch(activeCase.datasetPath)).text(),
+          );
+        } else {
+          originalGridRef.current = null;
+        }
+        if (isCancelled()) return;
         setGrid(result.resultGrid);
-        setTableGrid(result.tableGrid ?? null);
+        setTableGrid(tableOf(result));
         initialAfflictionRef.current = totalDebt(
           result.resultGrid,
           activeCase.winCondition,
@@ -559,7 +594,7 @@ export default function BossFightScreen({
           initOptionsFor(caseData),
         );
         baseGrid = fresh.resultGrid;
-        baseTable = fresh.tableGrid ?? null;
+        baseTable = tableOf(fresh);
         baseCellMap = afflictionCellMap(baseGrid, caseData.winCondition);
         setConsoleEntries([]);
       }
@@ -591,7 +626,7 @@ export default function BossFightScreen({
       // In the worlds where the answer is the table named `result`, say so if the player
       // built a table under another name (the usual slip), instead of leaving them guessing.
       const wrongName =
-        engine === "sql" && !result.tableGrid && needsAnswerTable(caseData)
+        engine === "sql" && !tableOf(result) && needsAnswerTable(caseData)
           ? misnamedAnswerTable(code)
           : null;
       if (wrongName) {
@@ -607,7 +642,7 @@ export default function BossFightScreen({
       setActiveTab(
         nextOutput.kind === "table"
           ? "result"
-          : result.tableGrid
+          : tableOf(result)
             ? "answer"
             : nextOutput.kind === "empty"
               ? "data"
@@ -636,8 +671,8 @@ export default function BossFightScreen({
           {
             kind: "info",
             id: entryId,
-            text: result.tableGrid
-              ? `your answer (result): ${String(nextGrid.rows.length)} rows x ${String(nextGrid.columns.length)} columns`
+            text: tableOf(result)
+              ? `your answer (${engine === "sql" ? "result" : "df"}): ${String(nextGrid.rows.length)} rows x ${String(nextGrid.columns.length)} columns`
               : reshaped
                 ? `reshaped: ${String(baseGrid.rows.length)} rows x ${String(baseGrid.columns.length)} columns -> ${String(nextGrid.rows.length)} rows x ${String(nextGrid.columns.length)} columns`
                 : sandbox
@@ -649,7 +684,7 @@ export default function BossFightScreen({
 
       pendingRef.current = { changes, clearedThisTurn, justCleared };
       setGrid(nextGrid);
-      setTableGrid(result.tableGrid ?? null);
+      setTableGrid(tableOf(result));
       announcePolite(
         sandbox
           ? `Run complete. ${String(changes.length)} cells changed.`
@@ -817,12 +852,6 @@ export default function BossFightScreen({
   const starterCode =
     engine === "sql" ? caseData.starterCode.sql : caseData.starterCode.python;
   const savedDraft = sandbox ? null : readDraft(caseData.id, engineKey);
-  // In Python the answer replaces df, so the table you started with gets its own tab to look back at.
-  const showOriginal =
-    engine === "python" &&
-    !sandbox &&
-    caseData.generated === undefined &&
-    needsAnswerTable(caseData);
   const dataView = tableGrid ?? grid;
   const mainTips = columnTipsFor(dataView);
   const answerTips = columnTipsFor(grid);
@@ -1001,14 +1030,20 @@ export default function BossFightScreen({
           <div className={styles.gridWrap}>
             <div className={styles.tabs} role="tablist" aria-label="Views">
               {[
-                { id: "data", label: "Your data" },
-                ...(tableGrid ? [{ id: "answer", label: "Your answer (result)" }] : []),
+                { id: "data", label: "Data (original)" },
+                ...(tableGrid
+                  ? [
+                      {
+                        id: "answer",
+                        label: `Your answer (${engine === "sql" ? "result" : "df"})`,
+                      },
+                    ]
+                  : []),
                 { id: "result", label: "Output" },
                 {
                   id: "changes",
                   label: `Changes${consoleEntries.length ? ` (${String(consoleEntries.length)})` : ""}`,
                 },
-                ...(showOriginal ? [{ id: "original", label: "df (original)" }] : []),
                 ...(inCollage
                   ? []
                   : (caseData.extraTables ?? []).map((t) => ({
@@ -1047,9 +1082,17 @@ export default function BossFightScreen({
               >
                 {tableGrid ? (
                   <div className={styles.answerNote}>
-                    This is your <code>{engine === "sql" ? "data" : "df"}</code> table, as
-                    your code left it. Your answer is the table named <code>result</code>,
-                    on the{" "}
+                    {engine === "sql" ? (
+                      <>
+                        This is the <code>data</code> table. Your answer is the table
+                        named <code>result</code>, on the{" "}
+                      </>
+                    ) : (
+                      <>
+                        This is the table you started with, as it was loaded. Your answer
+                        is <code>df</code>, on the{" "}
+                      </>
+                    )}
                     <button
                       type="button"
                       className={styles.noteLink}
@@ -1066,6 +1109,15 @@ export default function BossFightScreen({
                   <DataLayoutBar
                     layout={dataLayout}
                     tableCount={extraTables.length + 1}
+                    mode={collageMode}
+                    onModeChange={(next) => {
+                      setCollageMode(next);
+                      try {
+                        window.localStorage.setItem(COLLAGE_MODE_KEY, next);
+                      } catch {
+                        // The choice just is not remembered.
+                      }
+                    }}
                     onChange={(next) => {
                       setDataLayout(next);
                       try {
@@ -1088,7 +1140,7 @@ export default function BossFightScreen({
                       {
                         id: "main",
                         title: engine === "sql" ? "data" : "df",
-                        note: "your table",
+                        note: "original",
                         content: mainGrid,
                       },
                       ...extraTables.map((t) => ({
@@ -1107,6 +1159,7 @@ export default function BossFightScreen({
                     ]}
                     order={collageOrder}
                     splitKey={caseData.id}
+                    mode={collageMode}
                     onOrderChange={(next) => {
                       setCollageOrder(next);
                       try {
@@ -1123,25 +1176,6 @@ export default function BossFightScreen({
                   mainGrid
                 )}
               </div>
-              {showOriginal ? (
-                <div
-                  className={styles.tablePane}
-                  id="pane-original"
-                  role="tabpanel"
-                  aria-labelledby="tab-original"
-                  hidden={activeTab !== "original"}
-                >
-                  <div className={styles.answerNote}>
-                    The table you started with, as it was loaded. Your code runs on a
-                    fresh copy of it every time, and <code>df</code> becomes your answer.
-                  </div>
-                  <ReferenceTable
-                    url={caseData.datasetPath}
-                    columnHints={caseData.columnHints}
-                    textScale={textScale}
-                  />
-                </div>
-              ) : null}
               {tableGrid ? (
                 <div
                   className={styles.tablePane}
@@ -1151,9 +1185,18 @@ export default function BossFightScreen({
                   hidden={activeTab !== "answer"}
                 >
                   <div className={styles.answerNote}>
-                    <strong>Your answer</strong> is the table named <code>result</code>,
-                    built by your <code>CREATE TABLE result</code>. This is the table that
-                    gets judged.
+                    <strong>Your answer</strong>{" "}
+                    {engine === "sql" ? (
+                      <>
+                        is the table named <code>result</code>, built by your{" "}
+                        <code>CREATE TABLE result</code>.
+                      </>
+                    ) : (
+                      <>
+                        is <code>df</code>: whatever it holds after your code runs.
+                      </>
+                    )}{" "}
+                    This is the table that gets judged.
                   </div>
                   <DataframeGrid
                     ref={gridRef}

@@ -132,11 +132,11 @@ test("the briefing says plainly to create a new table named result", async ({ pa
   );
 });
 
-test("building the answer table leaves Your data alone and shows the answer on its own tab", async ({
+test("building the answer table leaves the original data alone and shows the answer on its own tab", async ({
   page,
 }) => {
   await openCase(page, "the-observatory", "w6-01-first-light", "sql");
-  const dataTab = page.getByRole("tab", { name: "Your data" });
+  const dataTab = page.getByRole("tab", { name: "Data (original)" });
   await expect(page.getByRole("tab", { name: /Your answer/ })).toHaveCount(0);
   await setCode(
     page,
@@ -149,7 +149,7 @@ test("building the answer table leaves Your data alone and shows the answer on i
   await expect(answerTab).toHaveAttribute("aria-selected", "true");
   await expect(page.locator("#pane-answer")).toContainText("revenue");
   await expect(page.locator("#pane-answer")).toContainText("3789.15");
-  // Your data is still the original table: the order columns, not the answer's.
+  // The original data is still the original table: the order columns, not the answer's.
   await dataTab.click();
   const data = page.locator("#pane-data");
   await expect(data).toContainText("order_id");

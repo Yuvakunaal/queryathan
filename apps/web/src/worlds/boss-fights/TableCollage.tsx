@@ -12,7 +12,7 @@ import {
   PADDING_PX,
   swapOrder,
 } from "./collageOrder";
-import type { Split } from "./collageOrder";
+import type { CollageMode, Split } from "./collageOrder";
 import { readStored, writeStored } from "../../lib/safeStorage";
 import styles from "./TableCollage.module.css";
 
@@ -31,6 +31,8 @@ export interface TableCollageProps {
   onOrderChange: (next: string[]) => void;
   /** Where the sizes of this collage are remembered on this device (one per case). */
   splitKey: string;
+  /** With four tables: which way the lines divide the room (see CollageMode). */
+  mode?: CollageMode;
 }
 
 interface DragState {
@@ -51,11 +53,13 @@ function readSplit(key: string): Split {
   try {
     const parsed: unknown = JSON.parse(readStored(splitStorageKey(key)) ?? "null");
     if (parsed && typeof parsed === "object") {
-      const { col, col2, row } = parsed as Record<string, unknown>;
+      const { col, col2, row, rowL, rowR } = parsed as Record<string, unknown>;
       return {
         col: typeof col === "number" ? clampSplit(col) : DEFAULT_SPLIT.col,
         col2: typeof col2 === "number" ? clampSplit(col2) : DEFAULT_SPLIT.col2,
         row: typeof row === "number" ? clampSplit(row) : DEFAULT_SPLIT.row,
+        rowL: typeof rowL === "number" ? clampSplit(rowL) : DEFAULT_SPLIT.rowL,
+        rowR: typeof rowR === "number" ? clampSplit(rowR) : DEFAULT_SPLIT.rowR,
       };
     }
   } catch {
@@ -184,6 +188,7 @@ export default function TableCollage({
   order,
   onOrderChange,
   splitKey,
+  mode = "rows",
 }: TableCollageProps) {
   const shown = orderPanes(panes, order);
   const ids = shown.map((p) => p.id);
@@ -305,6 +310,82 @@ export default function TableCollage({
   );
 
   const layout = collageRows(count);
+
+  // Four tables, "columns" mode: one vertical line, and each column has its own horizontal line.
+  if (count === 4 && mode === "columns") {
+    const columns: [string, number, "rowL" | "rowR", string][] = [
+      ["left", 0, "rowL", "Height of the left tables"],
+      ["right", 1, "rowR", "Height of the right tables"],
+    ];
+    return (
+      <div
+        ref={collageRef}
+        className={styles.collage}
+        data-count={count}
+        data-mode="columns"
+        data-dragging={dragging ? "true" : "false"}
+        style={{
+          gridTemplateColumns: columnShare(split.col),
+          gridTemplateRows: "minmax(0, 1fr)",
+          padding: PADDING_PX,
+        }}
+      >
+        {columns.map(([side, offset, key, label]) => {
+          const top = shown[offset];
+          const bottom = shown[offset + 2];
+          if (!top || !bottom) return null;
+          return (
+            <div
+              key={side}
+              className={styles.colWrap}
+              style={{
+                gridColumn: side === "left" ? "1" : "3",
+                gridRow: "1",
+                gridTemplateRows: collageRowTracks(2, { ...split, row: split[key] }),
+              }}
+            >
+              {renderPane(top, offset, { gridRow: "1" })}
+              <SplitHandle
+                orientation="horizontal"
+                value={split[key]}
+                container={collageRef}
+                label={label}
+                style={{ gridRow: "2" }}
+                onChange={(value) => {
+                  setSplit((s) => ({ ...s, [key]: value }));
+                }}
+                onCommit={(value) => {
+                  commitSplit({ ...split, [key]: value });
+                }}
+              />
+              {renderPane(bottom, offset + 2, { gridRow: "3" })}
+            </div>
+          );
+        })}
+        <SplitHandle
+          orientation="vertical"
+          value={split.col}
+          container={collageRef}
+          label="Width of the left tables"
+          style={{ gridColumn: "2", gridRow: "1" }}
+          onChange={(value) => {
+            setSplit((s) => ({ ...s, col: value }));
+          }}
+          onCommit={(value) => {
+            commitSplit({ ...split, col: value });
+          }}
+        />
+        {dragging && drag ? (
+          <div className={styles.ghost} style={{ left: drag.x + 12, top: drag.y + 12 }}>
+            {dragging.title}
+          </div>
+        ) : null}
+        <span className={styles.srOnly} role="status" aria-live="polite">
+          {announcement}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div
