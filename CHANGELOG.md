@@ -5,6 +5,17 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## Unreleased (Phase 9)
 
+- **Fixed: the SFX menu (and any menu dropping out of the top bar) opened behind the fight.** The
+  top bar now sits above the stage, and a test opens the menu in every world and checks nothing is
+  drawn over it. SQL help is checked the same way.
+- **A fuller finishing cut.** The knife recording now sits under a rising air swish, a bright crack,
+  a juicy burst, a low thud and two small drops, in the spirit of a fruit-slicing game. The win
+  sound is a soft bell chime with a warm chord and a little reverb instead of beeps. A limiter on
+  the output keeps the layers from ever clipping.
+- **Layout fixes found by a width check** (desktop, laptop, tablet, phone): the home top bar and the
+  editor toolbar no longer run off the edge on a phone. A new test fails if any screen scrolls
+  sideways or pushes a control out of view at those widths.
+
 - **Collage view for joins.** A case with several tables shows them together under "Your
   data": two stack one above the other, three put two on top and one below, four make a 2 by 2. Drag a table's grip onto another to swap places (or use the arrow keys); "One at a time"
   brings back tabs. The choice and the order are remembered per device.

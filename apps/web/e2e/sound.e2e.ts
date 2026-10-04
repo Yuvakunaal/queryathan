@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { openCase, seed } from "./helpers";
+import { openCase, run, seed, setCode } from "./helpers";
 
 test("effects, typing and volume are separate, and they are remembered", async ({
   page,
@@ -71,4 +71,56 @@ test("typing in the editor plays a key sound per keystroke, and none for shortcu
   expect(await count()).toBe(before);
   await page.keyboard.type("SELECT 1", { delay: 80 });
   expect(await count()).toBeGreaterThanOrEqual(before + 8);
+});
+
+test("the finishing cut plays the layered knife sound, then the chime", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __built: Record<string, number> };
+    w.__built = {};
+    const proto = AudioContext.prototype as unknown as Record<
+      string,
+      (...a: unknown[]) => unknown
+    >;
+    for (const name of [
+      "createBufferSource",
+      "createConvolver",
+      "createDynamicsCompressor",
+      "createOscillator",
+    ]) {
+      const original = proto[name];
+      if (!original) continue;
+      proto[name] = function patched(this: AudioContext, ...args: unknown[]) {
+        w.__built[name] = (w.__built[name] ?? 0) + 1;
+        return original.apply(this, args);
+      };
+    }
+  });
+  await openCase(page, "boss-fights", "w1-01-nul-sentinel", "sql");
+  const read = async (): Promise<Record<string, number>> =>
+    page.evaluate(
+      () => (window as unknown as { __built: Record<string, number> }).__built,
+    );
+  const before = await read();
+  await setCode(
+    page,
+    "UPDATE data SET temp_c = (SELECT AVG(temp_c) FROM data) WHERE temp_c IS NULL;",
+  );
+  await run(page);
+  // The cut: swish, knife recording, crack, juice and body (buffer sources), thud and drops (oscillators).
+  await expect
+    .poll(
+      async () =>
+        ((await read()).createBufferSource ?? 0) - (before.createBufferSource ?? 0),
+      {
+        timeout: 10_000,
+      },
+    )
+    .toBeGreaterThanOrEqual(5);
+  // Then the chime, with its reverb.
+  await expect
+    .poll(async () => (await read()).createConvolver ?? 0, { timeout: 10_000 })
+    .toBeGreaterThanOrEqual(1);
+  expect((await read()).createDynamicsCompressor).toBe(1);
 });

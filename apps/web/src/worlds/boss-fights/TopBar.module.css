@@ -1,4 +1,7 @@
 .statusRail {
+  /* Above the stage below it, so the menus that drop out of the bar are never hidden behind it. */
+  position: relative;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;

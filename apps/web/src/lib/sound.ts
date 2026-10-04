@@ -16,8 +16,8 @@ interface Note {
   gain: number;
 }
 
-// A major pentatonic run for wins, a low falling pair for errors: readable by ear, never harsh.
-export const CUES: Record<Cue, readonly Note[]> = {
+// Short tones for running code, clearing afflictions and errors: readable by ear, never harsh. The win chime is built separately below.
+export const CUES: Record<Exclude<Cue, "win">, readonly Note[]> = {
   run: [{ f: 660, at: 0, dur: 0.05, type: "square", gain: 0.04 }],
   error: [
     { f: 196, at: 0, dur: 0.14, type: "sawtooth", gain: 0.05 },
@@ -26,13 +26,6 @@ export const CUES: Record<Cue, readonly Note[]> = {
   clear: [
     { f: 523, at: 0, dur: 0.09, type: "triangle", gain: 0.07 },
     { f: 784, at: 0.08, dur: 0.14, type: "triangle", gain: 0.07 },
-  ],
-  win: [
-    { f: 392, at: 0, dur: 0.12, type: "triangle", gain: 0.08 },
-    { f: 523, at: 0.11, dur: 0.12, type: "triangle", gain: 0.08 },
-    { f: 659, at: 0.22, dur: 0.12, type: "triangle", gain: 0.08 },
-    { f: 784, at: 0.33, dur: 0.12, type: "triangle", gain: 0.08 },
-    { f: 1047, at: 0.44, dur: 0.5, type: "triangle", gain: 0.09 },
   ],
 };
 
@@ -75,13 +68,25 @@ function getOutput(ctx: AudioContext): AudioNode {
     master = ctx.createGain();
     // Perceived loudness is roughly the square of the slider, so the middle sounds like the middle.
     master.gain.value = volume * volume;
-    master.connect(ctx.destination);
+    // A limiter at the end: the knife and the chime stack several layers, and this keeps
+    // their sum from ever clipping, however loud the volume is set.
+    const limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = -9;
+    limiter.knee.value = 6;
+    limiter.ratio.value = 14;
+    limiter.attack.value = 0.003;
+    limiter.release.value = 0.14;
+    master.connect(limiter).connect(ctx.destination);
   }
   return master;
 }
 
 export function playCue(cue: Cue): void {
   if (!effectsOn) return;
+  if (cue === "win") {
+    playWinChime();
+    return;
+  }
   try {
     const ctx = getContext();
     if (!ctx) return;
@@ -145,40 +150,243 @@ export function preloadSlice(): void {
   preloadSamples(["slice-1"]);
 }
 
+let noiseBuffer: AudioBuffer | null = null;
+
+/** Half a second of white noise, made once and reused for every swish and splash. */
+function getNoise(ctx: AudioContext): AudioBuffer {
+  if (noiseBuffer?.sampleRate !== ctx.sampleRate) {
+    const length = Math.floor(ctx.sampleRate * 0.5);
+    noiseBuffer = ctx.createBuffer(1, length, ctx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < length; i += 1) data[i] = Math.random() * 2 - 1;
+  }
+  return noiseBuffer;
+}
+
+/** A short burst of filtered noise: the building block of a swish, a crack or a splash. */
+function noiseBurst(
+  ctx: AudioContext,
+  out: AudioNode,
+  opts: {
+    at: number;
+    dur: number;
+    type: BiquadFilterType;
+    from: number;
+    to?: number;
+    q?: number;
+    peak: number;
+    attack?: number;
+  },
+): void {
+  const source = ctx.createBufferSource();
+  source.buffer = getNoise(ctx);
+  source.loop = true;
+  const filter = ctx.createBiquadFilter();
+  filter.type = opts.type;
+  filter.Q.value = opts.q ?? 1;
+  filter.frequency.setValueAtTime(opts.from, opts.at);
+  if (opts.to !== undefined) {
+    filter.frequency.exponentialRampToValueAtTime(opts.to, opts.at + opts.dur);
+  }
+  const amp = ctx.createGain();
+  const attack = opts.attack ?? 0.004;
+  amp.gain.setValueAtTime(0.0001, opts.at);
+  amp.gain.exponentialRampToValueAtTime(opts.peak, opts.at + attack);
+  amp.gain.exponentialRampToValueAtTime(0.0001, opts.at + opts.dur);
+  source.connect(filter).connect(amp).connect(out);
+  source.start(opts.at, Math.random() * 0.3);
+  source.stop(opts.at + opts.dur + 0.05);
+}
+
+/** A tone that glides from one pitch to another and fades: a drop, a thud, a pluck. */
+function glide(
+  ctx: AudioContext,
+  out: AudioNode,
+  opts: {
+    at: number;
+    dur: number;
+    from: number;
+    to: number;
+    peak: number;
+    type?: OscillatorType;
+  },
+): void {
+  const osc = ctx.createOscillator();
+  osc.type = opts.type ?? "sine";
+  osc.frequency.setValueAtTime(opts.from, opts.at);
+  osc.frequency.exponentialRampToValueAtTime(opts.to, opts.at + opts.dur);
+  const amp = ctx.createGain();
+  amp.gain.setValueAtTime(0.0001, opts.at);
+  amp.gain.exponentialRampToValueAtTime(opts.peak, opts.at + 0.008);
+  amp.gain.exponentialRampToValueAtTime(0.0001, opts.at + opts.dur);
+  osc.connect(amp).connect(out);
+  osc.start(opts.at);
+  osc.stop(opts.at + opts.dur + 0.03);
+}
+
 /**
- * The knife cut: a real knife recording (whoosh into the strike) with a low
- * thump under the moment of impact for weight. Starts immediately; the loudest
- * part lands SLICE_LEAD_SECONDS later.
+ * The knife cut, in the spirit of a fruit-slicing game: a rising air swish as
+ * the blade speeds up, then at the moment of the cut a bright crack, a juicy
+ * burst, a low thud and two small drops, layered under a real knife recording.
+ * Starts immediately; the cut lands SLICE_LEAD_SECONDS later.
  */
 export function playSlice(): void {
   if (!effectsOn) return;
-  const buffer = samples.get("slice-1");
-  if (!buffer) return;
   try {
     const ctx = getContext();
     if (!ctx) return;
     if (ctx.state === "suspended") void ctx.resume();
     const out = getOutput(ctx);
     const t0 = ctx.currentTime + 0.005;
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    const amp = ctx.createGain();
-    amp.gain.value = 0.9;
-    source.connect(amp).connect(out);
-    source.start(t0);
-
     const hit = t0 + SLICE_LEAD_SECONDS;
-    const thump = ctx.createOscillator();
-    thump.type = "sine";
-    thump.frequency.setValueAtTime(130, hit);
-    thump.frequency.exponentialRampToValueAtTime(48, hit + 0.18);
-    const thumpAmp = ctx.createGain();
-    thumpAmp.gain.setValueAtTime(0.0001, hit);
-    thumpAmp.gain.exponentialRampToValueAtTime(0.35, hit + 0.012);
-    thumpAmp.gain.exponentialRampToValueAtTime(0.0001, hit + 0.26);
-    thump.connect(thumpAmp).connect(out);
-    thump.start(hit);
-    thump.stop(hit + 0.3);
+
+    // The blade through the air: a band of noise that sweeps upward and swells into the cut.
+    noiseBurst(ctx, out, {
+      at: hit - 0.17,
+      dur: 0.19,
+      type: "bandpass",
+      from: 700,
+      to: 5200,
+      q: 0.9,
+      peak: 0.34,
+      attack: 0.12,
+    });
+
+    // The recorded knife, a little under so the new layers shine through.
+    const buffer = samples.get("slice-1");
+    if (buffer) {
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      const amp = ctx.createGain();
+      amp.gain.value = 0.7;
+      source.connect(amp).connect(out);
+      source.start(t0);
+    }
+
+    // The cut itself.
+    noiseBurst(ctx, out, {
+      at: hit,
+      dur: 0.05,
+      type: "highpass",
+      from: 3800,
+      peak: 0.42,
+      attack: 0.002,
+    }); // crack
+    noiseBurst(ctx, out, {
+      at: hit,
+      dur: 0.2,
+      type: "bandpass",
+      from: 2100,
+      to: 900,
+      q: 1.1,
+      peak: 0.45,
+      attack: 0.006,
+    }); // juice
+    noiseBurst(ctx, out, {
+      at: hit + 0.02,
+      dur: 0.14,
+      type: "lowpass",
+      from: 700,
+      to: 260,
+      peak: 0.3,
+      attack: 0.01,
+    }); // body
+    glide(ctx, out, { at: hit, dur: 0.22, from: 150, to: 52, peak: 0.42 }); // thud
+    // Two small drops as the halves part.
+    glide(ctx, out, { at: hit + 0.085, dur: 0.07, from: 880, to: 360, peak: 0.1 });
+    glide(ctx, out, { at: hit + 0.135, dur: 0.07, from: 640, to: 280, peak: 0.08 });
+  } catch {
+    // Audio is a nicety; a blocked or missing context just stays quiet.
+  }
+}
+
+let reverbImpulse: AudioBuffer | null = null;
+
+/** A soft, short room: decaying noise, used only to give the win chime some air. */
+function getReverb(ctx: AudioContext): AudioBuffer {
+  if (reverbImpulse?.sampleRate !== ctx.sampleRate) {
+    const length = Math.floor(ctx.sampleRate * 1.7);
+    reverbImpulse = ctx.createBuffer(2, length, ctx.sampleRate);
+    for (let channel = 0; channel < 2; channel += 1) {
+      const data = reverbImpulse.getChannelData(channel);
+      for (let i = 0; i < length; i += 1) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 3.2);
+      }
+    }
+  }
+  return reverbImpulse;
+}
+
+/**
+ * The finishing chime: a rising run of soft bell tones (each a fundamental with
+ * two quiet overtones that fade faster), a warm held chord swelling underneath,
+ * and a little reverb so it rings out instead of stopping. About 2.4 seconds.
+ */
+function playWinChime(): void {
+  try {
+    const ctx = getContext();
+    if (!ctx) return;
+    if (ctx.state === "suspended") void ctx.resume();
+    const out = getOutput(ctx);
+    const t0 = ctx.currentTime + 0.02;
+
+    const dry = ctx.createGain();
+    dry.gain.value = 0.8;
+    dry.connect(out);
+    const reverb = ctx.createConvolver();
+    reverb.buffer = getReverb(ctx);
+    const wet = ctx.createGain();
+    wet.gain.value = 0.38;
+    reverb.connect(wet).connect(out);
+    const bus = ctx.createGain();
+    bus.connect(dry);
+    bus.connect(reverb);
+
+    // Bell: sine fundamental plus partials at roughly 2.76x and 5.4x, which fade faster.
+    const bell = (freq: number, at: number, hold: number, level: number): void => {
+      const partials: [number, number, number][] = [
+        [1, 1, hold],
+        [2.76, 0.28, hold * 0.45],
+        [5.4, 0.1, hold * 0.22],
+      ];
+      for (const [ratio, gain, length] of partials) {
+        const osc = ctx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.value = freq * ratio;
+        const amp = ctx.createGain();
+        amp.gain.setValueAtTime(0.0001, t0 + at);
+        amp.gain.exponentialRampToValueAtTime(level * gain, t0 + at + 0.012);
+        amp.gain.exponentialRampToValueAtTime(0.0001, t0 + at + length);
+        osc.connect(amp).connect(bus);
+        osc.start(t0 + at);
+        osc.stop(t0 + at + length + 0.05);
+      }
+    };
+    // C major rising: C5 E5 G5 then a high C6 that rings.
+    bell(523.25, 0, 0.9, 0.17);
+    bell(659.25, 0.13, 0.9, 0.17);
+    bell(783.99, 0.26, 1.0, 0.17);
+    bell(1046.5, 0.42, 1.9, 0.2);
+
+    // A warm chord (C4 G4 C5 E5) that swells in under the bells and fades away.
+    for (const freq of [261.63, 392, 523.25, 659.25]) {
+      for (const detune of [-4, 4]) {
+        const osc = ctx.createOscillator();
+        osc.type = "triangle";
+        osc.frequency.value = freq;
+        osc.detune.value = detune;
+        const lowpass = ctx.createBiquadFilter();
+        lowpass.type = "lowpass";
+        lowpass.frequency.value = 1400;
+        const amp = ctx.createGain();
+        amp.gain.setValueAtTime(0.0001, t0 + 0.2);
+        amp.gain.exponentialRampToValueAtTime(0.028, t0 + 0.75);
+        amp.gain.exponentialRampToValueAtTime(0.0001, t0 + 2.3);
+        osc.connect(lowpass).connect(amp).connect(bus);
+        osc.start(t0 + 0.2);
+        osc.stop(t0 + 2.4);
+      }
+    }
   } catch {
     // Audio is a nicety; a blocked or missing context just stays quiet.
   }
