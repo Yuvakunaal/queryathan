@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   clampSplit,
-  collagePlacement,
-  collageTracks,
+  collageRows,
+  collageRowTracks,
+  columnShare,
   DEFAULT_SPLIT,
   orderPanes,
   swapOrder,
@@ -34,30 +35,22 @@ describe("collage order", () => {
 });
 
 describe("collage layout", () => {
-  it("shares the room into tracks around a gutter", () => {
-    expect(collageTracks(1, DEFAULT_SPLIT)).toEqual({
-      columns: "minmax(0, 1fr)",
-      rows: "minmax(0, 1fr)",
-    });
-    expect(collageTracks(2, { col: 0.5, row: 0.3 }).rows).toContain("0.3fr");
-    expect(collageTracks(2, { col: 0.5, row: 0.3 }).columns).toBe("minmax(0, 1fr)");
-    expect(collageTracks(4, { col: 0.4, row: 0.5 }).columns).toBe(
-      "minmax(0, 0.4fr) 10px minmax(0, 0.6fr)",
-    );
+  it("shares a row into two tables around a gutter", () => {
+    expect(columnShare(0.4)).toBe("minmax(0, 0.4fr) 10px minmax(0, 0.6fr)");
   });
 
-  it("places two stacked, three as 2 + 1, four as a 2 by 2", () => {
-    expect([0, 1].map((i) => collagePlacement(2, i).row)).toEqual(["1", "3"]);
-    expect([0, 1, 2].map((i) => collagePlacement(3, i))).toEqual([
-      { column: "1", row: "1" },
-      { column: "3", row: "1" },
-      { column: "1 / -1", row: "3" },
-    ]);
-    expect([0, 1, 2, 3].map((i) => collagePlacement(4, i))).toEqual([
-      { column: "1", row: "1" },
-      { column: "3", row: "1" },
-      { column: "1", row: "3" },
-      { column: "3", row: "3" },
+  it("splits the height only when there is more than one row", () => {
+    expect(collageRowTracks(1, DEFAULT_SPLIT)).toBe("minmax(0, 1fr)");
+    expect(collageRowTracks(2, { ...DEFAULT_SPLIT, row: 0.3 })).toContain("0.3fr");
+  });
+
+  it("lays out two stacked, three as 2 + 1, four as 2 + 2", () => {
+    expect(collageRows(1)).toEqual([[0]]);
+    expect(collageRows(2)).toEqual([[0], [1]]);
+    expect(collageRows(3)).toEqual([[0, 1], [2]]);
+    expect(collageRows(4)).toEqual([
+      [0, 1],
+      [2, 3],
     ]);
   });
 

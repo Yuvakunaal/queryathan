@@ -9,7 +9,7 @@ follows [Keep a Changelog](https://keepachangelog.com/).
   one between the left and right panels: drag to give a table more room and its neighbour less,
   with the arrow keys for small steps, Home/End for the limits and double-click or Enter to centre.
   Two tables share one horizontal line, three have a vertical line above and a horizontal one, four
-  have both and the vertical line moves both rows together. Sizes are remembered per case; no table
+  have a vertical line in each row, so the two rows are sized independently. Sizes are remembered per case; no table
   can be pushed out of sight.
 - **A calmer join checklist.** The checks above the tables show a tick (or an open circle) and the
   rule; the extra "yes" after every met check is gone, and a rule that is not met shows what is wrong

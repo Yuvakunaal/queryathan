@@ -22,13 +22,19 @@ export function swapOrder(ids: string[], a: string, b: string): string[] {
   return next;
 }
 
-/** How the room is shared: the left share of the width and the top share of the height, each between 0 and 1. */
+/**
+ * How the room is shared: the left share of the width in the upper row (col) and
+ * in the lower row (col2), and the top share of the height (row), each between
+ * 0 and 1. The two rows of a three or four table collage size their columns
+ * independently.
+ */
 export interface Split {
   col: number;
+  col2: number;
   row: number;
 }
 
-export const DEFAULT_SPLIT: Split = { col: 0.5, row: 0.5 };
+export const DEFAULT_SPLIT: Split = { col: 0.5, col2: 0.5, row: 0.5 };
 export const SPLIT_MIN = 0.18;
 export const SPLIT_MAX = 0.82;
 /** Width of the gap between tables, which is also the handle you drag. */
@@ -40,27 +46,25 @@ export function clampSplit(value: number): number {
   return Math.min(SPLIT_MAX, Math.max(SPLIT_MIN, value));
 }
 
-/** The CSS grid tracks for a collage of this many tables and this split. */
-export function collageTracks(
-  count: number,
-  split: Split,
-): { columns: string; rows: string } {
-  const share = (a: number): string =>
-    `minmax(0, ${String(a)}fr) ${String(GUTTER_PX)}px minmax(0, ${String(1 - a)}fr)`;
-  return {
-    columns: count >= 3 ? share(split.col) : "minmax(0, 1fr)",
-    rows: count >= 2 ? share(split.row) : "minmax(0, 1fr)",
-  };
+/** Two tables and the gutter between them, sharing a row. */
+export function columnShare(left: number): string {
+  return `minmax(0, ${String(left)}fr) ${String(GUTTER_PX)}px minmax(0, ${String(1 - left)}fr)`;
 }
 
-/** Which cells of the grid a table occupies. Tracks are: table, gutter, table. */
-export function collagePlacement(
-  count: number,
-  index: number,
-): { column: string; row: string } {
-  if (count <= 1) return { column: "1 / -1", row: "1 / -1" };
-  if (count === 2) return { column: "1 / -1", row: index === 0 ? "1" : "3" };
-  const left = index % 2 === 0;
-  if (count === 3 && index === 2) return { column: "1 / -1", row: "3" };
-  return { column: left ? "1" : "3", row: index < 2 ? "1" : "3" };
+/** The rows of the collage: the outer grid is one column, with a gutter row between two rows of tables. */
+export function collageRowTracks(count: number, split: Split): string {
+  return count >= 2
+    ? `minmax(0, ${String(split.row)}fr) ${String(GUTTER_PX)}px minmax(0, ${String(1 - split.row)}fr)`
+    : "minmax(0, 1fr)";
+}
+
+/** Which tables sit in which row: one stacked per row for two, then two on top for three, two and two for four. */
+export function collageRows(count: number): number[][] {
+  if (count <= 1) return [[0]];
+  if (count === 2) return [[0], [1]];
+  if (count === 3) return [[0, 1], [2]];
+  return [
+    [0, 1],
+    [2, 3],
+  ];
 }

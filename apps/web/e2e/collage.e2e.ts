@@ -126,29 +126,46 @@ test("the line between two tables resizes them, double-click centres it, and it 
   expect(centred.main?.h).toBeCloseTo(before.main?.h ?? 0, 0);
 });
 
-test("with four tables the vertical line resizes both rows at once, and the keyboard works", async ({
+test("with four tables each row has its own vertical line, and the keyboard works", async ({
   page,
 }) => {
   await openCase(page, "the-twins", "w3-06-four-corners", "sql");
   await page.waitForTimeout(1500);
   const before = await boxes(page);
-  const handle = page.getByRole("separator", {
-    name: "Width of the tables on the left",
-    exact: true,
-  });
-  await handle.focus();
+  const upper = page.getByRole("separator", { name: "Width of the upper tables" });
+  const lower = page.getByRole("separator", { name: "Width of the lower tables" });
+  await upper.focus();
   for (let i = 0; i < 4; i += 1) await page.keyboard.press("ArrowRight");
-  const after = await boxes(page);
-  // Both left tables grew, both right tables shrank, by the same amount.
+  let after = await boxes(page);
+  // The upper row's left table grew and its right table shrank by the same amount...
   expect(after.main?.w ?? 0).toBeGreaterThan((before.main?.w ?? 0) + 30);
-  expect(after.products?.w ?? 0).toBeCloseTo(after.main?.w ?? 0, 0);
   expect(after.customers?.w ?? 0).toBeLessThan((before.customers?.w ?? 0) - 30);
-  expect(after.stores?.w ?? 0).toBeCloseTo(after.customers?.w ?? 0, 0);
-  // They cannot be pushed out of sight.
+  expect((after.main?.w ?? 0) + (after.customers?.w ?? 0)).toBeCloseTo(
+    (before.main?.w ?? 0) + (before.customers?.w ?? 0),
+    0,
+  );
+  // ...while the lower row did not move at all.
+  expect(after.products?.w ?? 0).toBeCloseTo(before.products?.w ?? 0, 0);
+  expect(after.stores?.w ?? 0).toBeCloseTo(before.stores?.w ?? 0, 0);
+
+  // The lower row can be set the other way round.
+  await lower.focus();
+  for (let i = 0; i < 4; i += 1) await page.keyboard.press("ArrowLeft");
+  after = await boxes(page);
+  expect(after.products?.w ?? 0).toBeLessThan((before.products?.w ?? 0) - 30);
+  expect(after.stores?.w ?? 0).toBeGreaterThan((before.stores?.w ?? 0) + 30);
+  expect(after.main?.w ?? 0).toBeGreaterThan((before.main?.w ?? 0) + 30); // the upper row kept its setting
+
+  // They cannot be pushed out of sight, and Enter puts a line back in the middle.
+  await upper.focus();
   await page.keyboard.press("End");
-  const end = await boxes(page);
-  expect(end.customers?.w ?? 0).toBeGreaterThan(100);
+  expect((await boxes(page)).customers?.w ?? 0).toBeGreaterThan(100);
   await page.keyboard.press("Enter");
-  const centred = await boxes(page);
-  expect(centred.main?.w).toBeCloseTo(before.main?.w ?? 0, 0);
+  expect((await boxes(page)).main?.w).toBeCloseTo(before.main?.w ?? 0, 0);
+  const saved = await page.evaluate(() =>
+    window.localStorage.getItem("dcq.collage.w3-06-four-corners.split"),
+  );
+  const parsed = JSON.parse(saved ?? "{}") as { col: number; col2: number };
+  expect(parsed.col).toBeCloseTo(0.5, 2);
+  expect(parsed.col2).toBeLessThan(0.45);
 });

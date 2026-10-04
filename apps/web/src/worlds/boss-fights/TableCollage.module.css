@@ -173,3 +173,11 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* A row of two tables with the line between them. */
+.rowWrap {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+}

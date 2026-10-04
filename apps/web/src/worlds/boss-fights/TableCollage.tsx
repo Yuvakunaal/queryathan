@@ -3,8 +3,9 @@ import type { KeyboardEvent, PointerEvent, ReactNode } from "react";
 import { classNames } from "../../lib/classNames";
 import {
   clampSplit,
-  collagePlacement,
-  collageTracks,
+  collageRows,
+  collageRowTracks,
+  columnShare,
   DEFAULT_SPLIT,
   GUTTER_PX,
   orderPanes,
@@ -50,9 +51,10 @@ function readSplit(key: string): Split {
   try {
     const parsed: unknown = JSON.parse(readStored(splitStorageKey(key)) ?? "null");
     if (parsed && typeof parsed === "object") {
-      const { col, row } = parsed as Record<string, unknown>;
+      const { col, col2, row } = parsed as Record<string, unknown>;
       return {
         col: typeof col === "number" ? clampSplit(col) : DEFAULT_SPLIT.col,
+        col2: typeof col2 === "number" ? clampSplit(col2) : DEFAULT_SPLIT.col2,
         row: typeof row === "number" ? clampSplit(row) : DEFAULT_SPLIT.row,
       };
     }
@@ -71,8 +73,6 @@ interface SplitHandleProps {
   onCommit: (next: number) => void;
   label: string;
   style: React.CSSProperties;
-  /** A second grip for the same line (drag only): left out of the tab order and the accessibility tree. */
-  duplicate?: boolean;
 }
 
 const KEY_STEP = 0.03;
@@ -90,7 +90,6 @@ function SplitHandle({
   onCommit,
   label,
   style,
-  duplicate = false,
 }: SplitHandleProps) {
   const [dragging, setDragging] = useState(false);
   const lastRef = useRef(value);
@@ -146,8 +145,7 @@ function SplitHandle({
   return (
     <div
       role="separator"
-      tabIndex={duplicate ? -1 : 0}
-      aria-hidden={duplicate ? true : undefined}
+      tabIndex={0}
       aria-orientation={orientation}
       aria-label={label}
       aria-valuemin={0}
@@ -259,11 +257,54 @@ export default function TableCollage({
 
   const dragging = drag?.active ? shown.find((p) => p.id === drag.id) : undefined;
 
-  const tracks = collageTracks(count, split);
   function commitSplit(next: Split): void {
     setSplit(next);
     writeStored(splitStorageKey(splitKey), JSON.stringify(next));
   }
+
+  const renderPane = (pane: CollagePane, index: number, style: React.CSSProperties) => (
+    <section
+      key={pane.id}
+      className={classNames(
+        styles.pane,
+        dragging?.id === pane.id && styles.paneDragged,
+        drag?.over === pane.id && styles.paneTarget,
+      )}
+      data-collage-pane={pane.id}
+      data-slot={index}
+      aria-label={pane.title}
+      style={style}
+    >
+      <header className={styles.header}>
+        <button
+          type="button"
+          className={styles.grip}
+          aria-label={`Move ${pane.title}. Drag it onto another table, or use the arrow keys.`}
+          title="Drag to swap places with another table"
+          onPointerDown={(event) => {
+            onPointerDown(event, pane.id);
+          }}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={() => {
+            setDrag(null);
+          }}
+          onKeyDown={(event) => {
+            onKeyDown(event, pane.id);
+          }}
+        >
+          <span aria-hidden="true" className={styles.dots}>
+            ⠿
+          </span>
+        </button>
+        <span className={styles.title}>{pane.title}</span>
+        {pane.note ? <span className={styles.note}>{pane.note}</span> : null}
+      </header>
+      <div className={styles.body}>{pane.content}</div>
+    </section>
+  );
+
+  const layout = collageRows(count);
 
   return (
     <div
@@ -272,93 +313,63 @@ export default function TableCollage({
       data-count={count}
       data-dragging={dragging ? "true" : "false"}
       style={{
-        gridTemplateColumns: tracks.columns,
-        gridTemplateRows: tracks.rows,
+        gridTemplateColumns: "minmax(0, 1fr)",
+        gridTemplateRows: collageRowTracks(count, split),
         padding: PADDING_PX,
       }}
     >
-      {shown.map((pane, index) => (
-        <section
-          key={pane.id}
-          className={classNames(
-            styles.pane,
-            dragging?.id === pane.id && styles.paneDragged,
-            drag?.over === pane.id && styles.paneTarget,
-          )}
-          data-collage-pane={pane.id}
-          data-slot={index}
-          aria-label={pane.title}
-          style={{
-            gridColumn: collagePlacement(count, index).column,
-            gridRow: collagePlacement(count, index).row,
-          }}
-        >
-          <header className={styles.header}>
-            <button
-              type="button"
-              className={styles.grip}
-              aria-label={`Move ${pane.title}. Drag it onto another table, or use the arrow keys.`}
-              title="Drag to swap places with another table"
-              onPointerDown={(event) => {
-                onPointerDown(event, pane.id);
+      {layout.map((indices, rowIndex) => {
+        const gridRow = count === 1 ? "1" : rowIndex === 0 ? "1" : "3";
+        const members = indices.map((i) => shown[i]).filter((p): p is CollagePane => !!p);
+        if (members.length < 2) {
+          const only = members[0];
+          const at = indices[0] ?? 0;
+          return only ? renderPane(only, at, { gridRow, gridColumn: "1" }) : null;
+        }
+        const colKey = rowIndex === 0 ? "col" : "col2";
+        const [first, second] = members;
+        if (!first || !second) return null;
+        return (
+          <div
+            key={`row-${String(rowIndex)}`}
+            className={styles.rowWrap}
+            style={{
+              gridRow,
+              gridColumn: "1",
+              gridTemplateColumns: columnShare(split[colKey]),
+            }}
+          >
+            {renderPane(first, indices[0] ?? 0, { gridColumn: "1" })}
+            <SplitHandle
+              orientation="vertical"
+              value={split[colKey]}
+              container={collageRef}
+              label={
+                count === 3
+                  ? "Width of the upper tables"
+                  : rowIndex === 0
+                    ? "Width of the upper tables"
+                    : "Width of the lower tables"
+              }
+              style={{ gridColumn: "2" }}
+              onChange={(value) => {
+                setSplit((s) => ({ ...s, [colKey]: value }));
               }}
-              onPointerMove={onPointerMove}
-              onPointerUp={onPointerUp}
-              onPointerCancel={() => {
-                setDrag(null);
+              onCommit={(value) => {
+                commitSplit({ ...split, [colKey]: value });
               }}
-              onKeyDown={(event) => {
-                onKeyDown(event, pane.id);
-              }}
-            >
-              <span aria-hidden="true" className={styles.dots}>
-                ⠿
-              </span>
-            </button>
-            <span className={styles.title}>{pane.title}</span>
-            {pane.note ? <span className={styles.note}>{pane.note}</span> : null}
-          </header>
-          <div className={styles.body}>{pane.content}</div>
-        </section>
-      ))}
-      {count >= 3 ? (
-        <SplitHandle
-          orientation="vertical"
-          value={split.col}
-          container={collageRef}
-          label="Width of the tables on the left"
-          style={{ gridColumn: "2", gridRow: "1" }}
-          onChange={(col) => {
-            setSplit((s) => ({ ...s, col }));
-          }}
-          onCommit={(col) => {
-            commitSplit({ ...split, col });
-          }}
-        />
-      ) : null}
-      {count === 4 ? (
-        <SplitHandle
-          orientation="vertical"
-          value={split.col}
-          container={collageRef}
-          label="Width of the tables on the left, lower row"
-          duplicate
-          style={{ gridColumn: "2", gridRow: "3" }}
-          onChange={(col) => {
-            setSplit((s) => ({ ...s, col }));
-          }}
-          onCommit={(col) => {
-            commitSplit({ ...split, col });
-          }}
-        />
-      ) : null}
+            />
+            {renderPane(second, indices[1] ?? 1, { gridColumn: "3" })}
+          </div>
+        );
+      })}
       {count >= 2 ? (
         <SplitHandle
           orientation="horizontal"
           value={split.row}
           container={collageRef}
           label={count === 2 ? "Height of the top table" : "Height of the upper tables"}
-          style={{ gridColumn: "1 / -1", gridRow: "2" }}
+          style={{ gridColumn: "1", gridRow: "2" }}
           onChange={(row) => {
             setSplit((s) => ({ ...s, row }));
           }}
