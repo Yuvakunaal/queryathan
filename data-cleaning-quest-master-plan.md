@@ -310,7 +310,7 @@ Every boss/case/puzzle is a JSON file conforming to a shared TypeScript schema (
 
 **Phase 8 — Open-source launch.** `CONTRIBUTING.md`, content-authoring guide, RFC template, public roadmap board, first call for community-submitted cases.
 
-**Phase 9 — Polish & sustain.** Sound design, shareable rank cards, GitHub Sponsors setup, optional opt-in cloud sync, ongoing content packs.
+**Phase 9 — Polish & sustain.** Sound design, shareable rank cards, GitHub Sponsors setup, ongoing content packs.
 
 ---
 
