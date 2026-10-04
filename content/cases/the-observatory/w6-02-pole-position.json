@@ -12,12 +12,12 @@
   "strings": {
     "title": "POLE_POSITION",
     "subtitle": "Skill: ranking inside each group",
-    "briefing": "Merchandising wants a podium for every category: the two best-selling products by units_sold, with their place.\n\nKeep exactly two products per category. Number them 1 (best) and 2 (second best) in a column called rank_in_category. No two products in the same category sold the same number of units, so there are no ties to worry about.\n\nThe answer has four columns: category, product, units_sold, rank_in_category.\n\nIn Python, finish with df as the answer table. In SQL, build a table named result and that is what gets judged.",
+    "briefing": "Merchandising wants a podium for every category: the two best-selling products by units_sold, with their place.\n\nKeep exactly two products per category. Number them 1 (best) and 2 (second best) in a column called rank_in_category. No two products in the same category sold the same number of units, so there are no ties to worry about.\n\nThe answer has four columns: category, product, units_sold, rank_in_category.\n\nIn Python, put your answer in df (df = ...); that table is what gets judged.\n\nIn SQL, create a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
     "task": "Find the top two products by units_sold in each category and number them 1 and 2 in rank_in_category."
   },
   "starterCode": {
     "python": "# df lists 33 products with their category and units_sold.\n# Replace df with your answer table.\ndf.sort_values('units_sold', ascending=False).head()",
-    "sql": "-- data lists 33 products with their category and units_sold.\n-- Build a table named result.\nSELECT * FROM data ORDER BY units_sold DESC LIMIT 5;"
+    "sql": "-- data lists 33 products with their category and units_sold.\n-- Your answer goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data ORDER BY units_sold DESC LIMIT 5;"
   },
   "columnHints": {
     "product_id": {

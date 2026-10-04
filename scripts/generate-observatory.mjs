@@ -136,13 +136,13 @@ const writeCase = (id, body) =>
       title: "FIRST_LIGHT",
       subtitle: "Skill: grouping and summing",
       briefing:
-        "The sales team wants one number per region: how much money did each region really bring in?\n\nOnly orders with the status 'completed' count. Cancelled and refunded orders never produced revenue. An order's revenue is qty times unit_price.\n\nBuild a table with one row per region and exactly two columns: region and revenue.\n\nIn Python, finish with df as the answer table. In SQL, build a table named result and that is what gets judged.",
+        "The sales team wants one number per region: how much money did each region really bring in?\n\nOnly orders with the status 'completed' count. Cancelled and refunded orders never produced revenue. An order's revenue is qty times unit_price.\n\nBuild a table with one row per region and exactly two columns: region and revenue.\n\nIn Python, put your answer in df (df = ...); that table is what gets judged.\n\nIn SQL, create a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
       task: "For each region, add up qty * unit_price over the completed orders only. Give the answer two columns: region and revenue.",
     },
     starterCode: {
       python:
         "# df has 150 orders. Columns: order_id, region, product, qty, unit_price, status.\n# Replace df with your answer table (columns: region, revenue).\ndf.head()",
-      sql: "-- data has 150 orders. Columns: order_id, region, product, qty, unit_price, status.\n-- Build a table named result (columns: region, revenue).\nSELECT * FROM data LIMIT 5;",
+      sql: "-- data has 150 orders. Columns: order_id, region, product, qty, unit_price, status.\n-- Your answer (columns: columns: region, revenue) goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data LIMIT 5;",
     },
     columnHints: hint({
       order_id: [96, true],
@@ -219,13 +219,13 @@ const writeCase = (id, body) =>
       title: "POLE_POSITION",
       subtitle: "Skill: ranking inside each group",
       briefing:
-        "Merchandising wants a podium for every category: the two best-selling products by units_sold, with their place.\n\nKeep exactly two products per category. Number them 1 (best) and 2 (second best) in a column called rank_in_category. No two products in the same category sold the same number of units, so there are no ties to worry about.\n\nThe answer has four columns: category, product, units_sold, rank_in_category.\n\nIn Python, finish with df as the answer table. In SQL, build a table named result and that is what gets judged.",
+        "Merchandising wants a podium for every category: the two best-selling products by units_sold, with their place.\n\nKeep exactly two products per category. Number them 1 (best) and 2 (second best) in a column called rank_in_category. No two products in the same category sold the same number of units, so there are no ties to worry about.\n\nThe answer has four columns: category, product, units_sold, rank_in_category.\n\nIn Python, put your answer in df (df = ...); that table is what gets judged.\n\nIn SQL, create a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
       task: "Find the top two products by units_sold in each category and number them 1 and 2 in rank_in_category.",
     },
     starterCode: {
       python:
         "# df lists 33 products with their category and units_sold.\n# Replace df with your answer table.\ndf.sort_values('units_sold', ascending=False).head()",
-      sql: "-- data lists 33 products with their category and units_sold.\n-- Build a table named result.\nSELECT * FROM data ORDER BY units_sold DESC LIMIT 5;",
+      sql: "-- data lists 33 products with their category and units_sold.\n-- Your answer goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data ORDER BY units_sold DESC LIMIT 5;",
     },
     columnHints: hint({
       product_id: [100, true],
@@ -290,13 +290,13 @@ const writeCase = (id, body) =>
       title: "SLIDING_GLASS",
       subtitle: "Skill: moving averages",
       briefing:
-        "Daily revenue jumps around, so the finance team wants it smoothed: for every day, the average revenue of that day and the six days before it (a 7-day moving average).\n\nThe first six days do not have six days behind them yet. For those, average whatever days exist so far (day 1 is just its own revenue, day 2 is the average of days 1 and 2, and so on).\n\nCareful: the rows arrive in no particular order, but the days are consecutive, with none missing.\n\nKeep all 60 days. The answer has three columns: day, revenue, avg_7d.\n\nIn Python, finish with df as the answer table. In SQL, build a table named result and that is what gets judged.",
+        "Daily revenue jumps around, so the finance team wants it smoothed: for every day, the average revenue of that day and the six days before it (a 7-day moving average).\n\nThe first six days do not have six days behind them yet. For those, average whatever days exist so far (day 1 is just its own revenue, day 2 is the average of days 1 and 2, and so on).\n\nCareful: the rows arrive in no particular order, but the days are consecutive, with none missing.\n\nKeep all 60 days. The answer has three columns: day, revenue, avg_7d.\n\nIn Python, put your answer in df (df = ...); that table is what gets judged.\n\nIn SQL, create a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
       task: "Add avg_7d: the average revenue of each day and the six days before it (fewer at the start). Keep day and revenue.",
     },
     starterCode: {
       python:
         "# df has 60 days of revenue, in no particular order.\n# Replace df with your answer table (day, revenue, avg_7d).\ndf.head(10)",
-      sql: "-- data has 60 days of revenue, in no particular order.\n-- Build a table named result (day, revenue, avg_7d).\nSELECT * FROM data LIMIT 10;",
+      sql: "-- data has 60 days of revenue, in no particular order.\n-- Your answer (columns: day, revenue, avg_7d) goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data LIMIT 10;",
     },
     columnHints: hint({
       day: [120, false],
@@ -387,13 +387,13 @@ const writeCase = (id, body) =>
       title: "RETURN_ORBIT",
       subtitle: "Skill: cohort retention",
       briefing:
-        "A cohort is everyone who signed up in the same month. Retention asks: of the people who joined in a month, how many came back the following month?\n\nThe users table holds each person's signup_date. The activity table has one row each time someone used the product (active_date), and a person can appear many times.\n\nFor every signup month (written like 2026-03), report:\n- users: how many people signed up that month\n- retained: how many of them were active at least once in the NEXT calendar month (count each person once, however many times they were active)\n- retention_pct: retained divided by users, times 100, rounded to 1 decimal\n\nThe answer has four columns: cohort, users, retained, retention_pct.\n\nIn Python, df holds the users and activity holds the activity; finish with df as the answer table. In SQL, data holds the users and activity the activity; build a table named result and that is what gets judged.",
+        "A cohort is everyone who signed up in the same month. Retention asks: of the people who joined in a month, how many came back the following month?\n\nThe users table holds each person's signup_date. The activity table has one row each time someone used the product (active_date), and a person can appear many times.\n\nFor every signup month (written like 2026-03), report:\n- users: how many people signed up that month\n- retained: how many of them were active at least once in the NEXT calendar month (count each person once, however many times they were active)\n- retention_pct: retained divided by users, times 100, rounded to 1 decimal\n\nThe answer has four columns: cohort, users, retained, retention_pct.\n\nIn Python, df holds the users and activity holds the activity; put your answer in df (df = ...), and that table is what gets judged.\n\nIn SQL, data holds the users and activity the activity. Create a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
       task: "For each signup month, count the users and how many were active in the following month (each person once). Add retention_pct, rounded to 1 decimal.",
     },
     starterCode: {
       python:
         "# df = users (150 rows: user_id, signup_date).\n# activity = one row per visit (user_id, active_date).\n# Replace df with your answer table (cohort, users, retained, retention_pct).\ndf.head()",
-      sql: "-- data = users (150 rows: user_id, signup_date).\n-- activity = one row per visit (user_id, active_date).\n-- Build a table named result (cohort, users, retained, retention_pct).\nSELECT * FROM data LIMIT 5;",
+      sql: "-- data = users (150 rows: user_id, signup_date).\n-- activity = one row per visit (user_id, active_date).\n-- Your answer (columns: cohort, users, retained, retention_pct) goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data LIMIT 5;",
     },
     columnHints: hint({
       user_id: [100, false],
@@ -466,13 +466,13 @@ const writeCase = (id, body) =>
       title: "BREAK_IN_THE_CLOUDS",
       subtitle: "Skill: splitting a click stream into sessions",
       briefing:
-        "A website logs every click as a row: who (user_id), when (ts, like 2026-04-02 09:15:30) and which page. The log has no sessions; the analytics team wants them.\n\nA session is a run of one user's clicks where no two neighbouring clicks are more than 30 minutes apart. A gap of more than 30 minutes starts a new session. The rows arrive in no particular order.\n\nFor each user, report:\n- sessions: how many sessions they had\n- longest_session_events: how many clicks were in their biggest session\n\nThe answer has three columns: user_id, sessions, longest_session_events.\n\nIn Python, finish with df as the answer table. In SQL, build a table named result and that is what gets judged.",
+        "A website logs every click as a row: who (user_id), when (ts, like 2026-04-02 09:15:30) and which page. The log has no sessions; the analytics team wants them.\n\nA session is a run of one user's clicks where no two neighbouring clicks are more than 30 minutes apart. A gap of more than 30 minutes starts a new session. The rows arrive in no particular order.\n\nFor each user, report:\n- sessions: how many sessions they had\n- longest_session_events: how many clicks were in their biggest session\n\nThe answer has three columns: user_id, sessions, longest_session_events.\n\nIn Python, put your answer in df (df = ...); that table is what gets judged.\n\nIn SQL, create a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
       task: "Split each user's clicks into sessions (a new session after a gap of more than 30 minutes) and report the number of sessions and the biggest session's click count.",
     },
     starterCode: {
       python:
         "# df is a click log: user_id, ts, page. Rows are in no particular order.\n# Replace df with your answer table (user_id, sessions, longest_session_events).\ndf.sort_values(['user_id', 'ts']).head(10)",
-      sql: "-- data is a click log: user_id, ts, page. Rows are in no particular order.\n-- Build a table named result (user_id, sessions, longest_session_events).\nSELECT * FROM data ORDER BY user_id, ts LIMIT 10;",
+      sql: "-- data is a click log: user_id, ts, page. Rows are in no particular order.\n-- Your answer (columns: user_id, sessions, longest_session_events) goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data ORDER BY user_id, ts LIMIT 10;",
     },
     columnHints: hint({
       user_id: [90, false],
@@ -581,11 +581,11 @@ const writeCase = (id, body) =>
       title: "THE_OBSERVATORY",
       subtitle: "Problem: not disclosed. Read the data.",
       briefing:
-        "A shop logs what visitors do: view a product, add it to the cart, or purchase. Each row is one action by one user on one device, with its time (ts).\n\nThe growth team wants the funnel for each device, counting people (not actions), and the steps must happen in order:\n- viewed: users with at least one view\n- carted: of those, users who added to the cart AFTER their first view\n- purchased: of those, users who purchased AFTER their earliest cart that came after that first view\n\nA user whose action came in the wrong order does not count for that step or any later step. Rows arrive in no particular order, and users can repeat actions.\n\nThe answer has four columns: device, viewed, carted, purchased.\n\nIn Python, finish with df as the answer table. In SQL, build a table named result and that is what gets judged.",
+        "A shop logs what visitors do: view a product, add it to the cart, or purchase. Each row is one action by one user on one device, with its time (ts).\n\nThe growth team wants the funnel for each device, counting people (not actions), and the steps must happen in order:\n- viewed: users with at least one view\n- carted: of those, users who added to the cart AFTER their first view\n- purchased: of those, users who purchased AFTER their earliest cart that came after that first view\n\nA user whose action came in the wrong order does not count for that step or any later step. Rows arrive in no particular order, and users can repeat actions.\n\nThe answer has four columns: device, viewed, carted, purchased.\n\nIn Python, put your answer in df (df = ...); that table is what gets judged.\n\nIn SQL, create a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
     },
     starterCode: {
       python: "# df is an action log: user_id, device, step, ts.\ndf.head()",
-      sql: "-- data is an action log: user_id, device, step, ts.\nSELECT * FROM data LIMIT 5;",
+      sql: "-- data is an action log: user_id, device, step, ts.\n-- Your answer goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data LIMIT 5;",
     },
     columnHints: hint({
       user_id: [90, false],

@@ -34,4 +34,9 @@ describe("explainError", () => {
       explainError("python", "ZeroDivisionError: division by zero").explanation,
     ).toMatch(/named above/);
   });
+
+  it("explains CREATE OR REPLACE on a table that is not result", () => {
+    const result = explainError("sql", 'near "or": syntax error');
+    expect(result.explanation).toContain("no CREATE OR REPLACE");
+  });
 });

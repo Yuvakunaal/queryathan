@@ -99,3 +99,35 @@ test("the boot sequence names the answer to match, not afflicted cells", async (
   });
   await expect(page.getByText(/004 ROWS\s+TO MATCH/)).toBeVisible();
 });
+
+test("the answer table can be created again and again, in either spelling", async ({
+  page,
+}) => {
+  await openCase(page, "the-observatory", "w6-01-first-light", "sql");
+  const query = (create: string): string =>
+    `${create} result AS SELECT region, SUM(qty * unit_price) AS revenue FROM data WHERE status = 'completed' GROUP BY region;`;
+  await setCode(page, query("CREATE TABLE"));
+  await run(page);
+  await expect(
+    page.getByRole("status").filter({ hasText: "rows correct" }),
+  ).toContainText("4 / 4");
+  await page.keyboard.press("Escape");
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible({ timeout: 15_000 });
+  await dialog.getByRole("button", { name: "Keep exploring" }).click();
+  await run(page);
+  await expect(page.getByText("already exists")).toHaveCount(0);
+  await setCode(page, query("CREATE OR REPLACE TABLE"));
+  await run(page);
+  await expect(page.getByText("syntax error")).toHaveCount(0);
+  await expect(page.getByText("already exists")).toHaveCount(0);
+});
+
+test("the briefing says plainly to create a new table named result", async ({ page }) => {
+  await openCase(page, "the-observatory", "w6-01-first-light", "sql");
+  await page.getByText("The story behind it").click();
+  await expect(page.getByText(/create a NEW table named result/i)).toBeVisible();
+  await expect(page.locator(".cm-content")).toContainText(
+    "CREATE TABLE result AS SELECT",
+  );
+});

@@ -12,11 +12,11 @@
   "strings": {
     "title": "THE_OBSERVATORY",
     "subtitle": "Problem: not disclosed. Read the data.",
-    "briefing": "A shop logs what visitors do: view a product, add it to the cart, or purchase. Each row is one action by one user on one device, with its time (ts).\n\nThe growth team wants the funnel for each device, counting people (not actions), and the steps must happen in order:\n- viewed: users with at least one view\n- carted: of those, users who added to the cart AFTER their first view\n- purchased: of those, users who purchased AFTER their earliest cart that came after that first view\n\nA user whose action came in the wrong order does not count for that step or any later step. Rows arrive in no particular order, and users can repeat actions.\n\nThe answer has four columns: device, viewed, carted, purchased.\n\nIn Python, finish with df as the answer table. In SQL, build a table named result and that is what gets judged."
+    "briefing": "A shop logs what visitors do: view a product, add it to the cart, or purchase. Each row is one action by one user on one device, with its time (ts).\n\nThe growth team wants the funnel for each device, counting people (not actions), and the steps must happen in order:\n- viewed: users with at least one view\n- carted: of those, users who added to the cart AFTER their first view\n- purchased: of those, users who purchased AFTER their earliest cart that came after that first view\n\nA user whose action came in the wrong order does not count for that step or any later step. Rows arrive in no particular order, and users can repeat actions.\n\nThe answer has four columns: device, viewed, carted, purchased.\n\nIn Python, put your answer in df (df = ...); that table is what gets judged.\n\nIn SQL, create a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result."
   },
   "starterCode": {
     "python": "# df is an action log: user_id, device, step, ts.\ndf.head()",
-    "sql": "-- data is an action log: user_id, device, step, ts.\nSELECT * FROM data LIMIT 5;"
+    "sql": "-- data is an action log: user_id, device, step, ts.\n-- Your answer goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data LIMIT 5;"
   },
   "columnHints": {
     "user_id": {

@@ -59,6 +59,10 @@ export function explainError(
   const first = lines.find(Boolean) ?? message;
   const known: [RegExp, string][] = [
     [
+      /near "(or|replace)": syntax error/i,
+      "SQLite has no CREATE OR REPLACE. Just write CREATE TABLE result AS SELECT ...; for the table named result, each run replaces the old one for you.",
+    ],
+    [
       /syntax error/i,
       "SQLite could not read the statement. Check the spelling of the keywords, and look for a missing comma, bracket or quote near the word it names.",
     ],
@@ -80,7 +84,7 @@ export function explainError(
     ],
     [
       /already exists/i,
-      "A table with that name already exists. Use DROP TABLE name; first, or pick another name.",
+      "A table with that name already exists. Use DROP TABLE IF EXISTS name; first, or pick another name. (A table named result is replaced automatically on every run.)",
     ],
   ];
   const match = known.find(([pattern]) => pattern.test(first));

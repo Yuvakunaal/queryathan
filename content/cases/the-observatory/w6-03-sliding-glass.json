@@ -12,12 +12,12 @@
   "strings": {
     "title": "SLIDING_GLASS",
     "subtitle": "Skill: moving averages",
-    "briefing": "Daily revenue jumps around, so the finance team wants it smoothed: for every day, the average revenue of that day and the six days before it (a 7-day moving average).\n\nThe first six days do not have six days behind them yet. For those, average whatever days exist so far (day 1 is just its own revenue, day 2 is the average of days 1 and 2, and so on).\n\nCareful: the rows arrive in no particular order, but the days are consecutive, with none missing.\n\nKeep all 60 days. The answer has three columns: day, revenue, avg_7d.\n\nIn Python, finish with df as the answer table. In SQL, build a table named result and that is what gets judged.",
+    "briefing": "Daily revenue jumps around, so the finance team wants it smoothed: for every day, the average revenue of that day and the six days before it (a 7-day moving average).\n\nThe first six days do not have six days behind them yet. For those, average whatever days exist so far (day 1 is just its own revenue, day 2 is the average of days 1 and 2, and so on).\n\nCareful: the rows arrive in no particular order, but the days are consecutive, with none missing.\n\nKeep all 60 days. The answer has three columns: day, revenue, avg_7d.\n\nIn Python, put your answer in df (df = ...); that table is what gets judged.\n\nIn SQL, create a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
     "task": "Add avg_7d: the average revenue of each day and the six days before it (fewer at the start). Keep day and revenue."
   },
   "starterCode": {
     "python": "# df has 60 days of revenue, in no particular order.\n# Replace df with your answer table (day, revenue, avg_7d).\ndf.head(10)",
-    "sql": "-- data has 60 days of revenue, in no particular order.\n-- Build a table named result (day, revenue, avg_7d).\nSELECT * FROM data LIMIT 10;"
+    "sql": "-- data has 60 days of revenue, in no particular order.\n-- Your answer (columns: day, revenue, avg_7d) goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data LIMIT 10;"
   },
   "columnHints": {
     "day": {

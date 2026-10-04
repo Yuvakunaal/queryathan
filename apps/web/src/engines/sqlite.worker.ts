@@ -1,3 +1,4 @@
+import { replaceableResult } from "./sqlRewrite";
 import initSqlJs from "sql.js";
 import type { Database, SqlValue } from "sql.js";
 // Vite resolves this to a hashed, self-hosted asset URL at build time — no
@@ -279,7 +280,7 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
     } else {
       if (!db) throw new Error("No dataset loaded yet.");
       const startedAt = performance.now();
-      const execResults = db.exec(request.code);
+      const execResults = db.exec(replaceableResult(request.code));
       elapsedMs = performance.now() - startedAt;
       outputTable = buildOutputTable(execResults);
       output = outputTable ? null : buildOutput(execResults);

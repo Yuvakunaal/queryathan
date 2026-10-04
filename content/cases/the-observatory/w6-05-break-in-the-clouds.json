@@ -12,12 +12,12 @@
   "strings": {
     "title": "BREAK_IN_THE_CLOUDS",
     "subtitle": "Skill: splitting a click stream into sessions",
-    "briefing": "A website logs every click as a row: who (user_id), when (ts, like 2026-04-02 09:15:30) and which page. The log has no sessions; the analytics team wants them.\n\nA session is a run of one user's clicks where no two neighbouring clicks are more than 30 minutes apart. A gap of more than 30 minutes starts a new session. The rows arrive in no particular order.\n\nFor each user, report:\n- sessions: how many sessions they had\n- longest_session_events: how many clicks were in their biggest session\n\nThe answer has three columns: user_id, sessions, longest_session_events.\n\nIn Python, finish with df as the answer table. In SQL, build a table named result and that is what gets judged.",
+    "briefing": "A website logs every click as a row: who (user_id), when (ts, like 2026-04-02 09:15:30) and which page. The log has no sessions; the analytics team wants them.\n\nA session is a run of one user's clicks where no two neighbouring clicks are more than 30 minutes apart. A gap of more than 30 minutes starts a new session. The rows arrive in no particular order.\n\nFor each user, report:\n- sessions: how many sessions they had\n- longest_session_events: how many clicks were in their biggest session\n\nThe answer has three columns: user_id, sessions, longest_session_events.\n\nIn Python, put your answer in df (df = ...); that table is what gets judged.\n\nIn SQL, create a NEW table named result that holds your answer: CREATE TABLE result AS SELECT ...; That table is what gets judged. You can run your query as often as you like; each run replaces the old result.",
     "task": "Split each user's clicks into sessions (a new session after a gap of more than 30 minutes) and report the number of sessions and the biggest session's click count."
   },
   "starterCode": {
     "python": "# df is a click log: user_id, ts, page. Rows are in no particular order.\n# Replace df with your answer table (user_id, sessions, longest_session_events).\ndf.sort_values(['user_id', 'ts']).head(10)",
-    "sql": "-- data is a click log: user_id, ts, page. Rows are in no particular order.\n-- Build a table named result (user_id, sessions, longest_session_events).\nSELECT * FROM data ORDER BY user_id, ts LIMIT 10;"
+    "sql": "-- data is a click log: user_id, ts, page. Rows are in no particular order.\n-- Your answer (columns: user_id, sessions, longest_session_events) goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data ORDER BY user_id, ts LIMIT 10;"
   },
   "columnHints": {
     "user_id": {
