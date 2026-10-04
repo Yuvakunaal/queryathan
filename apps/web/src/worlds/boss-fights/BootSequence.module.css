@@ -25,6 +25,44 @@
   color: var(--w1-amber-500);
 }
 
+.pending {
+  color: var(--w1-amber-500);
+}
+.pending::after {
+  content: "...";
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: dots 1.2s steps(4, end) infinite;
+}
+.note {
+  max-width: 62ch;
+  margin-top: 4px;
+  font: 400 var(--w1-fs-boot) / 20px var(--w1-font-text);
+  color: var(--w1-text-secondary);
+  animation: note-in 400ms ease both;
+}
+@keyframes dots {
+  to {
+    width: 3ch;
+  }
+}
+@keyframes note-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pending::after {
+    animation: none;
+    width: 3ch;
+  }
+  .note {
+    animation: none;
+  }
+}
+
 .spacer {
   height: 20px;
 }

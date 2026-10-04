@@ -622,6 +622,37 @@ export default function BossFightScreen({
     );
   }
 
+  // Choosing an engine opens the intro right away; it waits on its first lines until the
+  // engine is ready, so Python and SQL start the same way. The sandbox has no intro.
+  if ((phase === "spawning" || phase === "boot") && !sandbox) {
+    const bootText = grid ? bootReadout(grid, caseData.winCondition, world) : null;
+    return phaseScreen(
+      <BootSequence
+        bossName={caseData.strings.title}
+        engineLabel={engine === "sql" ? "sql.js/wasm" : "pyodide/wasm"}
+        info={
+          grid && bootText
+            ? {
+                datasetFileName: caseData.datasetPath.split("/").pop() ?? "dataset.csv",
+                datasetShape: `${String(grid.rows.length)}x${String(grid.columns.length)}`,
+                afflictionCount: initialAfflictionRef.current ?? 0,
+                scanLabel: bootText.scanLabel,
+                detectedText: bootText.detected,
+              }
+            : null
+        }
+        slowHint={
+          engine === "sql"
+            ? undefined
+            : "Python and pandas load once, which takes a few seconds the first time."
+        }
+        onEngage={() => {
+          setPhase("fight");
+        }}
+      />,
+    );
+  }
+
   if (phase === "spawning" || !grid) {
     return phaseScreen(
       <LoadingCard
@@ -631,25 +662,6 @@ export default function BossFightScreen({
             ? "SQLite runs inside your browser. It is small, so this takes a moment."
             : "Python and pandas run inside your browser, so they have to load first. That takes a few seconds the first time and is quicker after that."
         }
-      />,
-    );
-  }
-
-  const bootText = bootReadout(grid, caseData.winCondition, world);
-
-  if (phase === "boot") {
-    return phaseScreen(
-      <BootSequence
-        bossName={caseData.strings.title}
-        datasetFileName={caseData.datasetPath.split("/").pop() ?? "dataset.csv"}
-        datasetShape={`${String(grid.rows.length)}x${String(grid.columns.length)}`}
-        afflictionCount={initialAfflictionRef.current ?? 0}
-        scanLabel={bootText.scanLabel}
-        detectedText={bootText.detected}
-        engineLabel={engine === "sql" ? "sql.js/wasm" : "pyodide/wasm"}
-        onEngage={() => {
-          setPhase("fight");
-        }}
       />,
     );
   }

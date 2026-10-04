@@ -24,6 +24,8 @@ export interface BootSequenceOptions {
   cursorEl: HTMLElement;
   containerEl: HTMLElement;
   onComplete: () => void;
+  /** Fade the whole screen in when motion is reduced. Off for a later part of the same screen. */
+  fade?: boolean;
 }
 
 export interface BootSequenceHandle {
@@ -39,16 +41,21 @@ export function playBootSequence({
   cursorEl,
   containerEl,
   onComplete,
+  fade = true,
 }: BootSequenceOptions): BootSequenceHandle {
   preloadKeys();
   if (prefersReducedMotion()) {
     for (const line of lines) revealLine(line, line.totalLength);
     gsap.set(cursorEl, { opacity: 0.6 });
-    gsap.fromTo(
-      containerEl,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.4, ease: "power1.inOut", onComplete },
-    );
+    if (fade) {
+      gsap.fromTo(
+        containerEl,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.4, ease: "power1.inOut", onComplete },
+      );
+    } else {
+      onComplete();
+    }
     return { skip: () => undefined };
   }
 
