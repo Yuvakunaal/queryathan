@@ -83,7 +83,7 @@ export default function A11yControls({ a11y, onChange }: A11yControlsProps) {
           onChange({ ...a11y, sound: !a11y.sound });
         }}
       >
-        {a11y.sound ? "SFX on" : "SFX"}
+        SFX
       </button>
       <button
         type="button"

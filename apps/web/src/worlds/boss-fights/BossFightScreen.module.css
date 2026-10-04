@@ -8,83 +8,6 @@
   overflow: hidden;
 }
 
-.statusRail {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 40px;
-  padding: 4px 16px;
-  background: var(--w1-bg-panel-2);
-  border-bottom: 1px solid var(--w1-rule-strong);
-  font: 600 var(--w1-fs-rail) / 1 var(--w1-font-display);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--w1-text-secondary);
-}
-
-.statusRailBoss {
-  color: var(--w1-title, var(--w1-status-null));
-}
-.statusRailBossFinal {
-  color: var(--w1-diff-del);
-}
-
-.railLeft {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-.railDivider {
-  flex: 0 0 auto;
-  width: 1px;
-  height: 18px;
-  background: var(--w1-text-dim);
-}
-.railTitle {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.rosterLink {
-  flex: 0 0 auto;
-  padding: 5px 10px;
-  background: transparent;
-  border: 1px solid var(--w1-rule-strong);
-  font: inherit;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-  color: var(--w1-text-primary);
-  cursor: pointer;
-}
-.rosterLink:hover,
-.rosterLink:focus-visible {
-  color: var(--w1-amber-500);
-  border-color: var(--w1-amber-500);
-}
-.rosterLink:focus-visible {
-  outline: 2px solid var(--w1-focus);
-  outline-offset: 2px;
-}
-
-.rankBadge {
-  font: 600 var(--w1-fs-rail) / 12px var(--w1-font-display);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--w1-amber-500);
-  padding: 2px 8px;
-  border: 1px solid var(--w1-rule-strong);
-  margin-right: 16px;
-}
-
-.a11yRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .stage {
   display: grid;
   position: relative;
@@ -244,7 +167,7 @@
 }
 
 .loadingScreen {
-  height: 100dvh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -343,26 +266,6 @@
     background: var(--w1-bg-panel-2);
     color: var(--w1-amber-500);
     font: 400 11px / 16px var(--w1-font-text);
-  }
-}
-
-@media (max-width: 719px) {
-  .statusRail {
-    gap: 8px;
-    padding: 0 12px;
-    letter-spacing: 0.08em;
-    white-space: nowrap;
-  }
-  .statusRail > :first-child {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .rankBadge {
-    display: none;
-  }
-  .a11yRow {
-    gap: 6px;
   }
 }
 
@@ -491,4 +394,11 @@
 
 [data-world="the-observatory"] .battlefield {
   grid-template-rows: auto minmax(0, 1fr);
+}
+
+/* A loading or choosing screen below the top bar. Positioned so the boot overlay stays inside it. */
+.phaseBody {
+  position: relative;
+  min-height: 0;
+  overflow: auto;
 }

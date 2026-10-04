@@ -5,6 +5,8 @@ import {
   WorldSelectScreen,
 } from "./worlds/boss-fights";
 import type { SandboxSession } from "./worlds/boss-fights/BossFightScreen";
+import TopBar from "./worlds/boss-fights/TopBar";
+import { worldMeta } from "./lib/world-meta";
 import { buildSandboxCase } from "./lib/sandbox";
 import type { WorldId } from "@dcq/content-schema";
 import {
@@ -34,27 +36,56 @@ type Screen =
   | { name: "sandbox"; session: SandboxSession };
 
 /**
- * Only visible for the code-split chunk's fetch time — near-instant on a
- * warm cache, but real on first navigation into a fight. Plain inline
- * styles (not a CSS Module) deliberately: this renders before
+ * Only visible for the code-split chunk's fetch time: near-instant on a warm
+ * cache, but real on first navigation into a fight. It keeps the same top bar
+ * the fight uses, so the bar never blinks away while the fight code loads. The
+ * body uses plain inline styles (not a CSS Module) because this renders before
  * BossFightScreen.module.css's own chunk has arrived.
  */
-function FightScreenFallback() {
+function FightScreenFallback({
+  world,
+  sandbox,
+  rank,
+  a11y,
+  onA11yChange,
+  onBack,
+}: {
+  world: WorldId;
+  sandbox: boolean;
+  rank: string;
+  a11y: A11yState;
+  onA11yChange: (next: A11yState) => void;
+  onBack: () => void;
+}) {
   return (
     <div
-      role="status"
-      aria-live="polite"
+      data-world={world}
       style={{
         height: "100dvh",
-        display: "flex",
-        alignItems: "flex-start",
-        padding: "12vh 0 0 8vw",
-        background: "var(--dcq-color-bg)",
-        color: "var(--dcq-color-fg)",
-        font: "13px/20px ui-monospace, monospace",
+        display: "grid",
+        gridTemplateRows: "auto minmax(0, 1fr)",
+        background: "var(--w1-bg-void)",
       }}
     >
-      loading ...
+      <TopBar
+        backLabel={sandbox ? "< Back" : "< Roster"}
+        onBack={onBack}
+        worldName={sandbox ? "SANDBOX" : worldMeta(world).statusRailName}
+        rank={sandbox ? undefined : rank}
+        a11y={a11y}
+        onA11yChange={onA11yChange}
+      />
+      <div
+        role="status"
+        aria-live="polite"
+        style={{
+          padding: "12vh 0 0 8vw",
+          color: "var(--w1-text-secondary)",
+          font: "13px/20px ui-monospace, monospace",
+        }}
+      >
+        loading ...
+      </div>
     </div>
   );
 }
@@ -106,7 +137,20 @@ export default function App() {
 
   if (screen.name === "sandbox") {
     return (
-      <Suspense fallback={<FightScreenFallback />}>
+      <Suspense
+        fallback={
+          <FightScreenFallback
+            world="boss-fights"
+            sandbox
+            rank=""
+            a11y={a11y}
+            onA11yChange={setA11y}
+            onBack={() => {
+              setScreen({ name: "sandbox-setup" });
+            }}
+          />
+        }
+      >
         <BossFightScreen
           sandbox={screen.session}
           world="boss-fights"
@@ -128,7 +172,20 @@ export default function App() {
     const progress = getWorldProgress(saveData, world);
     const rankLabel = rankForWorld(world, progress.masteredTechniques.length);
     return (
-      <Suspense fallback={<FightScreenFallback />}>
+      <Suspense
+        fallback={
+          <FightScreenFallback
+            world={world}
+            sandbox={false}
+            rank={rankLabel}
+            a11y={a11y}
+            onA11yChange={setA11y}
+            onBack={() => {
+              setScreen({ name: "roster", world });
+            }}
+          />
+        }
+      >
         <BossFightScreen
           world={world}
           casePath={screen.casePath}

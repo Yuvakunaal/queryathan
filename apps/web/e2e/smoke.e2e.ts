@@ -1,5 +1,5 @@
 import { test, expect } from "./fixtures";
-import { seed } from "./helpers";
+import { seed, titleOf } from "./helpers";
 
 test("the home screen lists all six worlds and the sandbox", async ({ page }) => {
   await seed(page);
@@ -104,4 +104,38 @@ test.describe("themes and accessibility settings", () => {
     await page.getByRole("button", { name: "Got it" }).click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
   });
+});
+
+test("the top bar stays visible through every loading step of a fight, in every world", async ({
+  page,
+}) => {
+  test.setTimeout(150_000);
+  for (const [world, caseId, rail] of [
+    ["boss-fights", "w1-01-nul-sentinel", "BOSS-FIGHTS"],
+    ["the-vault", "w2-01-pin-tumbler", "THE-VAULT"],
+    ["the-twins", "w3-01-key-mirror", "THE-TWINS"],
+    ["the-architect", "w4-01-melt-form", "THE-ARCHITECT"],
+    ["the-foundry", "w5-01-slow-lane", "THE-FOUNDRY"],
+    ["the-observatory", "w6-01-first-light", "THE-OBSERVATORY"],
+  ] as const) {
+    await seed(page);
+    await page.goto("/");
+    await page.locator(`[data-world-card="${world}"]`).click();
+    const bar = page.getByRole("button", { name: "Sound effects" });
+    const title = titleOf(world, caseId);
+    await page.getByRole("button", { name: new RegExp(`^${title},`, "i") }).click();
+    // Choosing an engine.
+    await expect(bar).toBeVisible();
+    await expect(page.getByRole("button", { name: "< Roster" })).toBeVisible();
+    await page.getByText("SQL", { exact: true }).click();
+    // Starting the engine, then the boot sequence.
+    await expect(bar).toBeVisible();
+    await expect(page.getByText(new RegExp(`^${rail} //`))).toBeVisible();
+    await page.getByText(/ENTER \]/).waitFor({ timeout: 120_000 });
+    await expect(bar).toBeVisible();
+    await expect(page.getByRole("button", { name: "< Roster" })).toBeVisible();
+    await page.getByRole("button", { name: "< Roster" }).click();
+    await expect(page.locator("[data-world]").first()).toBeVisible();
+    await page.goto("/");
+  }
 });

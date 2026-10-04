@@ -45,6 +45,7 @@ import EngineSelect from "./EngineSelect";
 import LoadingCard from "./LoadingCard";
 import type { EngineChoice } from "./EngineSelect";
 import BriefingPanel from "./BriefingPanel";
+import TopBar from "./TopBar";
 import SandboxBriefing from "./SandboxBriefing";
 import SandboxBand from "./SandboxBand";
 import HpHeatmap from "./HpHeatmap";
@@ -64,7 +65,6 @@ import DiffConsole from "./DiffConsole";
 import OutputView from "./OutputView";
 import type { RunOutput } from "./OutputView";
 import type { ConsoleEntry } from "./DiffConsole";
-import A11yControls from "./A11yControls";
 import { worldMeta } from "../../lib/world-meta";
 import VictoryPanel from "./VictoryPanel";
 import KillSequence from "./KillSequence";
@@ -565,78 +565,93 @@ export default function BossFightScreen({
     }
   }
 
-  if (loadError) {
+  /** The top bar: the same in every phase, so it never disappears while an engine loads. */
+  function renderRail(ref?: React.Ref<HTMLDivElement>): React.JSX.Element {
+    return (
+      <TopBar
+        backLabel={sandbox ? "< Back" : "< Roster"}
+        onBack={onExitToRoster}
+        worldName={sandbox ? "SANDBOX" : worldMeta(world).statusRailName}
+        title={caseData?.strings.title}
+        finalBoss={caseData?.tier === "final-boss"}
+        rank={sandbox ? undefined : rankLabel}
+        a11y={a11y}
+        onA11yChange={onA11yChange}
+        {...(ref ? { railRef: ref } : {})}
+      />
+    );
+  }
+
+  /** A loading or choosing screen under the top bar. */
+  function phaseScreen(children: React.ReactNode): React.JSX.Element {
     return (
       <div className={styles.fightRoot} data-world={world}>
-        <div className={styles.loadingScreen} role="alert">
-          <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
-          <span className={classNames(styles.loadingLine, styles.loadingError)}>
-            engine failed to start — {loadError}
-          </span>
-          <span className={styles.loadingLine}>reload the page to try again</span>
-        </div>
+        {renderRail()}
+        <div className={styles.phaseBody}>{children}</div>
       </div>
+    );
+  }
+
+  if (loadError) {
+    return phaseScreen(
+      <div className={styles.loadingScreen} role="alert">
+        <span className={styles.loadingLine}>DCQ//BOOT v0.1.0</span>
+        <span className={classNames(styles.loadingLine, styles.loadingError)}>
+          engine failed to start — {loadError}
+        </span>
+        <span className={styles.loadingLine}>reload the page to try again</span>
+      </div>,
     );
   }
 
   if (phase === "loading" || !caseData) {
-    return (
-      <div className={styles.fightRoot} data-world={world}>
-        <LoadingCard title="Loading" text="Fetching the case." />
-      </div>
-    );
+    return phaseScreen(<LoadingCard title="Loading" text="Fetching the case." />);
   }
 
   if (phase === "engine-select") {
-    return (
-      <div className={styles.fightRoot} data-world={world}>
-        <EngineSelect
-          bossName={caseData.strings.title}
-          onSelect={(choice) => {
-            writeLastEngine(choice);
-            setEngine(choice);
-          }}
-          onWarm={(choice) => {
-            ensureClient(choice);
-          }}
-        />
-      </div>
+    return phaseScreen(
+      <EngineSelect
+        bossName={caseData.strings.title}
+        onSelect={(choice) => {
+          writeLastEngine(choice);
+          setEngine(choice);
+        }}
+        onWarm={(choice) => {
+          ensureClient(choice);
+        }}
+      />,
     );
   }
 
   if (phase === "spawning" || !grid) {
-    return (
-      <div className={styles.fightRoot} data-world={world}>
-        <LoadingCard
-          title={engine === "sql" ? "Starting SQL" : "Starting Python"}
-          text={
-            engine === "sql"
-              ? "SQLite runs inside your browser. It is small, so this takes a moment."
-              : "Python and pandas run inside your browser, so they have to load first. That takes a few seconds the first time and is quicker after that."
-          }
-        />
-      </div>
+    return phaseScreen(
+      <LoadingCard
+        title={engine === "sql" ? "Starting SQL" : "Starting Python"}
+        text={
+          engine === "sql"
+            ? "SQLite runs inside your browser. It is small, so this takes a moment."
+            : "Python and pandas run inside your browser, so they have to load first. That takes a few seconds the first time and is quicker after that."
+        }
+      />,
     );
   }
 
   const bootText = bootReadout(grid, caseData.winCondition, world);
 
   if (phase === "boot") {
-    return (
-      <div className={styles.fightRoot} data-world={world}>
-        <BootSequence
-          bossName={caseData.strings.title}
-          datasetFileName={caseData.datasetPath.split("/").pop() ?? "dataset.csv"}
-          datasetShape={`${String(grid.rows.length)}x${String(grid.columns.length)}`}
-          afflictionCount={initialAfflictionRef.current ?? 0}
-          scanLabel={bootText.scanLabel}
-          detectedText={bootText.detected}
-          engineLabel={engine === "sql" ? "sql.js/wasm" : "pyodide/wasm"}
-          onEngage={() => {
-            setPhase("fight");
-          }}
-        />
-      </div>
+    return phaseScreen(
+      <BootSequence
+        bossName={caseData.strings.title}
+        datasetFileName={caseData.datasetPath.split("/").pop() ?? "dataset.csv"}
+        datasetShape={`${String(grid.rows.length)}x${String(grid.columns.length)}`}
+        afflictionCount={initialAfflictionRef.current ?? 0}
+        scanLabel={bootText.scanLabel}
+        detectedText={bootText.detected}
+        engineLabel={engine === "sql" ? "sql.js/wasm" : "pyodide/wasm"}
+        onEngage={() => {
+          setPhase("fight");
+        }}
+      />,
     );
   }
 
@@ -646,29 +661,10 @@ export default function BossFightScreen({
     ...extraColumns,
   };
   const remaining = totalDebt(grid, caseData.winCondition, lastRun);
-  const bossNameStyles = classNames(
-    styles.statusRailBoss,
-    caseData.tier === "final-boss" && styles.statusRailBossFinal,
-  );
 
   return (
     <div className={styles.fightRoot} data-world={world} ref={fightRootRef}>
-      <div className={styles.statusRail} ref={statusRailRef}>
-        <span className={styles.railLeft}>
-          <button type="button" className={styles.rosterLink} onClick={onExitToRoster}>
-            {sandbox ? "< Back" : "< Roster"}
-          </button>
-          <span className={styles.railDivider} aria-hidden="true" />
-          <span className={styles.railTitle}>
-            {sandbox ? "SANDBOX" : worldMeta(world).statusRailName} //{" "}
-            <span className={bossNameStyles}>{caseData.strings.title}</span>
-          </span>
-        </span>
-        <div className={styles.a11yRow}>
-          {sandbox ? null : <span className={styles.rankBadge}>{rankLabel}</span>}
-          <A11yControls a11y={a11y} onChange={onA11yChange} />
-        </div>
-      </div>
+      {renderRail(statusRailRef)}
       {narrowNoticeDismissed ? null : (
         <div className={styles.narrowNotice}>
           <span>NARROW DISPLAY // EDITOR IS CRAMPED BELOW 720PX</span>
