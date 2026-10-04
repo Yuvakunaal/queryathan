@@ -121,7 +121,7 @@ test("the top bar stays visible through every loading step of a fight, in every 
     await seed(page);
     await page.goto("/");
     await page.locator(`[data-world-card="${world}"]`).click();
-    const bar = page.getByRole("button", { name: "Sound effects" });
+    const bar = page.getByRole("button", { name: "Sound settings" });
     const title = titleOf(world, caseId);
     await page.getByRole("button", { name: new RegExp(`^${title},`, "i") }).click();
     // Choosing an engine.
