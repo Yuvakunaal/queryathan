@@ -1,3 +1,4 @@
+import { LABORATORY_SOLUTIONS } from "./solutions-laboratory";
 import { TIMEKEEPER_SOLUTIONS } from "./solutions-timekeeper";
 import { LABYRINTH_SOLUTIONS } from "./solutions-labyrinth";
 /**
@@ -285,4 +286,5 @@ SELECT v.device, COUNT(*) AS viewed, COUNT(c.user_id) AS carted, COUNT(p.user_id
   },
   ...LABYRINTH_SOLUTIONS,
   ...TIMEKEEPER_SOLUTIONS,
+  ...LABORATORY_SOLUTIONS,
 ];
