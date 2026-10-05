@@ -79,6 +79,7 @@
   color: var(--w1-amber-500);
 }
 .rankTrack {
+  overflow: hidden;
   height: 6px;
   background: var(--w1-rule-faint);
   border: 1px solid var(--w1-rule);

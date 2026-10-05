@@ -92,3 +92,45 @@ test("the answer note follows the language, and cleaning cases have none", async
   await openCase(page, "boss-fights", "w1-01-nul-sentinel", "sql");
   await expect(page.getByText(/^Note: /)).toHaveCount(0);
 });
+
+test("the rank panel never shows more techniques than its total, and the bar stays inside its box", async ({
+  page,
+}) => {
+  await seed(page);
+  // A save that records more techniques than the world's table expects (an old save).
+  await page.addInitScript(() => {
+    window.localStorage.setItem(
+      "dcq.save",
+      JSON.stringify({
+        version: 1,
+        worlds: {
+          "the-twins": {
+            clearedCaseIds: [],
+            masteredTechniques: Array.from({ length: 11 }, (_, i) => `t${String(i)}`),
+            xp: 1300,
+          },
+        },
+      }),
+    );
+  });
+  await page.goto("/#/world/the-twins");
+  await expect(page.getByText("11 / 11 techniques")).toBeVisible();
+  const track = page.getByRole("progressbar", { name: "Techniques mastered" });
+  const trackBox = await track.boundingBox();
+  const fillBox = await track.locator("> div").boundingBox();
+  expect(trackBox).not.toBeNull();
+  expect(fillBox).not.toBeNull();
+  expect((fillBox?.x ?? 0) + (fillBox?.width ?? 0)).toBeLessThanOrEqual(
+    (trackBox?.x ?? 0) + (trackBox?.width ?? 0) + 0.5,
+  );
+});
+
+test("the Geminora and Minos Deep rank totals match what they teach", async ({
+  page,
+}) => {
+  await seed(page);
+  await page.goto("/#/world/the-twins");
+  await expect(page.getByText(/\/ 8 techniques/)).toBeVisible();
+  await page.goto("/#/world/the-labyrinth");
+  await expect(page.getByText(/\/ 5 techniques/)).toBeVisible();
+});

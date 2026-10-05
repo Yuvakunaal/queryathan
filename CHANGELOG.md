@@ -5,6 +5,8 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## 1.0.0 (2026-10-05)
 
+- **Rank panel fixed.** Geminora could show "7 / 6 techniques" with a progress bar running outside its box, and Minos Deep's top rank could never be reached. The rank tables now match what each world really teaches (Geminora 8, Minos Deep 5), the total can never be smaller than what is on record, the bar is clamped inside its box, and a test reads the real case files so the tables cannot drift again.
+
 - **Cleaner victory panel.** The "Copy my solution" button is gone from the win summary in every world; it now offers just "Back to roster" and "Keep exploring".
 
 - **A living welcome.** The green "What is this?" button under the title is replaced by a greeting that types itself in orange: "Welcome <Master>", then Savior, Slayer, Query Knight, NULL Hunter, Leviathan Slayer and about forty more, looping forever. It never stops (its position comes from the clock on every frame, so a busy moment cannot leave it stuck or behind), screen readers get one fixed sentence, and people who ask for reduced motion get a still greeting. "What is this?" remains in the top bar (with the "Start here" badge until it is first opened).

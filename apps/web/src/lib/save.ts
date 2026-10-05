@@ -148,8 +148,8 @@ const RANK_TIERS: Record<WorldId, RankTier[]> = {
   "the-twins": [
     { label: "Recruit", minTechniques: 0 },
     { label: "Matchmaker", minTechniques: 1 },
-    { label: "Linker", minTechniques: 3 },
-    { label: "Twin Master", minTechniques: 6 },
+    { label: "Linker", minTechniques: 4 },
+    { label: "Twin Master", minTechniques: 8 },
   ],
   "the-architect": [
     { label: "Recruit", minTechniques: 0 },
@@ -173,7 +173,7 @@ const RANK_TIERS: Record<WorldId, RankTier[]> = {
     { label: "Recruit", minTechniques: 0 },
     { label: "Wanderer", minTechniques: 1 },
     { label: "Pathfinder", minTechniques: 3 },
-    { label: "Minotaur Slayer", minTechniques: 6 },
+    { label: "Minotaur Slayer", minTechniques: 5 },
   ],
   "the-timekeeper": [
     { label: "Recruit", minTechniques: 0 },

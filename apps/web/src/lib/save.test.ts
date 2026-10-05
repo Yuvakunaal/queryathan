@@ -98,11 +98,11 @@ describe("maxTechniquesForWorld", () => {
 
   it("returns the top technique count for each world", () => {
     expect(maxTechniquesForWorld("the-vault")).toBe(5);
-    expect(maxTechniquesForWorld("the-twins")).toBe(6);
+    expect(maxTechniquesForWorld("the-twins")).toBe(8);
     expect(maxTechniquesForWorld("the-architect")).toBe(6);
     expect(maxTechniquesForWorld("the-foundry")).toBe(4);
     expect(maxTechniquesForWorld("the-observatory")).toBe(6);
-    expect(maxTechniquesForWorld("the-labyrinth")).toBe(6);
+    expect(maxTechniquesForWorld("the-labyrinth")).toBe(5);
     expect(maxTechniquesForWorld("the-timekeeper")).toBe(6);
     expect(maxTechniquesForWorld("the-laboratory")).toBe(6);
   });

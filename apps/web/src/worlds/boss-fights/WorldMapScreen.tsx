@@ -79,7 +79,9 @@ export default function WorldMapScreen({
   const clearedIds = new Set(progress.clearedCaseIds);
   const masteredCount = progress.masteredTechniques.length;
   const rankLabel = rankForWorld(world, masteredCount);
-  const maxTechniques = maxTechniquesForWorld(world);
+  // Never show "7 / 6": if more techniques are on record than the rank table expects
+  // (an old save, a newly added case), the total grows to match.
+  const maxTechniques = Math.max(maxTechniquesForWorld(world), masteredCount);
 
   function statusFor(index: number, caseItem: Case): RosterStatus {
     if (clearedIds.has(caseItem.id)) return "cleared";
@@ -136,7 +138,9 @@ export default function WorldMapScreen({
 
   const statusIsError = statusMessage.startsWith("IMPORT FAILED");
   const rankPercent =
-    maxTechniques > 0 ? Math.round((masteredCount / maxTechniques) * 100) : 0;
+    maxTechniques > 0
+      ? Math.min(100, Math.round((masteredCount / maxTechniques) * 100))
+      : 0;
   const clearedCount = clearedIds.size;
 
   return (
