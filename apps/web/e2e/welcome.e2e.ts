@@ -65,3 +65,29 @@ test("the caret stays on the same line, at the same height, from the first lette
   expect(Math.max(...tops) - Math.min(...tops)).toBeLessThan(0.6);
   expect(Math.max(...heights) - Math.min(...heights)).toBeLessThan(0.6);
 });
+
+test("the greeting never stops: not on hover, not under heavy CPU load", async ({
+  page,
+}) => {
+  test.setTimeout(90_000);
+  await seed(page);
+  await page.goto("/");
+  const line = page.locator("[data-welcome]");
+  const sample = async (ms: number): Promise<Set<string>> => {
+    const seen = new Set<string>();
+    const until = Date.now() + ms;
+    while (Date.now() < until) {
+      seen.add(((await line.textContent()) ?? "").trim());
+      await page.waitForTimeout(80);
+    }
+    return seen;
+  };
+  // With the pointer resting on it.
+  await line.hover();
+  expect((await sample(3_000)).size, "changes while hovered").toBeGreaterThan(3);
+  // With the CPU slowed six times.
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 6 });
+  expect((await sample(4_000)).size, "changes under CPU load").toBeGreaterThan(3);
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+});

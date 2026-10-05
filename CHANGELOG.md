@@ -5,7 +5,7 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## 1.0.0 (2026-10-05)
 
-- **A living welcome.** The green "What is this?" button under the title is replaced by a greeting that types itself in orange: "Welcome <Master>", then Savior, Slayer, Query Knight, NULL Hunter, Leviathan Slayer and about forty more, looping forever. It pauses while the pointer is over it, screen readers get one fixed sentence, and people who ask for reduced motion get a still greeting. "What is this?" remains in the top bar (with the "Start here" badge until it is first opened).
+- **A living welcome.** The green "What is this?" button under the title is replaced by a greeting that types itself in orange: "Welcome <Master>", then Savior, Slayer, Query Knight, NULL Hunter, Leviathan Slayer and about forty more, looping forever. It never stops (its position comes from the clock on every frame, so a busy moment cannot leave it stuck or behind), screen readers get one fixed sentence, and people who ask for reduced motion get a still greeting. "What is this?" remains in the top bar (with the "Start here" badge until it is first opened).
 
 - **Ready to deploy.** Share links get an absolute address from `SITE_URL` or Vercel's production domain (canonical, `og:url`, `og:image`, Twitter card with image size and description), hashed assets are cached for a year and the service worker is never cached, there is a `robots.txt` and a no-JavaScript message, and [`docs/DEPLOYING.md`](./docs/DEPLOYING.md) has the steps and a pre-launch checklist.
 
