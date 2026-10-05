@@ -381,6 +381,7 @@ export default function TravelSequence({
         finish();
       }}
     >
+      <div className={styles.backdrop} aria-hidden="true" />
       <canvas ref={canvasRef} className={styles.stars} aria-hidden="true" />
       <div className={styles.horizon} aria-hidden="true" />
 

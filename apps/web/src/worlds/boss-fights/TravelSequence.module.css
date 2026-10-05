@@ -6,12 +6,8 @@
   cursor: pointer;
   color-scheme: dark;
   color: #eef3ff;
-  background: radial-gradient(
-    ellipse 80% 70% at 50% 44%,
-    color-mix(in srgb, var(--t-dark) 60%, #05070f) 0%,
-    #04050b 62%,
-    #020308 100%
-  );
+  /* A solid colour as well as the backdrop below: high-contrast light mode strips background images. */
+  background-color: #04050b;
   font-family: var(--w1-font-display, ui-monospace, monospace);
 }
 
@@ -200,5 +196,19 @@
     ellipse,
     color-mix(in srgb, var(--t-light) 40%, #ffffff),
     transparent 70%
+  );
+}
+
+/* The deep-space backdrop lives on its own element: the high-contrast theme removes
+   background images from anything marked as a world, which would leave the flight see-through. */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    ellipse 80% 70% at 50% 44%,
+    color-mix(in srgb, var(--t-dark) 60%, #05070f) 0%,
+    #04050b 62%,
+    #020308 100%
   );
 }

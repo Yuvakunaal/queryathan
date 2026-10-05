@@ -93,3 +93,23 @@ test("the world cards carry the new world names", async ({ page }) => {
     await expect(page.getByRole("heading", { name })).toBeVisible();
   }
 });
+
+test("the flight stays opaque space on the light theme with high contrast on", async ({
+  page,
+}) => {
+  await seed(page, { travel: true, theme: "light", highContrast: true });
+  await page.goto("/");
+  await page.locator('[data-world-card="the-vault"]').click();
+  const flight = page.getByRole("dialog", { name: "Travelling to Cryptara" });
+  await expect(flight).toBeVisible();
+  await page.waitForTimeout(1200);
+  const look = await flight.evaluate((root) => {
+    const backdrop = root.firstElementChild as HTMLElement;
+    return {
+      color: getComputedStyle(root).backgroundColor,
+      image: getComputedStyle(backdrop).backgroundImage,
+    };
+  });
+  expect(look.color).toBe("rgb(4, 5, 11)");
+  expect(look.image).not.toBe("none");
+});
