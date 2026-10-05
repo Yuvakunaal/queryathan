@@ -39,8 +39,9 @@ const csvCell = (v) => {
   return /[",\n]/.test(s) || /^\s|\s$/.test(s) ? `"${s.replaceAll('"', '""')}"` : s;
 };
 export const toCsv = (cols, rows) =>
-  [cols.join(","), ...rows.map((r) => cols.map((c) => csvCell(r[c])).join(","))].join("\n") +
-  "\n";
+  [cols.join(","), ...rows.map((r) => cols.map((c) => csvCell(r[c])).join(","))].join(
+    "\n",
+  ) + "\n";
 
 export const hint = (columns) =>
   Object.fromEntries(
@@ -57,7 +58,7 @@ export const sqlStarter = (intro, cols) =>
   `${intro}\n-- Your answer (columns: ${cols}) goes in a NEW table named result, like this:\n--   CREATE TABLE result AS SELECT ... ;\n-- Each run replaces the old result, so run as often as you like.\nSELECT * FROM data LIMIT 5;`;
 
 /** Everything one world needs: seeded random helpers, data and case writers, roster. */
-export function createWorld({ number, id, dir, seed, script, label }) {
+export function createWorld({ number, id, seed, script, label }) {
   const random = mulberry32(seed);
   const dataDir = join(root, `apps/web/public/datasets/world-${number}`);
   const casesDir = join(root, `content/cases/${id}`);
@@ -85,7 +86,9 @@ export function createWorld({ number, id, dir, seed, script, label }) {
     license,
     writeCsv(name, cols, rows, note) {
       writeFileSync(join(dataDir, name), toCsv(cols, rows));
-      files.push(`- \`${name}\`: ${rows.length} rows, \`${cols.join(", ")}\`${note ? `; ${note}` : ""}.`);
+      files.push(
+        `- \`${name}\`: ${rows.length} rows, \`${cols.join(", ")}\`${note ? `; ${note}` : ""}.`,
+      );
       return `/datasets/world-${number}/${name}`;
     },
     writeCase(caseId, body) {

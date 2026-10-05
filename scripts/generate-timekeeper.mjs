@@ -4,7 +4,17 @@
 // JavaScript on UTC numbers (so nothing depends on the machine's time zone); the end-to-end suite
 // checks that real SQL and real pandas reach the very same tables.
 // Run with: node scripts/generate-timekeeper.mjs
-import { ANSWER_TAIL, createWorld, DAY, dateStr, hint, pad, round, sqlStarter, utc } from "./lib/kit.mjs";
+import {
+  ANSWER_TAIL,
+  createWorld,
+  DAY,
+  dateStr,
+  hint,
+  pad,
+  round,
+  sqlStarter,
+  utc,
+} from "./lib/kit.mjs";
 
 const W = createWorld({
   number: 8,
@@ -14,7 +24,20 @@ const W = createWorld({
   label: "World 8",
 });
 const { pick, int, chance, shuffle, license } = W;
-const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MON = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 // 1. MIXED_CALENDARS: three date spellings in one column ------------------------------------
 {
@@ -28,11 +51,21 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
     const m = d.getUTCMonth();
     const day = d.getUTCDate();
     const style = i % 3;
-    const raw = style === 0 ? dateStr(ms) : style === 1 ? `${pad(day)} ${MON[m]} ${y}` : `${MON[m]} ${day}, ${y}`;
+    const raw =
+      style === 0
+        ? dateStr(ms)
+        : style === 1
+          ? `${pad(day)} ${MON[m]} ${y}`
+          : `${MON[m]} ${day}, ${y}`;
     rows.push({ event_id: 5001 + i, raw_date: raw });
     expected.push([5001 + i, dateStr(ms)]);
   }
-  const path = W.writeCsv("events.csv", ["event_id", "raw_date"], shuffle(rows), "three spellings of a date");
+  const path = W.writeCsv(
+    "events.csv",
+    ["event_id", "raw_date"],
+    shuffle(rows),
+    "three spellings of a date",
+  );
   W.writeCase("w8-01-mixed-calendars", {
     tier: "tutorial",
     datasetPath: path,
@@ -46,10 +79,18 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
       task: "Convert raw_date, which uses three different spellings, to YYYY-MM-DD. Columns: event_id, event_date.",
     },
     starterCode: {
-      python: "# df has 60 events: event_id, raw_date (three different spellings).\n# Replace df with your answer table (columns: event_id, event_date).\ndf.head()",
-      sql: sqlStarter("-- data has 60 events: event_id, raw_date (three different spellings).", "event_id, event_date"),
+      python:
+        "# df has 60 events: event_id, raw_date (three different spellings).\n# Replace df with your answer table (columns: event_id, event_date).\ndf.head()",
+      sql: sqlStarter(
+        "-- data has 60 events: event_id, raw_date (three different spellings).",
+        "event_id, event_date",
+      ),
     },
-    columnHints: hint({ event_id: [90, true], raw_date: [150, false], event_date: [120, false] }),
+    columnHints: hint({
+      event_id: [90, true],
+      raw_date: [150, false],
+      event_date: [120, false],
+    }),
     hints: {
       python: [
         "pd.to_datetime understands many spellings. When one column mixes formats, pass format='mixed'.",
@@ -62,7 +103,16 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
         "CREATE TABLE result AS SELECT event_id, CASE WHEN raw_date GLOB '[0-9][0-9][0-9][0-9]-*' THEN raw_date WHEN raw_date GLOB '[0-9][0-9] *' THEN STR_TO_DATE(raw_date, '%d %b %Y') ELSE STR_TO_DATE(raw_date, '%b %e, %Y') END AS event_date FROM data;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["event_id", "event_date"], rows: expected, tolerance: 0 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["event_id", "event_date"],
+          rows: expected,
+          tolerance: 0,
+        },
+      ],
+    },
   });
 }
 
@@ -82,7 +132,11 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
     }
     expected.push([3001 + i, count]);
   }
-  const path = W.writeCsv("shipments.csv", ["order_id", "ordered", "shipped"], shuffle(rows));
+  const path = W.writeCsv(
+    "shipments.csv",
+    ["order_id", "ordered", "shipped"],
+    shuffle(rows),
+  );
   W.writeCase("w8-02-working-days", {
     tier: "mid-boss",
     datasetPath: path,
@@ -96,10 +150,19 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
       task: "Count the weekdays (Mon-Fri) after ordered up to and including shipped. Columns: order_id, business_days.",
     },
     starterCode: {
-      python: "# df has 70 orders: order_id, ordered, shipped (YYYY-MM-DD text).\n# Replace df with your answer table (columns: order_id, business_days).\ndf.head()",
-      sql: sqlStarter("-- data has 70 orders: order_id, ordered, shipped (YYYY-MM-DD text).", "order_id, business_days"),
+      python:
+        "# df has 70 orders: order_id, ordered, shipped (YYYY-MM-DD text).\n# Replace df with your answer table (columns: order_id, business_days).\ndf.head()",
+      sql: sqlStarter(
+        "-- data has 70 orders: order_id, ordered, shipped (YYYY-MM-DD text).",
+        "order_id, business_days",
+      ),
     },
-    columnHints: hint({ order_id: [90, true], ordered: [120, false], shipped: [120, false], business_days: [120, true] }),
+    columnHints: hint({
+      order_id: [90, true],
+      ordered: [120, false],
+      shipped: [120, false],
+      business_days: [120, true],
+    }),
     hints: {
       python: [
         "numpy has a function for exactly this: np.busday_count(begin, end) counts weekdays from begin up to but NOT including end.",
@@ -112,13 +175,29 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
         "CREATE TABLE result AS WITH RECURSIVE cal(order_id, day, last) AS (SELECT order_id, date(ordered, '+1 day'), shipped FROM data WHERE shipped > ordered UNION ALL SELECT order_id, date(day, '+1 day'), last FROM cal WHERE day < last) SELECT d.order_id, COALESCE(SUM(CASE WHEN strftime('%w', c.day) NOT IN ('0','6') THEN 1 ELSE 0 END), 0) AS business_days FROM data d LEFT JOIN cal c ON c.order_id = d.order_id GROUP BY d.order_id;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["order_id", "business_days"], rows: expected, tolerance: 0 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["order_id", "business_days"],
+          rows: expected,
+          tolerance: 0,
+        },
+      ],
+    },
   });
 }
 
 // 3. LOCAL_TIME: UTC stamps and per-store offsets ---------------------------------------------
 {
-  const STORES = [["Tokyo", 540], ["Mumbai", 330], ["London", 0], ["Sao Paulo", -180], ["New York", -300], ["Los Angeles", -480]];
+  const STORES = [
+    ["Tokyo", 540],
+    ["Mumbai", 330],
+    ["London", 0],
+    ["Sao Paulo", -180],
+    ["New York", -300],
+    ["Los Angeles", -480],
+  ];
   const START = utc(2026, 3, 1);
   const rows = [];
   const counts = new Map();
@@ -136,8 +215,18 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
     const [store, local] = k.split("|");
     return [store, local, n];
   });
-  const path = W.writeCsv("store-orders.csv", ["order_id", "store", "utc_ts"], shuffle(rows), "timestamps are UTC");
-  const spath = W.writeCsv("store-offsets.csv", ["store", "utc_offset_minutes"], STORES.map(([store, o]) => ({ store, utc_offset_minutes: o })), "minutes east of UTC");
+  const path = W.writeCsv(
+    "store-orders.csv",
+    ["order_id", "store", "utc_ts"],
+    shuffle(rows),
+    "timestamps are UTC",
+  );
+  const spath = W.writeCsv(
+    "store-offsets.csv",
+    ["store", "utc_offset_minutes"],
+    STORES.map(([store, o]) => ({ store, utc_offset_minutes: o })),
+    "minutes east of UTC",
+  );
   W.writeCase("w8-03-local-time", {
     tier: "mid-boss",
     datasetPath: path,
@@ -152,10 +241,21 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
       task: "Convert each utc_ts to the store's local time using its offset, then count orders per store and local date. Columns: store, local_date, orders.",
     },
     starterCode: {
-      python: "# df = orders (order_id, store, utc_ts in UTC). store_offsets = store, utc_offset_minutes.\n# Replace df with your answer table (columns: store, local_date, orders).\ndf.head()",
-      sql: sqlStarter("-- data = orders (order_id, store, utc_ts in UTC). store_offsets = store, utc_offset_minutes.", "store, local_date, orders"),
+      python:
+        "# df = orders (order_id, store, utc_ts in UTC). store_offsets = store, utc_offset_minutes.\n# Replace df with your answer table (columns: store, local_date, orders).\ndf.head()",
+      sql: sqlStarter(
+        "-- data = orders (order_id, store, utc_ts in UTC). store_offsets = store, utc_offset_minutes.",
+        "store, local_date, orders",
+      ),
     },
-    columnHints: hint({ order_id: [90, true], store: [120, false], utc_ts: [170, false], utc_offset_minutes: [150, true], local_date: [120, false], orders: [80, true] }),
+    columnHints: hint({
+      order_id: [90, true],
+      store: [120, false],
+      utc_ts: [170, false],
+      utc_offset_minutes: [150, true],
+      local_date: [120, false],
+      orders: [80, true],
+    }),
     hints: {
       python: [
         "Join the offsets onto the orders by store, turn utc_ts into a real datetime, and add the offset as a timedelta in minutes.",
@@ -168,7 +268,16 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
         "CREATE TABLE result AS SELECT o.store, date(o.utc_ts, f.utc_offset_minutes || ' minutes') AS local_date, COUNT(*) AS orders FROM data o JOIN store_offsets f ON f.store = o.store GROUP BY o.store, local_date;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["store", "local_date", "orders"], rows: expected, tolerance: 0 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["store", "local_date", "orders"],
+          rows: expected,
+          tolerance: 0,
+        },
+      ],
+    },
   });
 }
 
@@ -185,8 +294,14 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
     rows.push({ day: dateStr(START + i * DAY), revenue: revenue.toFixed(2) });
   }
   const expected = [];
-  for (let i = 0; i < DAYS; i += 1) expected.push([dateStr(START + i * DAY), byDay.get(i) ?? 0]);
-  const path = W.writeCsv("sparse-sales.csv", ["day", "revenue"], shuffle(rows), "days with no sales are missing, not zero");
+  for (let i = 0; i < DAYS; i += 1)
+    expected.push([dateStr(START + i * DAY), byDay.get(i) ?? 0]);
+  const path = W.writeCsv(
+    "sparse-sales.csv",
+    ["day", "revenue"],
+    shuffle(rows),
+    "days with no sales are missing, not zero",
+  );
   W.writeCase("w8-04-the-spine", {
     tier: "mid-boss",
     datasetPath: path,
@@ -200,8 +315,12 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
       task: "Return every calendar day from the first to the last, with revenue 0 where the day is missing. Columns: day, revenue.",
     },
     starterCode: {
-      python: "# df has the days that had sales: day (YYYY-MM-DD), revenue.\n# Replace df with your answer table (columns: day, revenue).\ndf.head()",
-      sql: sqlStarter("-- data has the days that had sales: day (YYYY-MM-DD), revenue.", "day, revenue"),
+      python:
+        "# df has the days that had sales: day (YYYY-MM-DD), revenue.\n# Replace df with your answer table (columns: day, revenue).\ndf.head()",
+      sql: sqlStarter(
+        "-- data has the days that had sales: day (YYYY-MM-DD), revenue.",
+        "day, revenue",
+      ),
     },
     columnHints: hint({ day: [120, false], revenue: [110, true] }),
     hints: {
@@ -216,7 +335,16 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
         "CREATE TABLE result AS WITH RECURSIVE spine(day) AS (SELECT MIN(day) FROM data UNION ALL SELECT date(day, '+1 day') FROM spine WHERE day < (SELECT MAX(day) FROM data)) SELECT s.day, COALESCE(d.revenue, 0) AS revenue FROM spine s LEFT JOIN data d ON d.day = s.day;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["day", "revenue"], rows: expected, tolerance: 0.01 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["day", "revenue"],
+          rows: expected,
+          tolerance: 0.01,
+        },
+      ],
+    },
   });
 }
 
@@ -245,11 +373,23 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
     const day = int(6, 200);
     const date = dateStr(START + day * DAY);
     orders.push({ order_id: 6001 + i, product, ordered: date });
-    const hit = history.get(product).filter((r) => r.effective_date <= date).at(-1);
+    const hit = history
+      .get(product)
+      .filter((r) => r.effective_date <= date)
+      .at(-1);
     expected.push([6001 + i, hit.price]);
   }
-  const path = W.writeCsv("price-orders.csv", ["order_id", "product", "ordered"], shuffle(orders));
-  const ppath = W.writeCsv("price-history.csv", ["product", "effective_date", "price"], shuffle(prices), "a new row each time a price changes");
+  const path = W.writeCsv(
+    "price-orders.csv",
+    ["order_id", "product", "ordered"],
+    shuffle(orders),
+  );
+  const ppath = W.writeCsv(
+    "price-history.csv",
+    ["product", "effective_date", "price"],
+    shuffle(prices),
+    "a new row each time a price changes",
+  );
   W.writeCase("w8-05-as-of", {
     tier: "mid-boss",
     datasetPath: path,
@@ -264,10 +404,20 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
       task: "For each order, pick the product's price whose effective_date is the latest one on or before the order date. Columns: order_id, price.",
     },
     starterCode: {
-      python: "# df = orders (order_id, product, ordered). prices = product, effective_date, price.\n# Replace df with your answer table (columns: order_id, price).\ndf.head()",
-      sql: sqlStarter("-- data = orders (order_id, product, ordered). prices = product, effective_date, price.", "order_id, price"),
+      python:
+        "# df = orders (order_id, product, ordered). prices = product, effective_date, price.\n# Replace df with your answer table (columns: order_id, price).\ndf.head()",
+      sql: sqlStarter(
+        "-- data = orders (order_id, product, ordered). prices = product, effective_date, price.",
+        "order_id, price",
+      ),
     },
-    columnHints: hint({ order_id: [90, true], product: [110, false], ordered: [120, false], effective_date: [130, false], price: [90, true] }),
+    columnHints: hint({
+      order_id: [90, true],
+      product: [110, false],
+      ordered: [120, false],
+      effective_date: [130, false],
+      price: [90, true],
+    }),
     hints: {
       python: [
         "pandas has a join made for this: pd.merge_asof matches each row to the latest earlier row. Both sides must be sorted by their date and the dates must be real datetimes.",
@@ -280,7 +430,16 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
         "CREATE TABLE result AS SELECT o.order_id, (SELECT p.price FROM prices p WHERE p.product = o.product AND p.effective_date <= o.ordered ORDER BY p.effective_date DESC LIMIT 1) AS price FROM data o;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["order_id", "price"], rows: expected, tolerance: 0.001 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["order_id", "price"],
+          rows: expected,
+          tolerance: 0.001,
+        },
+      ],
+    },
   });
 }
 
@@ -318,7 +477,12 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
     }
     merged.push([room, fmt(cur.start), fmt(cur.end), cur.n]);
   }
-  const path = W.writeCsv("bookings.csv", ["room", "start_ts", "end_ts"], shuffle(rows), "all on one day, written YYYY-MM-DD HH:MM");
+  const path = W.writeCsv(
+    "bookings.csv",
+    ["room", "start_ts", "end_ts"],
+    shuffle(rows),
+    "all on one day, written YYYY-MM-DD HH:MM",
+  );
   W.writeCase("w8-06-the-timekeeper", {
     tier: "final-boss",
     datasetPath: path,
@@ -332,11 +496,31 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
       task: "Merge each room's overlapping or touching bookings into continuous blocks. Columns: room, block_start, block_end, bookings.",
     },
     starterCode: {
-      python: "# df is a booking log: room, start_ts, end_ts (YYYY-MM-DD HH:MM).\n# Replace df with your answer table (columns: room, block_start, block_end, bookings).\ndf.head()",
-      sql: sqlStarter("-- data is a booking log: room, start_ts, end_ts (YYYY-MM-DD HH:MM).", "room, block_start, block_end, bookings"),
+      python:
+        "# df is a booking log: room, start_ts, end_ts (YYYY-MM-DD HH:MM).\n# Replace df with your answer table (columns: room, block_start, block_end, bookings).\ndf.head()",
+      sql: sqlStarter(
+        "-- data is a booking log: room, start_ts, end_ts (YYYY-MM-DD HH:MM).",
+        "room, block_start, block_end, bookings",
+      ),
     },
-    columnHints: hint({ room: [100, false], start_ts: [150, false], end_ts: [150, false], block_start: [150, false], block_end: [150, false], bookings: [90, true] }),
-    winCondition: { all: [{ predicate: "result_matches", columns: ["room", "block_start", "block_end", "bookings"], rows: merged, tolerance: 0 }] },
+    columnHints: hint({
+      room: [100, false],
+      start_ts: [150, false],
+      end_ts: [150, false],
+      block_start: [150, false],
+      block_end: [150, false],
+      bookings: [90, true],
+    }),
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["room", "block_start", "block_end", "bookings"],
+          rows: merged,
+          tolerance: 0,
+        },
+      ],
+    },
   });
 }
 

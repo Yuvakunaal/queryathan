@@ -3,7 +3,15 @@
 // six case files and the roster. Expected answers are computed here in plain JavaScript from the
 // definition in each briefing; the end-to-end suite then checks that real SQL and real pandas reach
 // the very same tables. Run with: node scripts/generate-labyrinth.mjs
-import { ANSWER_TAIL, createWorld, DAY, dateStr, hint, round, sqlStarter, utc } from "./lib/kit.mjs";
+import {
+  ANSWER_TAIL,
+  createWorld,
+  DAY,
+  dateStr,
+  hint,
+  sqlStarter,
+  utc,
+} from "./lib/kit.mjs";
 
 const W = createWorld({
   number: 7,
@@ -14,8 +22,56 @@ const W = createWorld({
 });
 const { pick, int, chance, shuffle, license } = W;
 
-const FIRST = ["Ava", "Ben", "Cara", "Dev", "Elio", "Fay", "Gus", "Hana", "Ivo", "Jun", "Kai", "Lena", "Milo", "Nia", "Omar", "Pia", "Quin", "Rhea", "Sol", "Tess", "Uma", "Vik", "Wren", "Xia", "Yara", "Zed"];
-const LAST = ["Alder", "Birch", "Cedar", "Dunn", "Elm", "Fir", "Grove", "Hale", "Iris", "Juniper", "Knoll", "Larch", "Moss", "Nettle", "Oak", "Pine", "Quill", "Reed", "Sage", "Thorn"];
+const FIRST = [
+  "Ava",
+  "Ben",
+  "Cara",
+  "Dev",
+  "Elio",
+  "Fay",
+  "Gus",
+  "Hana",
+  "Ivo",
+  "Jun",
+  "Kai",
+  "Lena",
+  "Milo",
+  "Nia",
+  "Omar",
+  "Pia",
+  "Quin",
+  "Rhea",
+  "Sol",
+  "Tess",
+  "Uma",
+  "Vik",
+  "Wren",
+  "Xia",
+  "Yara",
+  "Zed",
+];
+const LAST = [
+  "Alder",
+  "Birch",
+  "Cedar",
+  "Dunn",
+  "Elm",
+  "Fir",
+  "Grove",
+  "Hale",
+  "Iris",
+  "Juniper",
+  "Knoll",
+  "Larch",
+  "Moss",
+  "Nettle",
+  "Oak",
+  "Pine",
+  "Quill",
+  "Reed",
+  "Sage",
+  "Thorn",
+];
 const uniqueNames = (n) => {
   const all = [];
   for (const f of FIRST) for (const l of LAST) all.push(`${f} ${l}`);
@@ -25,18 +81,32 @@ const uniqueNames = (n) => {
 // 1. FIRST_TURN: a CTE of department averages -------------------------------------------------
 {
   const DEPTS = ["Design", "Engineering", "Finance", "Operations", "Support"];
-  const base = { Design: 62000, Engineering: 88000, Finance: 71000, Operations: 54000, Support: 47000 };
+  const base = {
+    Design: 62000,
+    Engineering: 88000,
+    Finance: 71000,
+    Operations: 54000,
+    Support: 47000,
+  };
   const names = uniqueNames(60);
   const rows = names.map((name, i) => {
     const dept = DEPTS[i % DEPTS.length];
     return { emp_id: 101 + i, name, dept, salary: base[dept] + int(-9, 14) * 1000 };
   });
-  const avg = new Map(DEPTS.map((d) => {
-    const s = rows.filter((r) => r.dept === d);
-    return [d, s.reduce((a, r) => a + r.salary, 0) / s.length];
-  }));
-  const expected = rows.filter((r) => r.salary > avg.get(r.dept)).map((r) => [r.emp_id, r.name, r.dept, r.salary]);
-  const path = W.writeCsv("employees.csv", ["emp_id", "name", "dept", "salary"], shuffle(rows));
+  const avg = new Map(
+    DEPTS.map((d) => {
+      const s = rows.filter((r) => r.dept === d);
+      return [d, s.reduce((a, r) => a + r.salary, 0) / s.length];
+    }),
+  );
+  const expected = rows
+    .filter((r) => r.salary > avg.get(r.dept))
+    .map((r) => [r.emp_id, r.name, r.dept, r.salary]);
+  const path = W.writeCsv(
+    "employees.csv",
+    ["emp_id", "name", "dept", "salary"],
+    shuffle(rows),
+  );
   W.writeCase("w7-01-first-turn", {
     tier: "tutorial",
     datasetPath: path,
@@ -50,10 +120,19 @@ const uniqueNames = (n) => {
       task: "List the employees paid strictly above their own department's average salary. Columns: emp_id, name, dept, salary.",
     },
     starterCode: {
-      python: "# df has 60 employees: emp_id, name, dept, salary.\n# Replace df with your answer table (columns: emp_id, name, dept, salary).\ndf.head()",
-      sql: sqlStarter("-- data has 60 employees: emp_id, name, dept, salary.", "emp_id, name, dept, salary"),
+      python:
+        "# df has 60 employees: emp_id, name, dept, salary.\n# Replace df with your answer table (columns: emp_id, name, dept, salary).\ndf.head()",
+      sql: sqlStarter(
+        "-- data has 60 employees: emp_id, name, dept, salary.",
+        "emp_id, name, dept, salary",
+      ),
     },
-    columnHints: hint({ emp_id: [90, true], name: [150, false], dept: [130, false], salary: [100, true] }),
+    columnHints: hint({
+      emp_id: [90, true],
+      name: [150, false],
+      dept: [130, false],
+      salary: [100, true],
+    }),
     hints: {
       python: [
         "You need each row's department average next to it. groupby(...).transform('mean') gives exactly that: one value per row.",
@@ -66,7 +145,16 @@ const uniqueNames = (n) => {
         "CREATE TABLE result AS WITH dept_avg AS (SELECT dept, AVG(salary) AS avg_salary FROM data GROUP BY dept) SELECT d.emp_id, d.name, d.dept, d.salary FROM data d JOIN dept_avg a ON a.dept = d.dept WHERE d.salary > a.avg_salary;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["emp_id", "name", "dept", "salary"], rows: expected, tolerance: 0 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["emp_id", "name", "dept", "salary"],
+          rows: expected,
+          tolerance: 0,
+        },
+      ],
+    },
   });
 }
 
@@ -74,25 +162,56 @@ const uniqueNames = (n) => {
 {
   const names = uniqueNames(48);
   const customers = names.map((name, i) => ({ customer_id: 2001 + i, name }));
-  const never = new Set(shuffle(customers).slice(0, 7).map((c) => c.customer_id));
-  const cancelledOnly = new Set(shuffle(customers.filter((c) => !never.has(c.customer_id))).slice(0, 6).map((c) => c.customer_id));
+  const never = new Set(
+    shuffle(customers)
+      .slice(0, 7)
+      .map((c) => c.customer_id),
+  );
+  const cancelledOnly = new Set(
+    shuffle(customers.filter((c) => !never.has(c.customer_id)))
+      .slice(0, 6)
+      .map((c) => c.customer_id),
+  );
   const orders = [];
   let oid = 9001;
   for (const c of customers) {
     if (never.has(c.customer_id)) continue;
     const n = int(1, 4);
     for (let i = 0; i < n; i += 1) {
-      const status = cancelledOnly.has(c.customer_id) ? "cancelled" : i === 0 ? "completed" : pick(["completed", "completed", "cancelled", "refunded"]);
-      orders.push({ order_id: oid++, customer_id: c.customer_id, amount: int(900, 24000) / 100, status });
+      const status = cancelledOnly.has(c.customer_id)
+        ? "cancelled"
+        : i === 0
+          ? "completed"
+          : pick(["completed", "completed", "cancelled", "refunded"]);
+      orders.push({
+        order_id: oid++,
+        customer_id: c.customer_id,
+        amount: int(900, 24000) / 100,
+        status,
+      });
     }
   }
   // guest checkouts: completed orders with no customer
-  for (let i = 0; i < 5; i += 1) orders.push({ order_id: oid++, customer_id: "", amount: int(900, 24000) / 100, status: "completed" });
+  for (let i = 0; i < 5; i += 1)
+    orders.push({
+      order_id: oid++,
+      customer_id: "",
+      amount: int(900, 24000) / 100,
+      status: "completed",
+    });
   const expected = customers
-    .filter((c) => !orders.some((o) => o.customer_id === c.customer_id && o.status === "completed"))
+    .filter(
+      (c) =>
+        !orders.some((o) => o.customer_id === c.customer_id && o.status === "completed"),
+    )
     .map((c) => [c.customer_id, c.name]);
   const path = W.writeCsv("customers.csv", ["customer_id", "name"], shuffle(customers));
-  const opath = W.writeCsv("orders.csv", ["order_id", "customer_id", "amount", "status"], shuffle(orders), "guest checkouts have an empty customer_id");
+  const opath = W.writeCsv(
+    "orders.csv",
+    ["order_id", "customer_id", "amount", "status"],
+    shuffle(orders),
+    "guest checkouts have an empty customer_id",
+  );
   W.writeCase("w7-02-no-show", {
     tier: "mid-boss",
     datasetPath: path,
@@ -107,10 +226,20 @@ const uniqueNames = (n) => {
       task: "List every customer with no completed order at all. Columns: customer_id, name.",
     },
     starterCode: {
-      python: "# df = customers (customer_id, name). orders = order_id, customer_id, amount, status.\n# Replace df with your answer table (columns: customer_id, name).\ndf.head()",
-      sql: sqlStarter("-- data = customers (customer_id, name). orders = order_id, customer_id, amount, status.", "customer_id, name"),
+      python:
+        "# df = customers (customer_id, name). orders = order_id, customer_id, amount, status.\n# Replace df with your answer table (columns: customer_id, name).\ndf.head()",
+      sql: sqlStarter(
+        "-- data = customers (customer_id, name). orders = order_id, customer_id, amount, status.",
+        "customer_id, name",
+      ),
     },
-    columnHints: hint({ customer_id: [110, true], name: [150, false], order_id: [90, true], amount: [90, true], status: [110, false] }),
+    columnHints: hint({
+      customer_id: [110, true],
+      name: [150, false],
+      order_id: [90, true],
+      amount: [90, true],
+      status: [110, false],
+    }),
     hints: {
       python: [
         "Find the customers who DO have a completed order first: orders[orders['status'] == 'completed']['customer_id'].",
@@ -123,7 +252,16 @@ const uniqueNames = (n) => {
         "CREATE TABLE result AS SELECT c.customer_id, c.name FROM data c WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.customer_id AND o.status = 'completed');",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["customer_id", "name"], rows: expected, tolerance: 0 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["customer_id", "name"],
+          rows: expected,
+          tolerance: 0,
+        },
+      ],
+    },
   });
 }
 
@@ -154,7 +292,12 @@ const uniqueNames = (n) => {
     }
     return [e.emp_id, e.name, chain.length - 1, chain.join(" > ")];
   });
-  const path = W.writeCsv("org.csv", ["emp_id", "name", "manager_id"], shuffle(emp), "the CEO has an empty manager_id");
+  const path = W.writeCsv(
+    "org.csv",
+    ["emp_id", "name", "manager_id"],
+    shuffle(emp),
+    "the CEO has an empty manager_id",
+  );
   W.writeCase("w7-03-chain-of-command", {
     tier: "mid-boss",
     datasetPath: path,
@@ -168,10 +311,20 @@ const uniqueNames = (n) => {
       task: "For every person return emp_id, name, depth (CEO = 0) and chain (names from the CEO down to the person, joined with ' > ').",
     },
     starterCode: {
-      python: "# df has 40 people: emp_id, name, manager_id (empty for the CEO).\n# Replace df with your answer table (columns: emp_id, name, depth, chain).\ndf.head()",
-      sql: sqlStarter("-- data has 40 people: emp_id, name, manager_id (NULL for the CEO).", "emp_id, name, depth, chain"),
+      python:
+        "# df has 40 people: emp_id, name, manager_id (empty for the CEO).\n# Replace df with your answer table (columns: emp_id, name, depth, chain).\ndf.head()",
+      sql: sqlStarter(
+        "-- data has 40 people: emp_id, name, manager_id (NULL for the CEO).",
+        "emp_id, name, depth, chain",
+      ),
     },
-    columnHints: hint({ emp_id: [90, true], name: [150, false], manager_id: [110, true], depth: [80, true], chain: [360, false] }),
+    columnHints: hint({
+      emp_id: [90, true],
+      name: [150, false],
+      manager_id: [110, true],
+      depth: [80, true],
+      chain: [360, false],
+    }),
     hints: {
       python: [
         "Build it level by level: start with the CEO row, then repeatedly find the people whose manager_id is one of the rows you already have.",
@@ -184,21 +337,31 @@ const uniqueNames = (n) => {
         "CREATE TABLE result AS WITH RECURSIVE tree AS (SELECT emp_id, name, 0 AS depth, name AS chain FROM data WHERE manager_id IS NULL UNION ALL SELECT d.emp_id, d.name, t.depth + 1, t.chain || ' > ' || d.name FROM data d JOIN tree t ON d.manager_id = t.emp_id) SELECT * FROM tree;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["emp_id", "name", "depth", "chain"], rows: expected, tolerance: 0 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["emp_id", "name", "depth", "chain"],
+          rows: expected,
+          tolerance: 0,
+        },
+      ],
+    },
   });
 }
 
 // 4. THE_TWO_LISTS: set operations with messy keys -------------------------------------------
 {
   const people = uniqueNames(70).map((n) => n.toLowerCase().replace(" ", "."));
-  const mk = (list) => list.map((p) => {
-    let e = `${p}@example.org`;
-    if (chance(0.3)) e = e.toUpperCase();
-    else if (chance(0.15)) e = e[0].toUpperCase() + e.slice(1);
-    if (chance(0.15)) e = ` ${e}`;
-    if (chance(0.1)) e = `${e} `;
-    return { email: e };
-  });
+  const mk = (list) =>
+    list.map((p) => {
+      let e = `${p}@example.org`;
+      if (chance(0.3)) e = e.toUpperCase();
+      else if (chance(0.15)) e = e[0].toUpperCase() + e.slice(1);
+      if (chance(0.15)) e = ` ${e}`;
+      if (chance(0.1)) e = `${e} `;
+      return { email: e };
+    });
   const a = people.slice(0, 48);
   const b = [...people.slice(28, 70)];
   const listA = shuffle([...mk(a), ...mk(a.slice(0, 8))]);
@@ -226,8 +389,12 @@ const uniqueNames = (n) => {
       task: "Clean every address (trim, lowercase), then return those found on only one list. Columns: email, only_in ('A' or 'B').",
     },
     starterCode: {
-      python: "# df = list A (email). list_b = list B (email).\n# Replace df with your answer table (columns: email, only_in).\ndf.head()",
-      sql: sqlStarter("-- data = list A (email). list_b = list B (email).", "email, only_in"),
+      python:
+        "# df = list A (email). list_b = list B (email).\n# Replace df with your answer table (columns: email, only_in).\ndf.head()",
+      sql: sqlStarter(
+        "-- data = list A (email). list_b = list B (email).",
+        "email, only_in",
+      ),
     },
     columnHints: hint({ email: [280, false], only_in: [90, false] }),
     hints: {
@@ -242,7 +409,16 @@ const uniqueNames = (n) => {
         "CREATE TABLE result AS SELECT email, 'A' AS only_in FROM (SELECT LOWER(TRIM(email)) AS email FROM data EXCEPT SELECT LOWER(TRIM(email)) FROM list_b) UNION ALL SELECT email, 'B' FROM (SELECT LOWER(TRIM(email)) AS email FROM list_b EXCEPT SELECT LOWER(TRIM(email)) FROM data);",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["email", "only_in"], rows: expected, tolerance: 0 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["email", "only_in"],
+          rows: expected,
+          tolerance: 0,
+        },
+      ],
+    },
   });
 }
 
@@ -262,17 +438,29 @@ const uniqueNames = (n) => {
     const sorted = [...days].sort((x, y) => x - y).filter((d) => d < 90);
     for (const d of sorted) {
       const times = chance(0.25) ? 2 : 1;
-      for (let t = 0; t < times; t += 1) logins.push({ user_id: 700 + u, login_date: dateStr(START + d * DAY) });
+      for (let t = 0; t < times; t += 1)
+        logins.push({ user_id: 700 + u, login_date: dateStr(START + d * DAY) });
     }
     let i = 0;
     while (i < sorted.length) {
       let j = i;
       while (j + 1 < sorted.length && sorted[j + 1] === sorted[j] + 1) j += 1;
-      if (j - i + 1 >= 3) expected.push([700 + u, dateStr(START + sorted[i] * DAY), dateStr(START + sorted[j] * DAY), j - i + 1]);
+      if (j - i + 1 >= 3)
+        expected.push([
+          700 + u,
+          dateStr(START + sorted[i] * DAY),
+          dateStr(START + sorted[j] * DAY),
+          j - i + 1,
+        ]);
       i = j + 1;
     }
   }
-  const path = W.writeCsv("logins.csv", ["user_id", "login_date"], shuffle(logins), "some users log in twice on a day");
+  const path = W.writeCsv(
+    "logins.csv",
+    ["user_id", "login_date"],
+    shuffle(logins),
+    "some users log in twice on a day",
+  );
   W.writeCase("w7-05-unbroken", {
     tier: "mid-boss",
     datasetPath: path,
@@ -286,10 +474,20 @@ const uniqueNames = (n) => {
       task: "Find every run of 3 or more consecutive login days per user. Columns: user_id, start_date, end_date, days.",
     },
     starterCode: {
-      python: "# df is a login log: user_id, login_date (YYYY-MM-DD).\n# Replace df with your answer table (columns: user_id, start_date, end_date, days).\ndf.head()",
-      sql: sqlStarter("-- data is a login log: user_id, login_date (YYYY-MM-DD).", "user_id, start_date, end_date, days"),
+      python:
+        "# df is a login log: user_id, login_date (YYYY-MM-DD).\n# Replace df with your answer table (columns: user_id, start_date, end_date, days).\ndf.head()",
+      sql: sqlStarter(
+        "-- data is a login log: user_id, login_date (YYYY-MM-DD).",
+        "user_id, start_date, end_date, days",
+      ),
     },
-    columnHints: hint({ user_id: [90, true], login_date: [120, false], start_date: [120, false], end_date: [120, false], days: [70, true] }),
+    columnHints: hint({
+      user_id: [90, true],
+      login_date: [120, false],
+      start_date: [120, false],
+      end_date: [120, false],
+      days: [70, true],
+    }),
     hints: {
       python: [
         "Drop repeats first: df.drop_duplicates(). Sort by user and date, and turn the date into a real date with pd.to_datetime.",
@@ -302,24 +500,53 @@ const uniqueNames = (n) => {
         "CREATE TABLE result AS WITH d AS (SELECT DISTINCT user_id, login_date FROM data), n AS (SELECT user_id, login_date, date(login_date, '-' || ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_date) || ' days') AS grp FROM d) SELECT user_id, MIN(login_date) AS start_date, MAX(login_date) AS end_date, COUNT(*) AS days FROM n GROUP BY user_id, grp HAVING COUNT(*) >= 3;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["user_id", "start_date", "end_date", "days"], rows: expected, tolerance: 0 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["user_id", "start_date", "end_date", "days"],
+          rows: expected,
+          tolerance: 0,
+        },
+      ],
+    },
   });
 }
 
 // 6. THE_LABYRINTH: a bill of materials, recursion with multiplication ------------------------
 {
   const bom = [
-    ["Drone", "Frame", 1], ["Drone", "Rotor Assembly", 4], ["Drone", "Flight Controller", 1], ["Drone", "Battery Pack", 1],
-    ["Frame", "Arm", 4], ["Frame", "Center Plate", 2], ["Frame", "Screw M3", 16],
-    ["Arm", "Carbon Tube", 1], ["Arm", "Screw M3", 2],
-    ["Rotor Assembly", "Motor", 1], ["Rotor Assembly", "Propeller", 1], ["Rotor Assembly", "Screw M3", 4],
-    ["Motor", "Copper Coil", 1], ["Motor", "Magnet", 6], ["Motor", "Bearing", 2],
-    ["Flight Controller", "Circuit Board", 1], ["Flight Controller", "Gyro Chip", 1], ["Flight Controller", "Screw M3", 4],
-    ["Battery Pack", "Cell", 4], ["Battery Pack", "Wire Harness", 1], ["Battery Pack", "Battery Case", 1],
-    ["Wire Harness", "Copper Wire", 3], ["Wire Harness", "Connector", 2],
-    ["Rover", "Chassis", 1], ["Rover", "Wheel Assembly", 4], ["Rover", "Flight Controller", 1],
-    ["Chassis", "Steel Plate", 2], ["Chassis", "Screw M3", 8],
-    ["Wheel Assembly", "Wheel", 1], ["Wheel Assembly", "Bearing", 2], ["Wheel Assembly", "Screw M3", 2],
+    ["Drone", "Frame", 1],
+    ["Drone", "Rotor Assembly", 4],
+    ["Drone", "Flight Controller", 1],
+    ["Drone", "Battery Pack", 1],
+    ["Frame", "Arm", 4],
+    ["Frame", "Center Plate", 2],
+    ["Frame", "Screw M3", 16],
+    ["Arm", "Carbon Tube", 1],
+    ["Arm", "Screw M3", 2],
+    ["Rotor Assembly", "Motor", 1],
+    ["Rotor Assembly", "Propeller", 1],
+    ["Rotor Assembly", "Screw M3", 4],
+    ["Motor", "Copper Coil", 1],
+    ["Motor", "Magnet", 6],
+    ["Motor", "Bearing", 2],
+    ["Flight Controller", "Circuit Board", 1],
+    ["Flight Controller", "Gyro Chip", 1],
+    ["Flight Controller", "Screw M3", 4],
+    ["Battery Pack", "Cell", 4],
+    ["Battery Pack", "Wire Harness", 1],
+    ["Battery Pack", "Battery Case", 1],
+    ["Wire Harness", "Copper Wire", 3],
+    ["Wire Harness", "Connector", 2],
+    ["Rover", "Chassis", 1],
+    ["Rover", "Wheel Assembly", 4],
+    ["Rover", "Flight Controller", 1],
+    ["Chassis", "Steel Plate", 2],
+    ["Chassis", "Screw M3", 8],
+    ["Wheel Assembly", "Wheel", 1],
+    ["Wheel Assembly", "Bearing", 2],
+    ["Wheel Assembly", "Screw M3", 2],
   ];
   const parents = new Set(bom.map((r) => r[0]));
   const totals = new Map();
@@ -333,7 +560,12 @@ const uniqueNames = (n) => {
   walk("Drone", 1);
   const expected = [...totals.entries()].sort().map(([c, q]) => [c, q]);
   const rows = shuffle(bom).map(([parent, child, qty]) => ({ parent, child, qty }));
-  const path = W.writeCsv("bom.csv", ["parent", "child", "qty"], rows, "a bill of materials for two products");
+  const path = W.writeCsv(
+    "bom.csv",
+    ["parent", "child", "qty"],
+    rows,
+    "a bill of materials for two products",
+  );
   W.writeCase("w7-06-the-labyrinth", {
     tier: "final-boss",
     datasetPath: path,
@@ -347,10 +579,20 @@ const uniqueNames = (n) => {
       task: "Expand the Drone fully. For every raw component return component and total_qty (summed over all levels, multiplying quantities down the tree).",
     },
     starterCode: {
-      python: "# df is a bill of materials: parent, child, qty.\n# Replace df with your answer table (columns: component, total_qty).\ndf.head()",
-      sql: sqlStarter("-- data is a bill of materials: parent, child, qty.", "component, total_qty"),
+      python:
+        "# df is a bill of materials: parent, child, qty.\n# Replace df with your answer table (columns: component, total_qty).\ndf.head()",
+      sql: sqlStarter(
+        "-- data is a bill of materials: parent, child, qty.",
+        "component, total_qty",
+      ),
     },
-    columnHints: hint({ parent: [170, false], child: [170, false], qty: [70, true], component: [170, false], total_qty: [110, true] }),
+    columnHints: hint({
+      parent: [170, false],
+      child: [170, false],
+      qty: [70, true],
+      component: [170, false],
+      total_qty: [110, true],
+    }),
     hints: {
       python: [
         "Expand level by level: start with the Drone's direct children, then replace every child that is itself a parent with its own children, multiplying the quantities.",
@@ -363,7 +605,16 @@ const uniqueNames = (n) => {
         "CREATE TABLE result AS WITH RECURSIVE parts AS (SELECT child, qty FROM data WHERE parent = 'Drone' UNION ALL SELECT d.child, p.qty * d.qty FROM parts p JOIN data d ON d.parent = p.child) SELECT child AS component, SUM(qty) AS total_qty FROM parts WHERE child NOT IN (SELECT parent FROM data) GROUP BY child;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["component", "total_qty"], rows: expected, tolerance: 0 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["component", "total_qty"],
+          rows: expected,
+          tolerance: 0,
+        },
+      ],
+    },
   });
 }
 

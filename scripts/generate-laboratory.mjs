@@ -13,7 +13,7 @@ const W = createWorld({
   script: "generate-laboratory.mjs",
   label: "World 9",
 });
-const { pick, int, chance, shuffle, random, license } = W;
+const { int, chance, shuffle, random, license } = W;
 
 const gauss = () => {
   const u = 1 - random();
@@ -33,16 +33,26 @@ const median = (xs) => {
 
 // 1. THE_SPREAD: count, mean and standard deviation per group ---------------------------------
 {
-  const LABS = [["Alder Lab", 48, 2.1], ["Birch Lab", 52, 4.4], ["Cedar Lab", 47, 1.2], ["Dunn Lab", 55, 3.3]];
+  const LABS = [
+    ["Alder Lab", 48, 2.1],
+    ["Birch Lab", 52, 4.4],
+    ["Cedar Lab", 47, 1.2],
+    ["Dunn Lab", 55, 3.3],
+  ];
   const rows = [];
   let id = 1;
   for (const [lab, mu, sd] of LABS)
-    for (let i = 0; i < 30; i += 1) rows.push({ sample_id: id++, lab, value: round(mu + gauss() * sd, 2).toFixed(2) });
+    for (let i = 0; i < 30; i += 1)
+      rows.push({ sample_id: id++, lab, value: round(mu + gauss() * sd, 2).toFixed(2) });
   const expected = LABS.map(([lab]) => {
     const v = rows.filter((r) => r.lab === lab).map((r) => Number(r.value));
     return [lab, v.length, round(mean(v), 3), round(Math.sqrt(sampleVar(v)), 3)];
   });
-  const path = W.writeCsv("measurements.csv", ["sample_id", "lab", "value"], shuffle(rows));
+  const path = W.writeCsv(
+    "measurements.csv",
+    ["sample_id", "lab", "value"],
+    shuffle(rows),
+  );
   W.writeCase("w9-01-the-spread", {
     tier: "tutorial",
     datasetPath: path,
@@ -56,10 +66,21 @@ const median = (xs) => {
       task: "For each lab return n (how many samples), mean_value and std_value (sample standard deviation), both rounded to 3 decimals. Columns: lab, n, mean_value, std_value.",
     },
     starterCode: {
-      python: "# df has 120 measurements: sample_id, lab, value.\n# Replace df with your answer table (columns: lab, n, mean_value, std_value).\ndf.head()",
-      sql: sqlStarter("-- data has 120 measurements: sample_id, lab, value.", "lab, n, mean_value, std_value"),
+      python:
+        "# df has 120 measurements: sample_id, lab, value.\n# Replace df with your answer table (columns: lab, n, mean_value, std_value).\ndf.head()",
+      sql: sqlStarter(
+        "-- data has 120 measurements: sample_id, lab, value.",
+        "lab, n, mean_value, std_value",
+      ),
     },
-    columnHints: hint({ sample_id: [100, true], lab: [120, false], value: [90, true], n: [60, true], mean_value: [120, true], std_value: [120, true] }),
+    columnHints: hint({
+      sample_id: [100, true],
+      lab: [120, false],
+      value: [90, true],
+      n: [60, true],
+      mean_value: [120, true],
+      std_value: [120, true],
+    }),
     hints: {
       python: [
         "groupby('lab')['value'] followed by .agg lets you compute several statistics at once with named results.",
@@ -72,13 +93,28 @@ const median = (xs) => {
         "CREATE TABLE result AS SELECT lab, COUNT(*) AS n, ROUND(AVG(value), 3) AS mean_value, ROUND(STDDEV(value), 3) AS std_value FROM data GROUP BY lab;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["lab", "n", "mean_value", "std_value"], rows: expected, tolerance: 0.002 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["lab", "n", "mean_value", "std_value"],
+          rows: expected,
+          tolerance: 0.002,
+        },
+      ],
+    },
   });
 }
 
 // 2. THREE_SIGMA: z-score outliers ---------------------------------------------------------------
 {
-  const SENSORS = [["S-North", 50], ["S-South", 61], ["S-East", 44], ["S-West", 57], ["S-Roof", 38]];
+  const SENSORS = [
+    ["S-North", 50],
+    ["S-South", 61],
+    ["S-East", 44],
+    ["S-West", 57],
+    ["S-Roof", 38],
+  ];
   const rows = [];
   let id = 1;
   for (const [sensor, mu] of SENSORS)
@@ -95,11 +131,17 @@ const median = (xs) => {
     const sd = Math.sqrt(sampleVar(v));
     for (const r of own) {
       const z = (Number(r.value) - m) / sd;
-      if (Math.abs(Math.abs(z) - 3) < 0.02) throw new Error("z too close to the threshold; change the seed");
-      if (Math.abs(z) > 3) expected.push([r.reading_id, sensor, Number(r.value), round(z, 2)]);
+      if (Math.abs(Math.abs(z) - 3) < 0.02)
+        throw new Error("z too close to the threshold; change the seed");
+      if (Math.abs(z) > 3)
+        expected.push([r.reading_id, sensor, Number(r.value), round(z, 2)]);
     }
   }
-  const path = W.writeCsv("sensor-readings.csv", ["reading_id", "sensor", "value"], shuffle(rows));
+  const path = W.writeCsv(
+    "sensor-readings.csv",
+    ["reading_id", "sensor", "value"],
+    shuffle(rows),
+  );
   W.writeCase("w9-02-three-sigma", {
     tier: "mid-boss",
     datasetPath: path,
@@ -113,10 +155,19 @@ const median = (xs) => {
       task: "Find the readings whose z-score within their own sensor is beyond +/-3. Columns: reading_id, sensor, value, z_score (2 decimals).",
     },
     starterCode: {
-      python: "# df has 200 readings: reading_id, sensor, value.\n# Replace df with your answer table (columns: reading_id, sensor, value, z_score).\ndf.head()",
-      sql: sqlStarter("-- data has 200 readings: reading_id, sensor, value.", "reading_id, sensor, value, z_score"),
+      python:
+        "# df has 200 readings: reading_id, sensor, value.\n# Replace df with your answer table (columns: reading_id, sensor, value, z_score).\ndf.head()",
+      sql: sqlStarter(
+        "-- data has 200 readings: reading_id, sensor, value.",
+        "reading_id, sensor, value, z_score",
+      ),
     },
-    columnHints: hint({ reading_id: [100, true], sensor: [110, false], value: [90, true], z_score: [100, true] }),
+    columnHints: hint({
+      reading_id: [100, true],
+      sensor: [110, false],
+      value: [90, true],
+      z_score: [100, true],
+    }),
     hints: {
       python: [
         "You need each sensor's mean and standard deviation next to every reading. groupby(...).transform('mean') and transform('std') give one value per row.",
@@ -129,13 +180,26 @@ const median = (xs) => {
         "CREATE TABLE result AS WITH s AS (SELECT sensor, AVG(value) AS m, STDDEV(value) AS sd FROM data GROUP BY sensor) SELECT d.reading_id, d.sensor, d.value, ROUND((d.value - s.m) / s.sd, 2) AS z_score FROM data d JOIN s ON s.sensor = d.sensor WHERE ABS((d.value - s.m) / s.sd) > 3;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["reading_id", "sensor", "value", "z_score"], rows: expected, tolerance: 0.011 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["reading_id", "sensor", "value", "z_score"],
+          rows: expected,
+          tolerance: 0.011,
+        },
+      ],
+    },
   });
 }
 
 // 3. FILL_THE_HOLES: impute with the group median ---------------------------------------------
 {
-  const WARDS = [["North", 122, 9], ["South", 134, 12], ["East", 118, 7]];
+  const WARDS = [
+    ["North", 122, 9],
+    ["South", 134, 12],
+    ["East", 118, 7],
+  ];
   const rows = [];
   let id = 1;
   for (const [ward, mu, sd] of WARDS)
@@ -143,9 +207,23 @@ const median = (xs) => {
       const bp = Math.round(mu + gauss() * sd);
       rows.push({ patient_id: 400 + id++, ward, bp: chance(0.22) ? "" : bp });
     }
-  const med = new Map(WARDS.map(([w]) => [w, median(rows.filter((r) => r.ward === w && r.bp !== "").map((r) => r.bp))]));
-  const expected = rows.map((r) => [r.patient_id, r.ward, r.bp === "" ? med.get(r.ward) : r.bp]);
-  const path = W.writeCsv("blood-pressure.csv", ["patient_id", "ward", "bp"], shuffle(rows), "about a fifth of bp is missing");
+  const med = new Map(
+    WARDS.map(([w]) => [
+      w,
+      median(rows.filter((r) => r.ward === w && r.bp !== "").map((r) => r.bp)),
+    ]),
+  );
+  const expected = rows.map((r) => [
+    r.patient_id,
+    r.ward,
+    r.bp === "" ? med.get(r.ward) : r.bp,
+  ]);
+  const path = W.writeCsv(
+    "blood-pressure.csv",
+    ["patient_id", "ward", "bp"],
+    shuffle(rows),
+    "about a fifth of bp is missing",
+  );
   W.writeCase("w9-03-fill-the-holes", {
     tier: "mid-boss",
     datasetPath: path,
@@ -159,10 +237,19 @@ const median = (xs) => {
       task: "Replace each missing bp with the median bp of the patient's ward. Columns: patient_id, ward, bp_filled.",
     },
     starterCode: {
-      python: "# df has 90 patients: patient_id, ward, bp (empty when missing).\n# Replace df with your answer table (columns: patient_id, ward, bp_filled).\ndf.head()",
-      sql: sqlStarter("-- data has 90 patients: patient_id, ward, bp (NULL when missing).", "patient_id, ward, bp_filled"),
+      python:
+        "# df has 90 patients: patient_id, ward, bp (empty when missing).\n# Replace df with your answer table (columns: patient_id, ward, bp_filled).\ndf.head()",
+      sql: sqlStarter(
+        "-- data has 90 patients: patient_id, ward, bp (NULL when missing).",
+        "patient_id, ward, bp_filled",
+      ),
     },
-    columnHints: hint({ patient_id: [100, true], ward: [100, false], bp: [80, true], bp_filled: [110, true] }),
+    columnHints: hint({
+      patient_id: [100, true],
+      ward: [100, false],
+      bp: [80, true],
+      bp_filled: [110, true],
+    }),
     hints: {
       python: [
         "groupby('ward')['bp'].transform('median') gives each row its ward's median, and it ignores the missing values on its own.",
@@ -175,7 +262,16 @@ const median = (xs) => {
         "CREATE TABLE result AS WITH m AS (SELECT ward, MEDIAN(bp) AS med FROM data GROUP BY ward) SELECT d.patient_id, d.ward, COALESCE(d.bp, m.med) AS bp_filled FROM data d JOIN m ON m.ward = d.ward;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["patient_id", "ward", "bp_filled"], rows: expected, tolerance: 0.01 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["patient_id", "ward", "bp_filled"],
+          rows: expected,
+          tolerance: 0.01,
+        },
+      ],
+    },
   });
 }
 
@@ -186,14 +282,21 @@ const median = (xs) => {
   const rows = [];
   const fixed = [24, 25, 34, 35, 49, 50, 64, 65, 18, 90];
   for (let i = 0; i < 100; i += 1) {
-    const age = i < fixed.length ? fixed[i] : Math.min(92, Math.max(18, Math.round(41 + gauss() * 16)));
+    const age =
+      i < fixed.length
+        ? fixed[i]
+        : Math.min(92, Math.max(18, Math.round(41 + gauss() * 16)));
     rows.push({ customer_id: 3000 + i, age, spend: (int(800, 39000) / 100).toFixed(2) });
   }
   const expected = BANDS.map((label, b) => {
     const g = rows.filter((r) => bandOf(r.age) === b);
     return [label, g.length, round(mean(g.map((r) => Number(r.spend))), 2)];
   });
-  const path = W.writeCsv("customers-by-age.csv", ["customer_id", "age", "spend"], shuffle(rows));
+  const path = W.writeCsv(
+    "customers-by-age.csv",
+    ["customer_id", "age", "spend"],
+    shuffle(rows),
+  );
   W.writeCase("w9-04-buckets", {
     tier: "mid-boss",
     datasetPath: path,
@@ -207,10 +310,21 @@ const median = (xs) => {
       task: "Bin age into the five bands above, then count customers and average spend (2 decimals) per band. Columns: age_band, customers, avg_spend.",
     },
     starterCode: {
-      python: "# df has 100 customers: customer_id, age, spend.\n# Replace df with your answer table (columns: age_band, customers, avg_spend).\ndf.head()",
-      sql: sqlStarter("-- data has 100 customers: customer_id, age, spend.", "age_band, customers, avg_spend"),
+      python:
+        "# df has 100 customers: customer_id, age, spend.\n# Replace df with your answer table (columns: age_band, customers, avg_spend).\ndf.head()",
+      sql: sqlStarter(
+        "-- data has 100 customers: customer_id, age, spend.",
+        "age_band, customers, avg_spend",
+      ),
     },
-    columnHints: hint({ customer_id: [100, true], age: [70, true], spend: [90, true], age_band: [110, false], customers: [90, true], avg_spend: [100, true] }),
+    columnHints: hint({
+      customer_id: [100, true],
+      age: [70, true],
+      spend: [90, true],
+      age_band: [110, false],
+      customers: [90, true],
+      avg_spend: [100, true],
+    }),
     hints: {
       python: [
         "pd.cut turns numbers into labelled bands. bins=[0, 25, 35, 50, 65, 200] defines the edges.",
@@ -223,7 +337,16 @@ const median = (xs) => {
         "CREATE TABLE result AS SELECT CASE WHEN age < 25 THEN 'Under 25' WHEN age < 35 THEN '25-34' WHEN age < 50 THEN '35-49' WHEN age < 65 THEN '50-64' ELSE '65+' END AS age_band, COUNT(*) AS customers, ROUND(AVG(spend), 2) AS avg_spend FROM data GROUP BY age_band;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["age_band", "customers", "avg_spend"], rows: expected, tolerance: 0.006 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["age_band", "customers", "avg_spend"],
+          rows: expected,
+          tolerance: 0.006,
+        },
+      ],
+    },
   });
 }
 
@@ -232,7 +355,10 @@ const median = (xs) => {
   const rows = [];
   let id = 1;
   const stats = { control: { n: 0, x: 0 }, test: { n: 0, x: 0 } };
-  for (const [variant, rate, n] of [["control", 0.112, 940], ["test", 0.134, 910]])
+  for (const [variant, rate, n] of [
+    ["control", 0.112, 940],
+    ["test", 0.134, 910],
+  ])
     for (let i = 0; i < n; i += 1) {
       const converted = chance(rate) ? 1 : 0;
       stats[variant].n += 1;
@@ -242,9 +368,18 @@ const median = (xs) => {
   const p1 = stats.control.x / stats.control.n;
   const p2 = stats.test.x / stats.test.n;
   const pooled = (stats.control.x + stats.test.x) / (stats.control.n + stats.test.n);
-  const z = (p2 - p1) / Math.sqrt(pooled * (1 - pooled) * (1 / stats.control.n + 1 / stats.test.n));
-  const expected = [[round(p1, 3), round(p2, 3), round(((p2 - p1) / p1) * 100, 3), round(z, 3)]];
-  const path = W.writeCsv("experiment.csv", ["user_id", "variant", "converted"], shuffle(rows), "converted is 1 or 0");
+  const z =
+    (p2 - p1) /
+    Math.sqrt(pooled * (1 - pooled) * (1 / stats.control.n + 1 / stats.test.n));
+  const expected = [
+    [round(p1, 3), round(p2, 3), round(((p2 - p1) / p1) * 100, 3), round(z, 3)],
+  ];
+  const path = W.writeCsv(
+    "experiment.csv",
+    ["user_id", "variant", "converted"],
+    shuffle(rows),
+    "converted is 1 or 0",
+  );
   W.writeCase("w9-05-split-test", {
     tier: "mid-boss",
     datasetPath: path,
@@ -258,10 +393,22 @@ const median = (xs) => {
       task: "One row: control_rate, test_rate, lift_pct and the pooled two-proportion z_score, all rounded to 3 decimals.",
     },
     starterCode: {
-      python: "# df has one row per visitor: user_id, variant ('control' or 'test'), converted (1 or 0).\n# Replace df with a one-row answer table (columns: control_rate, test_rate, lift_pct, z_score).\ndf.head()",
-      sql: sqlStarter("-- data has one row per visitor: user_id, variant ('control' or 'test'), converted (1 or 0).", "control_rate, test_rate, lift_pct, z_score"),
+      python:
+        "# df has one row per visitor: user_id, variant ('control' or 'test'), converted (1 or 0).\n# Replace df with a one-row answer table (columns: control_rate, test_rate, lift_pct, z_score).\ndf.head()",
+      sql: sqlStarter(
+        "-- data has one row per visitor: user_id, variant ('control' or 'test'), converted (1 or 0).",
+        "control_rate, test_rate, lift_pct, z_score",
+      ),
     },
-    columnHints: hint({ user_id: [100, true], variant: [100, false], converted: [90, true], control_rate: [120, true], test_rate: [110, true], lift_pct: [100, true], z_score: [100, true] }),
+    columnHints: hint({
+      user_id: [100, true],
+      variant: [100, false],
+      converted: [90, true],
+      control_rate: [120, true],
+      test_rate: [110, true],
+      lift_pct: [100, true],
+      z_score: [100, true],
+    }),
     hints: {
       python: [
         "First get n and the number of conversions per variant: df.groupby('variant')['converted'].agg(['count', 'sum']).",
@@ -274,20 +421,40 @@ const median = (xs) => {
         "CREATE TABLE result AS WITH g AS (SELECT SUM(variant = 'control') AS n1, SUM(CASE WHEN variant = 'control' THEN converted END) AS x1, SUM(variant = 'test') AS n2, SUM(CASE WHEN variant = 'test' THEN converted END) AS x2 FROM data), r AS (SELECT n1, n2, x1 * 1.0 / n1 AS p1, x2 * 1.0 / n2 AS p2, (x1 + x2) * 1.0 / (n1 + n2) AS p FROM g) SELECT ROUND(p1, 3) AS control_rate, ROUND(p2, 3) AS test_rate, ROUND((p2 - p1) / p1 * 100, 3) AS lift_pct, ROUND((p2 - p1) / SQRT(p * (1 - p) * (1.0 / n1 + 1.0 / n2)), 3) AS z_score FROM r;",
       ],
     },
-    winCondition: { all: [{ predicate: "result_matches", columns: ["control_rate", "test_rate", "lift_pct", "z_score"], rows: expected, tolerance: 0.002 }] },
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["control_rate", "test_rate", "lift_pct", "z_score"],
+          rows: expected,
+          tolerance: 0.002,
+        },
+      ],
+    },
   });
 }
 
 // 6. THE_LABORATORY: a regression line per compound ---------------------------------------------
 {
-  const COMPOUNDS = [["Ambrite", 4, 2.1, 1.6, 28], ["Borane", 9, -0.8, 2.4, 26], ["Corvin", 2, 3.6, 1.1, 30], ["Dryad", 6, 0.4, 3.0, 24], ["Ether-9", 5, 1.5, 1.0, 7]];
+  const COMPOUNDS = [
+    ["Ambrite", 4, 2.1, 1.6, 28],
+    ["Borane", 9, -0.8, 2.4, 26],
+    ["Corvin", 2, 3.6, 1.1, 30],
+    ["Dryad", 6, 0.4, 3.0, 24],
+    ["Ether-9", 5, 1.5, 1.0, 7],
+  ];
   const rows = [];
   let id = 1;
   for (const [compound, a, b, sd, n] of COMPOUNDS)
     for (let i = 0; i < n; i += 1) {
       const dose = round(1 + random() * 9, 1);
       const response = chance(0.1) ? "" : round(a + b * dose + gauss() * sd, 2);
-      rows.push({ run_id: id++, compound, dose: dose.toFixed(1), response: response === "" ? "" : response.toFixed(2) });
+      rows.push({
+        run_id: id++,
+        compound,
+        dose: dose.toFixed(1),
+        response: response === "" ? "" : response.toFixed(2),
+      });
     }
   const expected = [];
   for (const [compound] of COMPOUNDS) {
@@ -306,9 +473,20 @@ const median = (xs) => {
       syy += (y[i] - my) ** 2;
     }
     const slope = sxy / sxx;
-    expected.push([compound, ok.length, round(slope, 3), round(my - slope * mx, 3), round(sxy / Math.sqrt(sxx * syy), 3)]);
+    expected.push([
+      compound,
+      ok.length,
+      round(slope, 3),
+      round(my - slope * mx, 3),
+      round(sxy / Math.sqrt(sxx * syy), 3),
+    ]);
   }
-  const path = W.writeCsv("dose-response.csv", ["run_id", "compound", "dose", "response"], shuffle(rows), "some responses are missing");
+  const path = W.writeCsv(
+    "dose-response.csv",
+    ["run_id", "compound", "dose", "response"],
+    shuffle(rows),
+    "some responses are missing",
+  );
   W.writeCase("w9-06-the-laboratory", {
     tier: "final-boss",
     datasetPath: path,
@@ -321,11 +499,33 @@ const median = (xs) => {
       briefing: `A lab tests five compounds. Each run applies a dose and records a response; some runs failed and have no response. The scientists want to know how strongly each compound's response follows its dose: the straight line of best fit (least squares) and the correlation.\n\nFor each compound, using only the runs that HAVE a response:\n- n: how many runs\n- slope: the change in response per unit of dose\n- intercept: the response at dose 0\n- r: the Pearson correlation between dose and response\n\nA line fitted on very few points means nothing: leave out any compound with fewer than 8 usable runs.\n\nRound slope, intercept and r to 3 decimals. Give one row per remaining compound with exactly these columns: compound, n, slope, intercept, r.\n\n${ANSWER_TAIL}`,
     },
     starterCode: {
-      python: "# df has dose-response runs: run_id, compound, dose, response (missing for failed runs).\n# Replace df with your answer table (columns: compound, n, slope, intercept, r).\ndf.head()",
-      sql: sqlStarter("-- data has dose-response runs: run_id, compound, dose, response (NULL for failed runs).", "compound, n, slope, intercept, r"),
+      python:
+        "# df has dose-response runs: run_id, compound, dose, response (missing for failed runs).\n# Replace df with your answer table (columns: compound, n, slope, intercept, r).\ndf.head()",
+      sql: sqlStarter(
+        "-- data has dose-response runs: run_id, compound, dose, response (NULL for failed runs).",
+        "compound, n, slope, intercept, r",
+      ),
     },
-    columnHints: hint({ run_id: [90, true], compound: [110, false], dose: [80, true], response: [100, true], n: [60, true], slope: [100, true], intercept: [100, true], r: [90, true] }),
-    winCondition: { all: [{ predicate: "result_matches", columns: ["compound", "n", "slope", "intercept", "r"], rows: expected, tolerance: 0.002 }] },
+    columnHints: hint({
+      run_id: [90, true],
+      compound: [110, false],
+      dose: [80, true],
+      response: [100, true],
+      n: [60, true],
+      slope: [100, true],
+      intercept: [100, true],
+      r: [90, true],
+    }),
+    winCondition: {
+      all: [
+        {
+          predicate: "result_matches",
+          columns: ["compound", "n", "slope", "intercept", "r"],
+          rows: expected,
+          tolerance: 0.002,
+        },
+      ],
+    },
   });
 }
 
