@@ -1,3 +1,4 @@
+import { LABYRINTH_SOLUTIONS } from "./solutions-labyrinth";
 /**
  * One known-good answer per case and engine. The solutions suite plays every
  * case with these, so a change to the engines, the win logic or a case's data
@@ -281,4 +282,5 @@ df = first_view.groupby('device', as_index=False).agg(viewed=('user_id', 'count'
 )
 SELECT v.device, COUNT(*) AS viewed, COUNT(c.user_id) AS carted, COUNT(p.user_id) AS purchased FROM v LEFT JOIN c ON c.user_id = v.user_id LEFT JOIN p ON p.user_id = v.user_id GROUP BY v.device;`,
   },
+  ...LABYRINTH_SOLUTIONS,
 ];

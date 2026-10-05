@@ -924,3 +924,99 @@ export function registerFriendlyFunctions(host: FunctionHost): void {
     host.create_function(name, variadic);
   }
 }
+
+/** The part of sql.js's Database that registers aggregates. */
+export interface AggregateHost {
+  create_aggregate(
+    name: string,
+    spec: {
+      init: () => unknown;
+      step: (state: never, ...args: never[]) => unknown;
+      finalize: (state: never) => unknown;
+    },
+  ): unknown;
+}
+
+interface Moments {
+  n: number;
+  sx: number;
+  sy: number;
+  sxx: number;
+  syy: number;
+  sxy: number;
+}
+const newMoments = (): Moments => ({ n: 0, sx: 0, sy: 0, sxx: 0, syy: 0, sxy: 0 });
+
+/** Welford-free but stable enough: sums of centred values are computed from raw sums at the end. */
+function addPair(m: Moments, x: unknown, y: unknown): void {
+  const a = typeof x === "number" ? x : x === null || x === undefined ? NaN : Number(x);
+  const b = typeof y === "number" ? y : y === null || y === undefined ? NaN : Number(y);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return; // NULLs are ignored, as in SQL
+  m.n += 1;
+  m.sx += a;
+  m.sy += b;
+  m.sxx += a * a;
+  m.syy += b * b;
+  m.sxy += a * b;
+}
+
+const varianceOf = (m: Moments, sample: boolean): number | null => {
+  const d = sample ? m.n - 1 : m.n;
+  if (m.n === 0 || d <= 0) return null;
+  return Math.max(0, (m.sxx - (m.sx * m.sx) / m.n) / d);
+};
+const covarianceOf = (m: Moments, sample: boolean): number | null => {
+  const d = sample ? m.n - 1 : m.n;
+  if (m.n === 0 || d <= 0) return null;
+  return (m.sxy - (m.sx * m.sy) / m.n) / d;
+};
+
+/**
+ * Statistics aggregates that SQLite lacks but every data person expects:
+ * STDDEV / VARIANCE (sample and population), CORR and COVAR. NULLs are skipped.
+ * (MEDIAN and PERCENTILE already come with the engine.)
+ */
+export function registerStatAggregates(host: AggregateHost): void {
+  const oneColumn = (names: string[], finish: (m: Moments) => number | null): void => {
+    for (const name of names)
+      host.create_aggregate(name, {
+        init: newMoments,
+        step: ((m: Moments, x: unknown) => {
+          addPair(m, x, 0);
+          return m;
+        }),
+        finalize: ((m: Moments) => finish(m)),
+      });
+  };
+  oneColumn(["stddev", "stddev_samp"], (m) => {
+    const v = varianceOf(m, true);
+    return v === null ? null : Math.sqrt(v);
+  });
+  oneColumn(["stddev_pop"], (m) => {
+    const v = varianceOf(m, false);
+    return v === null ? null : Math.sqrt(v);
+  });
+  oneColumn(["variance", "var_samp"], (m) => varianceOf(m, true));
+  oneColumn(["var_pop"], (m) => varianceOf(m, false));
+
+  const twoColumns = (names: string[], finish: (m: Moments) => number | null): void => {
+    for (const name of names)
+      host.create_aggregate(name, {
+        init: newMoments,
+        step: ((m: Moments, y: unknown, x: unknown) => {
+          addPair(m, x, y);
+          return m;
+        }),
+        finalize: ((m: Moments) => finish(m)),
+      });
+  };
+  twoColumns(["covar_samp"], (m) => covarianceOf(m, true));
+  twoColumns(["covar_pop"], (m) => covarianceOf(m, false));
+  twoColumns(["corr"], (m) => {
+    const c = covarianceOf(m, false);
+    const vx = varianceOf(m, false);
+    const vy = m.n === 0 ? null : Math.max(0, (m.syy - (m.sy * m.sy) / m.n) / m.n);
+    if (c === null || vx === null || vy === null || vx === 0 || vy === 0) return null;
+    return c / Math.sqrt(vx * vy);
+  });
+}

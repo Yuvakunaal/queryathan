@@ -1,5 +1,5 @@
 import { prepareSql } from "./sqlRewrite";
-import { registerFriendlyFunctions } from "./sqlFunctions";
+import { registerFriendlyFunctions, registerStatAggregates } from "./sqlFunctions";
 import initSqlJs from "sql.js";
 import type { Database, SqlValue } from "sql.js";
 // Vite resolves this to a hashed, self-hosted asset URL at build time — no
@@ -76,6 +76,7 @@ function compile(pattern: string): RegExp {
  */
 function registerRegexFunctions(database: Database): void {
   registerFriendlyFunctions(database);
+  registerStatAggregates(database as never);
   database.create_function("regexp", (pattern: unknown, text: unknown) => {
     if (typeof pattern !== "string" || !isScalar(text)) return null;
     return compile(pattern).test(String(text)) ? 1 : 0;

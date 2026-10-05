@@ -1,0 +1,32 @@
+parent,child,qty
+Wire Harness,Connector,2
+Battery Pack,Cell,4
+Rotor Assembly,Screw M3,4
+Flight Controller,Circuit Board,1
+Flight Controller,Screw M3,4
+Drone,Flight Controller,1
+Wheel Assembly,Bearing,2
+Drone,Rotor Assembly,4
+Motor,Magnet,6
+Rotor Assembly,Propeller,1
+Frame,Center Plate,2
+Battery Pack,Wire Harness,1
+Drone,Frame,1
+Battery Pack,Battery Case,1
+Drone,Battery Pack,1
+Frame,Arm,4
+Rotor Assembly,Motor,1
+Rover,Wheel Assembly,4
+Rover,Flight Controller,1
+Wheel Assembly,Wheel,1
+Chassis,Screw M3,8
+Wheel Assembly,Screw M3,2
+Motor,Copper Coil,1
+Wire Harness,Copper Wire,3
+Flight Controller,Gyro Chip,1
+Chassis,Steel Plate,2
+Rover,Chassis,1
+Motor,Bearing,2
+Frame,Screw M3,16
+Arm,Screw M3,2
+Arm,Carbon Tube,1

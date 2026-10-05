@@ -11,6 +11,7 @@ import {
   parseStamp,
   parseWithFormat,
   registerFriendlyFunctions,
+  registerStatAggregates,
   splitPart,
   timestampDiff,
 } from "./sqlFunctions";
@@ -197,5 +198,39 @@ describe("in a real SQLite", () => {
         "SELECT strftime('%Y', placed), length(name), upper('a'), round(2.567, 1) FROM t WHERE id = 1",
       ),
     ).toEqual([["2026", 10, "A", 2.6]]);
+  });
+});
+
+describe("statistics aggregates", () => {
+  let db: Database;
+  beforeAll(async () => {
+    const SQL = await initSqlJs();
+    db = new SQL.Database();
+    registerStatAggregates(db as never);
+    db.run(
+      "CREATE TABLE s (g TEXT, x REAL, y REAL); " +
+        "INSERT INTO s VALUES ('a',2,1),('a',4,2),('a',4,3),('a',4,4),('a',5,5),('a',5,6),('a',7,7),('a',9,8),('b',1,NULL),('b',NULL,2),('c',3,3);",
+    );
+  });
+  const one = (sql: string): unknown => db.exec(sql)[0]?.values[0]?.[0];
+
+  it("computes sample and population spread", () => {
+    expect(one("SELECT STDDEV_POP(x) FROM s WHERE g='a'")).toBeCloseTo(2, 10);
+    expect(one("SELECT STDDEV(x) FROM s WHERE g='a'")).toBeCloseTo(2.13809, 4);
+    expect(one("SELECT VAR_SAMP(x) FROM s WHERE g='a'")).toBeCloseTo(4.571429, 5);
+    expect(one("SELECT VARIANCE(x) FROM s WHERE g='a'")).toBeCloseTo(4.571429, 5);
+  });
+  it("is NULL when there is not enough data, and skips NULLs", () => {
+    expect(one("SELECT STDDEV(x) FROM s WHERE g='c'")).toBeNull();
+    expect(one("SELECT STDDEV_POP(x) FROM s WHERE g='c'")).toBe(0);
+    expect(one("SELECT CORR(x, y) FROM s WHERE g='b'")).toBeNull();
+  });
+  it("computes correlation and covariance", () => {
+    expect(one("SELECT CORR(x, y) FROM s WHERE g='a'")).toBeCloseTo(0.927426, 5);
+    expect(one("SELECT COVAR_POP(x, y) FROM s WHERE g='a'")).toBeCloseTo(4.25, 6);
+    expect(one("SELECT CORR(x, x) FROM s WHERE g='a'")).toBeCloseTo(1, 10);
+  });
+  it("works with GROUP BY", () => {
+    expect(db.exec("SELECT g, COUNT(*) FROM s GROUP BY g")[0]?.values.length).toBe(3);
   });
 });
