@@ -1,4 +1,4 @@
-# Contributing to Data Cleaning Quest
+# Contributing to Queryathan
 
 Thanks for considering a contribution. This project is designed so the most
 common contribution — **a new boss/case** — never requires touching engine

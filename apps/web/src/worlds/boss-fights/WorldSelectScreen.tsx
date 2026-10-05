@@ -81,7 +81,7 @@ function WorldCard({
   );
 }
 
-const REPO_URL = "https://github.com/Yuvakunaal/data-cleaning-quest";
+const REPO_URL = "https://github.com/Yuvakunaal/queryathan";
 const ABOUT_KEY = "dcq.aboutSeen";
 
 function readAboutSeen(): boolean {
@@ -133,7 +133,7 @@ export default function WorldSelectScreen({
             <span className={styles.brandMark} aria-hidden="true">
               &gt;_
             </span>
-            Data Cleaning Quest
+            Queryathan
           </span>
           <div className={styles.topRight}>
             <button type="button" className={styles.aboutLink} onClick={openAbout}>

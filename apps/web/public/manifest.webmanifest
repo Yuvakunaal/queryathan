@@ -1,6 +1,6 @@
 {
-  "name": "Data Cleaning Quest",
-  "short_name": "DCQ",
+  "name": "Queryathan",
+  "short_name": "Queryathan",
   "description": "Learn real pandas and SQL by playing.",
   "start_url": "/",
   "display": "standalone",

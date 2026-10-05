@@ -1,10 +1,10 @@
 cff-version: 1.2.0
-message: "If you use Data Cleaning Quest in teaching or research, please cite it as below."
-title: "Data Cleaning Quest"
+message: "If you use Queryathan in teaching or research, please cite it as below."
+title: "Queryathan"
 type: software
 license: MIT
-repository-code: "https://github.com/Yuvakunaal/data-cleaning-quest"
+repository-code: "https://github.com/Yuvakunaal/queryathan"
 abstract: "A no-login, open-source game for learning real pandas and SQL by cleaning and analysing messy tables, running real Pyodide and SQLite in the browser."
 keywords: [pandas, sql, data-cleaning, education, game, pyodide, sqlite]
 authors:
-  - name: "Data Cleaning Quest contributors"
+  - name: "Queryathan contributors"

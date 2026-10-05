@@ -2,7 +2,7 @@ dist
 dist-worker
 build
 node_modules
-data-cleaning-quest-master-plan.md
+queryathan-master-plan.md
 public/pyodide
 graphify-out
 pnpm-lock.yaml

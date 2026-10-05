@@ -27,7 +27,7 @@ test("the flight can be skipped with the button or the keyboard", async ({ page 
   await expect(page.getByRole("heading", { name: "Geminora" })).toBeVisible();
   await expect(page.getByRole("dialog")).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Data Cleaning Quest" }).click();
+  await page.getByRole("button", { name: "Queryathan" }).click();
   await page.locator('[data-world-card="the-foundry"]').click();
   await expect(
     page.getByRole("dialog", { name: /Travelling to Cinderforge/ }),

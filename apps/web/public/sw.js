@@ -1,5 +1,5 @@
 /*
-  Offline cache for Data Cleaning Quest. Registered only in production builds
+  Offline cache for Queryathan. Registered only in production builds
   (src/registerServiceWorker.ts). The two tokens below are filled in by the
   Vite build (vite.config.ts).
 

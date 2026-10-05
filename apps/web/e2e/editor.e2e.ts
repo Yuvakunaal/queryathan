@@ -221,7 +221,7 @@ test.describe("the win sequence", () => {
     await expect(dialog).toContainText("Copied your solution");
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     expect(copied).toContain(code);
-    expect(copied.startsWith("# Data Cleaning Quest:")).toBe(true);
+    expect(copied.startsWith("# Queryathan:")).toBe(true);
   });
 
   test("a speed job earns a stamp that the roster keeps", async ({ page }) => {

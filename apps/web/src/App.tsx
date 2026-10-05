@@ -185,7 +185,7 @@ function AppScreens() {
         : screen.name === "hub"
           ? null
           : "Sandbox";
-    document.title = where ? `${where} · Data Cleaning Quest` : "Data Cleaning Quest";
+    document.title = where ? `${where} · Queryathan` : "Queryathan";
   }, [screen]);
 
   function updateSave(next: SaveData): void {

@@ -39,7 +39,7 @@ test.describe("What is this?", () => {
     await expect(page.getByText("Start here")).toBeVisible();
     const opener = page.getByRole("button", { name: /What is this\?/ }).nth(1);
     await opener.click();
-    const dialog = page.getByRole("dialog", { name: /What is Data Cleaning Quest/ });
+    const dialog = page.getByRole("dialog", { name: /What is Queryathan/ });
     await expect(dialog).toBeVisible();
     for (const heading of [
       "Why clean data?",

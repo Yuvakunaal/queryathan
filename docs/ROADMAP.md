@@ -1,4 +1,4 @@
-# Roadmap: finishing Data Cleaning Quest
+# Roadmap: finishing Queryathan
 
 Status as of 2026-10-05: nine worlds and the sandbox are built and tested (45 cases, each
 winnable in both engines). Worlds are named planets reached by an optional rocket flight, and

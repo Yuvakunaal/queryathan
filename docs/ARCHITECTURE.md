@@ -1,7 +1,7 @@
 # Architecture
 
 Living document — update this alongside the code, not after the fact. See
-[`data-cleaning-quest-master-plan.md`](../data-cleaning-quest-master-plan.md)
+[`queryathan-master-plan.md`](../queryathan-master-plan.md)
 for product vision and [`docs/adr/`](./adr/) for the reasoning behind
 specific technical decisions.
 

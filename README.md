@@ -1,17 +1,17 @@
 <div align="center">
 
-<img src="./docs/images/social-preview.png" alt="Data Cleaning Quest: fight your data clean" width="760">
+<img src="./docs/images/social-preview.png" alt="Queryathan: slay messy data with real pandas and SQL" width="760">
 
-# Data Cleaning Quest
+# Queryathan
 
-**Learn real pandas and SQL by playing. Nine planet worlds, 45 cases, real engines in your browser.**
+**Slay messy data. Learn real pandas and SQL by playing: nine planet worlds, 45 cases, real engines in your browser.**
 No account. No server. Nothing to install. Works offline.
 
-[![CI](https://github.com/Yuvakunaal/data-cleaning-quest/actions/workflows/ci.yml/badge.svg)](https://github.com/Yuvakunaal/data-cleaning-quest/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/Yuvakunaal/data-cleaning-quest/actions/workflows/codeql.yml/badge.svg)](https://github.com/Yuvakunaal/data-cleaning-quest/actions/workflows/codeql.yml)
+[![CI](https://github.com/Yuvakunaal/queryathan/actions/workflows/ci.yml/badge.svg)](https://github.com/Yuvakunaal/queryathan/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Yuvakunaal/queryathan/actions/workflows/codeql.yml/badge.svg)](https://github.com/Yuvakunaal/queryathan/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
-[![Good first issues](https://img.shields.io/github/issues/Yuvakunaal/data-cleaning-quest/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/Yuvakunaal/data-cleaning-quest/labels/good%20first%20issue)
+[![Good first issues](https://img.shields.io/github/issues/Yuvakunaal/queryathan/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/Yuvakunaal/queryathan/labels/good%20first%20issue)
 ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6)
 ![Runs offline](https://img.shields.io/badge/runs-offline-2ea44f)
 ![No backend](https://img.shields.io/badge/backend-none-lightgrey)
@@ -22,7 +22,9 @@ No account. No server. Nothing to install. Works offline.
 
 ---
 
-Most people learn data cleaning from tidy tutorials, then meet a real table and freeze. Data Cleaning Quest
+_Queryathan_ is _query_ + _leviathan_: the great beast of messy data, and the queries you fight it with.
+
+Most people learn data work from tidy tutorials, then meet a real table and freeze. Queryathan
 flips that: every case is a **messy table with a real problem in it**, and you fix it by writing **real
 pandas or real SQL**, running it against a **real engine in your browser**, and watching the table change. Win
 a case and a short cinematic plays. Travel to the next world by rocket.
@@ -34,7 +36,7 @@ a case and a short cinematic plays. Travel to the next world by rocket.
 
 ## Why it is different
 
-|                        | Typical tutorials       | Data Cleaning Quest                                                     |
+|                        | Typical tutorials       | Queryathan                                                              |
 | ---------------------- | ----------------------- | ----------------------------------------------------------------------- |
 | **Code runs**          | On a server, or faked   | In your browser: Pyodide (pandas) and SQLite (WebAssembly)              |
 | **Languages**          | One                     | **Both**: every case is winnable in Python and in SQL                   |
@@ -79,8 +81,8 @@ explore it with pandas or SQL. Nothing is uploaded.
 You need [Node](https://nodejs.org) (the version in [`.nvmrc`](./.nvmrc)) and [pnpm](https://pnpm.io) (via Corepack).
 
 ```bash
-git clone https://github.com/Yuvakunaal/data-cleaning-quest.git
-cd data-cleaning-quest
+git clone https://github.com/Yuvakunaal/queryathan.git
+cd queryathan
 corepack enable
 pnpm install      # also fetches the pinned, checksum-verified Pyodide runtime (~14 MB)
 pnpm dev          # http://localhost:5173
@@ -161,7 +163,7 @@ Out of scope on purpose: accounts, streaks, leaderboards, cloud sync and trackin
 
 [Architecture](./docs/ARCHITECTURE.md) · [Authoring guide](./docs/content-authoring-guide.md) ·
 [Decision records](./docs/adr/) · [Roadmap](./docs/ROADMAP.md) · [Changelog](./CHANGELOG.md) ·
-[Support](./SUPPORT.md) · [Original product plan](./data-cleaning-quest-master-plan.md)
+[Support](./SUPPORT.md) · [Original product plan](./queryathan-master-plan.md)
 
 ## Stack
 
@@ -187,6 +189,6 @@ All datasets are synthetic and released under CC0.
 
 If this helped you, a star on GitHub helps others find it.
 
-[![Star History](https://api.star-history.com/svg?repos=Yuvakunaal/data-cleaning-quest&type=Date)](https://star-history.com/#Yuvakunaal/data-cleaning-quest&Date)
+[![Star History](https://api.star-history.com/svg?repos=Yuvakunaal/queryathan&type=Date)](https://star-history.com/#Yuvakunaal/queryathan&Date)
 
 </div>

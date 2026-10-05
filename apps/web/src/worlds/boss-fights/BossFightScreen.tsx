@@ -1362,7 +1362,7 @@ export default function BossFightScreen({
           getSolution={() => {
             const code = codeEditorRef.current?.getValue() ?? "";
             const mark = engine === "sql" ? "--" : "#";
-            return `${mark} Data Cleaning Quest: ${caseData.strings.title}\n${code}\n`;
+            return `${mark} Queryathan: ${caseData.strings.title}\n${code}\n`;
           }}
           onContinue={() => {
             setShowVictory(false);

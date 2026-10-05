@@ -19,7 +19,7 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
 
   override componentDidCatch(error: Error, info: ErrorInfo): void {
     // Kept for anyone with the console open; nothing is sent anywhere.
-    console.error("Data Cleaning Quest hit an error", error, info.componentStack);
+    console.error("Queryathan hit an error", error, info.componentStack);
   }
 
   override render(): ReactNode {

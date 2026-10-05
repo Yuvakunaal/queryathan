@@ -147,7 +147,7 @@ export default function WorldMapScreen({
               &gt;_
             </span>
             <button type="button" className={styles.backLink} onClick={onBack}>
-              Data Cleaning Quest
+              Queryathan
             </button>
           </span>
           <A11yControls a11y={a11y} onChange={onA11yChange} />

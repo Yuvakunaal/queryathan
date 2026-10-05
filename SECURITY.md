@@ -1,13 +1,13 @@
 # Security Policy
 
-Data Cleaning Quest has no backend and no accounts, but it executes
+Queryathan has no backend and no accounts, but it executes
 **arbitrary user-typed Python and SQL in the browser**. That is a real attack
 surface and is treated as such, not waved away because "there's no backend."
 
 ## Reporting a vulnerability
 
 Please report suspected vulnerabilities privately via GitHub's
-["Report a vulnerability"](https://github.com/Yuvakunaal/data-cleaning-quest/security/advisories/new)
+["Report a vulnerability"](https://github.com/Yuvakunaal/queryathan/security/advisories/new)
 flow (Security tab → Advisories) rather than opening a public issue. We'll
 acknowledge within a reasonable timeframe and coordinate disclosure.
 

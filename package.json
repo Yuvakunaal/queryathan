@@ -1,15 +1,15 @@
 {
-  "name": "data-cleaning-quest",
+  "name": "queryathan",
   "private": true,
   "version": "1.0.0",
   "description": "Learn real pandas and SQL by playing: a no-login, in-browser game of data cleaning and analysis.",
-  "homepage": "https://github.com/Yuvakunaal/data-cleaning-quest#readme",
+  "homepage": "https://github.com/Yuvakunaal/queryathan#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Yuvakunaal/data-cleaning-quest.git"
+    "url": "git+https://github.com/Yuvakunaal/queryathan.git"
   },
   "bugs": {
-    "url": "https://github.com/Yuvakunaal/data-cleaning-quest/issues"
+    "url": "https://github.com/Yuvakunaal/queryathan/issues"
   },
   "keywords": [
     "pandas",

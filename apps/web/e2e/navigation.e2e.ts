@@ -12,7 +12,7 @@ test("the browser's Back and Forward buttons move between screens", async ({ pag
   await expect(
     page.getByRole("heading", { name: /Fight your data clean/ }),
   ).toBeVisible();
-  await expect(page).toHaveTitle("Data Cleaning Quest");
+  await expect(page).toHaveTitle("Queryathan");
   await page.goForward();
   await expect(page.getByRole("heading", { name: "Cryptara" })).toBeVisible();
 });

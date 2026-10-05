@@ -1,4 +1,7 @@
-# Data Cleaning Quest — Master Plan
+# Queryathan — Master Plan
+
+> **Note:** this is the original product plan, written when the project was called _Data Cleaning Quest_. It was renamed **Queryathan** (query + leviathan) when it grew beyond cleaning into analysis, time, statistics and recursion. Some details below describe the plan, not the shipped product; see the README and `docs/ARCHITECTURE.md` for the current state.
+
 ### A no-login, open-source, gamified platform for learning real Python + SQL data cleaning — from first-timers to working seniors
 
 ---
@@ -12,12 +15,13 @@ Not a quiz app. Not multiple choice. **Users write real code, run it against a r
 **The one-line pitch:** "Fight your data clean." Every method you'd use in a Jupyter notebook or a database client becomes an action with visible, immediate, satisfying consequence.
 
 ### Audience segmentation — this matters for content design, not just marketing
-| Segment | What they need | What makes them say "wow" |
-|---|---|---|
-| **Complete beginner** | Syntax, confidence, a reason to keep going | Instant visible feedback — code they typed literally changing something on screen |
-| **Bootcamp/student, mid-learning** | Structured progression, real messy data (not toy datasets) | Boss fights that feel genuinely hard, real Kaggle-grade final bosses |
-| **Working analyst, upskilling** | Fill specific gaps (window functions, joins, reshaping) fast | Jump straight into any world without a forced linear path; sandbox mode with their own data |
-| **Already-employed engineer/analyst** | Refresher, interview prep, portfolio artifact | Shareable capstone results (a diff history/case report they can screenshot or link on LinkedIn) |
+
+| Segment                                  | What they need                                                  | What makes them say "wow"                                                                                                                                      |
+| ---------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Complete beginner**                    | Syntax, confidence, a reason to keep going                      | Instant visible feedback — code they typed literally changing something on screen                                                                              |
+| **Bootcamp/student, mid-learning**       | Structured progression, real messy data (not toy datasets)      | Boss fights that feel genuinely hard, real Kaggle-grade final bosses                                                                                           |
+| **Working analyst, upskilling**          | Fill specific gaps (window functions, joins, reshaping) fast    | Jump straight into any world without a forced linear path; sandbox mode with their own data                                                                    |
+| **Already-employed engineer/analyst**    | Refresher, interview prep, portfolio artifact                   | Shareable capstone results (a diff history/case report they can screenshot or link on LinkedIn)                                                                |
 | **Senior / staff-level industry person** | Something that respects their intelligence — not "learn SELECT" | **World 5: The Foundry** (below) — performance, production-grade validation, and content that makes them think "I didn't know this existed as a learning tool" |
 
 Designing for the full spectrum is what turns this from "a beginner toy" into something a senior engineer bookmarks and recommends to their team.
@@ -36,15 +40,16 @@ Generic AI-made sites share a fingerprint: centered hero + gradient blob + round
 - **Sound (optional, muteable)** — a genre most gamified-learning platforms skip. Even minimal 8-bit SFX massively changes how alive an interface feels.
 
 ### Real inspiration sources to actually use (not reinvent from scratch)
-| Resource | What to look for |
-|---|---|
-| **Awwwards.com** | "Developer" and "Games" categories specifically |
-| **Godly.website** | Bold, non-corporate visual work |
-| **SiteInspire.com** | Calmer editorial reference for settings/world-select screens |
-| **Codrops (tympanus.net/codrops)** | Real open-source code for glitch effects, terminal-typing effects, canvas particle systems |
-| **Dribbble** — search "pixel art UI," "terminal UI," "game HUD" | Concrete visual references matching Section 4's aesthetics |
-| **itch.io game pages** | Indie game UI/UX — a far better reference than corporate SaaS design for this project |
-| **GSAP (greensock.com) showcase** | The animation library to actually use — free, framework-agnostic, extremely performant |
+
+| Resource                                                        | What to look for                                                                           |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| **Awwwards.com**                                                | "Developer" and "Games" categories specifically                                            |
+| **Godly.website**                                               | Bold, non-corporate visual work                                                            |
+| **SiteInspire.com**                                             | Calmer editorial reference for settings/world-select screens                               |
+| **Codrops (tympanus.net/codrops)**                              | Real open-source code for glitch effects, terminal-typing effects, canvas particle systems |
+| **Dribbble** — search "pixel art UI," "terminal UI," "game HUD" | Concrete visual references matching Section 4's aesthetics                                 |
+| **itch.io game pages**                                          | Indie game UI/UX — a far better reference than corporate SaaS design for this project      |
+| **GSAP (greensock.com) showcase**                               | The animation library to actually use — free, framework-agnostic, extremely performant     |
 
 ---
 
@@ -55,7 +60,7 @@ Generic AI-made sites share a fingerprint: centered hero + gradient blob + round
 - Users type actual pandas (`.fillna()`, `.merge()`...) or actual SQL (`COALESCE`, `JOIN`...) into a real syntax-highlighted editor.
 - It runs against a **real Python engine (Pyodide, WASM)** or a **real SQL engine (sql.js, WASM)** — never a simulated interpreter.
 - Syntax errors show the **real Python/SQL error message**, exactly as a real notebook would. Reading and fixing that error is itself part of the lesson.
-- The game only evaluates the *result* of their code (did the affliction actually clear?) — never a pre-set "correct button."
+- The game only evaluates the _result_ of their code (did the affliction actually clear?) — never a pre-set "correct button."
 
 Everything learned here transfers 1:1 to a real job on day one — this is the whole credibility of the product.
 
@@ -64,42 +69,49 @@ Everything learned here transfers 1:1 to a real job on day one — this is the w
 ## 4. The five worlds — full content + distinct visual identity
 
 ### World 1 — Boss Fights (single-table cleaning)
+
 **Covers:** nulls, duplicates, casing/whitespace, dtypes, outliers, date parsing.
 **Mechanic:** turn-based combat; the dataframe itself is the battlefield (Section 5).
-| Problem | pandas | SQL |
-|---|---|---|
-| Missing values | `.fillna()` `.dropna()` `.interpolate()` | `COALESCE` `IS NULL` |
-| Duplicates | `.drop_duplicates()` | `DISTINCT` / `GROUP BY` |
-| Casing/whitespace | `.str.strip()` `.str.lower()` | `TRIM` `LOWER()` |
-| Wrong dtypes | `.astype()` `pd.to_numeric()` | `CAST` `CONVERT` |
-| Outliers | `.clip()`, filters | `WHERE` range checks |
-| Bad dates | `pd.to_datetime()` | `TO_DATE` |
-**Visual identity:** terminal/hacker aesthetic — monospace, phosphor green/amber on black, optional CRT scanlines, ASCII-block boss art.
+
+| Problem                                                                                                                                  | pandas                                   | SQL                     |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ----------------------- |
+| Missing values                                                                                                                           | `.fillna()` `.dropna()` `.interpolate()` | `COALESCE` `IS NULL`    |
+| Duplicates                                                                                                                               | `.drop_duplicates()`                     | `DISTINCT` / `GROUP BY` |
+| Casing/whitespace                                                                                                                        | `.str.strip()` `.str.lower()`            | `TRIM` `LOWER()`        |
+| Wrong dtypes                                                                                                                             | `.astype()` `pd.to_numeric()`            | `CAST` `CONVERT`        |
+| Outliers                                                                                                                                 | `.clip()`, filters                       | `WHERE` range checks    |
+| Bad dates                                                                                                                                | `pd.to_datetime()`                       | `TO_DATE`               |
+| **Visual identity:** terminal/hacker aesthetic — monospace, phosphor green/amber on black, optional CRT scanlines, ASCII-block boss art. |
 
 ### World 2 — The Vault (pattern extraction)
+
 **Covers:** regex extraction, encoding fixes.
 **Mechanic:** safe-cracking — regex either opens the lock or it doesn't; tumblers visually align as your pattern gets closer.
 **Content:** `str.extract()`, `str.contains()`, `re`, SQL `REGEXP`/`LIKE`/`SUBSTRING`; UTF-8 vs Latin-1 mojibake as a cipher sub-puzzle.
 **Visual identity:** heist aesthetic — navy/brass palette, animated combination-lock dial.
 
 ### World 3 — The Twins (relational/multi-table)
+
 **Covers:** joins, key mismatches, fuzzy matching.
 **Mechanic:** tag-team boss — two linked bosses only take damage when correctly connected.
 **Content:** `.merge()` join types, SQL `JOIN` types, missing/duplicate keys, fuzzy matching.
 **Visual identity:** mirror/symmetry — split-screen tables, connecting lines snap taut on correct joins, spark red on cartesian-product mistakes.
 
 ### World 4 — The Architect (structural reshaping)
+
 **Covers:** pivoting, melting, nested/JSON data.
 **Mechanic:** shape-shifting boss that continuously changes form; you reshape data to match it.
 **Content:** `.pivot()` `.melt()` `pd.json_normalize()`, SQL conditional aggregation, `JSONB` unwrapping.
 **Visual identity:** architectural blueprint — isometric grid, blueprint-blue background, wireframe polyhedron boss.
 
 ### World 5 — The Foundry (production-grade & performance) — for working professionals & seniors
+
 This is the world that makes an already-employed engineer stop and say "I didn't expect this here." It moves past "is the code correct" into "is the code production-grade" — the gap between junior and senior work.
 
 **Mechanic:** a forge/crafting system. You're not fighting a boss's HP — you're forging a "tool" (your code) that must pass a **stress test** under real constraints: a time budget, a memory budget, or a correctness-under-scale test against a much larger hidden dataset. A live benchmark readout shows your runtime next to a reference solution — beating it is the "win," not just getting the right answer.
 
 **Content covered:**
+
 - Vectorization vs. `.apply()`/loops — visually racing a vectorized solution against a loop-based one on a 1M-row dataset
 - Chunked processing for datasets too large to fit in memory (`pd.read_csv(chunksize=...)`)
 - Query optimization & indexing — SQL `EXPLAIN`/query plans, why an unindexed `WHERE` is slow, composite indexes
@@ -131,23 +143,23 @@ No abstraction gap between "the game" and "the real skill" — what's exciting o
 - **Difficulty scales by stacking afflictions** (1 → 2–3 simultaneous), forcing correct real-world sequencing.
 - **World-final bosses** are real, messy, Kaggle-grade datasets — no hints, one shot.
 - **Shareable rank card / case report** — an exportable image or static HTML page showing the commands used and the before/after diff, screenshot-worthy for a resume or LinkedIn post. No server-verified leaderboard needed to make this valuable.
-- **Sandbox / freeplay mode** (unlocked after World 1): upload your own CSV, or paste your own schema, and fight *your own* messy dataset in the same battlefield UI. This is the feature that turns "a learning toy" into "a tool I keep coming back to" for people who already have a job — genuinely useful for real interview prep or exploring a real dataset before writing a real notebook.
+- **Sandbox / freeplay mode** (unlocked after World 1): upload your own CSV, or paste your own schema, and fight _your own_ messy dataset in the same battlefield UI. This is the feature that turns "a learning toy" into "a tool I keep coming back to" for people who already have a job — genuinely useful for real interview prep or exploring a real dataset before writing a real notebook.
 
 ---
 
 ## 7. Tech stack & architecture (100% static, zero backend)
 
-| Layer | Choice | Why |
-|---|---|---|
-| Framework | React or Svelte (TypeScript, strict mode) | Svelte compiles to near-vanilla JS (snappier); React if prioritizing contributor familiarity for open source |
-| Python engine | **Pyodide** (WASM), run inside a **dedicated Web Worker** | Keeps heavy computation off the main thread so animations/UI never freeze — critical for the "smooth" requirement |
-| SQL engine | **sql.js** or **wa-sqlite** (WASM), also worker-isolated | Same isolation reasoning |
-| Code editor | **CodeMirror 6** | Lighter/faster than Monaco, real syntax highlighting + real error surfacing |
-| Animation | **GSAP** | Boss-hit recoil, HP-bar break, diff-flash — industry standard, framework-agnostic |
-| State/progress | `localStorage` + exportable JSON | No login, still durable |
-| Offline support | **Service Worker (Workbox)** + Cache API for the Pyodide/sql.js WASM binaries | First load costs a few MB; every visit after that is instant and works offline |
-| Build tool | **Vite** | Fast dev loop, handles WASM assets cleanly, native code-splitting |
-| Hosting | GitHub Pages / Netlify / Cloudflare Pages (static) | Free, zero maintenance, instantly forkable |
+| Layer           | Choice                                                                        | Why                                                                                                               |
+| --------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Framework       | React or Svelte (TypeScript, strict mode)                                     | Svelte compiles to near-vanilla JS (snappier); React if prioritizing contributor familiarity for open source      |
+| Python engine   | **Pyodide** (WASM), run inside a **dedicated Web Worker**                     | Keeps heavy computation off the main thread so animations/UI never freeze — critical for the "smooth" requirement |
+| SQL engine      | **sql.js** or **wa-sqlite** (WASM), also worker-isolated                      | Same isolation reasoning                                                                                          |
+| Code editor     | **CodeMirror 6**                                                              | Lighter/faster than Monaco, real syntax highlighting + real error surfacing                                       |
+| Animation       | **GSAP**                                                                      | Boss-hit recoil, HP-bar break, diff-flash — industry standard, framework-agnostic                                 |
+| State/progress  | `localStorage` + exportable JSON                                              | No login, still durable                                                                                           |
+| Offline support | **Service Worker (Workbox)** + Cache API for the Pyodide/sql.js WASM binaries | First load costs a few MB; every visit after that is instant and works offline                                    |
+| Build tool      | **Vite**                                                                      | Fast dev loop, handles WASM assets cleanly, native code-splitting                                                 |
+| Hosting         | GitHub Pages / Netlify / Cloudflare Pages (static)                            | Free, zero maintenance, instantly forkable                                                                        |
 
 **Why a Web Worker matters here specifically:** without it, a slow pandas operation on a big "final boss" dataset would freeze the whole UI — no animation, no responsiveness — exactly the "disturbed/janky" feeling the brief explicitly wants to avoid. Isolating execution in a worker keeps the interface buttery regardless of how heavy the underlying computation is.
 
@@ -158,22 +170,26 @@ No abstraction gap between "the game" and "the real skill" — what's exciting o
 A common founder mistake is assuming "no backend" means "no security work." Not true here — we're literally executing arbitrary user-typed code in a browser. That needs deliberate sandboxing.
 
 ### Code execution sandboxing
+
 - Run Pyodide/sql.js **inside a Web Worker**, not the main thread — a worker has no direct access to the DOM, cookies, or `localStorage` of the main page by default.
 - Where extra isolation is warranted (e.g. sandbox/freeplay mode with user-uploaded files), run the worker inside a **sandboxed, cross-origin `<iframe>`** with a strict `sandbox` attribute (no `allow-same-origin` + no `allow-top-navigation`) so even a worst-case malicious payload in a user's own uploaded file can't reach the parent page, its save data, or any other origin.
 - Never use `eval()` or `new Function()` on untrusted content outside that sandboxed context.
 
 ### Content Security Policy & supply chain
+
 - Strict CSP headers: `script-src 'self' <pinned CDN origins>`, no inline scripts, no `unsafe-eval` on the main thread.
 - **Subresource Integrity (SRI)** hashes on every CDN-loaded script (GSAP, any font/library CDN).
 - Pin exact versions of Pyodide/sql.js — never load `@latest` — and track upstream CVEs via **Dependabot/Snyk** on the repo.
 - No third-party analytics scripts by default (see below) — every third-party script is a supply-chain risk surface, and the fewer there are, the smaller that surface.
 
 ### Privacy by design
+
 - Zero accounts means zero PII collected by default — genuinely privacy-respecting, not just marketing language.
 - If analytics are added later, use a **privacy-first, cookieless, self-hostable option** (e.g. Plausible or Umami) rather than anything that fingerprints users — and make it opt-in/clearly disclosed, not silent.
 - User-uploaded datasets in sandbox mode **never leave the browser** — processing happens entirely client-side in the worker; explicitly document this so privacy-conscious users (and their employers' data policies) can trust it with real work data.
 
 ### Data/content licensing hygiene
+
 - Every seed dataset shipped with the platform must be **explicitly open-licensed** (CC0, public-domain government data, or purpose-built synthetic data) — verify and document the license per dataset in `content/cases/*.json` metadata. Never scrape or embed data with unclear provenance.
 - Synthetic data generation (e.g. Faker-style libraries) preferred over real scraped data specifically to avoid embedding real people's PII in "messy dataset" bosses.
 
@@ -182,8 +198,9 @@ A common founder mistake is assuming "no backend" means "no security work." Not 
 ## 9. Engineering practices — building this like a real product, not a demo
 
 ### Repository structure (monorepo — large is fine, organization matters more than size)
+
 ```
-data-cleaning-quest/
+queryathan/
 ├── apps/
 │   └── web/                        # the main Vite app
 │       ├── src/
@@ -235,6 +252,7 @@ data-cleaning-quest/
 ```
 
 ### Code quality gates
+
 - **TypeScript strict mode** everywhere, no `any` without an explicit justification comment.
 - **ESLint + Prettier**, enforced via **Husky** pre-commit hooks so bad formatting/lint errors never reach CI.
 - **Vitest** for unit tests (game-logic, diff computation, save-system serialization).
@@ -242,6 +260,7 @@ data-cleaning-quest/
 - **GitHub Actions CI** on every PR: typecheck → lint → unit tests → build → Lighthouse performance budget check. Nothing merges red.
 
 ### Content as data, not code
+
 Every boss/case/puzzle is a JSON file conforming to a shared TypeScript schema (`packages/content-schema`), not hardcoded logic. This is what makes "massive open-source project" actually achievable — contributors can add a new boss by writing a JSON file + a seed dataset, without touching engine code or understanding the Pyodide/worker internals at all. Document this clearly in `content-authoring-guide.md`.
 
 ---
@@ -320,7 +339,7 @@ Every boss/case/puzzle is a JSON file conforming to a shared TypeScript schema (
 2. **No backend for the core experience, ever** — anything that needs one goes in Section 13, not the roadmap.
 3. **No login, ever, for the core experience** — progress lives locally, exportable, never gatekept.
 4. **Every world gets its own distinct visual language** — never reuse one template with just a new color swatch.
-5. **The data is the star** — feedback shows the learner their *actual data* changing, not an abstract animation layered on top.
+5. **The data is the star** — feedback shows the learner their _actual data_ changing, not an abstract animation layered on top.
 6. **Security and performance are merge-blocking requirements, not later cleanup.**
 7. **Content is data, not code** — anyone should be able to contribute a new case without touching engine internals.
 8. **Built for the whole spectrum** — a total beginner and a staff engineer should both find something here worth their time.
