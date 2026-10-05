@@ -3,7 +3,9 @@
 All notable changes to this project are documented here. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/).
 
-## Unreleased (Phase 9)
+## 1.0.0 (2026-10-05)
+
+- **Launch polish.** The app can be installed (web app manifest and icons), has proper social-sharing tags, and the home page has a footer linking to the repository, the contributing guide and the bug form. New repo files: SUPPORT, CITATION, CODEOWNERS, release-note categories, label set, a feature-request form, CodeQL and dependency-review workflows, and a list of good first issues.
 
 - **Final audit.** Every complete SQL hint is now run in the browser and must win its case (27 cases). The new world descriptions match their cases (no promise of year-over-year or normalising that was not there), "1 rows" now reads "1 row", the answer note says what the answer needs instead of "the chart has", the data-layout buttons meet the 24px target size, and the new rosters, the ANIM menu, the flight card and a Laboratory fight are scanned for accessibility in both themes.
 

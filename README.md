@@ -1,67 +1,77 @@
 <div align="center">
 
+<img src="./docs/images/social-preview.png" alt="Data Cleaning Quest: fight your data clean" width="760">
+
 # Data Cleaning Quest
 
-**Fight your data clean.**
-
-Learn real **pandas** and real **SQL** by playing. Nine worlds, 45 hand-built cases, real engines
-running in your browser. No account. No server. Nothing to install.
+**Learn real pandas and SQL by playing. Nine planet worlds, 45 cases, real engines in your browser.**
+No account. No server. Nothing to install. Works offline.
 
 [![CI](https://github.com/Yuvakunaal/data-cleaning-quest/actions/workflows/ci.yml/badge.svg)](https://github.com/Yuvakunaal/data-cleaning-quest/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Yuvakunaal/data-cleaning-quest/actions/workflows/codeql.yml/badge.svg)](https://github.com/Yuvakunaal/data-cleaning-quest/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
+[![Good first issues](https://img.shields.io/github/issues/Yuvakunaal/data-cleaning-quest/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/Yuvakunaal/data-cleaning-quest/labels/good%20first%20issue)
 ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6)
 ![Runs offline](https://img.shields.io/badge/runs-offline-2ea44f)
 ![No backend](https://img.shields.io/badge/backend-none-lightgrey)
 
-<img src="./docs/images/hub-dark.png" alt="The Data Cleaning Quest home screen: nine worlds, each a named planet" width="820">
+[Play](#quick-start) · [The nine worlds](#the-nine-worlds) · [How it works](#how-it-works) · [Contribute](#contributing) · [FAQ](#faq)
 
 </div>
 
-## What is this?
+---
 
-Data Cleaning Quest is a game for learning the part of data work that takes most of the time: getting messy
-tables right, and then making them answer questions. Every case is a real table with a real problem in it.
-You write **real Python (pandas)** or **real SQL (SQLite)**, press Run, and watch the table change. Each
-win comes with a short cinematic, so the work feels like a quest rather than a worksheet.
-
-- **Real engines, not simulations.** Python runs in [Pyodide](https://pyodide.org) (WebAssembly pandas) and SQL
-  in [sql.js](https://sql.js.org) (WebAssembly SQLite), each isolated in its own Web Worker. The errors you see are the real errors, with a plain-English explanation on top.
-- **Every case works in both languages.** The same problem, solved with pandas or with SQL. The end-to-end test suite proves each case is winnable in both, and that the starter code does not already win.
-- **No backend, no login, no tracking.** Progress lives in your browser (`localStorage`) and can be exported as a file. After one visit the app works fully offline.
-- **Judged by exact answers.** Cases are won by declarative checks (clean cells, or an exact answer table), never by matching your code, so any correct approach wins.
-- **Built to be accessible.** Dark, light and high-contrast themes, adjustable text size, keyboard use throughout, reduced-motion support, and automated WCAG audits in CI.
+Most people learn data cleaning from tidy tutorials, then meet a real table and freeze. Data Cleaning Quest
+flips that: every case is a **messy table with a real problem in it**, and you fix it by writing **real
+pandas or real SQL**, running it against a **real engine in your browser**, and watching the table change. Win
+a case and a short cinematic plays. Travel to the next world by rocket.
 
 <p align="center">
-  <img src="./docs/images/fight-dark.png" alt="A fight: the task and checklist on the left, the editor below it, the live data table on the right" width="49%">
-  <img src="./docs/images/fight-light.png" alt="The same fight in the light theme" width="49%">
+  <img src="./docs/images/demo-flight.gif" alt="Choosing a world launches a rocket: lift-off, warp, descent and landing" width="49%">
+  <img src="./docs/images/demo-win.gif" alt="Solving a case: the query runs, the answer checks out and the boss is defeated" width="49%">
 </p>
+
+## Why it is different
+
+|                        | Typical tutorials       | Data Cleaning Quest                                                     |
+| ---------------------- | ----------------------- | ----------------------------------------------------------------------- |
+| **Code runs**          | On a server, or faked   | In your browser: Pyodide (pandas) and SQLite (WebAssembly)              |
+| **Languages**          | One                     | **Both**: every case is winnable in Python and in SQL                   |
+| **Checking**           | Match the expected code | Judge the **result**: any correct approach wins                         |
+| **Errors**             | Hidden or generic       | The real error, with a plain-English explanation on top                 |
+| **Account / tracking** | Required                | None. Progress stays on your device and exports as a file               |
+| **Offline**            | No                      | Yes, after one visit                                                    |
+| **Content**            | Locked in a platform    | Open: a case is one JSON file and a CC0 dataset                         |
+| **Accessibility**      | Rarely audited          | Dark, light, high contrast, keyboard, reduced motion, WCAG audits in CI |
 
 ## The nine worlds
 
-Each world is a planet with its own colours, its own heads-up display and its own theme. Choosing one launches
-a rocket flight to it (skippable, and optional).
+Each world is a planet with its own colours, heads-up display and theme. Choosing one launches a rocket flight
+(skippable, and optional in the **ANIM** menu).
 
-| #   | World           | You practise                                                                                     | Cases |
-| --- | --------------- | ------------------------------------------------------------------------------------------------ | ----- |
-| 1   | **Ember Reach** | Cleaning: nulls, duplicates, whitespace and casing, wrong types, outliers, bad dates             | 4     |
-| 2   | **Cryptara**    | Patterns: regular expressions, extraction, broken text encodings                                 | 5     |
-| 3   | **Geminora**    | Joins: key mismatches, repeated rows, joining two to four tables                                 | 6     |
-| 4   | **Atlas Spire** | Reshaping: melt, pivot, nested JSON                                                              | 4     |
-| 5   | **Cinderforge** | Speed: vectorising, window functions, timed against a stopwatch with bronze, silver, gold stamps | 2     |
-| 6   | **Lumenfield**  | Analysis: grouping, ranking, moving averages, cohorts, sessions, funnels                         | 6     |
-| 7   | **Minos Deep**  | CTEs and recursion: `WITH`, anti-joins, org charts, bills of materials, set logic, streaks       | 6     |
-| 8   | **Chronopolis** | Time: mixed date formats, business days, time zones, date spines, as-of joins, interval merging  | 6     |
-| 9   | **Helix-9**     | Statistics: spread, z-score outliers, imputation, binning, A/B tests, regression                 | 6     |
+| #   | World           | You practise                                                                                    | Cases |
+| --- | --------------- | ----------------------------------------------------------------------------------------------- | ----- |
+| 1   | **Ember Reach** | Cleaning: nulls, duplicates, whitespace and casing, wrong types, outliers, bad dates            | 4     |
+| 2   | **Cryptara**    | Patterns: regular expressions, extraction, broken text encodings                                | 5     |
+| 3   | **Geminora**    | Joins: key mismatches, repeated rows, joining two to four tables                                | 6     |
+| 4   | **Atlas Spire** | Reshaping: melt, pivot, nested JSON                                                             | 4     |
+| 5   | **Cinderforge** | Speed: vectorising, window functions, timed against a stopwatch (bronze, silver, gold stamps)   | 2     |
+| 6   | **Lumenfield**  | Analysis: grouping, ranking, moving averages, cohorts, sessions, funnels                        | 6     |
+| 7   | **Minos Deep**  | CTEs and recursion: `WITH`, anti-joins, org charts, bills of materials, set logic, streaks      | 6     |
+| 8   | **Chronopolis** | Time: mixed date formats, business days, time zones, date spines, as-of joins, interval merging | 6     |
+| 9   | **Helix-9**     | Statistics: spread, z-score outliers, imputation, binning, A/B tests, regression                | 6     |
 
-(Worlds 1 to 5 were first known as Boss Fights, The Vault, The Twins, The Architect and The Foundry; those
-names survive as the ids in `content/` and in saved progress.)
-
-There is also a **Sandbox**: bring your own CSV (up to four tables, joined in a rearrangeable collage) and
+There is also a **Sandbox**: load your own CSV (up to four tables, joined in a rearrangeable collage) and
 explore it with pandas or SQL. Nothing is uploaded.
 
 <p align="center">
-  <img src="./docs/images/flight.png" alt="The rocket warping towards a planet" width="49%">
-  <img src="./docs/images/landing.png" alt="The rocket landing on the planet's surface" width="49%">
+  <img src="./docs/images/hub-dark.png" alt="The home screen: nine planet worlds" width="49%">
+  <img src="./docs/images/fight-dark.png" alt="A fight in the dark theme: task, editor and live data" width="49%">
+</p>
+<p align="center">
+  <img src="./docs/images/fight-light.png" alt="The same fight in the light theme" width="49%">
+  <img src="./docs/images/landing.png" alt="The rocket landing on the planet" width="49%">
 </p>
 
 ## Quick start
@@ -106,46 +116,56 @@ First e2e run: `pnpm --filter @dcq/web exec playwright install chromium`.
 
 ## Quality
 
-- Strict TypeScript, ESLint, Prettier, Husky pre-commit.
+- Strict TypeScript, ESLint, Prettier, Husky pre-commit, CodeQL, Dependabot.
 - 298 unit tests (Vitest) and 300+ end-to-end tests (Playwright) on a production build served with the real headers:
   every case in both engines, near-miss wrong answers, every complete SQL hint, offline use, layout at phone widths,
   axe-core accessibility scans in both themes, and WCAG AA contrast on every colour token.
 - Lighthouse budgets in CI.
 
-## Stack
-
-React 19 · TypeScript (strict) · Vite · Pyodide · sql.js · CodeMirror 6 · GSAP · TanStack Virtual · Zod · Vitest · Playwright · pnpm workspaces
-
-## Repository layout
-
-```
-apps/web/                 the game (Vite + React)
-  src/engines/              Pyodide and SQLite workers and their clients, CSV loader, SQL friendly-function layer
-  src/worlds/boss-fights/   screens, HUDs, themes, the flight and kill sequences (shared by every world)
-  src/anim/                 GSAP choreography
-  src/lib/                  pure game logic: diffing, win conditions, save data, sound, world metadata
-  e2e/                      Playwright suites and the known-good answer for every case
-  public/datasets/          synthetic CC0 datasets, one folder per world
-packages/content-schema/  Zod schema and types for case JSON
-packages/engine-adapters/ typed worker protocol and RPC client
-content/cases/            the cases, one folder per world
-content/rosters/          the fight order of each world
-scripts/                  dataset and case generators, content validation, Pyodide fetch
-docs/                     architecture, authoring guide, ADRs, design specs, roadmap
-```
-
 ## Contributing
 
-A new case is **a JSON file plus a dataset**. Start with [`CONTRIBUTING.md`](./CONTRIBUTING.md), the
-[authoring guide](./docs/content-authoring-guide.md) and the [call for cases](./docs/call-for-cases.md).
-Bigger changes (a new world, a schema change) start with a short [RFC](./docs/rfc-template.md) in Discussions.
-Please read the [Code of Conduct](./CODE_OF_CONDUCT.md).
+**A new case is a JSON file plus a dataset.** No engine knowledge needed. Start with
+[`CONTRIBUTING.md`](./CONTRIBUTING.md), the [authoring guide](./docs/content-authoring-guide.md) and the
+[call for cases](./docs/call-for-cases.md). Looking for something small to start with? See the
+[good first issues](./docs/good-first-issues.md). Bigger changes (a new world, a schema change) start with a short
+[RFC](./docs/rfc-template.md) in Discussions. Please read the [Code of Conduct](./CODE_OF_CONDUCT.md).
+
+## Roadmap
+
+- [x] Nine worlds, 45 cases, both engines, sandbox, offline, themes, accessibility audits
+- [x] Rocket flights and cinematic wins (optional)
+- [ ] More cases in every world ([wanted list](./docs/call-for-cases.md))
+- [ ] Firefox and WebKit in the end-to-end matrix
+- [ ] Interface and briefings in more human languages
+- [ ] Teacher mode: print-friendly case sheets and answer keys (still no accounts)
+
+Out of scope on purpose: accounts, streaks, leaderboards, cloud sync and tracking. See [`docs/ROADMAP.md`](./docs/ROADMAP.md).
+
+## FAQ
+
+**Is it really running Python in my browser?** Yes. [Pyodide](https://pyodide.org) is CPython and pandas compiled to WebAssembly. SQL runs in [sql.js](https://sql.js.org), SQLite compiled to WebAssembly.
+
+**Does it work offline?** After one visit, yes. The first Python start downloads pandas once (pinned version) and caches it.
+
+**Where is my progress stored?** In your browser's `localStorage`, on your device only. Export it as a file to move it. There is no server to sync with.
+
+**Is it safe to run code I type?** It runs in a Web Worker with no access to the page, behind a strict CSP, with a run timeout. See [`SECURITY.md`](./SECURITY.md).
+
+**Can I use it in a class or a workshop?** Yes, it is MIT licensed and needs no accounts. Deploy it as a static site (see [`vercel.json`](./vercel.json) for the required headers).
+
+**Why SQLite and not MySQL or Postgres?** It is the engine that runs in a browser. The app adds many friendly functions (`DATEDIFF`, `STDDEV`, `REGEXP_REPLACE`, ...) and explains dialect differences in plain language.
+
+**Can I add my own cases?** That is the point. See [Contributing](#contributing).
 
 ## Documentation
 
 [Architecture](./docs/ARCHITECTURE.md) · [Authoring guide](./docs/content-authoring-guide.md) ·
 [Decision records](./docs/adr/) · [Roadmap](./docs/ROADMAP.md) · [Changelog](./CHANGELOG.md) ·
-[Original product plan](./data-cleaning-quest-master-plan.md)
+[Support](./SUPPORT.md) · [Original product plan](./data-cleaning-quest-master-plan.md)
+
+## Stack
+
+React 19 · TypeScript (strict) · Vite · Pyodide · sql.js · CodeMirror 6 · GSAP · TanStack Virtual · Zod · Vitest · Playwright · pnpm workspaces
 
 ## Security
 
@@ -162,3 +182,11 @@ All datasets are synthetic and released under CC0.
 ## License
 
 [MIT](./LICENSE) for the code. Datasets are CC0.
+
+<div align="center">
+
+If this helped you, a star on GitHub helps others find it.
+
+[![Star History](https://api.star-history.com/svg?repos=Yuvakunaal/data-cleaning-quest&type=Date)](https://star-history.com/#Yuvakunaal/data-cleaning-quest&Date)
+
+</div>

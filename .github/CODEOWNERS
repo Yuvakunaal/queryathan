@@ -1,0 +1,5 @@
+# Everything is reviewed by the maintainer by default.
+*                         @Yuvakunaal
+# New cases and datasets are a data review, not a code review.
+/content/                 @Yuvakunaal
+/apps/web/public/datasets/ @Yuvakunaal

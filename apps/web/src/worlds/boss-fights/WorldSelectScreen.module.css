@@ -335,3 +335,38 @@
     border: 1px solid CanvasText;
   }
 }
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 20px;
+  margin-top: 40px;
+  padding-top: 18px;
+  border-top: 1px solid var(--w1-rule);
+  font: 400 12px/1.4 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.footerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.footerLinks a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  color: var(--w1-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.footerLinks a:hover,
+.footerLinks a:focus-visible {
+  color: var(--w1-amber-500);
+}
+.footerLinks a:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}

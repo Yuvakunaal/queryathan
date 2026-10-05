@@ -1,0 +1,26 @@
+name: Feature request
+description: Suggest an improvement to the game, the editor or the tooling.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the moment where you got stuck or wanted something else.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to see?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+  - type: markdown
+    attributes:
+      value: |
+        This project deliberately has no backend, accounts, streaks, leaderboards or tracking.
+        Ideas that need those are out of scope; everything else is welcome.

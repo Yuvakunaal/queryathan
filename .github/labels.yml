@@ -1,0 +1,24 @@
+# Apply with: gh label create --force ... or the github-label-sync tool.
+- { name: bug, color: d73a4a, description: Something is not working }
+- { name: enhancement, color: a2eeef, description: A new feature or improvement }
+- { name: new-case, color: 0e8a16, description: A new case for an existing world }
+- { name: new-world, color: 5319e7, description: A proposal for a whole new world }
+- { name: good first issue, color: 7057ff, description: Good for newcomers }
+- { name: help wanted, color: 008672, description: Extra attention is welcome }
+- { name: documentation, color: 0075ca, description: Docs and guides }
+- {
+    name: accessibility,
+    color: fbca04,
+    description: Screen readers,
+    keyboard,
+    contrast,
+    motion,
+  }
+- {
+    name: content-quality,
+    color: c5def5,
+    description: A wrong,
+    unclear or misleading question,
+    hint or dataset,
+  }
+- { name: chore, color: ededed, description: Tooling and maintenance }
