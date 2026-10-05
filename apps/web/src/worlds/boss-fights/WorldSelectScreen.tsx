@@ -211,13 +211,6 @@ export default function WorldSelectScreen({
             >
               Add a case
             </a>
-            <a
-              href={`${REPO_URL}/issues/new/choose`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Report a bug
-            </a>
           </nav>
         </footer>
       </div>

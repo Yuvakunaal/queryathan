@@ -159,6 +159,10 @@ Out of scope on purpose: accounts, streaks, leaderboards, cloud sync and trackin
 
 **Can I add my own cases?** That is the point. See [Contributing](#contributing).
 
+## Deploy
+
+It is a static site. See [`docs/DEPLOYING.md`](./docs/DEPLOYING.md): Vercel works out of the box with the included `vercel.json`.
+
 ## Brand
 
 The logo (a porthole, a dorsal fin and the waterline) and its sources live in [`docs/brand/`](./docs/brand/). Brand colours: orange `#ffb02e` to `#ff6a00` on near-black `#0a0a0b`.

@@ -76,6 +76,27 @@ function stampServiceWorker(distDir: string): void {
   );
 }
 
+/**
+ * Share links (canonical address, social image) need an absolute URL. The build reads
+ * it from SITE_URL, or from the production domain Vercel provides; with neither, the
+ * addresses stay relative and the canonical/og:url tags are left out.
+ */
+function siteMetaPlugin(): Plugin {
+  const vercelHost = process.env["VERCEL_PROJECT_PRODUCTION_URL"];
+  const raw = process.env["SITE_URL"] ?? (vercelHost ? `https://${vercelHost}` : "");
+  const site = raw.replace(/\/+$/, "");
+  return {
+    name: "dcq-site-meta",
+    transformIndexHtml(html) {
+      if (site) return html.replaceAll("__SITE_URL__", site);
+      return html
+        .replace(/\s*<link rel="canonical"[^>]*>/, "")
+        .replace(/\s*<meta property="og:url"[^>]*>/, "")
+        .replaceAll("__SITE_URL__", "");
+    },
+  };
+}
+
 function copyJsonRecursive(srcDir: string, destDir: string): void {
   for (const entry of readdirSync(srcDir)) {
     const srcPath = join(srcDir, entry);
@@ -89,7 +110,7 @@ function copyJsonRecursive(srcDir: string, destDir: string): void {
 }
 
 export default defineConfig({
-  plugins: [react(), contentCasesPlugin()],
+  plugins: [react(), contentCasesPlugin(), siteMetaPlugin()],
   worker: {
     format: "es",
   },

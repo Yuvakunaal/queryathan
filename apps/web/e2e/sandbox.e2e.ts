@@ -72,9 +72,26 @@ for (const engine of ["sql", "python"] as EngineName[]) {
     await seed(page);
     await page.goto("/");
     await page.getByRole("button", { name: /Sandbox/ }).click();
-    await page.getByRole("button", { name: "Try a join sample (3 tables)" }).click();
+    const csv = (name: string, text: string) => ({
+      name,
+      mimeType: "text/csv",
+      buffer: Buffer.from(text),
+    });
+    await page.setInputFiles(
+      'input[aria-label="Choose a CSV file"]',
+      csv("orders.csv", "order_id,customer_id,product_id\n1,C1,P1\n2,C2,P2\n3,C1,P2\n"),
+    );
     await expect(page.getByText("orders.csv")).toBeVisible();
-    // The sample brings two more tables with names to use in code.
+    // Two more tables of our own, with names to use in code.
+    const another = 'input[aria-label="Choose another CSV file to join"]';
+    await page.setInputFiles(
+      another,
+      csv("customers.csv", "customer_id,customer_name\nC1,Ann\nC2,Bo\n"),
+    );
+    await page.setInputFiles(
+      another,
+      csv("products.csv", "product_id,product_name\nP1,Kettle\nP2,Lamp\n"),
+    );
     await expect(page.getByLabel("Name in code")).toHaveCount(2);
     await expect(page.getByLabel("Name in code").first()).toHaveValue("customers");
     // A fourth table of our own; after that there is no more room.

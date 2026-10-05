@@ -25,15 +25,6 @@ const SAMPLE = {
   name: "messy-products.csv",
 };
 
-/** Three related tables, for trying joins straight away. */
-const JOIN_SAMPLE = {
-  main: { url: "/datasets/world-3/three-way-orders.csv", name: "orders.csv" },
-  extras: [
-    { url: "/datasets/world-3/three-way-customers.csv", name: "customers.csv" },
-    { url: "/datasets/world-3/three-way-products.csv", name: "products.csv" },
-  ],
-};
-
 export default function SandboxSetupScreen({
   a11y,
   onA11yChange,
@@ -125,46 +116,6 @@ export default function SandboxSetupScreen({
       });
   }
 
-  function loadJoinSample(): void {
-    setBusy(true);
-    Promise.all(
-      [JOIN_SAMPLE.main, ...JOIN_SAMPLE.extras].map(async (file) => ({
-        name: file.name,
-        text: await (await fetch(file.url)).text(),
-      })),
-    )
-      .then(([main, ...rest]) => {
-        if (!main) return;
-        const prepared = prepareSandboxCsv(main.text);
-        if (!prepared.ok) throw new Error(prepared.message);
-        const loadedExtras: SandboxExtra[] = [];
-        for (const item of rest) {
-          const result = prepareSandboxCsv(item.text);
-          if (!result.ok) throw new Error(result.message);
-          loadedExtras.push({
-            name: uniqueTableName(
-              item.name,
-              loadedExtras.map((e) => e.name),
-            ),
-            fileName: item.name,
-            csvText: result.data.csvText,
-            columns: result.data.columns,
-            rowCount: result.data.rowCount,
-          });
-        }
-        setError(null);
-        setExtraError(null);
-        setLoaded({ fileName: main.name, prepared: prepared.data });
-        setExtras(loadedExtras);
-      })
-      .catch(() => {
-        setError("The sample could not be loaded. Check your connection and try again.");
-      })
-      .finally(() => {
-        setBusy(false);
-      });
-  }
-
   function handleDrop(event: DragEvent<HTMLDivElement>): void {
     event.preventDefault();
     setDragging(false);
@@ -237,9 +188,6 @@ export default function SandboxSetupScreen({
             </button>
             <button type="button" className={styles.secondary} onClick={loadSample}>
               Try a sample
-            </button>
-            <button type="button" className={styles.secondary} onClick={loadJoinSample}>
-              Try a join sample (3 tables)
             </button>
           </div>
           <input

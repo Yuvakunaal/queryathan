@@ -5,12 +5,14 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## 1.0.0 (2026-10-05)
 
+- **Ready to deploy.** Share links get an absolute address from `SITE_URL` or Vercel's production domain (canonical, `og:url`, `og:image`, Twitter card with image size and description), hashed assets are cached for a year and the service worker is never cached, there is a `robots.txt` and a no-JavaScript message, and [`docs/DEPLOYING.md`](./docs/DEPLOYING.md) has the steps and a pre-launch checklist.
+
 - **A logo and a brand.** The mark is a porthole, a dorsal fin and the waterline: the leviathan under the surface, seen from a ship. It is in the home and world headers, the tab icon, the install icons (including a maskable one) and the share image. The home screen now has its own black-and-orange theme (dark and light, contrast-checked) so the whole brand agrees; the nine worlds keep their own colours.
 - **CI fixed.** The home page's JavaScript had grown past the 400 KB Lighthouse budget when the rocket flight (and the animation library) joined it; the flight is now loaded only when it is about to play, and warmed up when you hover a world. Dependabot no longer proposes the zod 4 major upgrade (it breaks the save-file schema) and groups minor and patch updates; the dependency-review job no longer blocks merging while the repository's Dependency graph is off; end-to-end tests retry twice on CI.
 
 - **Renamed to Queryathan** (query + leviathan). The project grew past data cleaning into analysis, time, statistics and recursion, so it has a name that covers all of it. The app, README, docs, share images and package metadata use the new name. World ids and saved progress (`dcq.*` in the browser) are unchanged, so nobody loses progress. The repository moves to `Yuvakunaal/queryathan`.
 
-- **Launch polish.** The app can be installed (web app manifest and icons), has proper social-sharing tags, and the home page has a footer linking to the repository, the contributing guide and the bug form. New repo files: SUPPORT, CITATION, CODEOWNERS, release-note categories, label set, a feature-request form, CodeQL and dependency-review workflows, and a list of good first issues.
+- **Launch polish.** The app can be installed (web app manifest and icons), has proper social-sharing tags, and the home page has a footer linking to the repository, and the contributing guide. New repo files: SUPPORT, CITATION, CODEOWNERS, release-note categories, label set, a feature-request form, CodeQL and dependency-review workflows, and a list of good first issues.
 
 - **Final audit.** Every complete SQL hint is now run in the browser and must win its case (27 cases). The new world descriptions match their cases (no promise of year-over-year or normalising that was not there), "1 rows" now reads "1 row", the answer note says what the answer needs instead of "the chart has", the data-layout buttons meet the 24px target size, and the new rosters, the ANIM menu, the flight card and a Laboratory fight are scanned for accessibility in both themes.
 
@@ -108,7 +110,7 @@ follows [Keep a Changelog](https://keepachangelog.com/).
   brings back tabs. The choice and the order are remembered per device.
 - **Two new joins in The Twins:** THREE_WAY (three tables) and FOUR_CORNERS (four tables,
   with a discount to apply), both judged by exact values.
-- **The sandbox takes up to four tables** (your own files, or a ready-made join sample), each
+- **The sandbox takes up to four tables** (your own files), each
   with a name you choose, shown in the same collage.
 - **SQL toolbox.** Dozens of everyday MySQL/PostgreSQL/Snowflake functions now work in the SQL
   engine (YEAR, MONTH, DATE_TRUNC, DATE_ADD, DATEDIFF, TIMESTAMPDIFF, EXTRACT, DATE_FORMAT,
