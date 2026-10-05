@@ -141,10 +141,12 @@ the judging:
   one decimal).
 - The check never shows the expected values, only how many rows are right.
 - Set `"reshapes": true` (the answer is a new table) and list `"skills"`
-  (for example `["cohorts"]`): rank counts these, since every case here is judged
+  (for example `["cohorts"]`; lowercase letters, digits and underscores only, so
+  `gaps_and_islands`, not `gaps-and-islands`): rank counts these, since every case here is judged
   by the same predicate.
 - **Compute the expected rows in code from the definition in the briefing**, not
-  by hand. `scripts/generate-observatory.mjs` does this and writes the case files.
+  by hand. `scripts/generate-labyrinth.mjs` does this and writes the case files (its
+  shared helpers are in `scripts/lib/kit.mjs`).
   Then add a known-good SQL and pandas answer to `apps/web/e2e/solutions.ts`; the
   suite proves both engines reach the same table.
 - Avoid ties, exact-boundary values and anything where SQLite and pandas

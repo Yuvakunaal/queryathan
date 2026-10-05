@@ -1020,7 +1020,11 @@ export default function BossFightScreen({
           ) : world === "the-vault" ? (
             <TumblerBand grid={grid} winCondition={caseData.winCondition} />
           ) : caseData.winCondition.all.some((p) => p.predicate === "result_matches") ? (
-            <StarChartBand grid={grid} winCondition={caseData.winCondition} />
+            <StarChartBand
+              grid={grid}
+              winCondition={caseData.winCondition}
+              ran={runCount > 0}
+            />
           ) : world === "the-twins" ? (
             <TwinBand
               grid={grid}
@@ -1036,8 +1040,6 @@ export default function BossFightScreen({
               engine={engine === "sql" ? "sql" : "python"}
               rows={grid.rows.length}
             />
-          ) : world === "the-observatory" ? (
-            <StarChartBand grid={grid} winCondition={caseData.winCondition} />
           ) : world === "the-architect" ? (
             <BlueprintBand grid={grid} winCondition={caseData.winCondition} />
           ) : (

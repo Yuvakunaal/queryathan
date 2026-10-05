@@ -8,6 +8,8 @@ import styles from "./StarChartBand.module.css";
 export interface StarChartBandProps {
   grid: ResultGrid;
   winCondition: WinCondition;
+  /** Whether the player has run anything yet; before that there is no answer to compare. */
+  ran?: boolean;
 }
 
 /**
@@ -16,7 +18,11 @@ export interface StarChartBandProps {
  * of the expected rows are right. It shows how close the answer is without ever
  * showing the expected values themselves.
  */
-export default function StarChartBand({ grid, winCondition }: StarChartBandProps) {
+export default function StarChartBand({
+  grid,
+  winCondition,
+  ran = true,
+}: StarChartBandProps) {
   const { columns, report, others } = useMemo(() => {
     const answer = winCondition.all.find((p) => p.predicate === "result_matches");
     const rest = winCondition.all
@@ -55,7 +61,11 @@ export default function StarChartBand({ grid, winCondition }: StarChartBandProps
             })}
           </ul>
         </div>
-        {report.rowCount !== report.expectedRows ? (
+        {!ran ? (
+          <p className={styles.note}>
+            Run your code to see how close your answer is. Nothing is judged until you do.
+          </p>
+        ) : report.rowCount !== report.expectedRows ? (
           <p className={styles.note}>
             Your answer has {String(report.rowCount)}{" "}
             {report.rowCount === 1 ? "row" : "rows"}; the answer needs{" "}

@@ -2,6 +2,26 @@
   "name": "data-cleaning-quest",
   "private": true,
   "version": "0.0.0",
+  "description": "Learn real pandas and SQL by playing: a no-login, in-browser game of data cleaning and analysis.",
+  "homepage": "https://github.com/Yuvakunaal/data-cleaning-quest#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yuvakunaal/data-cleaning-quest.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Yuvakunaal/data-cleaning-quest/issues"
+  },
+  "keywords": [
+    "pandas",
+    "sql",
+    "sqlite",
+    "pyodide",
+    "data-cleaning",
+    "education",
+    "game",
+    "webassembly",
+    "react"
+  ],
   "license": "MIT",
   "type": "module",
   "engines": {

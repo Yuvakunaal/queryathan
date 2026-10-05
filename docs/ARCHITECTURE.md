@@ -9,10 +9,16 @@ specific technical decisions.
 
 Nine worlds (each a named planet reached by a skippable rocket flight) and a sandbox are playable, every case in both engines (see
 [`README.md`](../README.md#status) and [`CHANGELOG.md`](../CHANGELOG.md)):
-Boss Fights (cell-level cleaning), The Vault (regex and encodings), The Twins
-(joins across two tables), The Architect (reshaping), The Foundry (speed jobs
-timed against a stopwatch), The Observatory (analysis questions judged by
-comparing an answer table), The Labyrinth (CTEs, recursion and set logic), The Timekeeper (dates, time zones and timelines), The Laboratory (statistics, experiments and regression), and a sandbox for your own CSV. Each world has its
+Ember Reach (cell-level cleaning), Cryptara (regex and encodings), Geminora
+(joins), Atlas Spire (reshaping), Cinderforge (speed jobs timed against a
+stopwatch), Lumenfield (analysis questions judged by comparing an answer
+table), Minos Deep (CTEs, recursion and set logic), Chronopolis (dates, time
+zones and timelines), Helix-9 (statistics, experiments and regression), and a
+sandbox for your own CSV. (The first five worlds' ids, `boss-fights`,
+`the-vault`, `the-twins`, `the-architect`, `the-foundry`, and the later
+`the-observatory`, `the-labyrinth`, `the-timekeeper`, `the-laboratory`, are
+stable: they name content folders and saved progress. The display names live
+in `apps/web/src/lib/world-meta.ts`.) Each world has its
 own theme (dark and light) and HUD; the fight screen, editor, result tabs and
 win sequence are shared. Content is data (`content/`), judged by declarative
 predicates (ADR 0003). The app works offline after a first visit.
@@ -28,7 +34,7 @@ apps/web/              the game — Vite + React app, the only deployable unit
   public/datasets/<world>/   seed CSVs + LICENSES.md
 packages/content-schema/   Zod schema + inferred TS types for case JSON
 packages/engine-adapters/  typed protocol (protocol.ts) + RPC client (rpc.ts) + WorkerEngineClient base class (client.ts) shared between main thread & worker
-packages/ui-kit/           shared design-system primitives (grows on 2nd use — still empty)
+packages/ui-kit/           shared design-system primitives (placeholder; grows on 2nd use)
 content/cases/          community-contributable case JSON, one dir per world
 content/rosters/        <world>.json — the world's boss sequence (fight order), one file per world
 ```
@@ -82,8 +88,8 @@ translations of each other. See
 content that's fair on both engines" section for the SQLite/pandas dtype
 and coercion differences content authors need to know.
 
-Sandbox/freeplay mode (Phase 6) adds a sandboxed cross-origin `<iframe>`
-layer around the worker for user-uploaded files — not built yet.
+Sandbox mode uses the same worker boundary for the player's own files (see
+`SECURITY.md`): the file is only ever data to the CSV parser, never code.
 
 ## Content pipeline
 
@@ -159,8 +165,8 @@ Zod schema on the way back in, so a hand-edited or corrupted file fails
 closed (`importSaveFromJson` returns `null`) instead of crashing the app.
 Ranks are computed from _distinct techniques mastered_, not cases
 cleared or XP — see plan §6 — with per-world tier tables in `save.ts`;
-only `boss-fights` has real tiers so far, every other `WorldId` falls back
-to a single `"Recruit"` tier until that world exists.
+every world has its own tier table in `RANK_TIERS`. Analysis worlds, where every
+case is judged by the same predicate, count a case's `skills` as its techniques.
 
 ## Styling
 
@@ -170,6 +176,19 @@ world's visual language lives locally, never as a shared theme variant. Every
 color pairing that carries meaning (affliction status, diff add/delete)
 carries a non-color signal too (glyph, pattern, or height) — see the design
 spec's colorblind-safety section.
+
+## Travel, cut-scenes and settings
+
+Display and motion preferences live in one `A11yState` (`lib/a11y.ts`, saved as
+`dcq.a11y`): text size, theme, CRT, high contrast, sound, typing sound, volume,
+and the two cut-scene switches **`travel`** (the rocket flight) and **`kill`**
+(the knife cut after a win), both in the **ANIM** menu of the top bar
+(`MotionMenu.tsx`). `App.tsx` plays `TravelSequence` when a world is chosen from
+the hub: the screen changes behind the flight at its midpoint (the jump to warp),
+and the flight fades out over the new screen. The flight is canvas (starfield) plus
+GSAP-driven DOM, looks the same on every theme, and has a still arrival card for
+reduced-motion users. Its sound (`playTravel`) is built from the same synthesis
+helpers as the other cues and returns a function that fades it when skipped.
 
 ## Animation
 
@@ -197,9 +216,10 @@ silent drop of the signal.
   the production build, served by `scripts/serve-dist.mjs` with the exact
   headers from `vercel.json`, using the real Pyodide and SQLite engines.
   Every test fails on an uncaught error or a CSP violation. Suites:
-  `solutions` (all 19 cases winnable in both engines, from one table of
+  `solutions` (all 45 cases winnable in both engines, from one table of
   known-good answers in `solutions.ts`), `starters` (unchanged or near-miss
-  answers never win), `editor`, `sandbox`, `smoke`, `a11y` (axe-core on every
+  answers never win), `hints` (every complete SQL hint wins its case), `travel`
+  and `new-worlds` (the flight, the ANIM menu, wrong answers that must fail), `editor`, `sandbox`, `smoke`, `a11y` (axe-core on every
   kind of screen, both themes and high contrast), and `contrast` (every color
   token pair for every world and theme against WCAG AA).
 - **Adding a case** also means adding its answer to `e2e/solutions.ts`; the

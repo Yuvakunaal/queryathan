@@ -16,10 +16,16 @@ for the kinds of cases we want. In short:
 2. Add your dataset under `apps/web/public/datasets/<world>/`, with an entry
    in that folder's `LICENSES.md` (must be CC0, public-domain, or synthetic —
    see [`SECURITY.md`](./SECURITY.md#datasetcontent-licensing)).
-3. Add a case JSON under `content/cases/<world>/`.
-4. Run `pnpm validate-content` — this checks your JSON against the schema and
+3. Add a case JSON under `content/cases/<world>/` and list it in
+   `content/rosters/<world>.json`. For analysis-style cases, copy the pattern of
+   `scripts/generate-labyrinth.mjs`: it computes the expected answer in plain
+   JavaScript, so data, briefing and answer key cannot drift apart.
+4. Add a known-good Python and SQL answer to `apps/web/e2e/solutions.ts` (or the
+   world's `solutions-*.ts`). If your last SQL hint is a complete
+   `CREATE TABLE result ...` statement, `pnpm e2e` runs it and it must win.
+5. Run `pnpm validate-content` — this checks your JSON against the schema and
    is also enforced in CI.
-5. Open a PR. No engine-code changes needed or expected.
+6. Open a PR. No engine-code changes needed or expected.
 
 Win conditions are **declarative predicates only** (e.g.
 `{ "column": "age", "predicate": "no_nulls" }`), evaluated by trusted engine
@@ -36,10 +42,12 @@ PRs a data review, not a security review. See
   computation, or the save system.
 - `pnpm e2e` builds the app and runs the end-to-end suite (real engines,
   production headers, accessibility). A new case needs its known-good answer
-  added to `apps/web/e2e/solutions.ts`. New colors must keep `contrast.e2e.ts`
+  added to `apps/web/e2e/solutions.ts` (or the world's `solutions-*.ts`). New colors must keep `contrast.e2e.ts`
   passing. First run: `pnpm --filter @dcq/web exec playwright install chromium`.
-- Keep GSAP/animation code inside `apps/web/src/anim/` — don't put animation
-  state in React state.
+- Keep GSAP/animation code out of React state: animation is driven through refs
+  (see `apps/web/src/anim/` and the flight and kill sequences). Anything with
+  motion must respect `prefers-reduced-motion` and, if it is a cut-scene, have a
+  switch in the ANIM menu.
 
 ## Changes to architecture (new world, new engine, breaking schema change)
 

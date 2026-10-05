@@ -7,11 +7,15 @@ body:
     attributes:
       label: World
       options:
-        - Boss Fights (World 1 — nulls, duplicates, casing, dtypes, outliers, dates)
-        - The Vault (World 2 — regex/extraction)
-        - The Twins (World 3 — joins/relational)
-        - The Architect (World 4 — reshaping/pivoting)
-        - The Foundry (World 5 — performance/production-grade)
+        - Ember Reach (World 1 — nulls, duplicates, casing, dtypes, outliers, dates)
+        - Cryptara (World 2 — regex, extraction, encodings)
+        - Geminora (World 3 — joins, relational)
+        - Atlas Spire (World 4 — reshaping, pivoting, JSON)
+        - Cinderforge (World 5 — performance, production-grade)
+        - Lumenfield (World 6 — analysis: grouping, ranking, windows, cohorts)
+        - Minos Deep (World 7 — CTEs, subqueries, recursion, set logic)
+        - Chronopolis (World 8 — dates, time zones, timelines)
+        - Helix-9 (World 9 — statistics, outliers, experiments)
     validations:
       required: true
   - type: textarea

@@ -1,130 +1,164 @@
+<div align="center">
+
 # Data Cleaning Quest
 
-A no-login, open-source, gamified platform for learning real Python (pandas) and
-real SQL data cleaning — from first-timers to working seniors.
+**Fight your data clean.**
 
-"Fight your data clean." Every world runs **real code against a real in-browser
-engine** — Pyodide (WASM Python) and sql.js (WASM SQLite), both isolated in a
-dedicated Web Worker. No backend, no login, no simulated interpreter. Progress
-lives in `localStorage` and is exportable as JSON.
+Learn real **pandas** and real **SQL** by playing. Nine worlds, 45 hand-built cases, real engines
+running in your browser. No account. No server. Nothing to install.
 
-Full product vision, world designs, and architecture rationale:
-[`data-cleaning-quest-master-plan.md`](./data-cleaning-quest-master-plan.md).
+[![CI](https://github.com/Yuvakunaal/data-cleaning-quest/actions/workflows/ci.yml/badge.svg)](https://github.com/Yuvakunaal/data-cleaning-quest/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6)
+![Runs offline](https://img.shields.io/badge/runs-offline-2ea44f)
+![No backend](https://img.shields.io/badge/backend-none-lightgrey)
 
-## Status
+<img src="./docs/images/hub-dark.png" alt="The Data Cleaning Quest home screen: nine worlds, each a named planet" width="820">
 
-Nine worlds are playable, 45 cases in all, each winnable in either engine:
+</div>
 
-1. **Ember Reach** (Boss Fights): nulls, duplicates, whitespace and casing, wrong dtypes,
-   outliers, bad dates.
-2. **Cryptara** (The Vault): pattern extraction and mojibake.
-3. **Geminora** (The Twins): joins and relational cleanup.
-4. **Atlas Spire** (The Architect): reshaping.
-5. **Cinderforge** (The Foundry): timed jobs against a stopwatch, with quality stamps.
-6. **Lumenfield** (The Observatory): business questions answered with grouping, ranking,
-   moving averages, cohorts, sessions and funnels. The answer table is checked
-   against the expected one.
-7. **Minos Deep** (The Labyrinth): CTEs, subqueries, NOT EXISTS, recursive CTEs (org charts,
-   bills of materials), set operations and gaps-and-islands streaks.
-8. **Chronopolis** (The Timekeeper): mixed date formats, business days, time zones, date
-   spines, as-of joins and merging overlapping time blocks.
-9. **Helix-9** (The Laboratory): standard deviation, z-score outliers, imputation, binning,
-   A/B tests and regression lines.
+## What is this?
 
-Choosing a world launches a rocket flight to its planet, and defeating a boss plays a knife-cut scene; both are skippable and can be switched off in the ANIM menu in the top bar.
+Data Cleaning Quest is a game for learning the part of data work that takes most of the time: getting messy
+tables right, and then making them answer questions. Every case is a real table with a real problem in it.
+You write **real Python (pandas)** or **real SQL (SQLite)**, press Run, and watch the table change. Each
+win comes with a short cinematic, so the work feels like a quest rather than a worksheet.
 
-Also in place: a sandbox for your own CSVs (up to four tables, to practise joins in a rearrangeable collage), dark, light and high-contrast
-themes, resizable panels, a worksheet-style SQL editor (run selection, else
-all), plain-language error views, and an offline cache so the app keeps working
-after one visit. Progress lives in `localStorage` and is exportable as JSON.
-There is no login and no server.
+- **Real engines, not simulations.** Python runs in [Pyodide](https://pyodide.org) (WebAssembly pandas) and SQL
+  in [sql.js](https://sql.js.org) (WebAssembly SQLite), each isolated in its own Web Worker. The errors you see are the real errors, with a plain-English explanation on top.
+- **Every case works in both languages.** The same problem, solved with pandas or with SQL. The end-to-end test suite proves each case is winnable in both, and that the starter code does not already win.
+- **No backend, no login, no tracking.** Progress lives in your browser (`localStorage`) and can be exported as a file. After one visit the app works fully offline.
+- **Judged by exact answers.** Cases are won by declarative checks (clean cells, or an exact answer table), never by matching your code, so any correct approach wins.
+- **Built to be accessible.** Dark, light and high-contrast themes, adjustable text size, keyboard use throughout, reduced-motion support, and automated WCAG audits in CI.
 
-Quality gates: strict TypeScript, unit tests, and an end-to-end suite that
-proves every case is winnable, runs accessibility and contrast audits, and
-checks offline use against a production build with the real CSP headers. See
-[`docs/ROADMAP.md`](./docs/ROADMAP.md) for what is next, and
-[`data-cleaning-quest-master-plan.md`](./data-cleaning-quest-master-plan.md#14-build-roadmap)
-for the full plan. Architecture decisions are recorded in
-[`docs/adr/`](./docs/adr/); visual specs are in
-[`docs/design/`](./docs/design/).
+<p align="center">
+  <img src="./docs/images/fight-dark.png" alt="A fight: the task and checklist on the left, the editor below it, the live data table on the right" width="49%">
+  <img src="./docs/images/fight-light.png" alt="The same fight in the light theme" width="49%">
+</p>
 
-For a structural map of the codebase, see
-[`graphify-out/GRAPH_REPORT.md`](./graphify-out/GRAPH_REPORT.md) (generated —
-read this before diving into the source).
+## The nine worlds
+
+Each world is a planet with its own colours, its own heads-up display and its own theme. Choosing one launches
+a rocket flight to it (skippable, and optional).
+
+| #   | World           | You practise                                                                                     | Cases |
+| --- | --------------- | ------------------------------------------------------------------------------------------------ | ----- |
+| 1   | **Ember Reach** | Cleaning: nulls, duplicates, whitespace and casing, wrong types, outliers, bad dates             | 4     |
+| 2   | **Cryptara**    | Patterns: regular expressions, extraction, broken text encodings                                 | 5     |
+| 3   | **Geminora**    | Joins: key mismatches, repeated rows, joining two to four tables                                 | 6     |
+| 4   | **Atlas Spire** | Reshaping: melt, pivot, nested JSON                                                              | 4     |
+| 5   | **Cinderforge** | Speed: vectorising, window functions, timed against a stopwatch with bronze, silver, gold stamps | 2     |
+| 6   | **Lumenfield**  | Analysis: grouping, ranking, moving averages, cohorts, sessions, funnels                         | 6     |
+| 7   | **Minos Deep**  | CTEs and recursion: `WITH`, anti-joins, org charts, bills of materials, set logic, streaks       | 6     |
+| 8   | **Chronopolis** | Time: mixed date formats, business days, time zones, date spines, as-of joins, interval merging  | 6     |
+| 9   | **Helix-9**     | Statistics: spread, z-score outliers, imputation, binning, A/B tests, regression                 | 6     |
+
+(Worlds 1 to 5 were first known as Boss Fights, The Vault, The Twins, The Architect and The Foundry; those
+names survive as the ids in `content/` and in saved progress.)
+
+There is also a **Sandbox**: bring your own CSV (up to four tables, joined in a rearrangeable collage) and
+explore it with pandas or SQL. Nothing is uploaded.
+
+<p align="center">
+  <img src="./docs/images/flight.png" alt="The rocket warping towards a planet" width="49%">
+  <img src="./docs/images/landing.png" alt="The rocket landing on the planet's surface" width="49%">
+</p>
+
+## Quick start
+
+You need [Node](https://nodejs.org) (the version in [`.nvmrc`](./.nvmrc)) and [pnpm](https://pnpm.io) (via Corepack).
+
+```bash
+git clone https://github.com/Yuvakunaal/data-cleaning-quest.git
+cd data-cleaning-quest
+corepack enable
+pnpm install      # also fetches the pinned, checksum-verified Pyodide runtime (~14 MB)
+pnpm dev          # http://localhost:5173
+```
+
+| Command                 | What it does                                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| `pnpm dev`              | Run the app locally                                                                              |
+| `pnpm build`            | Type-check and build the production bundle                                                       |
+| `pnpm typecheck`        | `tsc -b` across the whole workspace                                                              |
+| `pnpm lint`             | ESLint (strict, type-aware)                                                                      |
+| `pnpm test`             | Unit tests (Vitest)                                                                              |
+| `pnpm validate-content` | Check every case and roster against the schema                                                   |
+| `pnpm e2e`              | Build, then run the Playwright suite against the production build with the real security headers |
+
+First e2e run: `pnpm --filter @dcq/web exec playwright install chromium`.
+
+## How it works
+
+```
+ case JSON  ──►  declarative win predicates (trusted code judges; the JSON never runs)
+    │
+    ▼
+ React 19 UI ◄──typed messages──►  Web Worker: Pyodide (pandas)   or   Web Worker: sql.js (SQLite)
+    │                                  one persistent session per fight, like a notebook
+    ▼
+ GSAP animation (outside React's render loop), CodeMirror 6 editor, virtualised data grid
+```
+
+- **Content is data.** A case is one JSON file plus a small synthetic dataset. Adding one needs no engine knowledge.
+- **Answers are verified three ways.** The expected table is computed in plain JavaScript from the briefing, then real SQL and real pandas must each reach it.
+- **Safe by construction.** User code only ever runs inside a Web Worker, behind a strict Content-Security-Policy. See [`SECURITY.md`](./SECURITY.md).
+
+## Quality
+
+- Strict TypeScript, ESLint, Prettier, Husky pre-commit.
+- 298 unit tests (Vitest) and 300+ end-to-end tests (Playwright) on a production build served with the real headers:
+  every case in both engines, near-miss wrong answers, every complete SQL hint, offline use, layout at phone widths,
+  axe-core accessibility scans in both themes, and WCAG AA contrast on every colour token.
+- Lighthouse budgets in CI.
 
 ## Stack
 
-- **React 19 + TypeScript (strict)** — UI
-- **Pyodide** (WASM Python/pandas) in a dedicated Web Worker — interpreter
-  self-hosted and checksum-verified, pandas/numpy wheels from a pinned
-  jsdelivr CDN path (see [ADR 0004](./docs/adr/0004-pyodide-package-delivery.md))
-- **sql.js** (WASM SQLite) in its own dedicated Web Worker — ships as a
-  single importable npm package, self-hosted automatically by Vite's `?url`
-  asset resolution (no manual fetch script needed, unlike Pyodide)
-- **CodeMirror 6** — real syntax highlighting (Python and SQL modes), real
-  error surfacing
-- **GSAP** — all animation, driven imperatively outside React's render cycle
-  (see [ADR 0001](./docs/adr/0001-framework.md))
-- **TanStack Virtual** — the dataframe grid
-- **Vite** — build/dev
-- **Vitest** — unit tests (191 passing across the workspace)
-- **pnpm workspaces** monorepo, no Turborepo yet
-
-Not yet integrated: **Playwright** as a CI gate (e2e is Phase 7 — used
-manually this session for real-browser verification, including against a
-production build under real CSP headers, but not yet wired into CI),
-per-world code-splitting (nothing to split until a second world exists).
+React 19 · TypeScript (strict) · Vite · Pyodide · sql.js · CodeMirror 6 · GSAP · TanStack Virtual · Zod · Vitest · Playwright · pnpm workspaces
 
 ## Repository layout
 
 ```
-apps/web/              the game — Vite + React app
-  src/engines/            pyodide.worker.ts + sqlite.worker.ts (each a dedicated Web Worker) + their main-thread clients + csv.ts/sql-dtypes.ts (SQL's CSV loader/dtype inference)
-  src/worlds/boss-fights/ World 1: all React components + theme.css
-  src/anim/world1/        GSAP choreography (recoil, diff-flash, HP shatter, CRT, boot type, engine-select reveal)
-  src/lib/                pure game logic: diff, afflictions, win-condition eval
-  public/datasets/        seed CSVs, license-tagged per world
-packages/content-schema/   shared TS types + Zod schema for case JSON
-packages/engine-adapters/  typed worker RPC protocol (protocol.ts, rpc.ts) + shared WorkerEngineClient base class (client.ts)
-packages/ui-kit/           shared design-system primitives (grows on 2nd use)
-content/cases/          community-contributable boss/case JSON, per world
-docs/                   architecture, security, content-authoring guide, ADRs, design specs
+apps/web/                 the game (Vite + React)
+  src/engines/              Pyodide and SQLite workers and their clients, CSV loader, SQL friendly-function layer
+  src/worlds/boss-fights/   screens, HUDs, themes, the flight and kill sequences (shared by every world)
+  src/anim/                 GSAP choreography
+  src/lib/                  pure game logic: diffing, win conditions, save data, sound, world metadata
+  e2e/                      Playwright suites and the known-good answer for every case
+  public/datasets/          synthetic CC0 datasets, one folder per world
+packages/content-schema/  Zod schema and types for case JSON
+packages/engine-adapters/ typed worker protocol and RPC client
+content/cases/            the cases, one folder per world
+content/rosters/          the fight order of each world
+scripts/                  dataset and case generators, content validation, Pyodide fetch
+docs/                     architecture, authoring guide, ADRs, design specs, roadmap
 ```
-
-## Getting started
-
-Requires Node (see [`.nvmrc`](./.nvmrc)) and [pnpm](https://pnpm.io) (version
-pinned in `package.json#packageManager`, use via Corepack).
-
-```bash
-corepack enable
-pnpm install
-pnpm dev          # run apps/web locally
-pnpm typecheck     # tsc -b across the whole workspace
-pnpm lint
-pnpm test
-pnpm build
-```
-
-`pnpm install` runs `postinstall` automatically, which fetches the pinned,
-checksum-verified Pyodide runtime into `apps/web/public/pyodide/`
-(gitignored, ~14MB) — the worker depends on it being present, so `pnpm dev`
-will fail without it. Re-run manually any time with `pnpm fetch-pyodide`; it's
-a no-op if the pinned version is already present.
 
 ## Contributing
 
-The whole point of this project is that a new boss/case is **a JSON file plus
-a seed dataset** — no engine knowledge required. See
-[`CONTRIBUTING.md`](./CONTRIBUTING.md) and
-[`docs/content-authoring-guide.md`](./docs/content-authoring-guide.md).
+A new case is **a JSON file plus a dataset**. Start with [`CONTRIBUTING.md`](./CONTRIBUTING.md), the
+[authoring guide](./docs/content-authoring-guide.md) and the [call for cases](./docs/call-for-cases.md).
+Bigger changes (a new world, a schema change) start with a short [RFC](./docs/rfc-template.md) in Discussions.
+Please read the [Code of Conduct](./CODE_OF_CONDUCT.md).
+
+## Documentation
+
+[Architecture](./docs/ARCHITECTURE.md) · [Authoring guide](./docs/content-authoring-guide.md) ·
+[Decision records](./docs/adr/) · [Roadmap](./docs/ROADMAP.md) · [Changelog](./CHANGELOG.md) ·
+[Original product plan](./data-cleaning-quest-master-plan.md)
 
 ## Security
 
-We execute arbitrary user-typed code in the browser. See
-[`SECURITY.md`](./SECURITY.md) for the sandboxing model, CSP policy, and how
-to report a vulnerability.
+This app runs code typed by the player. See [`SECURITY.md`](./SECURITY.md) for the sandboxing model, the CSP
+and how to report a vulnerability.
+
+## Acknowledgements
+
+Built on the shoulders of [Pyodide](https://pyodide.org), [sql.js](https://sql.js.org),
+[pandas](https://pandas.pydata.org), [SQLite](https://sqlite.org), [CodeMirror](https://codemirror.net),
+[GSAP](https://gsap.com), [TanStack Virtual](https://tanstack.com/virtual) and [React](https://react.dev).
+All datasets are synthetic and released under CC0.
 
 ## License
 
-[MIT](./LICENSE)
+[MIT](./LICENSE) for the code. Datasets are CC0.

@@ -86,3 +86,17 @@ test("new SQL statistics functions are available in the sandbox-style fight", as
   await run(page);
   await expect(page.getByText(/no such function/i)).toHaveCount(0);
 });
+
+test("before the first run the answer HUD asks for a run instead of comparing the original data", async ({
+  page,
+}) => {
+  await openCase(page, "the-laboratory", "w9-01-the-spread", "sql");
+  await expect(
+    page.getByText(/Run your code to see how close your answer is/),
+  ).toBeVisible();
+  await expect(page.getByText(/Your answer has \d+ rows/)).toHaveCount(0);
+  await setCode(page, "CREATE TABLE result AS SELECT lab FROM data GROUP BY lab;");
+  await run(page);
+  await expect(page.getByText(/Run your code to see how close/)).toHaveCount(0);
+  await expect(page.getByText(/missing column|Your answer has/).first()).toBeVisible();
+});

@@ -13,6 +13,7 @@
 
 .topbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -20,6 +21,7 @@
   border-bottom: 1px solid var(--w1-rule);
 }
 .brand {
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 10px;

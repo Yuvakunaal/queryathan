@@ -1,8 +1,10 @@
 # Roadmap: finishing Data Cleaning Quest
 
-Status as of 2026-10-03: Phases 1-3 are built (World 1, Python and SQL).
-Phase 3 is still uncommitted in the working tree. Typecheck, lint and all
-tests pass. The roster screen was redesigned in this pass.
+Status as of 2026-10-05: nine worlds and the sandbox are built and tested (45 cases, each
+winnable in both engines). Worlds are named planets reached by an optional rocket flight, and
+the win scene and the flight can be switched off in the ANIM menu. What remains is mostly
+more content and a manual accessibility pass; the list below is kept as the history of how
+the work was ordered.
 
 ## Next, in order
 
