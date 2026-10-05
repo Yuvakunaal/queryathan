@@ -1,0 +1,59 @@
+/*
+  The home screen (the hub): pure black with Queryathan's orange. "green" (the
+  primary accent) is the orange of the logo, "amber" (the interactive
+  highlight) is a warmer gold. Loaded after theme.css.
+*/
+[data-world="hub"] {
+  --w1-bg-void: #0a0a0b;
+  --w1-bg-panel: #111113;
+  --w1-bg-panel-2: #19191c;
+  --w1-bg-row-a: #0c0c0d;
+  --w1-bg-row-b: #0f0f10;
+  --w1-bg-row-hover: #1a1a1d;
+
+  --w1-green-300: #ffbe8a;
+  --w1-green-500: #ff7a1a;
+  --w1-green-700: #a24a0a;
+  --w1-amber-300: #ffdc99;
+  --w1-amber-500: #ffb02e;
+  --w1-amber-700: #9a6a12;
+
+  --w1-text-primary: #f4efe8;
+  --w1-text-secondary: #b9b0a4;
+  --w1-text-dim: #948b7f;
+  --w1-text-inverse: #0a0a0b;
+
+  --w1-rule-strong: #38332e;
+  --w1-rule: #262321;
+  --w1-rule-faint: #181719;
+  --w1-focus: #ffb02e;
+  --w1-title: #ff9a3d;
+
+  --w1-crt-scanline-a: 0;
+  --w1-crt-grille-a: 0;
+  --w1-crt-vignette-a: 0.3;
+}
+
+[data-dcq-theme="light"]:not([data-dcq-contrast="high"]) [data-world="hub"] {
+  --w1-bg-void: #fbf7f1;
+  --w1-bg-panel: #fffdfa;
+  --w1-bg-panel-2: #f0e9df;
+  --w1-bg-row-a: #fcf9f4;
+  --w1-bg-row-b: #f3ede4;
+  --w1-bg-row-hover: #eae1d4;
+  --w1-green-300: #8a3a00;
+  --w1-green-500: #b04400;
+  --w1-green-700: #dcb08a;
+  --w1-amber-300: #7a5200;
+  --w1-amber-500: #835a00;
+  --w1-amber-700: #dcb25a;
+  --w1-text-primary: #1d1710;
+  --w1-text-secondary: #504539;
+  --w1-text-dim: #6a5d4f;
+  --w1-text-inverse: #ffffff;
+  --w1-rule-strong: #cfc3b2;
+  --w1-rule: #e1d8ca;
+  --w1-rule-faint: #ece5da;
+  --w1-focus: #946700;
+  --w1-title: #8a3a00;
+}

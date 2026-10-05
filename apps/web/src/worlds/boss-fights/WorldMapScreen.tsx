@@ -16,6 +16,7 @@ import { renderSigil } from "./sigil";
 import { classNames } from "../../lib/classNames";
 import { worldMeta } from "../../lib/world-meta";
 import Planet from "./Planet";
+import Logo from "./Logo";
 import A11yControls from "./A11yControls";
 import styles from "./WorldMapScreen.module.css";
 
@@ -143,9 +144,7 @@ export default function WorldMapScreen({
       <div className={styles.shell}>
         <header className={styles.topbar}>
           <span className={styles.brand}>
-            <span className={styles.brandMark} aria-hidden="true">
-              &gt;_
-            </span>
+            <Logo size={30} className={styles.brandMark} />
             <button type="button" className={styles.backLink} onClick={onBack}>
               Queryathan
             </button>

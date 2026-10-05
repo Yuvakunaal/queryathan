@@ -4,10 +4,21 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+    # zod 4 changes how records and enums are parsed (the save-file schema breaks), so the
+    # major upgrade is a planned migration, not an automatic bump. Minor and patch
+    # updates arrive as one grouped pull request.
+    ignore:
+      - dependency-name: "zod"
+        update-types: ["version-update:semver-major"]
     groups:
-      dev-dependencies:
-        dependency-type: "development"
+      minor-and-patch:
+        update-types: ["minor", "patch"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "chore(ci)"

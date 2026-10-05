@@ -7,3 +7,5 @@ public/pyodide
 graphify-out
 pnpm-lock.yaml
 *.min.js
+test-results
+playwright-report

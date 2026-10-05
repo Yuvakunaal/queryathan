@@ -32,3 +32,13 @@
   --dcq-color-bg: #ffffff;
   --dcq-color-fg: #000000;
 }
+
+/* The Queryathan brand: the same on every world's page, deeper on the light theme. */
+:root {
+  --brand-a: #ffb02e;
+  --brand-b: #ff6a00;
+}
+:root[data-dcq-theme="light"] {
+  --brand-a: #e87a00;
+  --brand-b: #b84400;
+}

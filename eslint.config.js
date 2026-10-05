@@ -10,6 +10,8 @@ export default tseslint.config(
     ignores: [
       "**/dist/**",
       "**/dist-worker/**",
+      "**/test-results/**",
+      "**/playwright-report/**",
       "**/build/**",
       "**/node_modules/**",
       "**/public/pyodide/**",

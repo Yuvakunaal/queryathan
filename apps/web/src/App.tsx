@@ -27,7 +27,6 @@ import TipsDialog from "./worlds/boss-fights/TipsDialog";
 import { applyA11yToDocument, loadA11yState, persistA11yState } from "./lib/a11y";
 import type { A11yState } from "./lib/a11y";
 import { configureSound, playTravel, preloadKeys, preloadSlice } from "./lib/sound";
-import TravelSequence from "./worlds/boss-fights/TravelSequence";
 import type { ReactElement } from "react";
 
 // Code-split from WorldMapScreen (the actual landing screen): CodeMirror
@@ -36,6 +35,13 @@ import type { ReactElement } from "react";
 // via the worlds/boss-fights barrel, so nothing here needs to re-trigger
 // those.
 const BossFightScreen = lazy(() => import("./worlds/boss-fights/BossFightScreen"));
+// The rocket flight (and the animation library it needs) is only fetched when a
+// flight is about to play, so the home page stays small. Hovering a world card warms it up.
+const loadTravel = () => import("./worlds/boss-fights/TravelSequence");
+const TravelSequence = lazy(loadTravel);
+function warmTravel(): void {
+  void loadTravel();
+}
 
 type Screen =
   | { name: "hub" }
@@ -305,6 +311,7 @@ function AppScreens() {
           a11y={a11y}
           onA11yChange={setA11y}
           onSelectWorld={travelTo}
+          onWarmTravel={a11y.travel ? warmTravel : undefined}
           onOpenSandbox={() => {
             go({ name: "sandbox-setup" });
           }}
@@ -334,18 +341,20 @@ function AppScreens() {
     <>
       {renderScreen()}
       {travel !== null ? (
-        <TravelSequence
-          world={worldMeta(travel)}
-          onCovered={() => {
-            go({ name: "roster", world: travel });
-          }}
-          onSkip={() => {
-            stopTravelSound.current();
-          }}
-          onDone={() => {
-            setTravel(null);
-          }}
-        />
+        <Suspense fallback={null}>
+          <TravelSequence
+            world={worldMeta(travel)}
+            onCovered={() => {
+              go({ name: "roster", world: travel });
+            }}
+            onSkip={() => {
+              stopTravelSound.current();
+            }}
+            onDone={() => {
+              setTravel(null);
+            }}
+          />
+        </Suspense>
       ) : null}
     </>
   );

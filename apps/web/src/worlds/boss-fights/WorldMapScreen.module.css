@@ -24,9 +24,9 @@
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font: 600 12px/1 var(--w1-font-display);
-  letter-spacing: 0.04em;
+  gap: 12px;
+  font: 700 15px/1 var(--w1-font-display);
+  letter-spacing: 0.02em;
   color: var(--w1-text-secondary);
 }
 .brandMark {

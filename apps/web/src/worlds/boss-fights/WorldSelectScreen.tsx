@@ -7,6 +7,7 @@ import type { WorldId } from "@dcq/content-schema";
 import { classNames } from "../../lib/classNames";
 import A11yControls from "./A11yControls";
 import Planet from "./Planet";
+import Logo from "./Logo";
 import AboutDialog from "./AboutDialog";
 import { useEffect, useRef, useState } from "react";
 import styles from "./WorldSelectScreen.module.css";
@@ -16,6 +17,8 @@ export interface WorldSelectScreenProps {
   a11y: A11yState;
   onA11yChange: (next: A11yState) => void;
   onSelectWorld: (world: WorldId) => void;
+  /** Called when a world card is hovered or focused, to prepare the flight. */
+  onWarmTravel?: (() => void) | undefined;
   onOpenSandbox: () => void;
 }
 
@@ -23,10 +26,12 @@ function WorldCard({
   meta,
   saveData,
   onSelect,
+  onWarm,
 }: {
   meta: WorldMeta;
   saveData: SaveData;
   onSelect: () => void;
+  onWarm?: (() => void) | undefined;
 }) {
   const progress = getWorldProgress(saveData, meta.id);
   const rank = rankForWorld(meta.id, progress.masteredTechniques.length);
@@ -65,6 +70,8 @@ function WorldCard({
           data-world-card={meta.id}
           aria-label={`${meta.name}, world ${String(meta.number)}, ${meta.discipline}. ${meta.tagline} ${progress.clearedCaseIds.length > 0 ? `Rank ${rank}.` : "Not started."}`}
           onClick={onSelect}
+          onPointerEnter={onWarm}
+          onFocus={onWarm}
         >
           {content}
         </button>
@@ -105,6 +112,7 @@ export default function WorldSelectScreen({
   a11y,
   onA11yChange,
   onSelectWorld,
+  onWarmTravel,
   onOpenSandbox,
 }: WorldSelectScreenProps) {
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -126,13 +134,11 @@ export default function WorldSelectScreen({
     }
   }
   return (
-    <div className={styles.screen} data-world="boss-fights">
+    <div className={styles.screen} data-world="hub">
       <div className={styles.shell}>
         <header className={styles.topbar}>
           <span className={styles.brand}>
-            <span className={styles.brandMark} aria-hidden="true">
-              &gt;_
-            </span>
+            <Logo size={30} className={styles.brandMark} />
             Queryathan
           </span>
           <div className={styles.topRight}>
@@ -168,6 +174,7 @@ export default function WorldSelectScreen({
               key={meta.id}
               meta={meta}
               saveData={saveData}
+              onWarm={onWarmTravel}
               onSelect={() => {
                 onSelectWorld(meta.id);
               }}

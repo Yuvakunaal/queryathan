@@ -8,6 +8,9 @@ permissions:
 jobs:
   review:
     runs-on: ubuntu-latest
+    # Needs the repository's Dependency graph switched on (Settings > Advanced Security).
+    # Until then this reports a setup error, which must not block merging.
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/dependency-review-action@v4

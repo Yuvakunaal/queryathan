@@ -19,6 +19,7 @@ const WORLDS = [
   "the-labyrinth",
   "the-timekeeper",
   "the-laboratory",
+  "hub",
 ] as const;
 const MODES = [
   { name: "dark", theme: "dark", contrast: null },

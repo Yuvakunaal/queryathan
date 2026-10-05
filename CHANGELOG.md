@@ -5,6 +5,9 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## 1.0.0 (2026-10-05)
 
+- **A logo and a brand.** The mark is a porthole, a dorsal fin and the waterline: the leviathan under the surface, seen from a ship. It is in the home and world headers, the tab icon, the install icons (including a maskable one) and the share image. The home screen now has its own black-and-orange theme (dark and light, contrast-checked) so the whole brand agrees; the nine worlds keep their own colours.
+- **CI fixed.** The home page's JavaScript had grown past the 400 KB Lighthouse budget when the rocket flight (and the animation library) joined it; the flight is now loaded only when it is about to play, and warmed up when you hover a world. Dependabot no longer proposes the zod 4 major upgrade (it breaks the save-file schema) and groups minor and patch updates; the dependency-review job no longer blocks merging while the repository's Dependency graph is off; end-to-end tests retry twice on CI.
+
 - **Renamed to Queryathan** (query + leviathan). The project grew past data cleaning into analysis, time, statistics and recursion, so it has a name that covers all of it. The app, README, docs, share images and package metadata use the new name. World ids and saved progress (`dcq.*` in the browser) are unchanged, so nobody loses progress. The repository moves to `Yuvakunaal/queryathan`.
 
 - **Launch polish.** The app can be installed (web app manifest and icons), has proper social-sharing tags, and the home page has a footer linking to the repository, the contributing guide and the bug form. New repo files: SUPPORT, CITATION, CODEOWNERS, release-note categories, label set, a feature-request form, CodeQL and dependency-review workflows, and a list of good first issues.
