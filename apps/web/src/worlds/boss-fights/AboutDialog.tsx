@@ -104,8 +104,8 @@ export default function AboutDialog({ onClose, onStart }: AboutDialogProps) {
               Real data is messy: empty cells, rows entered twice, typos, dates in five
               formats. People who work with data spend a large part of their time fixing
               exactly this. This game is practice for that, one small, clear problem at a
-              time. Once a table is clean, the last world uses it to answer real
-              questions.
+              time. Once a table is clean, the later worlds use it to answer real
+              questions, from CTEs and time zones to experiments.
             </p>
           </section>
 

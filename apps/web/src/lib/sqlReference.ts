@@ -441,6 +441,246 @@ export const SQL_REFERENCE: SqlRefGroup[] = [
       },
     ],
   },
+  {
+    id: "ctes",
+    title: "CTEs, subqueries and sets",
+    items: [
+      {
+        name: "WITH (CTE)",
+        insert: "WITH named AS (\n  SELECT ...\n)\nSELECT * FROM named",
+        syntax: "WITH name AS (SELECT ...) SELECT ... FROM name",
+        detail:
+          "Gives a query a name so you can build the answer in readable steps. Several CTEs are separated by commas, and each can use the ones before it.",
+        example:
+          "WITH t AS (SELECT dept, AVG(salary) AS a FROM data GROUP BY dept) SELECT * FROM t",
+      },
+      {
+        name: "answer from a CTE",
+        insert:
+          "CREATE TABLE result AS\nWITH step AS (\n  SELECT ...\n)\nSELECT * FROM step;",
+        syntax: "CREATE TABLE result AS WITH ... SELECT ...",
+        detail:
+          "The CTE goes after AS: CREATE TABLE result AS WITH ... SELECT .... (Or run the WITH query alone and press the 'use as answer' button.)",
+        example: "CREATE TABLE result AS WITH t AS (SELECT * FROM data) SELECT * FROM t;",
+      },
+      {
+        name: "WITH RECURSIVE",
+        insert:
+          "WITH RECURSIVE walk AS (\n  SELECT ... -- the start\n  UNION ALL\n  SELECT ... FROM data JOIN walk ON ... -- the next step\n)\nSELECT * FROM walk",
+        syntax: "WITH RECURSIVE r AS (anchor UNION ALL step) SELECT ...",
+        detail:
+          "Repeats a step until nothing new is found. Use it for trees (org charts, parts lists), chains and calendars. The step must join to the CTE itself.",
+        example:
+          "WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < 5) SELECT i FROM n",
+      },
+      {
+        name: "date spine",
+        insert:
+          "WITH RECURSIVE spine(day) AS (\n  SELECT MIN(day) FROM data\n  UNION ALL\n  SELECT date(day, '+1 day') FROM spine WHERE day < (SELECT MAX(day) FROM data)\n)\nSELECT * FROM spine",
+        syntax: "spine of every date between two dates",
+        detail:
+          "A table with one row per calendar day. LEFT JOIN your data onto it so quiet days show up as zero instead of disappearing.",
+        example:
+          "SELECT s.day, COALESCE(d.revenue, 0) FROM spine s LEFT JOIN data d ON d.day = s.day",
+      },
+      {
+        name: "subquery in FROM",
+        insert: "SELECT * FROM (\n  SELECT ... \n) AS t",
+        syntax: "FROM (SELECT ...) AS alias",
+        detail:
+          "Use a query as a table. Handy for filtering on a window function, which WHERE cannot do directly.",
+        example:
+          "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY x) AS rn FROM data) WHERE rn <= 3",
+      },
+      {
+        name: "scalar subquery",
+        insert: "(SELECT MAX() FROM data)",
+        syntax: "(SELECT one_value FROM ...)",
+        detail:
+          "A query that returns a single value, used like a number in a SELECT or WHERE.",
+        example: "SELECT * FROM data WHERE amount > (SELECT AVG(amount) FROM data)",
+      },
+      {
+        name: "EXISTS / NOT EXISTS",
+        insert: "WHERE NOT EXISTS (\n  SELECT 1 FROM other o WHERE o.id = data.id\n)",
+        syntax: "WHERE [NOT] EXISTS (SELECT 1 FROM t2 WHERE t2.k = t1.k)",
+        detail:
+          "Keeps rows that have (or have no) match in another table. NOT EXISTS is the safe way to find 'rows with no match'.",
+        example:
+          "SELECT * FROM customers c WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)",
+      },
+      {
+        name: "NOT IN trap",
+        insert: "WHERE id NOT IN (SELECT id FROM other WHERE id IS NOT NULL)",
+        syntax: "x NOT IN (SELECT ...)",
+        detail:
+          "If the subquery contains even one NULL, NOT IN returns no rows at all. Filter the NULLs out, or use NOT EXISTS.",
+        example:
+          "WHERE id NOT IN (SELECT customer_id FROM orders WHERE customer_id IS NOT NULL)",
+      },
+      {
+        name: "UNION / UNION ALL",
+        insert: "SELECT ... FROM a\nUNION ALL\nSELECT ... FROM b",
+        syntax: "q1 UNION [ALL] q2",
+        detail:
+          "Stacks results. UNION removes duplicates; UNION ALL keeps every row (and is faster). Columns must line up by position.",
+        example: "SELECT email FROM a UNION SELECT email FROM b",
+      },
+      {
+        name: "INTERSECT / EXCEPT",
+        insert: "SELECT ... FROM a\nEXCEPT\nSELECT ... FROM b",
+        syntax: "q1 INTERSECT q2 / q1 EXCEPT q2",
+        detail:
+          "INTERSECT keeps rows found in both. EXCEPT keeps rows of the first that are NOT in the second. Both remove duplicates.",
+        example: "SELECT email FROM a EXCEPT SELECT email FROM b",
+      },
+      {
+        name: "gaps and islands",
+        insert:
+          "SELECT user_id, MIN(d), MAX(d), COUNT(*)\nFROM (\n  SELECT user_id, d, date(d, '-' || ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY d) || ' days') AS grp FROM days\n)\nGROUP BY user_id, grp",
+        syntax: "date minus row number = run id",
+        detail:
+          "Finds streaks of consecutive days: subtract each day's row number from the date and every day in an unbroken run gets the same value.",
+        example: "GROUP BY user_id, grp",
+      },
+      {
+        name: "running max (merge intervals)",
+        insert:
+          "MAX(end_ts) OVER (PARTITION BY room ORDER BY start_ts ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING)",
+        syntax: "MAX(x) OVER (... ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING)",
+        detail:
+          "The largest end time seen so far, before this row. A new block starts when a row begins after that.",
+        example: "CASE WHEN prev_end IS NULL OR start_ts > prev_end THEN 1 ELSE 0 END",
+      },
+      {
+        name: "frame: ROWS BETWEEN",
+        insert: "ROWS BETWEEN 6 PRECEDING AND CURRENT ROW",
+        syntax: "ROWS BETWEEN <n> PRECEDING AND CURRENT ROW",
+        detail:
+          "The window of rows a calculation sees. Every PRECEDING/FOLLOWING needs a number (or UNBOUNDED): ROWS BETWEEN PRECEDING AND ... is a syntax error.",
+        example: "AVG(x) OVER (ORDER BY day ROWS BETWEEN 6 PRECEDING AND CURRENT ROW)",
+      },
+    ],
+  },
+  {
+    id: "stats",
+    title: "Statistics, bands and lookups",
+    items: [
+      {
+        name: "STDDEV",
+        insert: "STDDEV()",
+        syntax: "STDDEV(x) / STDDEV_SAMP(x) / STDDEV_POP(x)",
+        detail:
+          "Spread of a column. STDDEV is the sample version (divide by n - 1), the same as pandas .std(). STDDEV_POP divides by n.",
+        example: "SELECT group_col, STDDEV(x) FROM data GROUP BY group_col",
+      },
+      {
+        name: "VARIANCE",
+        insert: "VARIANCE()",
+        syntax: "VARIANCE(x) / VAR_SAMP(x) / VAR_POP(x)",
+        detail:
+          "The square of the standard deviation. VARIANCE and VAR_SAMP are the sample version.",
+        example: "SELECT VAR_POP(x) FROM data",
+      },
+      {
+        name: "MEDIAN",
+        insert: "MEDIAN()",
+        syntax: "MEDIAN(x)",
+        detail:
+          "The middle value, ignoring NULLs. Robust to outliers, so it is the usual value for filling gaps.",
+        example: "SELECT ward, MEDIAN(bp) FROM data GROUP BY ward",
+      },
+      {
+        name: "PERCENTILE",
+        insert: "PERCENTILE(, 90)",
+        syntax: "PERCENTILE(x, p)",
+        detail:
+          "The value below which p percent of the rows fall (p from 0 to 100). PERCENTILE(x, 50) is the median.",
+        example: "SELECT PERCENTILE(x, 90) FROM data",
+      },
+      {
+        name: "CORR",
+        insert: "CORR(, )",
+        syntax: "CORR(y, x)",
+        detail:
+          "Pearson correlation between two columns: from -1 to 1. Rows where either value is NULL are skipped.",
+        example: "SELECT CORR(response, dose) FROM data",
+      },
+      {
+        name: "COVAR_POP",
+        insert: "COVAR_POP(, )",
+        syntax: "COVAR_POP(y, x) / COVAR_SAMP(y, x)",
+        detail:
+          "How two columns move together. Slope of the best-fit line = COVAR_POP(y, x) / VAR_POP(x).",
+        example: "COVAR_POP(response, dose) / VAR_POP(dose)",
+      },
+      {
+        name: "z-score",
+        insert: "(x - AVG(x) OVER ()) / STDDEV(x) OVER ()",
+        syntax: "(value - mean) / standard deviation",
+        detail:
+          "How many standard deviations a value is from the average. Beyond +/-3 is the classic outlier rule. Use a CTE with GROUP BY for a per-group version.",
+        example: "(value - m) / sd",
+      },
+      {
+        name: "COALESCE fill",
+        insert: "COALESCE(, )",
+        syntax: "COALESCE(x, replacement)",
+        detail:
+          "The first value that is not NULL: fills gaps with a fixed value or a computed one such as a group median.",
+        example: "COALESCE(bp, ward_median)",
+      },
+      {
+        name: "SQRT / ROUND",
+        insert: "ROUND(SQRT(), 3)",
+        syntax: "SQRT(x), ROUND(x, places)",
+        detail:
+          "Square root and rounding, both needed for formulas such as the z statistic of an A/B test.",
+        example: "ROUND(SQRT(p * (1 - p)), 3)",
+      },
+      {
+        name: "CASE bins",
+        insert: "CASE WHEN x < 10 THEN 'low' WHEN x < 20 THEN 'mid' ELSE 'high' END",
+        syntax: "CASE WHEN cond THEN v ... ELSE v END",
+        detail:
+          "Turns numbers into labelled bands. Branches are checked top to bottom, so each needs only its upper limit.",
+        example:
+          "CASE WHEN age < 25 THEN 'Under 25' WHEN age < 35 THEN '25-34' ELSE '35+' END",
+      },
+      {
+        name: "NTILE",
+        insert: "NTILE(4) OVER (ORDER BY x DESC)",
+        syntax: "NTILE(n) OVER (ORDER BY x)",
+        detail: "Splits the ordered rows into n equal buckets (quartiles for 4).",
+        example: "NTILE(4) OVER (ORDER BY spend DESC)",
+      },
+      {
+        name: "as-of lookup",
+        insert:
+          "(SELECT p.price FROM prices p WHERE p.product = o.product AND p.effective_date <= o.ordered ORDER BY p.effective_date DESC LIMIT 1)",
+        syntax: "correlated subquery with ORDER BY ... DESC LIMIT 1",
+        detail:
+          "The value that was in force on a date: the newest row that is not in the future.",
+        example: "SELECT o.id, (SELECT ... LIMIT 1) AS price FROM data o",
+      },
+      {
+        name: "local time",
+        insert: "date(utc_ts, offset_minutes || ' minutes')",
+        syntax: "date(ts, '+540 minutes')",
+        detail:
+          "Shifts a UTC stamp by an offset in minutes (negative is west of UTC) before taking its date.",
+        example: "date('2026-03-02 22:30:00', '540 minutes') -> 2026-03-03",
+      },
+      {
+        name: "weekday",
+        insert: "strftime('%w', day)",
+        syntax: "strftime('%w', date)",
+        detail:
+          "Day of the week as a text digit: 0 is Sunday and 6 is Saturday. Business days are the others.",
+        example: "strftime('%w', day) NOT IN ('0', '6')",
+      },
+    ],
+  },
 ];
 
 /** Every function-like name, for autocomplete (duplicates by name are collapsed). */
@@ -493,6 +733,13 @@ export const EXTRA_COMPLETIONS: SqlRef[] = [
   "LEAD",
   "NTILE",
   "MEDIAN",
+  "STDDEV",
+  "STDDEV_POP",
+  "VARIANCE",
+  "VAR_POP",
+  "CORR",
+  "COVAR_POP",
+  "PERCENTILE",
   "CURRENT_DATE",
 ].map((name) => ({
   name,

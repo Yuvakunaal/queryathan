@@ -981,11 +981,11 @@ export function registerStatAggregates(host: AggregateHost): void {
     for (const name of names)
       host.create_aggregate(name, {
         init: newMoments,
-        step: ((m: Moments, x: unknown) => {
+        step: (m: Moments, x: unknown) => {
           addPair(m, x, 0);
           return m;
-        }),
-        finalize: ((m: Moments) => finish(m)),
+        },
+        finalize: (m: Moments) => finish(m),
       });
   };
   oneColumn(["stddev", "stddev_samp"], (m) => {
@@ -1003,11 +1003,11 @@ export function registerStatAggregates(host: AggregateHost): void {
     for (const name of names)
       host.create_aggregate(name, {
         init: newMoments,
-        step: ((m: Moments, y: unknown, x: unknown) => {
+        step: (m: Moments, y: unknown, x: unknown) => {
           addPair(m, x, y);
           return m;
-        }),
-        finalize: ((m: Moments) => finish(m)),
+        },
+        finalize: (m: Moments) => finish(m),
       });
   };
   twoColumns(["covar_samp"], (m) => covarianceOf(m, true));

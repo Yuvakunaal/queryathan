@@ -493,4 +493,240 @@ export const PANDAS_REFERENCE: SqlRefGroup[] = [
       },
     ],
   },
+  {
+    id: "subsets",
+    title: "Compare, rank and walk",
+    items: [
+      {
+        name: "transform",
+        insert: "df['avg'] = df.groupby('dept')['salary'].transform('mean')",
+        syntax: "df.groupby(g)[c].transform('mean')",
+        detail:
+          "Puts a group's statistic on every row of that group (the pandas version of a window function or a CTE joined back).",
+        example: "df[df['salary'] > df['avg']]",
+      },
+      {
+        name: "isin / ~isin",
+        insert: "df[~df['id'].isin(other['id'])]",
+        syntax: "df[~df['id'].isin(values)]",
+        detail:
+          "Keeps rows whose value is (or, with ~, is not) in another column. This is the pandas anti-join.",
+        example: "customers[~customers['id'].isin(orders['customer_id'])]",
+      },
+      {
+        name: "set difference",
+        insert: "a = set(df['email']); b = set(other['email']); only_a = a - b",
+        syntax: "a - b, a & b, a | b",
+        detail:
+          "Python sets compare lists fast: - only in the first, & in both, | in either.",
+        example: "sorted(a - b)",
+      },
+      {
+        name: "merge indicator",
+        insert: "df.merge(other, on='id', how='left', indicator=True)",
+        syntax: "df.merge(..., how='left', indicator=True)",
+        detail:
+          "Adds a _merge column saying whether each row matched, so rows with no match are easy to find.",
+        example: "m[m['_merge'] == 'left_only']",
+      },
+      {
+        name: "walk a hierarchy",
+        insert:
+          "while len(cur):\n    cur = cur.merge(df, left_on='child', right_on='parent')",
+        syntax: "loop of merges",
+        detail:
+          "pandas has no recursion: repeat a merge level by level until nothing new comes back, collecting each level.",
+        example: "cur = df[df['parent'] == 'root']",
+      },
+      {
+        name: "consecutive runs",
+        insert:
+          "grp = d['d'] - pd.to_timedelta(d.groupby('user_id').cumcount(), unit='D')",
+        syntax: "date - running count = run id",
+        detail:
+          "Days in an unbroken streak share the same value once you subtract their position. Group by it to get streaks.",
+        example: "d.groupby(['user_id', grp]).size()",
+      },
+      {
+        name: "cummax",
+        insert:
+          "df['prev_end'] = df.groupby('room')['end'].transform(lambda x: x.cummax().shift())",
+        syntax: "x.cummax().shift()",
+        detail:
+          "The largest value seen so far before each row. Used to merge overlapping time blocks.",
+        example: "df['start'] > df['prev_end']",
+      },
+      {
+        name: "cumcount",
+        insert: "df.groupby('g').cumcount()",
+        syntax: "df.groupby(g).cumcount()",
+        detail: "Numbers the rows inside each group 0, 1, 2... (the pandas ROW_NUMBER).",
+        example: "df['n'] = df.groupby('user_id').cumcount()",
+      },
+    ],
+  },
+  {
+    id: "time2",
+    title: "Time zones, calendars and timelines",
+    items: [
+      {
+        name: "to_datetime (mixed)",
+        insert: "pd.to_datetime(df['raw'], format='mixed')",
+        syntax: "pd.to_datetime(col, format='mixed')",
+        detail:
+          "Reads dates written in several different ways. Add .dt.strftime('%Y-%m-%d') for clean text.",
+        example: "pd.to_datetime(s, format='mixed').dt.strftime('%Y-%m-%d')",
+      },
+      {
+        name: "to_timedelta",
+        insert: "pd.to_datetime(df['ts']) + pd.to_timedelta(df['minutes'], unit='m')",
+        syntax: "ts + pd.to_timedelta(n, unit='m')",
+        detail:
+          "Adds a length of time to dates: shifts UTC to local time, or builds deadlines.",
+        example: "pd.to_timedelta(540, unit='m')",
+      },
+      {
+        name: "date_range",
+        insert: "pd.date_range(start, end)",
+        syntax: "pd.date_range(first, last, freq='D')",
+        detail: "A complete list of dates: the pandas date spine.",
+        example: "s.reindex(pd.date_range(s.index.min(), s.index.max()), fill_value=0)",
+      },
+      {
+        name: "reindex",
+        insert: "s.reindex(new_index, fill_value=0)",
+        syntax: "s.reindex(index, fill_value=0)",
+        detail:
+          "Forces a series onto a full index. New rows are filled with the value you give.",
+        example: "s.reindex(pd.date_range(a, b), fill_value=0)",
+      },
+      {
+        name: "resample",
+        insert: "df.set_index('ts').resample('D')['x'].sum()",
+        syntax: "df.set_index(date).resample('D')[c].sum()",
+        detail:
+          "Groups a time series into days ('D'), weeks ('W') or months ('MS'), including empty periods.",
+        example: "df.set_index('ts').resample('W')['sales'].sum()",
+      },
+      {
+        name: "merge_asof",
+        insert:
+          "pd.merge_asof(left.sort_values('ordered'), right.sort_values('effective'), left_on='ordered', right_on='effective', by='product')",
+        syntax: "pd.merge_asof(left, right, left_on, right_on, by)",
+        detail:
+          "Matches each row to the latest earlier row of another table: the price that was in force on the day. Both tables must be sorted by their date.",
+        example:
+          "pd.merge_asof(o, p, left_on='ordered', right_on='effective_date', by='product')",
+      },
+      {
+        name: "busday_count",
+        insert: "import numpy as np\nnp.busday_count(start, end)",
+        syntax: "np.busday_count(begin, end)",
+        detail:
+          "Counts weekdays from begin up to but not including end. Dates must be datetime64[D].",
+        example: "np.busday_count('2026-03-02', '2026-03-09') -> 5",
+      },
+      {
+        name: "dt.dayofweek",
+        insert: "df['ts'].dt.dayofweek",
+        syntax: "df['ts'].dt.dayofweek",
+        detail: "Day of the week: Monday is 0 and Sunday is 6. >= 5 means weekend.",
+        example: "df[df['ts'].dt.dayofweek < 5]",
+      },
+      {
+        name: "tz_convert",
+        insert: "pd.to_datetime(df['ts'], utc=True).dt.tz_convert('Asia/Tokyo')",
+        syntax: "s.dt.tz_convert('Zone/Name')",
+        detail:
+          "Converts timestamps from UTC to a real time zone, handling daylight saving for you.",
+        example: "pd.to_datetime(s, utc=True).dt.tz_convert('America/New_York')",
+      },
+    ],
+  },
+  {
+    id: "stats",
+    title: "Statistics, bands and filling",
+    items: [
+      {
+        name: "std / var",
+        insert: "df.groupby('g')['x'].agg(['mean', 'std'])",
+        syntax: "col.std(), col.var()",
+        detail:
+          "Spread of a column. pandas divides by n - 1 (sample), the same as SQL STDDEV.",
+        example: "df.groupby('lab')['value'].std()",
+      },
+      {
+        name: "median",
+        insert: "df['x'].median()",
+        syntax: "col.median()",
+        detail: "The middle value, ignoring missing. Robust to outliers.",
+        example: "df.groupby('ward')['bp'].transform('median')",
+      },
+      {
+        name: "quantile",
+        insert: "df['x'].quantile([0.25, 0.5, 0.75])",
+        syntax: "col.quantile(q)",
+        detail:
+          "The value below which a share q of rows fall. quantile(0.75) - quantile(0.25) is the IQR.",
+        example: "df['x'].quantile(0.9)",
+      },
+      {
+        name: "z-score",
+        insert: "(df['x'] - df['x'].mean()) / df['x'].std()",
+        syntax: "(x - mean) / std",
+        detail:
+          "How many standard deviations a value is from average. Beyond +/-3 is the classic outlier rule. Use groupby().transform for per-group values.",
+        example:
+          "g = df.groupby('s')['v']; (df['v'] - g.transform('mean')) / g.transform('std')",
+      },
+      {
+        name: "corr / cov",
+        insert: "df['x'].corr(df['y'])",
+        syntax: "a.corr(b), a.cov(b)",
+        detail:
+          "Pearson correlation and covariance of two columns. Pairs with missing values are skipped.",
+        example: "slope = x.cov(y) / x.var()",
+      },
+      {
+        name: "fillna",
+        insert: "df['x'] = df['x'].fillna(df['x'].median())",
+        syntax: "col.fillna(value_or_series)",
+        detail:
+          "Fills missing cells with a number, or with a per-row Series such as a group median.",
+        example: "df['bp'].fillna(df.groupby('ward')['bp'].transform('median'))",
+      },
+      {
+        name: "pd.cut",
+        insert:
+          "pd.cut(df['age'], bins=[0, 25, 35, 65, 200], right=False, labels=['a','b','c','d'])",
+        syntax: "pd.cut(col, bins, right=False, labels=[...])",
+        detail:
+          "Turns numbers into labelled bands. right=False makes each band start at its lower edge.",
+        example: "pd.cut(df['age'], [0, 25, 35, 200], right=False)",
+      },
+      {
+        name: "pd.qcut",
+        insert: "pd.qcut(df['x'].rank(method='first'), 4, labels=False) + 1",
+        syntax: "pd.qcut(col, q)",
+        detail:
+          "Splits into bands with equal numbers of rows (quartiles for 4). Ranking first avoids errors from ties.",
+        example: "pd.qcut(df['spend'].rank(method='first'), 4, labels=False) + 1",
+      },
+      {
+        name: "math.sqrt",
+        insert: "import math\nmath.sqrt()",
+        syntax: "math.sqrt(x)",
+        detail:
+          "Square root of a single number, for formulas like the A/B test z statistic.",
+        example: "z = (p2 - p1) / math.sqrt(p * (1 - p) * (1/n1 + 1/n2))",
+      },
+      {
+        name: "polyfit",
+        insert: "import numpy as np\nnp.polyfit(x, y, 1)",
+        syntax: "np.polyfit(x, y, 1) -> [slope, intercept]",
+        detail: "The least-squares straight line through the points.",
+        example: "slope, intercept = np.polyfit(df['dose'], df['response'], 1)",
+      },
+    ],
+  },
 ];

@@ -110,11 +110,11 @@ task and the predicates saying the same thing. Final bosses omit `task`.
 | `lacks_columns`     | `{ columns }`                                                     | None of the listed columns may remain. Whole-table rule (World 4).                                                                                                 |
 | `column_sum`        | `{ column, equals }`                                              | Numeric cells of the column must add to `equals` (within 0.01). A checksum proving values survived a reshape. Whole-table rule.                                    |
 | `distinct_count`    | `{ column, equals }`                                              | The column must hold exactly this many distinct non-null values. Whole-table rule.                                                                                 |
-| `result_matches`    | `{ columns, rows, ordered?, tolerance? }`                         | The answer table must equal the expected one (World 6). See "Answer cases" below. Whole-table rule.                                                                |
+| `result_matches`    | `{ columns, rows, ordered?, tolerance? }`                         | The answer table must equal the expected one (Worlds 6 to 9). See "Answer cases" below. Whole-table rule.                                                          |
 
-### Answer cases (World 6)
+### Answer cases (Worlds 6 to 9)
 
-World 6 asks a business question and judges the answer table. One predicate does
+Worlds 6 to 9 (The Observatory, The Labyrinth, The Timekeeper, The Laboratory) each ask a business question and judges the answer table. One predicate does
 the judging:
 
 ```json

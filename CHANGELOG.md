@@ -5,6 +5,13 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## Unreleased (Phase 9)
 
+- **Three new worlds, 18 new cases (45 in all).** Every case is winnable in both SQL and Python and judged by the exact answer table.
+  - **The Labyrinth** (CTEs and recursion): a first CTE, anti-joins with the `NOT IN` NULL trap, a recursive org chart, set operations on messy emails, gaps-and-islands streaks and a recursive bill of materials.
+  - **The Timekeeper** (dates and time): three date spellings in one column, business days, UTC to local time, a date spine for missing days, an as-of join for the price in force, and merging overlapping bookings.
+  - **The Laboratory** (statistics): standard deviation per group, z-score outliers, median imputation, age bands, an A/B test z statistic, and a regression line per compound.
+- **SQL statistics functions.** `STDDEV`, `STDDEV_SAMP`, `STDDEV_POP`, `VARIANCE`, `VAR_SAMP`, `VAR_POP`, `CORR`, `COVAR_POP` and `COVAR_SAMP` now work in the SQL engine (`MEDIAN` and `PERCENTILE` already did).
+- **Tips book.** New SQL groups (CTEs, subqueries and sets; Statistics, bands and lookups) and new pandas groups (Compare, rank and walk; Time zones, calendars and timelines; Statistics, bands and filling).
+
 - **Big titles no longer touch.** On the home page, the world pages and the sandbox page the title's two
   lines were set so tight that the tail of the y in "your" ran into the l in "clean". The line spacing is
   now roomier, and a test fails if a big title is set tighter than that.
