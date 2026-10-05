@@ -150,6 +150,9 @@ export const worldIdSchema = z.enum([
   "the-architect",
   "the-foundry",
   "the-observatory",
+  "the-labyrinth",
+  "the-timekeeper",
+  "the-laboratory",
 ]);
 export type WorldId = z.infer<typeof worldIdSchema>;
 

@@ -169,6 +169,24 @@ const RANK_TIERS: Record<WorldId, RankTier[]> = {
     { label: "Navigator", minTechniques: 3 },
     { label: "Astronomer", minTechniques: 6 },
   ],
+  "the-labyrinth": [
+    { label: "Recruit", minTechniques: 0 },
+    { label: "Wanderer", minTechniques: 1 },
+    { label: "Pathfinder", minTechniques: 3 },
+    { label: "Minotaur Slayer", minTechniques: 6 },
+  ],
+  "the-timekeeper": [
+    { label: "Recruit", minTechniques: 0 },
+    { label: "Apprentice", minTechniques: 1 },
+    { label: "Watchmaker", minTechniques: 3 },
+    { label: "Master of Time", minTechniques: 6 },
+  ],
+  "the-laboratory": [
+    { label: "Recruit", minTechniques: 0 },
+    { label: "Assistant", minTechniques: 1 },
+    { label: "Researcher", minTechniques: 3 },
+    { label: "Principal Investigator", minTechniques: 6 },
+  ],
 };
 
 export function rankForWorld(world: WorldId, masteredTechniqueCount: number): string {

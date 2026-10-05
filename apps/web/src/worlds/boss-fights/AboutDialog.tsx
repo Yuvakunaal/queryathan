@@ -16,6 +16,9 @@ const LOOK: Record<WorldId, string> = {
   "the-architect": "Blueprint blue",
   "the-foundry": "Forge orange",
   "the-observatory": "Midnight violet and star gold",
+  "the-labyrinth": "Stone and torchlight crimson",
+  "the-timekeeper": "Brass clockwork and lime",
+  "the-laboratory": "Cold lab teal and white",
 };
 
 const FOCUSABLE =

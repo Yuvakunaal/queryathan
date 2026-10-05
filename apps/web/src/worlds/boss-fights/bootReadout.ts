@@ -14,6 +14,9 @@ const SHAPE_CODE: Partial<Record<WorldId, string>> = {
   "the-architect": "SHAPE",
   "the-foundry": "SPEED",
   "the-observatory": "ANSWER",
+  "the-labyrinth": "ANSWER",
+  "the-timekeeper": "ANSWER",
+  "the-laboratory": "ANSWER",
 };
 
 const pad = (n: number): string => String(n).padStart(3, "0");

@@ -1,0 +1,58 @@
+/*
+  World 9 (The Laboratory): cold lab light: teal is the primary accent, warning yellow the highlight. "green" is the primary
+  accent, "amber" the interactive highlight. Loaded after theme.css.
+*/
+[data-world="the-laboratory"] {
+  --w1-bg-void: #070d0e;
+  --w1-bg-panel: #0d1517;
+  --w1-bg-panel-2: #142023;
+  --w1-bg-row-a: #091011;
+  --w1-bg-row-b: #0b1315;
+  --w1-bg-row-hover: #162428;
+
+  --w1-green-300: #a6f3e8;
+  --w1-green-500: #3de0c8;
+  --w1-green-700: #157a6c;
+  --w1-amber-300: #ffeab3;
+  --w1-amber-500: #ffd166;
+  --w1-amber-700: #9a7414;
+
+  --w1-text-primary: #e8f3f3;
+  --w1-text-secondary: #a9bfc1;
+  --w1-text-dim: #869c9f;
+  --w1-text-inverse: #070d0e;
+
+  --w1-rule-strong: #26393d;
+  --w1-rule: #1b2a2d;
+  --w1-rule-faint: #121d20;
+  --w1-focus: #ffd166;
+  --w1-title: #7ff0e0;
+
+  --w1-crt-scanline-a: 0;
+  --w1-crt-grille-a: 0;
+  --w1-crt-vignette-a: 0.3;
+}
+
+[data-dcq-theme="light"]:not([data-dcq-contrast="high"]) [data-world="the-laboratory"] {
+  --w1-bg-void: #eff6f6;
+  --w1-bg-panel: #fbfefe;
+  --w1-bg-panel-2: #e0eded;
+  --w1-bg-row-a: #f5fafa;
+  --w1-bg-row-b: #e9f2f2;
+  --w1-bg-row-hover: #d8e8e8;
+  --w1-green-300: #00695d;
+  --w1-green-500: #00695d;
+  --w1-green-700: #b9cfd0;
+  --w1-amber-300: #7a5800;
+  --w1-amber-500: #7a5800;
+  --w1-amber-700: #b9cfd0;
+  --w1-text-primary: #0f1c1d;
+  --w1-text-secondary: #364b4d;
+  --w1-text-dim: #506567;
+  --w1-text-inverse: #ffffff;
+  --w1-rule-strong: #b9cfd0;
+  --w1-rule: #d3e3e3;
+  --w1-rule-faint: #e4efef;
+  --w1-focus: #7a5800;
+  --w1-title: #00574d;
+}

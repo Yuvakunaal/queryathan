@@ -11,7 +11,10 @@
   [data-world="the-twins"],
   [data-world="the-architect"],
   [data-world="the-foundry"],
-  [data-world="the-observatory"]
+  [data-world="the-observatory"],
+  [data-world="the-labyrinth"],
+  [data-world="the-timekeeper"],
+  [data-world="the-laboratory"]
 ) {
   /* --- surfaces: near-black, cool cast, stepped not shadowed --- */
   --w1-bg-void: #06080a;
@@ -139,7 +142,10 @@
     [data-world="the-twins"],
     [data-world="the-architect"],
     [data-world="the-foundry"],
-    [data-world="the-observatory"]
+    [data-world="the-observatory"],
+    [data-world="the-labyrinth"],
+    [data-world="the-timekeeper"],
+    [data-world="the-laboratory"]
   ) {
   --w1-bg-void: #000000;
   --w1-bg-panel: #000000;
@@ -167,7 +173,10 @@
   [data-world="the-twins"],
   [data-world="the-architect"],
   [data-world="the-foundry"],
-  [data-world="the-observatory"]
+  [data-world="the-observatory"],
+  [data-world="the-labyrinth"],
+  [data-world="the-timekeeper"],
+  [data-world="the-laboratory"]
 ),
 :is(
     [data-world="boss-fights"],
@@ -175,7 +184,10 @@
     [data-world="the-twins"],
     [data-world="the-architect"],
     [data-world="the-foundry"],
-    [data-world="the-observatory"]
+    [data-world="the-observatory"],
+    [data-world="the-labyrinth"],
+    [data-world="the-timekeeper"],
+    [data-world="the-laboratory"]
   )
   * {
   border-radius: 0;
@@ -187,7 +199,10 @@
   [data-world="the-twins"],
   [data-world="the-architect"],
   [data-world="the-foundry"],
-  [data-world="the-observatory"]
+  [data-world="the-observatory"],
+  [data-world="the-labyrinth"],
+  [data-world="the-timekeeper"],
+  [data-world="the-laboratory"]
 ) {
   font-variant-ligatures: none;
   font-feature-settings: "zero" 1;
@@ -199,7 +214,10 @@
     [data-world="the-twins"],
     [data-world="the-architect"],
     [data-world="the-foundry"],
-    [data-world="the-observatory"]
+    [data-world="the-observatory"],
+    [data-world="the-labyrinth"],
+    [data-world="the-timekeeper"],
+    [data-world="the-laboratory"]
   )
   * {
   scrollbar-width: thin;
@@ -211,7 +229,10 @@
     [data-world="the-twins"],
     [data-world="the-architect"],
     [data-world="the-foundry"],
-    [data-world="the-observatory"]
+    [data-world="the-observatory"],
+    [data-world="the-labyrinth"],
+    [data-world="the-timekeeper"],
+    [data-world="the-laboratory"]
   )
   *::-webkit-scrollbar {
   width: 10px;
@@ -223,7 +244,10 @@
     [data-world="the-twins"],
     [data-world="the-architect"],
     [data-world="the-foundry"],
-    [data-world="the-observatory"]
+    [data-world="the-observatory"],
+    [data-world="the-labyrinth"],
+    [data-world="the-timekeeper"],
+    [data-world="the-laboratory"]
   )
   *::-webkit-scrollbar-thumb {
   background: var(--w1-rule-strong);
@@ -244,7 +268,10 @@
     [data-world="the-twins"],
     [data-world="the-architect"],
     [data-world="the-foundry"],
-    [data-world="the-observatory"]
+    [data-world="the-observatory"],
+    [data-world="the-labyrinth"],
+    [data-world="the-timekeeper"],
+    [data-world="the-laboratory"]
   ) {
   --w1-bg-void: #f3f6f4;
   --w1-bg-panel: #ffffff;
@@ -339,7 +366,10 @@ html[data-dcq-theme="light"][data-dcq-contrast="high"]
     [data-world="the-twins"],
     [data-world="the-architect"],
     [data-world="the-foundry"],
-    [data-world="the-observatory"]
+    [data-world="the-observatory"],
+    [data-world="the-labyrinth"],
+    [data-world="the-timekeeper"],
+    [data-world="the-laboratory"]
   ) {
   --w1-bg-void: #ffffff;
   --w1-bg-panel: #ffffff;

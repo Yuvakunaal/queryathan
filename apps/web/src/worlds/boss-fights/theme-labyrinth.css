@@ -1,0 +1,58 @@
+/*
+  World 7 (The Labyrinth): stone and torchlight: crimson is the primary accent, torch amber the highlight. "green" is the primary
+  accent, "amber" the interactive highlight. Loaded after theme.css.
+*/
+[data-world="the-labyrinth"] {
+  --w1-bg-void: #0e0a0b;
+  --w1-bg-panel: #161012;
+  --w1-bg-panel-2: #1f1719;
+  --w1-bg-row-a: #110c0d;
+  --w1-bg-row-b: #140f10;
+  --w1-bg-row-hover: #241a1d;
+
+  --w1-green-300: #ffb3c0;
+  --w1-green-500: #ff5c7a;
+  --w1-green-700: #a3243f;
+  --w1-amber-300: #ffdcae;
+  --w1-amber-500: #ffb454;
+  --w1-amber-700: #9a6516;
+
+  --w1-text-primary: #f3e8ea;
+  --w1-text-secondary: #bda9ae;
+  --w1-text-dim: #97848a;
+  --w1-text-inverse: #0e0a0b;
+
+  --w1-rule-strong: #3d2c31;
+  --w1-rule: #2a1e22;
+  --w1-rule-faint: #1b1316;
+  --w1-focus: #ffb454;
+  --w1-title: #ff8a9d;
+
+  --w1-crt-scanline-a: 0;
+  --w1-crt-grille-a: 0;
+  --w1-crt-vignette-a: 0.3;
+}
+
+[data-dcq-theme="light"]:not([data-dcq-contrast="high"]) [data-world="the-labyrinth"] {
+  --w1-bg-void: #f8f1f2;
+  --w1-bg-panel: #fffcfc;
+  --w1-bg-panel-2: #f0e4e6;
+  --w1-bg-row-a: #fbf6f7;
+  --w1-bg-row-b: #f3eaec;
+  --w1-bg-row-hover: #eadadd;
+  --w1-green-300: #b3123a;
+  --w1-green-500: #b3123a;
+  --w1-green-700: #d4bfc4;
+  --w1-amber-300: #8a5a00;
+  --w1-amber-500: #8a5a00;
+  --w1-amber-700: #d4bfc4;
+  --w1-text-primary: #241518;
+  --w1-text-secondary: #53393e;
+  --w1-text-dim: #6f545a;
+  --w1-text-inverse: #ffffff;
+  --w1-rule-strong: #d4bfc4;
+  --w1-rule: #e5d6d9;
+  --w1-rule-faint: #efe3e5;
+  --w1-focus: #8a5a00;
+  --w1-title: #8f0f2f;
+}

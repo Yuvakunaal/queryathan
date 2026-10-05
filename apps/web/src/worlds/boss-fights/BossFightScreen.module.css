@@ -392,7 +392,10 @@
   grid-template-rows: auto minmax(0, 1fr);
 }
 
-[data-world="the-observatory"] .battlefield {
+[data-world="the-observatory"] .battlefield,
+[data-world="the-labyrinth"] .battlefield,
+[data-world="the-timekeeper"] .battlefield,
+[data-world="the-laboratory"] .battlefield {
   grid-template-rows: auto minmax(0, 1fr);
 }
 

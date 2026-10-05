@@ -1,0 +1,58 @@
+/*
+  World 8 (The Timekeeper): brass clockwork: lime is the primary accent, brass the highlight. "green" is the primary
+  accent, "amber" the interactive highlight. Loaded after theme.css.
+*/
+[data-world="the-timekeeper"] {
+  --w1-bg-void: #0b0d08;
+  --w1-bg-panel: #12150d;
+  --w1-bg-panel-2: #1a1e12;
+  --w1-bg-row-a: #0d1009;
+  --w1-bg-row-b: #10130b;
+  --w1-bg-row-hover: #1d2314;
+
+  --w1-green-300: #dcfa97;
+  --w1-green-500: #b6f23c;
+  --w1-green-700: #587a14;
+  --w1-amber-300: #f7e0a8;
+  --w1-amber-500: #e8b84a;
+  --w1-amber-700: #8f6c14;
+
+  --w1-text-primary: #eef1e4;
+  --w1-text-secondary: #b3baa2;
+  --w1-text-dim: #8c947a;
+  --w1-text-inverse: #0b0d08;
+
+  --w1-rule-strong: #353c26;
+  --w1-rule: #262c1a;
+  --w1-rule-faint: #191d11;
+  --w1-focus: #e8b84a;
+  --w1-title: #cdea6a;
+
+  --w1-crt-scanline-a: 0;
+  --w1-crt-grille-a: 0;
+  --w1-crt-vignette-a: 0.3;
+}
+
+[data-dcq-theme="light"]:not([data-dcq-contrast="high"]) [data-world="the-timekeeper"] {
+  --w1-bg-void: #f4f6ec;
+  --w1-bg-panel: #fdfef9;
+  --w1-bg-panel-2: #e8ecd9;
+  --w1-bg-row-a: #f8faf1;
+  --w1-bg-row-b: #eef1e0;
+  --w1-bg-row-hover: #e1e6cd;
+  --w1-green-300: #4b6a00;
+  --w1-green-500: #4b6a00;
+  --w1-green-700: #c5cdae;
+  --w1-amber-300: #7a5600;
+  --w1-amber-500: #7a5600;
+  --w1-amber-700: #c5cdae;
+  --w1-text-primary: #1a1f10;
+  --w1-text-secondary: #454c35;
+  --w1-text-dim: #5f664f;
+  --w1-text-inverse: #ffffff;
+  --w1-rule-strong: #c5cdae;
+  --w1-rule: #dbe1c8;
+  --w1-rule-faint: #e8ecda;
+  --w1-focus: #7a5600;
+  --w1-title: #3f5a00;
+}
