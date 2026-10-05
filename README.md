@@ -1,56 +1,97 @@
 <div align="center">
 
-<img src="./docs/images/social-preview.png" alt="Queryathan: slay messy data with real pandas and SQL" width="760">
+<img src="./docs/images/social-preview.png" alt="Queryathan: learn pandas and SQL by slaying messy data" width="780">
 
 # Queryathan
 
-**Slay messy data. Learn real pandas and SQL by playing: nine planet worlds, 45 cases, real engines in your browser.**
-No account. No server. Nothing to install. Works offline.
+**Slay messy data. Learn real pandas and SQL by playing.**
+Nine planet worlds, 45 hands-on cases, real Python and SQLite running in your browser.
+No account. No server. Works offline.
 
 [![CI](https://github.com/Yuvakunaal/queryathan/actions/workflows/ci.yml/badge.svg)](https://github.com/Yuvakunaal/queryathan/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/Yuvakunaal/queryathan/actions/workflows/codeql.yml/badge.svg)](https://github.com/Yuvakunaal/queryathan/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 [![Good first issues](https://img.shields.io/github/issues/Yuvakunaal/queryathan/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/Yuvakunaal/queryathan/labels/good%20first%20issue)
 ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6)
-![Runs offline](https://img.shields.io/badge/runs-offline-2ea44f)
-![No backend](https://img.shields.io/badge/backend-none-lightgrey)
+![Runs offline](https://img.shields.io/badge/runs-offline-ff6a00)
 
-[Play](#quick-start) · [The nine worlds](#the-nine-worlds) · [How it works](#how-it-works) · [Contribute](#contributing) · [FAQ](#faq)
+[Quick start](#-quick-start) · [The nine worlds](#-the-nine-worlds) · [How it works](#-how-it-works) · [Contribute](#-contributing) · [FAQ](#-faq)
+
+<!-- After you deploy, add the live link here: **[Play now](https://your-domain)** -->
 
 </div>
-
----
-
-_Queryathan_ is _query_ + _leviathan_: the great beast of messy data, and the queries you fight it with.
-
-Most people learn data work from tidy tutorials, then meet a real table and freeze. Queryathan
-flips that: every case is a **messy table with a real problem in it**, and you fix it by writing **real
-pandas or real SQL**, running it against a **real engine in your browser**, and watching the table change. Win
-a case and a short cinematic plays. Travel to the next world by rocket.
 
 <p align="center">
   <img src="./docs/images/demo-flight.gif" alt="Choosing a world launches a rocket: lift-off, warp, descent and landing" width="49%">
   <img src="./docs/images/demo-win.gif" alt="Solving a case: the query runs, the answer checks out and the boss is defeated" width="49%">
 </p>
 
-## Why it is different
+## ✨ What is Queryathan?
 
-|                        | Typical tutorials       | Queryathan                                                              |
-| ---------------------- | ----------------------- | ----------------------------------------------------------------------- |
-| **Code runs**          | On a server, or faked   | In your browser: Pyodide (pandas) and SQLite (WebAssembly)              |
-| **Languages**          | One                     | **Both**: every case is winnable in Python and in SQL                   |
-| **Checking**           | Match the expected code | Judge the **result**: any correct approach wins                         |
-| **Errors**             | Hidden or generic       | The real error, with a plain-English explanation on top                 |
-| **Account / tracking** | Required                | None. Progress stays on your device and exports as a file               |
-| **Offline**            | No                      | Yes, after one visit                                                    |
-| **Content**            | Locked in a platform    | Open: a case is one JSON file and a CC0 dataset                         |
-| **Accessibility**      | Rarely audited          | Dark, light, high contrast, keyboard, reduced motion, WCAG audits in CI |
+_Queryathan_ is _query_ + _leviathan_: the great beast of messy data, and the queries you fight it with.
 
-## The nine worlds
+Most people learn data work from tidy tutorials, then meet a real table and freeze. Queryathan flips that: every case is a **messy table with a real problem in it**, and you fix it by writing **real pandas or real SQL**, running it against a **real engine in your browser**, and watching the table change. Win a case and a short cinematic plays. Travel to the next world by rocket.
 
-Each world is a planet with its own colours, heads-up display and theme. Choosing one launches a rocket flight
-(skippable, and optional in the **ANIM** menu).
+- 🐍 **Real engines, not simulations.** Python runs in [Pyodide](https://pyodide.org) (pandas compiled to WebAssembly) and SQL in [sql.js](https://sql.js.org) (SQLite). The errors are the real errors, with a plain-English explanation on top.
+- 🔀 **Every case works in both languages.** The same problem, solved with pandas or with SQL. The tests prove each case is winnable in both, and that the starter code does not already win.
+- 🎯 **Judged by the result.** A case is won by clean cells or an exact answer table, never by matching your code, so any correct approach wins.
+- 🔒 **No backend, no account, no tracking.** Progress stays in your browser and exports as a file. After one visit it works offline.
+- ♿ **Accessible.** Dark, light and high-contrast themes, adjustable text size, full keyboard use, reduced-motion support, and WCAG audits in CI.
+- 🚀 **Cinematic, and optional.** A rocket flight between worlds and a knife-cut win scene, each switched on or off in the **ANIM** menu.
+- 🧰 **Open content.** A case is one JSON file and a CC0 dataset. Adding one needs no engine knowledge.
+
+<details>
+<summary><b>Table of contents</b></summary>
+
+- [Quick start](#-quick-start)
+- [The nine worlds](#-the-nine-worlds)
+- [Screenshots](#-screenshots)
+- [Why it is different](#-why-it-is-different)
+- [How it works](#-how-it-works)
+- [Quality](#-quality)
+- [Project structure](#-project-structure)
+- [Contributing](#-contributing)
+- [Roadmap](#-roadmap)
+- [FAQ](#-faq)
+- [Documentation, security, license](#-documentation)
+
+</details>
+
+## 🚀 Quick start
+
+You need [Node](https://nodejs.org) (the version in [`.nvmrc`](./.nvmrc)) and [pnpm](https://pnpm.io) (via Corepack).
+
+```bash
+git clone https://github.com/Yuvakunaal/queryathan.git
+cd queryathan
+corepack enable
+pnpm install      # also fetches the pinned, checksum-verified Pyodide runtime (~14 MB)
+pnpm dev          # http://localhost:5173
+```
+
+<details>
+<summary><b>All commands</b></summary>
+
+| Command                 | What it does                                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| `pnpm dev`              | Run the app locally                                                                              |
+| `pnpm build`            | Type-check and build the production bundle                                                       |
+| `pnpm typecheck`        | `tsc -b` across the whole workspace                                                              |
+| `pnpm lint`             | ESLint (strict, type-aware)                                                                      |
+| `pnpm format:check`     | Prettier                                                                                         |
+| `pnpm test`             | Unit tests (Vitest)                                                                              |
+| `pnpm validate-content` | Check every case and roster against the schema                                                   |
+| `pnpm e2e`              | Build, then run the Playwright suite against the production build with the real security headers |
+
+First end-to-end run: `pnpm --filter @dcq/web exec playwright install chromium`.
+
+</details>
+
+Deploying it? It is a static site, and Vercel works out of the box. See [`docs/DEPLOYING.md`](./docs/DEPLOYING.md).
+
+## 🪐 The nine worlds
+
+Each world is a planet with its own colours, heads-up display and theme. Choosing one launches a rocket flight to it (skippable).
 
 | #   | World           | You practise                                                                                    | Cases |
 | --- | --------------- | ----------------------------------------------------------------------------------------------- | ----- |
@@ -64,43 +105,33 @@ Each world is a planet with its own colours, heads-up display and theme. Choosin
 | 8   | **Chronopolis** | Time: mixed date formats, business days, time zones, date spines, as-of joins, interval merging | 6     |
 | 9   | **Helix-9**     | Statistics: spread, z-score outliers, imputation, binning, A/B tests, regression                | 6     |
 
-There is also a **Sandbox**: load your own CSV (up to four tables, joined in a rearrangeable collage) and
-explore it with pandas or SQL. Nothing is uploaded.
+There is also a **Sandbox**: load your own CSV (up to four tables, joined in a rearrangeable collage) and explore it with pandas or SQL. Nothing is uploaded.
+
+## 🖼 Screenshots
 
 <p align="center">
   <img src="./docs/images/hub-dark.png" alt="The home screen: nine planet worlds" width="49%">
   <img src="./docs/images/fight-dark.png" alt="A fight in the dark theme: task, editor and live data" width="49%">
 </p>
 <p align="center">
+  <img src="./docs/images/hub-light.png" alt="The home screen in the light theme" width="49%">
   <img src="./docs/images/fight-light.png" alt="The same fight in the light theme" width="49%">
-  <img src="./docs/images/landing.png" alt="The rocket landing on the planet" width="49%">
 </p>
 
-## Quick start
+## ⚔ Why it is different
 
-You need [Node](https://nodejs.org) (the version in [`.nvmrc`](./.nvmrc)) and [pnpm](https://pnpm.io) (via Corepack).
+|                        | Typical tutorials       | Queryathan                                                              |
+| ---------------------- | ----------------------- | ----------------------------------------------------------------------- |
+| **Code runs**          | On a server, or faked   | In your browser: Pyodide (pandas) and SQLite (WebAssembly)              |
+| **Languages**          | One                     | **Both**: every case is winnable in Python and in SQL                   |
+| **Checking**           | Match the expected code | Judge the **result**: any correct approach wins                         |
+| **Errors**             | Hidden or generic       | The real error, with a plain-English explanation on top                 |
+| **Account / tracking** | Required                | None. Progress stays on your device and exports as a file               |
+| **Offline**            | No                      | Yes, after one visit                                                    |
+| **Content**            | Locked in a platform    | Open: a case is one JSON file and a CC0 dataset                         |
+| **Accessibility**      | Rarely audited          | Dark, light, high contrast, keyboard, reduced motion, WCAG audits in CI |
 
-```bash
-git clone https://github.com/Yuvakunaal/queryathan.git
-cd queryathan
-corepack enable
-pnpm install      # also fetches the pinned, checksum-verified Pyodide runtime (~14 MB)
-pnpm dev          # http://localhost:5173
-```
-
-| Command                 | What it does                                                                                     |
-| ----------------------- | ------------------------------------------------------------------------------------------------ |
-| `pnpm dev`              | Run the app locally                                                                              |
-| `pnpm build`            | Type-check and build the production bundle                                                       |
-| `pnpm typecheck`        | `tsc -b` across the whole workspace                                                              |
-| `pnpm lint`             | ESLint (strict, type-aware)                                                                      |
-| `pnpm test`             | Unit tests (Vitest)                                                                              |
-| `pnpm validate-content` | Check every case and roster against the schema                                                   |
-| `pnpm e2e`              | Build, then run the Playwright suite against the production build with the real security headers |
-
-First e2e run: `pnpm --filter @dcq/web exec playwright install chromium`.
-
-## How it works
+## ⚙ How it works
 
 ```
  case JSON  ──►  declarative win predicates (trusted code judges; the JSON never runs)
@@ -112,27 +143,48 @@ First e2e run: `pnpm --filter @dcq/web exec playwright install chromium`.
  GSAP animation (outside React's render loop), CodeMirror 6 editor, virtualised data grid
 ```
 
-- **Content is data.** A case is one JSON file plus a small synthetic dataset. Adding one needs no engine knowledge.
+- **Content is data.** A case is one JSON file plus a small synthetic dataset.
 - **Answers are verified three ways.** The expected table is computed in plain JavaScript from the briefing, then real SQL and real pandas must each reach it.
 - **Safe by construction.** User code only ever runs inside a Web Worker, behind a strict Content-Security-Policy. See [`SECURITY.md`](./SECURITY.md).
 
-## Quality
+**Stack:** React 19 · TypeScript (strict) · Vite · Pyodide · sql.js · CodeMirror 6 · GSAP · TanStack Virtual · Zod · Vitest · Playwright · pnpm workspaces
 
-- Strict TypeScript, ESLint, Prettier, Husky pre-commit, CodeQL, Dependabot.
-- 298 unit tests (Vitest) and 300+ end-to-end tests (Playwright) on a production build served with the real headers:
-  every case in both engines, near-miss wrong answers, every complete SQL hint, offline use, layout at phone widths,
-  axe-core accessibility scans in both themes, and WCAG AA contrast on every colour token.
-- Lighthouse budgets in CI.
+## ✅ Quality
 
-## Contributing
+- Strict TypeScript, ESLint, Prettier, a pre-commit hook, CodeQL and Dependabot.
+- 298 unit tests (Vitest) and 300+ end-to-end tests (Playwright) on a production build served with the real headers: every case in both engines, near-miss wrong answers, every complete SQL hint, offline use, layout at phone widths, axe-core accessibility scans in both themes, and WCAG AA contrast on every colour token.
+- Lighthouse budgets in CI (performance, accessibility, best practices, script size).
 
-**A new case is a JSON file plus a dataset.** No engine knowledge needed. Start with
-[`CONTRIBUTING.md`](./CONTRIBUTING.md), the [authoring guide](./docs/content-authoring-guide.md) and the
-[call for cases](./docs/call-for-cases.md). Looking for something small to start with? See the
-[good first issues](./docs/good-first-issues.md). Bigger changes (a new world, a schema change) start with a short
-[RFC](./docs/rfc-template.md) in Discussions. Please read the [Code of Conduct](./CODE_OF_CONDUCT.md).
+## 🗂 Project structure
 
-## Roadmap
+<details>
+<summary><b>Repository layout</b></summary>
+
+```
+apps/web/                 the game (Vite + React)
+  src/engines/              Pyodide and SQLite workers and their clients, CSV loader, SQL friendly-function layer
+  src/worlds/boss-fights/   screens, HUDs, themes, the flight and kill sequences (shared by every world)
+  src/anim/                 GSAP choreography
+  src/lib/                  pure game logic: diffing, win conditions, save data, sound, world metadata
+  e2e/                      Playwright suites and the known-good answer for every case
+  public/datasets/          synthetic CC0 datasets, one folder per world
+packages/content-schema/  Zod schema and types for case JSON
+packages/engine-adapters/ typed worker protocol and RPC client
+content/cases/            the cases, one folder per world
+content/rosters/          the fight order of each world
+scripts/                  dataset and case generators, content validation, Pyodide fetch
+docs/                     architecture, authoring guide, deployment, decision records, roadmap
+```
+
+</details>
+
+## 🤝 Contributing
+
+**A new case is a JSON file plus a dataset.** No engine knowledge needed. Start with [`CONTRIBUTING.md`](./CONTRIBUTING.md), the [authoring guide](./docs/content-authoring-guide.md) and the [call for cases](./docs/call-for-cases.md). Looking for something small? See the [good first issues](./docs/good-first-issues.md). Bigger changes (a new world, a schema change) start with a short [RFC](./docs/rfc-template.md) in Discussions. Please read the [Code of Conduct](./CODE_OF_CONDUCT.md).
+
+[![Contributors](https://contrib.rocks/image?repo=Yuvakunaal/queryathan)](https://github.com/Yuvakunaal/queryathan/graphs/contributors)
+
+## 🗺 Roadmap
 
 - [x] Nine worlds, 45 cases, both engines, sandbox, offline, themes, accessibility audits
 - [x] Rocket flights and cinematic wins (optional)
@@ -143,59 +195,74 @@ First e2e run: `pnpm --filter @dcq/web exec playwright install chromium`.
 
 Out of scope on purpose: accounts, streaks, leaderboards, cloud sync and tracking. See [`docs/ROADMAP.md`](./docs/ROADMAP.md).
 
-## FAQ
+## ❓ FAQ
 
-**Is it really running Python in my browser?** Yes. [Pyodide](https://pyodide.org) is CPython and pandas compiled to WebAssembly. SQL runs in [sql.js](https://sql.js.org), SQLite compiled to WebAssembly.
+<details>
+<summary><b>Is it really running Python in my browser?</b></summary>
 
-**Does it work offline?** After one visit, yes. The first Python start downloads pandas once (pinned version) and caches it.
+Yes. [Pyodide](https://pyodide.org) is CPython and pandas compiled to WebAssembly. SQL runs in [sql.js](https://sql.js.org), SQLite compiled to WebAssembly.
 
-**Where is my progress stored?** In your browser's `localStorage`, on your device only. Export it as a file to move it. There is no server to sync with.
+</details>
 
-**Is it safe to run code I type?** It runs in a Web Worker with no access to the page, behind a strict CSP, with a run timeout. See [`SECURITY.md`](./SECURITY.md).
+<details>
+<summary><b>Does it work offline?</b></summary>
 
-**Can I use it in a class or a workshop?** Yes, it is MIT licensed and needs no accounts. Deploy it as a static site (see [`vercel.json`](./vercel.json) for the required headers).
+After one visit, yes. The first Python start downloads pandas once (a pinned version) and caches it.
 
-**Why SQLite and not MySQL or Postgres?** It is the engine that runs in a browser. The app adds many friendly functions (`DATEDIFF`, `STDDEV`, `REGEXP_REPLACE`, ...) and explains dialect differences in plain language.
+</details>
 
-**Can I add my own cases?** That is the point. See [Contributing](#contributing).
+<details>
+<summary><b>Where is my progress stored?</b></summary>
 
-## Deploy
+In your browser's `localStorage`, on your device only. Export it as a file to move it. There is no server to sync with.
 
-It is a static site. See [`docs/DEPLOYING.md`](./docs/DEPLOYING.md): Vercel works out of the box with the included `vercel.json`.
+</details>
 
-## Brand
+<details>
+<summary><b>Is it safe to run code I type?</b></summary>
 
-The logo (a porthole, a dorsal fin and the waterline) and its sources live in [`docs/brand/`](./docs/brand/). Brand colours: orange `#ffb02e` to `#ff6a00` on near-black `#0a0a0b`.
+It runs in a Web Worker with no access to the page, behind a strict CSP, with a run timeout. See [`SECURITY.md`](./SECURITY.md).
 
-## Documentation
+</details>
 
-[Architecture](./docs/ARCHITECTURE.md) · [Authoring guide](./docs/content-authoring-guide.md) ·
-[Decision records](./docs/adr/) · [Roadmap](./docs/ROADMAP.md) · [Changelog](./CHANGELOG.md) ·
-[Support](./SUPPORT.md) · [Original product plan](./queryathan-master-plan.md)
+<details>
+<summary><b>Can I use it in a class or a workshop?</b></summary>
 
-## Stack
+Yes. It is MIT licensed and needs no accounts. Deploy it as a static site (see [`docs/DEPLOYING.md`](./docs/DEPLOYING.md)).
 
-React 19 · TypeScript (strict) · Vite · Pyodide · sql.js · CodeMirror 6 · GSAP · TanStack Virtual · Zod · Vitest · Playwright · pnpm workspaces
+</details>
 
-## Security
+<details>
+<summary><b>Why SQLite and not MySQL or Postgres?</b></summary>
 
-This app runs code typed by the player. See [`SECURITY.md`](./SECURITY.md) for the sandboxing model, the CSP
-and how to report a vulnerability.
+SQLite is the engine that runs in a browser. The app adds many friendly functions (`DATEDIFF`, `STDDEV`, `REGEXP_REPLACE`, ...) and explains dialect differences in plain language.
 
-## Acknowledgements
+</details>
 
-Built on the shoulders of [Pyodide](https://pyodide.org), [sql.js](https://sql.js.org),
-[pandas](https://pandas.pydata.org), [SQLite](https://sqlite.org), [CodeMirror](https://codemirror.net),
-[GSAP](https://gsap.com), [TanStack Virtual](https://tanstack.com/virtual) and [React](https://react.dev).
-All datasets are synthetic and released under CC0.
+<details>
+<summary><b>Can I add my own cases?</b></summary>
 
-## License
+That is the point. See [Contributing](#-contributing).
+
+</details>
+
+## 📚 Documentation
+
+[Architecture](./docs/ARCHITECTURE.md) · [Authoring guide](./docs/content-authoring-guide.md) · [Deploying](./docs/DEPLOYING.md) · [Decision records](./docs/adr/) · [Roadmap](./docs/ROADMAP.md) · [Changelog](./CHANGELOG.md) · [Support](./SUPPORT.md) · [Security](./SECURITY.md) · [Original product plan](./queryathan-master-plan.md)
+
+The logo (a porthole, a dorsal fin and the waterline) and its sources are in [`docs/brand/`](./docs/brand/). Brand colours: orange `#ffb02e` to `#ff6a00` on near-black `#0a0a0b`.
+
+## 🙏 Acknowledgements
+
+Built on the shoulders of [Pyodide](https://pyodide.org), [sql.js](https://sql.js.org), [pandas](https://pandas.pydata.org), [SQLite](https://sqlite.org), [CodeMirror](https://codemirror.net), [GSAP](https://gsap.com), [TanStack Virtual](https://tanstack.com/virtual) and [React](https://react.dev). All datasets are synthetic and released under CC0.
+
+## 📄 License
 
 [MIT](./LICENSE) for the code. Datasets are CC0.
 
 <div align="center">
 
-If this helped you, a star on GitHub helps others find it.
+If Queryathan helped you, a ⭐ on GitHub helps others find it.
 
 [![Star History](https://api.star-history.com/svg?repos=Yuvakunaal/queryathan&type=Date)](https://star-history.com/#Yuvakunaal/queryathan&Date)
 

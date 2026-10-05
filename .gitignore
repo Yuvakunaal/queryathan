@@ -7,33 +7,35 @@ dist-worker/
 build/
 *.tsbuildinfo
 
-# Pyodide runtime — fetched via scripts/fetch-pyodide.mjs, never committed
+# Pyodide runtime: fetched by scripts/fetch-pyodide.mjs, never committed
 apps/web/public/pyodide/
 
-# test / e2e artifacts
+# test, e2e and Lighthouse output
 coverage/
 playwright-report/
 test-results/
+.lighthouseci/
 
-# graphify — GRAPH_REPORT.md is committed, everything else is local state
-graphify-out/*
-!graphify-out/GRAPH_REPORT.md
-
-# local Claude Code session state
+# local tooling state (code-graph reports, AI assistant sessions)
+graphify-out/
 .claude/
+
+# logs and caches
+*.log
+.cache/
+.eslintcache
 
 # editor / OS
 .DS_Store
+Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea/
 
 # env
 .env
-.env.local
+.env.*
+!.env.example
 
 # deploy
 .vercel/
-
-# Lighthouse CI local output
-.lighthouseci/
