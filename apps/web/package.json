@@ -34,7 +34,7 @@
     "react-dom": "^19.0.0",
     "sql-formatter": "^15.9.0",
     "sql.js": "1.14.1",
-    "zod": "^3.25.76"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
