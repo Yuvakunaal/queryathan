@@ -63,16 +63,48 @@ export function explainError(
       "SQLite has no CREATE OR REPLACE. Just write CREATE TABLE result AS SELECT ...; for the table named result, each run replaces the old one for you.",
     ],
     [
+      /near "(ROW|ROWS|RANGE|PRECEDING|FOLLOWING|UNBOUNDED|CURRENT)": syntax error/i,
+      "A window frame needs a number before PRECEDING or FOLLOWING, for example ROWS BETWEEN 6 PRECEDING AND CURRENT ROW (this row and the six before it).",
+    ],
+    [
+      /near "WITH": syntax error/i,
+      "WITH has to start the statement, or come right after CREATE TABLE result AS. Put a semicolon after the previous statement.",
+    ],
+    [
+      /near "(OVER|PARTITION)": syntax error/i,
+      "OVER goes right after a function, like SUM(x) OVER (PARTITION BY g ORDER BY d). Check the brackets and that the function name comes first.",
+    ],
+    [
+      /no such table: \w+/i,
+      "That table does not exist. A table or CTE name only exists for the one statement that defines it: a CTE made with WITH is gone after the semicolon, so define it again in each query. Otherwise the table is called data, and any other tables are named in the task.",
+    ],
+    [
+      /ambiguous column name/i,
+      "Two tables have a column with that name. Write it as table.column, or give each table a short alias (FROM data d JOIN other o ON ...) and use d.column or o.column.",
+    ],
+    [
+      /misuse of aggregate/i,
+      "An aggregate such as SUM or COUNT cannot be used in WHERE. Use HAVING to filter groups, or compute it in a subquery or CTE first.",
+    ],
+    [
+      /misuse of window function/i,
+      "A window function cannot go in WHERE, GROUP BY or HAVING. Compute it in a subquery or a CTE, then filter on it in the query outside.",
+    ],
+    [
+      /do not have the same number of result columns/i,
+      "Every SELECT joined with UNION, INTERSECT or EXCEPT must return the same number of columns, in the same order.",
+    ],
+    [
+      /circular reference|recursive reference/i,
+      "A recursive CTE is written WITH RECURSIVE name AS (starting rows UNION ALL rows built from name). The part after UNION ALL must refer to name exactly once, and must eventually stop producing rows.",
+    ],
+    [
       /syntax error/i,
       "SQLite could not read the statement. Check the spelling of the keywords, and look for a missing comma, bracket or quote near the word it names.",
     ],
     [
       /no such column/i,
       "That column does not exist in the table. Click a column chip on the left to insert its exact name.",
-    ],
-    [
-      /no such table/i,
-      "That table does not exist. The data is in a table named data, and any other tables are named in the task.",
     ],
     [
       /no such function/i,

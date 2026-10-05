@@ -167,3 +167,41 @@
   font: 600 12px/1 var(--w1-font-display);
   color: var(--w1-amber-500);
 }
+
+/* Offered when a query only shows rows but the answer must be a table named result. */
+.answerOffer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+  padding: 8px 12px;
+  background: color-mix(in srgb, var(--w1-green-500) 9%, var(--w1-bg-panel));
+  border-bottom: 1px solid var(--w1-green-700);
+  font: 400 13px/1.5 var(--w1-font-text);
+  color: var(--w1-text-secondary);
+}
+.answerOffer strong {
+  color: var(--w1-text-primary);
+}
+.answerOffer code {
+  font: 600 12px/1 var(--w1-font-mono);
+  color: var(--w1-amber-500);
+}
+.offerButton {
+  height: 30px;
+  padding: 0 14px;
+  background: var(--w1-green-500);
+  border: 1px solid var(--w1-green-500);
+  color: var(--w1-text-inverse);
+  font: 600 12px/1 var(--w1-font-display);
+  cursor: pointer;
+}
+.offerButton:hover {
+  border-color: var(--w1-amber-500);
+}
+.offerButton:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}

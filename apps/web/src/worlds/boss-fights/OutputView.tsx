@@ -18,6 +18,8 @@ export interface OutputViewProps {
   language: "python" | "sql";
   textScale: number;
   onShowData: () => void;
+  /** Set when the last query only showed rows but the answer has to be a table named result. */
+  onUseAsAnswer?: (() => void) | undefined;
 }
 
 const NO_AFFLICTIONS = new Map<string, never>();
@@ -73,6 +75,7 @@ export default function OutputView({
   language,
   textScale,
   onShowData,
+  onUseAsAnswer,
 }: OutputViewProps) {
   const converted = useMemo(
     () => (output?.kind === "table" ? toGrid(output.table) : null),
@@ -137,6 +140,17 @@ export default function OutputView({
             Back to the data
           </button>
         </div>
+        {onUseAsAnswer ? (
+          <div className={styles.answerOffer}>
+            <span>
+              This query only <strong>shows</strong> rows. The answer has to be a table
+              named <code>result</code>.
+            </span>
+            <button type="button" className={styles.offerButton} onClick={onUseAsAnswer}>
+              Use this query as the answer
+            </button>
+          </div>
+        ) : null}
         {totalRows === 0 ? (
           <div className={styles.placeholder}>
             <p className={styles.placeholderTitle}>The query ran and returned no rows</p>

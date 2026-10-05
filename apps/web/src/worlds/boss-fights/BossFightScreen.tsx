@@ -51,6 +51,7 @@ import { useTips } from "../../TipsContext";
 import ColumnTypeTip from "./ColumnTypeTip";
 import type { AnswerNote } from "./BriefingPanel";
 import { csvToGrid } from "../../lib/csvGrid";
+import { wrapLastQueryAsResult } from "../../lib/sqlStatements";
 import { columnTipsFor } from "../../lib/mysqlType";
 import type { ColumnTip } from "../../lib/mysqlType";
 import { readDraft, writeDraft } from "../../lib/drafts";
@@ -261,6 +262,8 @@ export default function BossFightScreen({
   const [hintsUsed, setHintsUsed] = useState(0);
   const [dataLayout, setDataLayout] = useState<DataLayout>(readDataLayout);
   const [collageOrder, setCollageOrder] = useState<string[]>([]);
+  // A SQL query that only showed rows, in a case where the answer must be a table named result.
+  const [answerOffer, setAnswerOffer] = useState(false);
   const [collageMode, setCollageMode] = useState<CollageMode>(readCollageMode);
   const [narrowNoticeDismissed, setNarrowNoticeDismissed] = useState(false);
   const [liveMessage, setLiveMessage] = useState("");
@@ -637,6 +640,13 @@ export default function BossFightScreen({
         }
       }
       setRunOutput(nextOutput);
+      setAnswerOffer(
+        engine === "sql" &&
+          needsAnswerTable(caseData) &&
+          !tableOf(result) &&
+          nextOutput.kind === "table" &&
+          wrapLastQueryAsResult(code) !== null,
+      );
       // A returned table goes to the Output tab; a `result` table the player just made goes to
       // the Your answer tab; a plain edit goes to the data so the change is visible.
       setActiveTab(
@@ -1222,6 +1232,18 @@ export default function BossFightScreen({
                   onShowData={() => {
                     setActiveTab("data");
                   }}
+                  onUseAsAnswer={
+                    answerOffer
+                      ? () => {
+                          const wrapped = wrapLastQueryAsResult(
+                            codeEditorRef.current?.getValue() ?? "",
+                          );
+                          if (wrapped === null) return;
+                          codeEditorRef.current?.setValue(wrapped);
+                          void handleRun();
+                        }
+                      : undefined
+                  }
                 />
               </div>
               <div

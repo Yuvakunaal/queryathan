@@ -39,4 +39,38 @@ describe("explainError", () => {
     const result = explainError("sql", 'near "or": syntax error');
     expect(result.explanation).toContain("no CREATE OR REPLACE");
   });
+
+  it("explains the window frame mistake from the CTE screenshot", () => {
+    const r = explainError("sql", 'near "ROW": syntax error');
+    expect(r.explanation).toContain("needs a number before PRECEDING");
+    expect(explainError("sql", 'near "PRECEDING": syntax error').explanation).toContain(
+      "6 PRECEDING",
+    );
+  });
+
+  it("explains a CTE name used after its statement ended", () => {
+    const r = explainError("sql", "no such table: cte");
+    expect(r.explanation).toContain("gone after the semicolon");
+  });
+
+  it("explains the other common SQL slips", () => {
+    expect(explainError("sql", "ambiguous column name: id").explanation).toContain(
+      "table.column",
+    );
+    expect(explainError("sql", "misuse of aggregate: SUM()").explanation).toContain(
+      "HAVING",
+    );
+    expect(
+      explainError("sql", "misuse of window function row_number()").explanation,
+    ).toContain("subquery or a CTE");
+    expect(
+      explainError(
+        "sql",
+        "SELECTs to the left and right of UNION do not have the same number of result columns",
+      ).explanation,
+    ).toContain("same number of columns");
+    expect(explainError("sql", 'near "WITH": syntax error').explanation).toContain(
+      "start the statement",
+    );
+  });
 });
