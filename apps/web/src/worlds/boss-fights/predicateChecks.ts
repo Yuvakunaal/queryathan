@@ -133,7 +133,7 @@ export function describePredicate(
         if (report.missingColumns.length > 0)
           detail = `missing column ${report.missingColumns.join(", ")}`;
         else if (report.rowCount !== report.expectedRows)
-          detail = `has ${String(report.rowCount)} rows, expected ${String(report.expectedRows)}`;
+          detail = `has ${String(report.rowCount)} ${report.rowCount === 1 ? "row" : "rows"}, expected ${String(report.expectedRows)}`;
         else if (wrong > 0)
           detail = `${String(report.matchedCount)} of ${String(report.expectedRows)} rows right`;
         else detail = "right rows, wrong order";

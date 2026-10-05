@@ -1,26 +1,27 @@
 import { expect, test } from "./fixtures";
-import { openCase, run, setCode } from "./helpers";
+import { openCase, run, seed, setCode } from "./helpers";
 
 test("the browser's Back and Forward buttons move between screens", async ({ page }) => {
+  await seed(page);
   await page.goto("/");
   await page.locator('[data-world-card="the-vault"]').click();
-  await expect(page.getByRole("heading", { name: "The Vault" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Cryptara" })).toBeVisible();
   expect(page.url()).toContain("#/world/the-vault");
-  await expect(page).toHaveTitle(/The Vault/);
+  await expect(page).toHaveTitle(/Cryptara/);
   await page.goBack();
   await expect(
     page.getByRole("heading", { name: /Fight your data clean/ }),
   ).toBeVisible();
   await expect(page).toHaveTitle("Data Cleaning Quest");
   await page.goForward();
-  await expect(page.getByRole("heading", { name: "The Vault" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Cryptara" })).toBeVisible();
 });
 
 test("a roster address opens that world, and a bad address opens home", async ({
   page,
 }) => {
   await page.goto("/#/world/the-twins");
-  await expect(page.getByRole("heading", { name: "The Twins" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Geminora" })).toBeVisible();
   await page.goto("/#/world/nonsense");
   await page.reload();
   await expect(
@@ -34,7 +35,7 @@ test("Back from a fight returns to the roster, and the code typed there is kept"
   await openCase(page, "boss-fights", "w1-01-nul-sentinel", "sql");
   await setCode(page, "SELECT COUNT(*) AS keep_me FROM data;");
   await page.goBack();
-  await expect(page.getByRole("heading", { name: "Boss Fights" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Ember Reach" })).toBeVisible();
   // Open it again: the same query is waiting.
   await page.getByRole("button", { name: /^NUL_SENTINEL,/i }).click();
   await page.getByText("SQL", { exact: true }).click();

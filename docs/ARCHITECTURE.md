@@ -7,7 +7,7 @@ specific technical decisions.
 
 ## Current state
 
-Nine worlds and a sandbox are playable, every case in both engines (see
+Nine worlds (each a named planet reached by a skippable rocket flight) and a sandbox are playable, every case in both engines (see
 [`README.md`](../README.md#status) and [`CHANGELOG.md`](../CHANGELOG.md)):
 Boss Fights (cell-level cleaning), The Vault (regex and encodings), The Twins
 (joins across two tables), The Architect (reshaping), The Foundry (speed jobs

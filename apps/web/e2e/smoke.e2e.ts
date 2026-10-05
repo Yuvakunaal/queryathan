@@ -60,15 +60,15 @@ test.describe("What is this?", () => {
     await expect(page.getByText("Start here")).toHaveCount(0);
   });
 
-  test("Start with Boss Fights goes to that world", async ({ page }) => {
+  test("Start with Ember Reach goes to that world", async ({ page }) => {
     await seed(page);
     await page.goto("/");
     await page
       .getByRole("button", { name: /What is this\?/ })
       .nth(1)
       .click();
-    await page.getByRole("button", { name: "Start with Boss Fights" }).click();
-    await expect(page.getByRole("heading", { name: "Boss Fights" })).toBeVisible();
+    await page.getByRole("button", { name: "Start with Ember Reach" }).click();
+    await expect(page.getByRole("heading", { name: "Ember Reach" })).toBeVisible();
   });
 });
 
@@ -114,12 +114,12 @@ test("the top bar stays visible through every loading step of a fight, in every 
 }) => {
   test.setTimeout(150_000);
   for (const [world, caseId, rail] of [
-    ["boss-fights", "w1-01-nul-sentinel", "BOSS-FIGHTS"],
-    ["the-vault", "w2-01-pin-tumbler", "THE-VAULT"],
-    ["the-twins", "w3-01-key-mirror", "THE-TWINS"],
-    ["the-architect", "w4-01-melt-form", "THE-ARCHITECT"],
-    ["the-foundry", "w5-01-slow-lane", "THE-FOUNDRY"],
-    ["the-observatory", "w6-01-first-light", "THE-OBSERVATORY"],
+    ["boss-fights", "w1-01-nul-sentinel", "EMBER-REACH"],
+    ["the-vault", "w2-01-pin-tumbler", "CRYPTARA"],
+    ["the-twins", "w3-01-key-mirror", "GEMINORA"],
+    ["the-architect", "w4-01-melt-form", "ATLAS-SPIRE"],
+    ["the-foundry", "w5-01-slow-lane", "CINDERFORGE"],
+    ["the-observatory", "w6-01-first-light", "LUMENFIELD"],
   ] as const) {
     await seed(page);
     await page.goto("/");

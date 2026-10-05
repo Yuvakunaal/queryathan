@@ -204,7 +204,7 @@ test.describe("the win sequence", () => {
     await expect(dialog).toContainText("NUL_SENTINEL");
     await expect(dialog).toContainText("Cells cleaned");
     await dialog.getByRole("button", { name: "Back to roster" }).click();
-    await expect(page.getByRole("heading", { name: "Boss Fights" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Ember Reach" })).toBeVisible();
     await expect(page.getByText("Cleared").first()).toBeVisible();
   });
 

@@ -32,6 +32,7 @@
 }
 
 .hero {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
   gap: 48px;
@@ -383,4 +384,32 @@
 }
 .cardStamp[data-stamp="gold"] {
   color: #d9a31b;
+}
+
+.heroPlanet {
+  position: absolute;
+  top: 28px;
+  right: 8px;
+  width: 132px;
+  height: 132px;
+  pointer-events: none;
+  animation: heroDrift 9s ease-in-out infinite alternate;
+}
+@keyframes heroDrift {
+  from {
+    translate: 0 -3px;
+  }
+  to {
+    translate: 0 5px;
+  }
+}
+@media (max-width: 860px) {
+  .heroPlanet {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .heroPlanet {
+    animation: none;
+  }
 }

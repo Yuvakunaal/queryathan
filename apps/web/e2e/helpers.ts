@@ -32,6 +32,10 @@ interface SeedOptions {
   tutorial?: boolean;
   /** Leave the "Start here" badge on the home page's About button. */
   aboutUnseen?: boolean;
+  /** Play the rocket flight between worlds. Off in tests unless a test is about it. */
+  travel?: boolean;
+  /** Play the knife-cut scene after a win. On unless a test that wins and keeps going turns it off. */
+  kill?: boolean;
 }
 
 /** Sets the browser's saved state before the page loads. */
@@ -43,7 +47,7 @@ export async function seed(page: Page, options: SeedOptions = {}): Promise<void>
     ]),
   );
   await page.addInitScript(
-    ({ worlds, theme, highContrast, tutorial, aboutUnseen }) => {
+    ({ worlds, theme, highContrast, tutorial, aboutUnseen, travel, kill }) => {
       if (!tutorial) localStorage.setItem("dcq.tutorialSeen", "1");
       if (!aboutUnseen) localStorage.setItem("dcq.aboutSeen", "1");
       // Only seed what is missing: the script re-runs on every navigation, and a
@@ -54,7 +58,14 @@ export async function seed(page: Page, options: SeedOptions = {}): Promise<void>
       if (localStorage.getItem("dcq.a11y") === null) {
         localStorage.setItem(
           "dcq.a11y",
-          JSON.stringify({ textScaleIndex: 1, theme, crtReduced: true, highContrast }),
+          JSON.stringify({
+            textScaleIndex: 1,
+            theme,
+            crtReduced: true,
+            highContrast,
+            travel,
+            kill,
+          }),
         );
       }
     },
@@ -64,6 +75,8 @@ export async function seed(page: Page, options: SeedOptions = {}): Promise<void>
       highContrast: options.highContrast ?? false,
       tutorial: options.tutorial ?? false,
       aboutUnseen: options.aboutUnseen ?? false,
+      travel: options.travel ?? false,
+      kill: options.kill ?? true,
     },
   );
 }

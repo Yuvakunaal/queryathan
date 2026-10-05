@@ -709,7 +709,13 @@ export default function BossFightScreen({
         setEarnedStamp(stamp);
         // Let the last run's diff flash land, then play the kill; the victory panel follows it.
         killTimerRef.current = setTimeout(() => {
-          setShowKill(true);
+          if (a11y.kill) {
+            setShowKill(true);
+          } else {
+            // The scene is switched off in the ANIM menu: straight to the summary.
+            playCue("win");
+            setShowVictory(true);
+          }
         }, 750);
         onWin(caseData.id, caseTechniques(caseData), stamp ?? undefined);
       }

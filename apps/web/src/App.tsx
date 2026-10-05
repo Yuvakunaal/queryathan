@@ -26,7 +26,9 @@ import type { Inserter } from "./TipsContext";
 import TipsDialog from "./worlds/boss-fights/TipsDialog";
 import { applyA11yToDocument, loadA11yState, persistA11yState } from "./lib/a11y";
 import type { A11yState } from "./lib/a11y";
-import { configureSound, preloadKeys, preloadSlice } from "./lib/sound";
+import { configureSound, playTravel, preloadKeys, preloadSlice } from "./lib/sound";
+import TravelSequence from "./worlds/boss-fights/TravelSequence";
+import type { ReactElement } from "react";
 
 // Code-split from WorldMapScreen (the actual landing screen): CodeMirror
 // and GSAP have no reason to download before a player has even picked a
@@ -140,6 +142,9 @@ function AppScreens() {
     screenFromRoute(parseRoute(window.location.hash)),
   );
   const [a11y, setA11y] = useState<A11yState>(loadA11yState);
+  // The world the rocket is flying to, while the flight is on screen.
+  const [travel, setTravel] = useState<WorldId | null>(null);
+  const stopTravelSound = useRef<() => void>(() => undefined);
 
   // Applied here, above the roster/fight switch, so a player's saved
   // text-scale/CRT/contrast preferences reach the world map too — it used
@@ -188,130 +193,161 @@ function AppScreens() {
     persistSave(next);
   }
 
-  if (screen.name === "sandbox-setup") {
+  // Choosing a world from the hub flies there (when the flight is switched on); the
+  // screen changes behind the flight, which then fades away.
+  function travelTo(world: WorldId): void {
+    if (!a11y.travel || travel !== null) {
+      go({ name: "roster", world });
+      return;
+    }
+    setTravel(world);
+    stopTravelSound.current = playTravel();
+  }
+
+  function renderScreen(): ReactElement {
+    if (screen.name === "sandbox-setup") {
+      return (
+        <SandboxSetupScreen
+          a11y={a11y}
+          onA11yChange={setA11y}
+          onBack={() => {
+            go({ name: "hub" });
+          }}
+          onStart={(fileName, prepared, extras) => {
+            go({
+              name: "sandbox",
+              session: {
+                caseData: buildSandboxCase(fileName, prepared, extras),
+                extras,
+                csvText: prepared.csvText,
+                fileName,
+                rowCount: prepared.rowCount,
+                notes: prepared.notes,
+              },
+            });
+          }}
+        />
+      );
+    }
+
+    if (screen.name === "sandbox") {
+      return (
+        <Suspense
+          fallback={
+            <FightScreenFallback
+              world="boss-fights"
+              sandbox
+              rank=""
+              a11y={a11y}
+              onA11yChange={setA11y}
+              onBack={() => {
+                go({ name: "sandbox-setup" });
+              }}
+            />
+          }
+        >
+          <BossFightScreen
+            sandbox={screen.session}
+            world="boss-fights"
+            casePath=""
+            rankLabel=""
+            a11y={a11y}
+            onA11yChange={setA11y}
+            onExitToRoster={() => {
+              go({ name: "sandbox-setup" });
+            }}
+            onWin={() => undefined}
+          />
+        </Suspense>
+      );
+    }
+
+    if (screen.name === "fight") {
+      const world = screen.world;
+      const progress = getWorldProgress(saveData, world);
+      const rankLabel = rankForWorld(world, progress.masteredTechniques.length);
+      return (
+        <Suspense
+          fallback={
+            <FightScreenFallback
+              world={world}
+              sandbox={false}
+              rank={rankLabel}
+              a11y={a11y}
+              onA11yChange={setA11y}
+              onBack={() => {
+                go({ name: "roster", world });
+              }}
+            />
+          }
+        >
+          <BossFightScreen
+            world={world}
+            casePath={screen.casePath}
+            rankLabel={rankLabel}
+            a11y={a11y}
+            onA11yChange={setA11y}
+            onExitToRoster={() => {
+              go({ name: "roster", world });
+            }}
+            onWin={(caseId, techniqueKinds, stamp) => {
+              updateSave(recordCaseWin(saveData, world, caseId, techniqueKinds, stamp));
+            }}
+          />
+        </Suspense>
+      );
+    }
+
+    if (screen.name === "hub") {
+      return (
+        <WorldSelectScreen
+          saveData={saveData}
+          a11y={a11y}
+          onA11yChange={setA11y}
+          onSelectWorld={travelTo}
+          onOpenSandbox={() => {
+            go({ name: "sandbox-setup" });
+          }}
+        />
+      );
+    }
+
+    const rosterWorld = screen.world;
     return (
-      <SandboxSetupScreen
+      <WorldMapScreen
+        world={rosterWorld}
+        saveData={saveData}
         a11y={a11y}
         onA11yChange={setA11y}
         onBack={() => {
           go({ name: "hub" });
         }}
-        onStart={(fileName, prepared, extras) => {
-          go({
-            name: "sandbox",
-            session: {
-              caseData: buildSandboxCase(fileName, prepared, extras),
-              extras,
-              csvText: prepared.csvText,
-              fileName,
-              rowCount: prepared.rowCount,
-              notes: prepared.notes,
-            },
-          });
+        onSelectCase={(casePath) => {
+          go({ name: "fight", world: rosterWorld, casePath });
         }}
+        onImportSave={updateSave}
       />
     );
   }
 
-  if (screen.name === "sandbox") {
-    return (
-      <Suspense
-        fallback={
-          <FightScreenFallback
-            world="boss-fights"
-            sandbox
-            rank=""
-            a11y={a11y}
-            onA11yChange={setA11y}
-            onBack={() => {
-              go({ name: "sandbox-setup" });
-            }}
-          />
-        }
-      >
-        <BossFightScreen
-          sandbox={screen.session}
-          world="boss-fights"
-          casePath=""
-          rankLabel=""
-          a11y={a11y}
-          onA11yChange={setA11y}
-          onExitToRoster={() => {
-            go({ name: "sandbox-setup" });
-          }}
-          onWin={() => undefined}
-        />
-      </Suspense>
-    );
-  }
-
-  if (screen.name === "fight") {
-    const world = screen.world;
-    const progress = getWorldProgress(saveData, world);
-    const rankLabel = rankForWorld(world, progress.masteredTechniques.length);
-    return (
-      <Suspense
-        fallback={
-          <FightScreenFallback
-            world={world}
-            sandbox={false}
-            rank={rankLabel}
-            a11y={a11y}
-            onA11yChange={setA11y}
-            onBack={() => {
-              go({ name: "roster", world });
-            }}
-          />
-        }
-      >
-        <BossFightScreen
-          world={world}
-          casePath={screen.casePath}
-          rankLabel={rankLabel}
-          a11y={a11y}
-          onA11yChange={setA11y}
-          onExitToRoster={() => {
-            go({ name: "roster", world });
-          }}
-          onWin={(caseId, techniqueKinds, stamp) => {
-            updateSave(recordCaseWin(saveData, world, caseId, techniqueKinds, stamp));
-          }}
-        />
-      </Suspense>
-    );
-  }
-
-  if (screen.name === "hub") {
-    return (
-      <WorldSelectScreen
-        saveData={saveData}
-        a11y={a11y}
-        onA11yChange={setA11y}
-        onSelectWorld={(world) => {
-          go({ name: "roster", world });
-        }}
-        onOpenSandbox={() => {
-          go({ name: "sandbox-setup" });
-        }}
-      />
-    );
-  }
-
-  const rosterWorld = screen.world;
   return (
-    <WorldMapScreen
-      world={rosterWorld}
-      saveData={saveData}
-      a11y={a11y}
-      onA11yChange={setA11y}
-      onBack={() => {
-        go({ name: "hub" });
-      }}
-      onSelectCase={(casePath) => {
-        go({ name: "fight", world: rosterWorld, casePath });
-      }}
-      onImportSave={updateSave}
-    />
+    <>
+      {renderScreen()}
+      {travel !== null ? (
+        <TravelSequence
+          world={worldMeta(travel)}
+          onCovered={() => {
+            go({ name: "roster", world: travel });
+          }}
+          onSkip={() => {
+            stopTravelSound.current();
+          }}
+          onDone={() => {
+            setTravel(null);
+          }}
+        />
+      ) : null}
+    </>
   );
 }
 

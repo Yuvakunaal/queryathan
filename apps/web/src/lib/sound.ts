@@ -464,3 +464,204 @@ export function playKey(kind: TypingKey = "letter"): void {
     // Audio is a nicety; a blocked or missing context just stays quiet.
   }
 }
+
+/**
+ * The landing, scored like a film rather than a notification: the landing legs
+ * touch down with two dull metallic knocks and a deep thump, the engine winds
+ * down to nothing, dust and thin air hiss away, and a low open chord (a bare
+ * fifth with a rising ninth) swells out of the silence on a long, dark reverb,
+ * with a sub-bass swell under it that slowly settles. No bright tones.
+ */
+function playLanding(ctx: AudioContext, out: AudioNode, t: number): void {
+  const reverb = ctx.createConvolver();
+  reverb.buffer = getReverb(ctx);
+  const wet = ctx.createGain();
+  wet.gain.value = 0.6;
+  reverb.connect(wet).connect(out);
+  const bus = ctx.createGain();
+  bus.connect(out);
+  bus.connect(reverb);
+
+  // Contact: legs on rock, a heavy thump, a second settling knock.
+  glide(ctx, bus, { at: t, dur: 0.5, from: 130, to: 42, peak: 0.5 });
+  noiseBurst(ctx, bus, {
+    at: t,
+    dur: 0.14,
+    type: "bandpass",
+    from: 1100,
+    to: 260,
+    q: 5,
+    peak: 0.16,
+    attack: 0.002,
+  });
+  noiseBurst(ctx, bus, {
+    at: t + 0.09,
+    dur: 0.12,
+    type: "bandpass",
+    from: 800,
+    to: 220,
+    q: 5,
+    peak: 0.1,
+    attack: 0.002,
+  });
+  // The engine winding down, and dust hissing away.
+  noiseBurst(ctx, bus, {
+    at: t - 0.05,
+    dur: 0.7,
+    type: "lowpass",
+    from: 900,
+    to: 70,
+    q: 0.7,
+    peak: 0.16,
+    attack: 0.03,
+  });
+  noiseBurst(ctx, bus, {
+    at: t + 0.06,
+    dur: 1.2,
+    type: "bandpass",
+    from: 2400,
+    to: 600,
+    q: 0.6,
+    peak: 0.07,
+    attack: 0.1,
+  });
+
+  // The quiet that follows: a dark chord rising out of it, D2 A2 D3 E3 A3 (open fifths and a ninth).
+  const pad = ctx.createBiquadFilter();
+  pad.type = "lowpass";
+  pad.frequency.setValueAtTime(260, t + 0.1);
+  pad.frequency.exponentialRampToValueAtTime(1400, t + 1.3);
+  pad.frequency.exponentialRampToValueAtTime(380, t + 2.8);
+  pad.connect(bus);
+  const voices: [number, number][] = [
+    [73.42, 0.05],
+    [110, 0.045],
+    [146.83, 0.04],
+    [164.81, 0.022],
+    [220, 0.03],
+  ];
+  for (const [freq, level] of voices) {
+    for (const detune of [-5, 5]) {
+      const osc = ctx.createOscillator();
+      osc.type = "sawtooth";
+      osc.frequency.value = freq;
+      osc.detune.value = detune;
+      const amp = ctx.createGain();
+      amp.gain.setValueAtTime(0.0001, t + 0.1);
+      amp.gain.exponentialRampToValueAtTime(level * 0.5, t + 1.1);
+      amp.gain.exponentialRampToValueAtTime(level * 0.35, t + 1.9);
+      amp.gain.exponentialRampToValueAtTime(0.0001, t + 3.2);
+      osc.connect(amp).connect(pad);
+      osc.start(t + 0.1);
+      osc.stop(t + 3.3);
+    }
+  }
+  // Sub swell: felt more than heard, settling like a held breath.
+  glide(ctx, bus, { at: t + 0.15, dur: 3.0, from: 36.7, to: 34.6, peak: 0.22 });
+  // A touch of thin air over everything, rising and falling once.
+  noiseBurst(ctx, bus, {
+    at: t + 0.5,
+    dur: 2.6,
+    type: "bandpass",
+    from: 500,
+    to: 1500,
+    q: 0.9,
+    peak: 0.035,
+    attack: 1.2,
+  });
+}
+
+/**
+ * The flight to another world, about 5.5 seconds and deliberately smooth: a soft
+ * ignition thump and a rumble that swells, a warp sweep that climbs, a braking
+ * hiss, the thicker rumble of the descent, then the landing (see playLanding).
+ * Follows the effects switch and the volume. Returns a function that fades it
+ * out, for when the flight is skipped.
+ */
+export function playTravel(): () => void {
+  if (!effectsOn) return () => undefined;
+  try {
+    const ctx = getContext();
+    if (!ctx) return () => undefined;
+    if (ctx.state === "suspended") void ctx.resume();
+    // Its own gain stage, so skipping the flight can fade the whole thing out.
+    const out = ctx.createGain();
+    out.connect(getOutput(ctx));
+    const t0 = ctx.currentTime + 0.02;
+
+    glide(ctx, out, { at: t0 + 0.12, dur: 0.55, from: 96, to: 40, peak: 0.45 });
+    noiseBurst(ctx, out, {
+      at: t0 + 0.1,
+      dur: 1.9,
+      type: "lowpass",
+      from: 150,
+      to: 460,
+      q: 0.7,
+      peak: 0.26,
+      attack: 0.6,
+    });
+    noiseBurst(ctx, out, {
+      at: t0 + 0.9,
+      dur: 1.5,
+      type: "bandpass",
+      from: 350,
+      to: 3800,
+      q: 1.2,
+      peak: 0.17,
+      attack: 0.95,
+    });
+    glide(ctx, out, {
+      at: t0 + 0.9,
+      dur: 1.5,
+      from: 110,
+      to: 660,
+      peak: 0.1,
+      type: "triangle",
+    });
+    noiseBurst(ctx, out, {
+      at: t0 + 2.3,
+      dur: 0.8,
+      type: "bandpass",
+      from: 3000,
+      to: 500,
+      q: 0.9,
+      peak: 0.08,
+      attack: 0.25,
+    });
+    // the descent: air thickening, the engine burning against it
+    noiseBurst(ctx, out, {
+      at: t0 + 3.3,
+      dur: 1.5,
+      type: "lowpass",
+      from: 260,
+      to: 900,
+      q: 0.8,
+      peak: 0.24,
+      attack: 0.7,
+    });
+    noiseBurst(ctx, out, {
+      at: t0 + 3.4,
+      dur: 1.2,
+      type: "bandpass",
+      from: 1200,
+      to: 2600,
+      q: 0.7,
+      peak: 0.07,
+      attack: 0.6,
+    });
+    // touchdown, then the planet's own quiet
+    playLanding(ctx, out, t0 + 4.6);
+    return () => {
+      try {
+        out.gain.cancelScheduledValues(ctx.currentTime);
+        out.gain.setValueAtTime(out.gain.value, ctx.currentTime);
+        out.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.25);
+      } catch {
+        // Nothing to stop.
+      }
+    };
+  } catch {
+    // Audio is a nicety; a blocked or missing context just stays quiet.
+  }
+  return () => undefined;
+}

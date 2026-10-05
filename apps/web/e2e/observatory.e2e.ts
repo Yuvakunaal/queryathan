@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { openCase, run, setCode } from "./helpers";
+import { openCase, run, seed, setCode } from "./helpers";
 
 /**
  * World 6 judges an answer table. These are the realistic wrong answers: each
@@ -45,7 +45,7 @@ test("the answer lights up count of right rows as it improves", async ({ page })
   await run(page);
   const band = page.getByRole("status").filter({ hasText: "rows correct" });
   await expect(band).toContainText("1 / 4");
-  await expect(page.getByText("has 1 rows, expected 4")).toBeVisible();
+  await expect(page.getByText("has 1 row, expected 4")).toBeVisible();
   await noWin(page);
 });
 
@@ -103,6 +103,7 @@ test("the boot sequence names the answer to match, not afflicted cells", async (
 test("the answer table can be created again and again, in either spelling", async ({
   page,
 }) => {
+  await seed(page, { kill: false });
   await openCase(page, "the-observatory", "w6-01-first-light", "sql");
   const query = (create: string): string =>
     `${create} result AS SELECT region, SUM(qty * unit_price) AS revenue FROM data WHERE status = 'completed' GROUP BY region;`;
@@ -135,6 +136,7 @@ test("the briefing says plainly to create a new table named result", async ({ pa
 test("building the answer table leaves the original data alone and shows the answer on its own tab", async ({
   page,
 }) => {
+  await seed(page, { kill: false });
   await openCase(page, "the-observatory", "w6-01-first-light", "sql");
   const dataTab = page.getByRole("tab", { name: "Data (original)" });
   await expect(page.getByRole("tab", { name: /Your answer/ })).toHaveCount(0);

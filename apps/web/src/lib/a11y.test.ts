@@ -22,7 +22,28 @@ describe("defaultA11y", () => {
       sound: true,
       typing: true,
       volume: 0.8,
+      travel: true,
+      kill: true,
     });
+  });
+});
+
+describe("the travel animation setting", () => {
+  it("is on by default and stays off when the system asks for less motion", () => {
+    const original = window.matchMedia.bind(window);
+    window.matchMedia = (query: string) =>
+      ({
+        matches: query.includes("reduced-motion"),
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }) as unknown as MediaQueryList;
+    try {
+      expect(defaultA11y().travel).toBe(false);
+    } finally {
+      window.matchMedia = original;
+    }
+    expect(defaultA11y().travel).toBe(true);
   });
 });
 
@@ -63,6 +84,8 @@ describe("loadA11yState / persistA11yState", () => {
       sound: true,
       typing: true,
       volume: 0.8,
+      travel: false,
+      kill: true,
     };
     persistA11yState(state);
     expect(loadA11yState()).toEqual(state);
@@ -78,6 +101,8 @@ describe("loadA11yState / persistA11yState", () => {
       sound: true,
       typing: true,
       volume: 0.8,
+      travel: true,
+      kill: true,
     });
   });
 

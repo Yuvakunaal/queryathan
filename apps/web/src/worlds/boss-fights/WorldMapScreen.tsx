@@ -15,6 +15,7 @@ import { BADGE_GLYPH } from "./afflictionPresentation";
 import { renderSigil } from "./sigil";
 import { classNames } from "../../lib/classNames";
 import { worldMeta } from "../../lib/world-meta";
+import Planet from "./Planet";
 import A11yControls from "./A11yControls";
 import styles from "./WorldMapScreen.module.css";
 
@@ -153,8 +154,11 @@ export default function WorldMapScreen({
         </header>
 
         <section className={styles.hero}>
+          <Planet look={meta.planet} className={styles.heroPlanet} />
           <div>
-            <p className={styles.worldTag}>World {meta.number}</p>
+            <p className={styles.worldTag}>
+              World {meta.number} · {meta.discipline}
+            </p>
             <h1 className={styles.rosterHeading}>{meta.name}</h1>
             <p className={styles.lede}>{meta.lede}</p>
           </div>

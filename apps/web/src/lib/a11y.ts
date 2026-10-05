@@ -17,6 +17,10 @@ export interface A11yState {
   typing: boolean;
   /** Master volume for every sound, 0 to 1. */
   volume: number;
+  /** The rocket flight when you travel to a world.  */
+  travel: boolean;
+  /** The knife-cut scene when a boss is defeated. On by default. */
+  kill: boolean;
 }
 
 export function defaultA11y(): A11yState {
@@ -27,6 +31,10 @@ export function defaultA11y(): A11yState {
     typeof window !== "undefined" &&
     typeof window.matchMedia === "function" &&
     window.matchMedia("(prefers-color-scheme: light)").matches;
+  const prefersStill =
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   return {
     textScaleIndex: 1,
     theme: prefersLight ? "light" : "dark",
@@ -35,6 +43,8 @@ export function defaultA11y(): A11yState {
     sound: true,
     typing: true,
     volume: 0.8,
+    travel: !prefersStill,
+    kill: true,
   };
 }
 
@@ -59,6 +69,8 @@ export function loadA11yState(): A11yState {
         typeof parsed.volume === "number"
           ? Math.min(1, Math.max(0, parsed.volume))
           : fallback.volume,
+      travel: typeof parsed.travel === "boolean" ? parsed.travel : fallback.travel,
+      kill: typeof parsed.kill === "boolean" ? parsed.kill : fallback.kill,
     };
   } catch {
     return defaultA11y();

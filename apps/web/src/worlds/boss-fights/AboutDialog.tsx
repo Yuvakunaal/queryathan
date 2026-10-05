@@ -201,7 +201,7 @@ export default function AboutDialog({ onClose, onStart }: AboutDialogProps) {
               onStart("boss-fights");
             }}
           >
-            Start with Boss Fights
+            Start with Ember Reach
           </button>
           <button type="button" className={styles.secondary} onClick={onClose}>
             Got it

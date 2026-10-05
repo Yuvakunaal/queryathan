@@ -15,21 +15,23 @@ Full product vision, world designs, and architecture rationale:
 
 Nine worlds are playable, 45 cases in all, each winnable in either engine:
 
-1. **Boss Fights**: nulls, duplicates, whitespace and casing, wrong dtypes,
+1. **Ember Reach** (Boss Fights): nulls, duplicates, whitespace and casing, wrong dtypes,
    outliers, bad dates.
-2. **The Vault**: pattern extraction and mojibake.
-3. **The Twins**: joins and relational cleanup.
-4. **The Architect**: reshaping.
-5. **The Foundry**: timed jobs against a stopwatch, with quality stamps.
-6. **The Observatory**: business questions answered with grouping, ranking,
+2. **Cryptara** (The Vault): pattern extraction and mojibake.
+3. **Geminora** (The Twins): joins and relational cleanup.
+4. **Atlas Spire** (The Architect): reshaping.
+5. **Cinderforge** (The Foundry): timed jobs against a stopwatch, with quality stamps.
+6. **Lumenfield** (The Observatory): business questions answered with grouping, ranking,
    moving averages, cohorts, sessions and funnels. The answer table is checked
    against the expected one.
-7. **The Labyrinth**: CTEs, subqueries, NOT EXISTS, recursive CTEs (org charts,
+7. **Minos Deep** (The Labyrinth): CTEs, subqueries, NOT EXISTS, recursive CTEs (org charts,
    bills of materials), set operations and gaps-and-islands streaks.
-8. **The Timekeeper**: mixed date formats, business days, time zones, date
+8. **Chronopolis** (The Timekeeper): mixed date formats, business days, time zones, date
    spines, as-of joins and merging overlapping time blocks.
-9. **The Laboratory**: standard deviation, z-score outliers, imputation, binning,
+9. **Helix-9** (The Laboratory): standard deviation, z-score outliers, imputation, binning,
    A/B tests and regression lines.
+
+Choosing a world launches a rocket flight to its planet, and defeating a boss plays a knife-cut scene; both are skippable and can be switched off in the ANIM menu in the top bar.
 
 Also in place: a sandbox for your own CSVs (up to four tables, to practise joins in a rearrangeable collage), dark, light and high-contrast
 themes, resizable panels, a worksheet-style SQL editor (run selection, else

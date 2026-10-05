@@ -2,6 +2,7 @@ import { TEXT_SCALES } from "../../lib/a11y";
 import type { A11yState } from "../../lib/a11y";
 import { classNames } from "../../lib/classNames";
 import SoundMenu from "./SoundMenu";
+import MotionMenu from "./MotionMenu";
 import { useTips } from "../../TipsContext";
 import styles from "./A11yControls.module.css";
 
@@ -78,6 +79,7 @@ export default function A11yControls({ a11y, onChange }: A11yControlsProps) {
         CRT
       </button>
       <SoundMenu a11y={a11y} onChange={onChange} />
+      <MotionMenu a11y={a11y} onChange={onChange} />
       <button
         type="button"
         className={styles.a11yButton}

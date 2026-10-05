@@ -51,7 +51,7 @@ for (const theme of ["dark", "light"] as Theme[]) {
       await seed(page, { theme, cleared: { "the-vault": ["w2-01-pin-tumbler"] } });
       await page.goto("/");
       await page.locator('[data-world-card="the-vault"]').click();
-      await expect(page.getByRole("heading", { name: "The Vault" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Cryptara" })).toBeVisible();
       await expectNoViolations(page, "roster");
     });
 
@@ -114,3 +114,35 @@ test("high contrast on the light theme passes", async ({ page }) => {
   await page.locator('[data-world-card="boss-fights"]').click();
   await expectNoViolations(page, "roster, high contrast light");
 });
+
+for (const theme of ["dark", "light"] as Theme[]) {
+  test.describe(`${theme} theme, worlds 7 to 9 and the flight`, () => {
+    test("the new world rosters and the ANIM menu", async ({ page }) => {
+      await seed(page, { theme });
+      for (const world of ["the-labyrinth", "the-timekeeper", "the-laboratory"]) {
+        await page.goto(`/#/world/${world}`);
+        await page.reload();
+        await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        await expectNoViolations(page, `roster of ${world}`);
+      }
+      await page.getByRole("button", { name: "Animation settings" }).click();
+      await expectNoViolations(page, "ANIM menu");
+    });
+
+    test("the arrival card of the flight", async ({ page }) => {
+      await seed(page, { theme, travel: true });
+      await page.goto("/");
+      await page.locator('[data-world-card="the-laboratory"]').click();
+      await expect(
+        page.getByRole("dialog", { name: /Travelling to Helix-9/ }),
+      ).toBeVisible();
+      await expectNoViolations(page, "flight card");
+    });
+
+    test("a fight in a new world", async ({ page }) => {
+      await seed(page, { theme });
+      await openCase(page, "the-laboratory", "w9-01-the-spread", "sql");
+      await expectNoViolations(page, "Laboratory fight");
+    });
+  });
+}

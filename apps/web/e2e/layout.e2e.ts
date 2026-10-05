@@ -143,7 +143,7 @@ test("big page titles leave room between their lines", async ({ page }) => {
   await page.goto("/");
   expect(await ratio()).toBeGreaterThanOrEqual(1.12);
   await page.locator('[data-world-card="boss-fights"]').click();
-  await expect(page.getByRole("heading", { name: "Boss Fights" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Ember Reach" })).toBeVisible();
   expect(await ratio()).toBeGreaterThanOrEqual(1.12);
   await page.goto("/#/sandbox");
   await page.reload();

@@ -19,7 +19,7 @@ test("NOT IN with a NULL in the subquery returns nothing, so it does not win", a
     "CREATE TABLE result AS SELECT customer_id, name FROM data WHERE customer_id NOT IN (SELECT customer_id FROM orders WHERE status = 'completed');",
   );
   await run(page);
-  await expect(page.getByText(/has 0 rows; the chart has \d+/)).toBeVisible();
+  await expect(page.getByText(/has 0 rows; the answer needs \d+/)).toBeVisible();
   await noWin(page);
 });
 

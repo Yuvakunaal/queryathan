@@ -58,7 +58,7 @@ export default function StarChartBand({ grid, winCondition }: StarChartBandProps
         {report.rowCount !== report.expectedRows ? (
           <p className={styles.note}>
             Your answer has {String(report.rowCount)}{" "}
-            {report.rowCount === 1 ? "row" : "rows"}; the chart has{" "}
+            {report.rowCount === 1 ? "row" : "rows"}; the answer needs{" "}
             {String(report.expectedRows)}.
           </p>
         ) : null}

@@ -28,6 +28,7 @@
   display: inline-flex;
 }
 .option {
+  min-height: 26px;
   padding: 5px 10px;
   background: transparent;
   border: 1px solid var(--w1-rule-strong);

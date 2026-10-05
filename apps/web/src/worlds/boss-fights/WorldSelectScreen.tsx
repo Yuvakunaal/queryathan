@@ -6,6 +6,7 @@ import type { A11yState } from "../../lib/a11y";
 import type { WorldId } from "@dcq/content-schema";
 import { classNames } from "../../lib/classNames";
 import A11yControls from "./A11yControls";
+import Planet from "./Planet";
 import AboutDialog from "./AboutDialog";
 import { useEffect, useRef, useState } from "react";
 import styles from "./WorldSelectScreen.module.css";
@@ -31,8 +32,12 @@ function WorldCard({
   const rank = rankForWorld(meta.id, progress.masteredTechniques.length);
   const content = (
     <>
-      <span className={styles.cardNumber}>World {meta.number}</span>
+      <Planet look={meta.planet} className={styles.planet} />
+      <span className={styles.cardNumber}>
+        World {meta.number} · {meta.discipline}
+      </span>
       <h2 className={styles.cardName}>{meta.name}</h2>
+      <p className={styles.cardEpithet}>{meta.epithet}</p>
       <p className={styles.cardTagline}>{meta.tagline}</p>
       <span className={styles.cardFoot}>
         {meta.available ? (
@@ -42,7 +47,7 @@ function WorldCard({
                 ? `${String(progress.clearedCaseIds.length)} cleared · ${rank}`
                 : "Not started"}
             </span>
-            <span className={styles.cardCta}>Open</span>
+            <span className={styles.cardCta}>Travel</span>
           </>
         ) : (
           <span>Coming soon</span>
@@ -58,7 +63,7 @@ function WorldCard({
           type="button"
           className={classNames(styles.card, styles.cardButton)}
           data-world-card={meta.id}
-          aria-label={`${meta.name}, world ${String(meta.number)}. ${meta.tagline} ${progress.clearedCaseIds.length > 0 ? `Rank ${rank}.` : "Not started."}`}
+          aria-label={`${meta.name}, world ${String(meta.number)}, ${meta.discipline}. ${meta.tagline} ${progress.clearedCaseIds.length > 0 ? `Rank ${rank}.` : "Not started."}`}
           onClick={onSelect}
         >
           {content}
