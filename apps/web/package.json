@@ -18,7 +18,7 @@
     "@codemirror/lang-sql": "^6.10.0",
     "@codemirror/language": "^6.12.4",
     "@codemirror/state": "^6.7.1",
-    "@codemirror/view": "^6.43.8",
+    "@codemirror/view": "^6.43.13",
     "@dcq/content-schema": "workspace:*",
     "@dcq/engine-adapters": "workspace:*",
     "@dcq/ui-kit": "workspace:*",
