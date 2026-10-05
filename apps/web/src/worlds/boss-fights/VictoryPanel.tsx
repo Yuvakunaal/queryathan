@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { Stamp } from "../../lib/forge";
 import styles from "./VictoryPanel.module.css";
 
@@ -14,8 +14,6 @@ export interface VictoryPanelProps {
   cellsCleared: number;
   techniques: string[];
   hintsUsed: number;
-  /** Returns the player's current code, ready to paste elsewhere. */
-  getSolution?: () => string;
   onContinue: () => void;
   onExitToRoster: () => void;
 }
@@ -30,12 +28,10 @@ export default function VictoryPanel({
   cellsCleared,
   techniques,
   hintsUsed,
-  getSolution,
   onContinue,
   onExitToRoster,
 }: VictoryPanelProps) {
   const primaryRef = useRef<HTMLButtonElement>(null);
-  const [copyStatus, setCopyStatus] = useState("");
 
   useEffect(() => {
     primaryRef.current?.focus();
@@ -93,28 +89,7 @@ export default function VictoryPanel({
           <button type="button" className={styles.secondary} onClick={onContinue}>
             Keep exploring
           </button>
-          {getSolution ? (
-            <button
-              type="button"
-              className={styles.secondary}
-              onClick={() => {
-                navigator.clipboard.writeText(getSolution()).then(
-                  () => {
-                    setCopyStatus("Copied your solution.");
-                  },
-                  () => {
-                    setCopyStatus("Copy was blocked by the browser.");
-                  },
-                );
-              }}
-            >
-              Copy my solution
-            </button>
-          ) : null}
         </div>
-        <p className={styles.copyStatus} role="status">
-          {copyStatus}
-        </p>
       </div>
     </div>
   );

@@ -17,7 +17,7 @@ label (see [`.github/labels.yml`](../.github/labels.yml)). Pick one, say so in a
 
 ## Product and polish
 
-10. A "copy my answer as SQL/pandas" button in the Your answer tab (see how the solution copy works).
+10. A small "explain this error" popover for pandas errors (the SQL ones already have plain-language explanations).
 11. More plain-language explanations for common pandas errors (`explainError.ts` has the SQL ones).
 12. A keyboard shortcut cheat sheet inside the Tips book.
 13. Translate the interface text of one world (strings are already separated from logic in case JSON).

@@ -1359,11 +1359,6 @@ export default function BossFightScreen({
           }
           techniques={caseTechniques(caseData)}
           hintsUsed={hintsUsed}
-          getSolution={() => {
-            const code = codeEditorRef.current?.getValue() ?? "";
-            const mark = engine === "sql" ? "--" : "#";
-            return `${mark} Queryathan: ${caseData.strings.title}\n${code}\n`;
-          }}
           onContinue={() => {
             setShowVictory(false);
           }}

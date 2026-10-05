@@ -208,20 +208,18 @@ test.describe("the win sequence", () => {
     await expect(page.getByText("Cleared").first()).toBeVisible();
   });
 
-  test("the winner can copy their own solution", async ({ page, context }) => {
-    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  test("the victory panel offers only the two ways forward, and no copy-solution button", async ({
+    page,
+  }) => {
     await openCase(page, "boss-fights", NUL, "python");
-    const code = "df['temp_c'] = df['temp_c'].fillna(df['temp_c'].mean())";
-    await setCode(page, code);
+    await setCode(page, "df['temp_c'] = df['temp_c'].fillna(df['temp_c'].mean())");
     await run(page);
     await page.keyboard.press("Escape");
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible({ timeout: 15_000 });
-    await dialog.getByRole("button", { name: "Copy my solution" }).click();
-    await expect(dialog).toContainText("Copied your solution");
-    const copied = await page.evaluate(() => navigator.clipboard.readText());
-    expect(copied).toContain(code);
-    expect(copied.startsWith("# Queryathan:")).toBe(true);
+    await expect(dialog.getByRole("button", { name: "Back to roster" })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Keep exploring" })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: /Copy my solution/ })).toHaveCount(0);
   });
 
   test("a speed job earns a stamp that the roster keeps", async ({ page }) => {
