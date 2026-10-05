@@ -34,3 +34,10 @@
   width: auto;
   padding: 0 8px;
 }
+
+/* On a phone the whole row is replaced by one menu button (see MobileMenu). */
+@media (max-width: 720px) {
+  .a11yControls {
+    display: none;
+  }
+}

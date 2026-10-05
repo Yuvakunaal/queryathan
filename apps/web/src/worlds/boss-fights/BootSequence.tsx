@@ -56,6 +56,13 @@ export default function BootSequence({
   const [slow, setSlow] = useState(false);
   const [complete, setComplete] = useState(false);
   const skipRef = useRef<() => void>(() => undefined);
+  // A phone has no Enter key: there the prompt says to touch the screen, and a tap anywhere engages.
+  const touch =
+    typeof window !== "undefined" &&
+    window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+  const engageText = touch
+    ? `[ TAP ]  touch anywhere to engage ${bossName}`
+    : `[ ENTER ]  engage ${bossName}`;
 
   // Part one: what is known at once.
   // useGSAP (not a plain useEffect) so StrictMode's double-invoke and
@@ -129,7 +136,7 @@ export default function BootSequence({
             { text: `scanning for affliction .. ${info.scanLabel}   `, el: l4a },
             { text: info.detectedText ?? `${countStr} CELLS  DETECTED`, el: l4b },
           ]),
-          makeBootLine([{ text: `[ ENTER ]  engage ${bossName}`, el: l5 }]),
+          makeBootLine([{ text: engageText, el: l5 }]),
         ],
         cursorEl: cursor,
         containerEl: container,
@@ -143,7 +150,7 @@ export default function BootSequence({
         skipRef.current = () => undefined;
       };
     },
-    { scope: containerRef, dependencies: [info, introTyped, bossName] },
+    { scope: containerRef, dependencies: [info, introTyped, bossName, engageText] },
   );
 
   useEffect(() => {
@@ -171,7 +178,15 @@ export default function BootSequence({
   const waiting = introTyped && !info;
 
   return (
-    <div className={styles.boot} ref={containerRef}>
+    <div
+      className={styles.boot}
+      ref={containerRef}
+      onClick={() => {
+        if (!complete) return;
+        playCue("clear");
+        onEngage();
+      }}
+    >
       <div className={styles.line}>
         <span ref={line1Ref} className={styles.secondary} />
       </div>
@@ -198,9 +213,6 @@ export default function BootSequence({
         type="button"
         className={styles.enterButton}
         aria-label={`Engage ${bossName}`}
-        onClick={() => {
-          if (complete) onEngage();
-        }}
       >
         <span ref={line5Ref} className={styles.prompt} />
         <span ref={cursorRef} className={styles.cursor}>

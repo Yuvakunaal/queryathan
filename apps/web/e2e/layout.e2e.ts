@@ -77,7 +77,12 @@ for (const size of SIZES) {
       expect(o.page, "fight scrolls sideways").toBeLessThanOrEqual(1);
       expect(o.offenders, "fight controls outside the screen").toEqual([]);
       // The top bar's controls are reachable at every width.
-      await expect(page.getByRole("button", { name: "Sound settings" })).toBeInViewport();
+      // On a phone the row of option buttons is one menu button (see mobile.e2e.ts).
+      await expect(
+        page.getByRole("button", {
+          name: size.width <= 720 ? "Open menu" : "Sound settings",
+        }),
+      ).toBeInViewport();
       await expect(page.getByRole("button", { name: "< Roster" })).toBeInViewport();
     });
   });
