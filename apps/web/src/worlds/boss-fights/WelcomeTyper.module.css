@@ -25,42 +25,29 @@
   color: var(--w1-text-secondary);
   font-weight: 400;
 }
-/* The name is always the brand orange (never a world's accent). */
+/* The name is always the brand orange (never a world's accent). The caret sits in the
+   same line as the text, so it keeps the same height and position from the first
+   letter to the last, and while the name is empty. */
 .who {
-  position: relative;
   display: inline-flex;
-  align-items: center;
-  padding-bottom: 3px;
+  align-items: baseline;
 }
 .name {
   color: var(--brand-b, #ff6a00);
   font-weight: 600;
-}
-/* A hairline under the name that is as long as what has been typed so far. */
-.who::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, var(--brand-a, #ffb02e), var(--brand-b, #ff6a00));
-  box-shadow: 0 0 12px color-mix(in srgb, var(--brand-b, #ff6a00) 70%, transparent);
-  transform-origin: left center;
-}
-:global(html[data-dcq-theme="light"]) .who::after,
-:global(html[data-dcq-contrast="high"]) .who::after {
-  box-shadow: none;
+  white-space: pre;
 }
 .caret {
+  display: inline-block;
+  flex: none;
   width: 2px;
-  height: 1.05em;
+  height: 1.1em;
   margin-left: 3px;
   border-radius: 1px;
   background: var(--brand-a, #ffb02e);
   box-shadow: 0 0 10px var(--brand-b, #ff6a00);
   animation: blink 1.05s steps(1, end) infinite;
+  transform: translateY(0.18em);
 }
 :global(html[data-dcq-theme="light"]) .caret {
   background: var(--brand-b, #ff6a00);

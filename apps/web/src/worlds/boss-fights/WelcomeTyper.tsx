@@ -127,8 +127,8 @@ export default function WelcomeTyper() {
       <span className={styles.line} aria-hidden="true" data-welcome>
         <span className={styles.hello}>Welcome</span>
         <span className={styles.who}>
-          <span className={styles.name}>{text}</span>
-          <span className={styles.caret} />
+          <span className={styles.name}>{text || "\u200b"}</span>
+          <span className={styles.caret} data-caret />
         </span>
       </span>
       <span className={styles.hint} aria-hidden="true">

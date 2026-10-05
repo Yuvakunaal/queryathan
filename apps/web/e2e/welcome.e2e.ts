@@ -41,3 +41,27 @@ test("screen readers get one calm sentence, not the typing", async ({ page }) =>
   ).toBeAttached();
   await expect(page.locator("[data-welcome]")).toHaveAttribute("aria-hidden", "true");
 });
+
+test("the caret stays on the same line, at the same height, from the first letter to the last", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  await seed(page);
+  await page.goto("/");
+  const caret = page.locator("[data-caret]");
+  await expect(caret).toBeAttached();
+  const tops: number[] = [];
+  const heights: number[] = [];
+  const until = Date.now() + 9_000;
+  while (Date.now() < until) {
+    const box = await caret.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return { top: r.top, height: r.height };
+    });
+    tops.push(box.top);
+    heights.push(box.height);
+    await page.waitForTimeout(90);
+  }
+  expect(Math.max(...tops) - Math.min(...tops)).toBeLessThan(0.6);
+  expect(Math.max(...heights) - Math.min(...heights)).toBeLessThan(0.6);
+});
