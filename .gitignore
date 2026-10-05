@@ -34,3 +34,6 @@ graphify-out/*
 
 # deploy
 .vercel/
+
+# Lighthouse CI local output
+.lighthouseci/

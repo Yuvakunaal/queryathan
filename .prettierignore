@@ -9,3 +9,4 @@ pnpm-lock.yaml
 *.min.js
 test-results
 playwright-report
+.lighthouseci

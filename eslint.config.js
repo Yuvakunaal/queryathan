@@ -11,6 +11,7 @@ export default tseslint.config(
       "**/dist/**",
       "**/dist-worker/**",
       "**/test-results/**",
+      "**/.lighthouseci/**",
       "**/playwright-report/**",
       "**/build/**",
       "**/node_modules/**",
