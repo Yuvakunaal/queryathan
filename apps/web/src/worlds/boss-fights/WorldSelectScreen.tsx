@@ -8,6 +8,7 @@ import { classNames } from "../../lib/classNames";
 import A11yControls from "./A11yControls";
 import Planet from "./Planet";
 import Logo from "./Logo";
+import WelcomeTyper from "./WelcomeTyper";
 import AboutDialog from "./AboutDialog";
 import { useEffect, useRef, useState } from "react";
 import styles from "./WorldSelectScreen.module.css";
@@ -117,12 +118,12 @@ export default function WorldSelectScreen({
 }: WorldSelectScreenProps) {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [aboutSeen, setAboutSeen] = useState(readAboutSeen);
-  const aboutButtonRef = useRef<HTMLButtonElement>(null);
+  const aboutLinkRef = useRef<HTMLButtonElement>(null);
   const wasOpenRef = useRef(false);
 
   // Return focus to the button that opened the dialog once it closes.
   useEffect(() => {
-    if (wasOpenRef.current && !aboutOpen) aboutButtonRef.current?.focus();
+    if (wasOpenRef.current && !aboutOpen) aboutLinkRef.current?.focus();
     wasOpenRef.current = aboutOpen;
   }, [aboutOpen]);
 
@@ -142,8 +143,14 @@ export default function WorldSelectScreen({
             Queryathan
           </span>
           <div className={styles.topRight}>
-            <button type="button" className={styles.aboutLink} onClick={openAbout}>
+            <button
+              ref={aboutLinkRef}
+              type="button"
+              className={styles.aboutLink}
+              onClick={openAbout}
+            >
               What is this?
+              {aboutSeen ? null : <span className={styles.newBadge}>Start here</span>}
             </button>
             <A11yControls a11y={a11y} onChange={onA11yChange} />
           </div>
@@ -155,18 +162,7 @@ export default function WorldSelectScreen({
             questions. Everything runs in your browser. No account, no server. Progress
             stays on this device.
           </p>
-          <button
-            ref={aboutButtonRef}
-            type="button"
-            className={styles.aboutButton}
-            onClick={openAbout}
-          >
-            <span className={styles.aboutMark} aria-hidden="true">
-              ?
-            </span>
-            What is this?
-            {aboutSeen ? null : <span className={styles.newBadge}>Start here</span>}
-          </button>
+          <WelcomeTyper />
         </section>
         <ul className={styles.grid}>
           {WORLDS.map((meta) => (

@@ -37,7 +37,7 @@ test.describe("What is this?", () => {
     await seed(page, { aboutUnseen: true });
     await page.goto("/");
     await expect(page.getByText("Start here")).toBeVisible();
-    const opener = page.getByRole("button", { name: /What is this\?/ }).nth(1);
+    const opener = page.getByRole("button", { name: /What is this\?/ });
     await opener.click();
     const dialog = page.getByRole("dialog", { name: /What is Queryathan/ });
     await expect(dialog).toBeVisible();
@@ -63,10 +63,7 @@ test.describe("What is this?", () => {
   test("Start with Ember Reach goes to that world", async ({ page }) => {
     await seed(page);
     await page.goto("/");
-    await page
-      .getByRole("button", { name: /What is this\?/ })
-      .nth(1)
-      .click();
+    await page.getByRole("button", { name: /What is this\?/ }).click();
     await page.getByRole("button", { name: "Start with Ember Reach" }).click();
     await expect(page.getByRole("heading", { name: "Ember Reach" })).toBeVisible();
   });

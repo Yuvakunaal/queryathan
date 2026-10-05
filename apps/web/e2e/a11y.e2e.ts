@@ -39,10 +39,7 @@ for (const theme of ["dark", "light"] as Theme[]) {
       await seed(page, { theme });
       await page.goto("/");
       await expectNoViolations(page, "home");
-      await page
-        .getByRole("button", { name: /What is this\?/ })
-        .nth(1)
-        .click();
+      await page.getByRole("button", { name: /What is this\?/ }).click();
       await expect(page.getByRole("dialog")).toBeVisible();
       await expectNoViolations(page, "about dialog");
     });
