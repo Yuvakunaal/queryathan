@@ -1,7 +1,7 @@
 .welcome {
-  margin: 28px 0 0;
+  margin: 26px 0 0;
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 .sr {
   position: absolute;
@@ -16,38 +16,55 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  column-gap: 0.4em;
-  min-height: 1.25em;
-  font: 700 clamp(22px, 4.2vw, 40px) / 1.25 var(--w1-font-display);
-  letter-spacing: -0.02em;
+  column-gap: 0.55em;
+  min-height: 1.5em;
+  font: 500 clamp(19px, 2.8vw, 28px) / 1.5 var(--w1-font-display);
+  letter-spacing: -0.01em;
 }
 .hello {
-  color: var(--w1-text-primary);
+  color: var(--w1-text-secondary);
+  font-weight: 400;
 }
-.bracket {
-  color: var(--w1-green-700);
-  font-weight: 500;
-}
-:global(html[data-dcq-theme="light"]) .bracket {
-  color: var(--w1-green-500);
-  opacity: 0.55;
+/* The name is always the brand orange (never a world's accent). */
+.who {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding-bottom: 3px;
 }
 .name {
-  color: var(--w1-green-500);
-  text-shadow: 0 0 28px color-mix(in srgb, var(--w1-green-500) 55%, transparent);
+  color: var(--brand-b, #ff6a00);
+  font-weight: 600;
 }
-:global(html[data-dcq-theme="light"]) .name,
-:global(html[data-dcq-contrast="high"]) .name {
-  text-shadow: none;
+/* A hairline under the name that is as long as what has been typed so far. */
+.who::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--brand-a, #ffb02e), var(--brand-b, #ff6a00));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--brand-b, #ff6a00) 70%, transparent);
+  transform-origin: left center;
+}
+:global(html[data-dcq-theme="light"]) .who::after,
+:global(html[data-dcq-contrast="high"]) .who::after {
+  box-shadow: none;
 }
 .caret {
-  align-self: center;
-  width: 0.5em;
-  height: 1em;
-  margin-left: -0.3em;
-  margin-right: -0.3em;
-  background: var(--w1-green-500);
-  animation: blink 1s steps(1, end) infinite;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 3px;
+  border-radius: 1px;
+  background: var(--brand-a, #ffb02e);
+  box-shadow: 0 0 10px var(--brand-b, #ff6a00);
+  animation: blink 1.05s steps(1, end) infinite;
+}
+:global(html[data-dcq-theme="light"]) .caret {
+  background: var(--brand-b, #ff6a00);
+  box-shadow: none;
 }
 @keyframes blink {
   50% {
@@ -55,10 +72,19 @@
   }
 }
 .hint {
-  font: 500 13px/1.4 var(--w1-font-text);
-  letter-spacing: 0.08em;
+  font: 500 12px/1.4 var(--w1-font-text);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--w1-text-secondary);
+  color: var(--w1-text-dim);
+}
+.hint::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  margin-right: 10px;
+  vertical-align: middle;
+  background: var(--brand-b, #ff6a00);
 }
 @media (prefers-reduced-motion: reduce) {
   .caret {

@@ -126,10 +126,10 @@ export default function WelcomeTyper() {
       <span className={styles.sr}>Welcome, explorer. Choose a world below to begin.</span>
       <span className={styles.line} aria-hidden="true" data-welcome>
         <span className={styles.hello}>Welcome</span>
-        <span className={styles.bracket}>&lt;</span>
-        <span className={styles.name}>{text}</span>
-        <span className={styles.caret} />
-        <span className={styles.bracket}>&gt;</span>
+        <span className={styles.who}>
+          <span className={styles.name}>{text}</span>
+          <span className={styles.caret} />
+        </span>
       </span>
       <span className={styles.hint} aria-hidden="true">
         Choose a world below to begin
