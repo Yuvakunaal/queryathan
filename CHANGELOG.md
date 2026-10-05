@@ -5,6 +5,10 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## Unreleased (Phase 9)
 
+- **Big titles no longer touch.** On the home page, the world pages and the sandbox page the title's two
+  lines were set so tight that the tail of the y in "your" ran into the l in "clean". The line spacing is
+  now roomier, and a test fails if a big title is set tighter than that.
+
 - **"Data (original)".** The first tab is now called **Data (original)** in every world, with
   matching wording on the buttons and notes. In Python answer cases it shows the table you started
   with, untouched, and **Your answer (df)** shows what df holds after your code runs, the same as

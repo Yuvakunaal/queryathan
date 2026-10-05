@@ -127,3 +127,26 @@ for (const size of SIZES) {
     });
   });
 }
+
+// The big titles wrap onto two lines, and with tight line spacing the tail of a letter such as
+// y or g touches the top of a tall letter such as l or h on the line below.
+test("big page titles leave room between their lines", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const ratio = async (): Promise<number> =>
+    page.evaluate(() => {
+      const h1 = document.querySelector("h1");
+      if (!h1) return 0;
+      const s = getComputedStyle(h1);
+      return parseFloat(s.lineHeight) / parseFloat(s.fontSize);
+    });
+  await seed(page);
+  await page.goto("/");
+  expect(await ratio()).toBeGreaterThanOrEqual(1.12);
+  await page.locator('[data-world-card="boss-fights"]').click();
+  await expect(page.getByRole("heading", { name: "Boss Fights" })).toBeVisible();
+  expect(await ratio()).toBeGreaterThanOrEqual(1.12);
+  await page.goto("/#/sandbox");
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Bring your own data." })).toBeVisible();
+  expect(await ratio()).toBeGreaterThanOrEqual(1.12);
+});

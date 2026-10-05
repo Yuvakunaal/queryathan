@@ -45,7 +45,7 @@
 }
 .rosterHeading {
   margin: 0;
-  font: 700 clamp(40px, 7vw, 76px) / 0.95 var(--w1-font-display);
+  font: 700 clamp(40px, 7vw, 76px) / 1.14 var(--w1-font-display);
   letter-spacing: -0.04em;
   color: var(--w1-text-primary);
 }
