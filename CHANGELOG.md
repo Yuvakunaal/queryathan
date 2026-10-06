@@ -5,6 +5,8 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## 1.0.0 (2026-10-05)
 
+- **A dock on phones.** Below 720px the Run bar stays pinned to the bottom of the screen, with **Edit** and **Result** beside a large **Run**. Wherever the page is scrolled, Run, "jump to the table" and "back to typing" are one tap away, so you never scroll to find the editor again; **Edit** goes straight back to typing (keyboard view), and **Done** leaves the editor where you were looking. Tablet and desktop are unchanged.
+
 - **Typing on a phone, like a chat app.** Tapping into the editor (below 720px) lifts it above the keyboard: the page reduces to a one-line task (tap to read it), a **Done** button, the editor with its tools and column chips, and **Run**, sized to the part of the screen the keyboard leaves visible (it follows the keyboard as it opens, closes or changes height). Tool buttons and chips do not trigger it, so a tap on them is never lost to a layout jump. **Done** or **Run** puts the keyboard away and brings the full page back, with the result scrolled into view. Tablet and desktop are unchanged.
 
 - **Phone editor, tidier.** Below 720px the editor's Help, Format, Reset and Clear buttons are small icon buttons (`?`, `{}`, undo, bin) that keep their names for screen readers. SQL and Python help open as a bottom sheet with a large search box; its topics show two to a line plus **More**, which opens a two-column topics modal. Tips uses the same topic chips. Desktop and tablet are unchanged (words on the buttons, help as a pop-over).

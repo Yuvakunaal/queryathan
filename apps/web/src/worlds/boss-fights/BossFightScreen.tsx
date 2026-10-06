@@ -614,6 +614,19 @@ export default function BossFightScreen({
     }, 400);
   }
 
+  /** Phones: put the keyboard away and bring the result into view. */
+  function showResult(): void {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    requestAnimationFrame(() => {
+      battlefieldRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  /** Phones: back to typing, wherever the page was scrolled to. */
+  function editAgain(): void {
+    codeEditorRef.current?.focus();
+  }
+
   /** Run, and on a phone put the keyboard away and bring the result into view. */
   async function runAndShow(): Promise<void> {
     if (phone && document.activeElement instanceof HTMLElement)
@@ -986,6 +999,10 @@ export default function BossFightScreen({
               onClick={() => {
                 if (document.activeElement instanceof HTMLElement)
                   document.activeElement.blur();
+                // The page comes back: keep the editor where the player is looking.
+                requestAnimationFrame(() => {
+                  editorPaneRef.current?.scrollIntoView({ block: "center" });
+                });
               }}
             >
               Done
@@ -1099,6 +1116,8 @@ export default function BossFightScreen({
           </div>
           <div className={styles.runBarPane}>
             <RunBar
+              onEdit={phone && !typingMode ? editAgain : undefined}
+              onResult={phone ? showResult : undefined}
               hasSelection={hasSelection}
               isRunning={isRunning}
               onRun={() => {

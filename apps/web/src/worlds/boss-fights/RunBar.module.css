@@ -85,3 +85,49 @@
   flex: 0 0 auto;
   white-space: nowrap;
 }
+
+/* ---------- Phones only: a dock that stays at the bottom of the screen ---------- */
+.dockButton {
+  display: none;
+}
+@media (max-width: 720px) {
+  .runBar {
+    height: auto;
+    min-height: 60px;
+    gap: 8px;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    background: var(--w1-bg-panel);
+    box-shadow: 0 -10px 24px rgb(0 0 0 / 0.35);
+  }
+  .dockButton {
+    flex: 0 0 auto;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-width: 56px;
+    height: 44px;
+    padding: 0 8px;
+    background: transparent;
+    border: 1px solid var(--w1-rule-strong);
+    color: var(--w1-text-primary);
+    font: 600 10px/1 var(--w1-font-display);
+    cursor: pointer;
+  }
+  .dockButton:active {
+    background: var(--w1-bg-panel-2);
+  }
+  .dockButton:focus-visible {
+    outline: 2px solid var(--w1-focus);
+    outline-offset: 2px;
+  }
+  .runButton {
+    flex: 1 1 auto;
+    height: 44px;
+    font-size: 15px;
+  }
+  .hint {
+    display: none;
+  }
+}

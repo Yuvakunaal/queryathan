@@ -202,6 +202,46 @@ test.describe("phone editor tools", () => {
     await expect(page.getByRole("tab", { name: "Output" })).toBeVisible();
   });
 
+  test("a dock stays at the bottom: Run, Edit and Result are always one tap away", async ({
+    page,
+  }) => {
+    test.setTimeout(150_000);
+    await intoFight(page);
+    const inView = async (name: string | RegExp): Promise<boolean> => {
+      const box = await page.getByRole("button", { name }).boundingBox();
+      return (box?.y ?? 9999) + (box?.height ?? 0) <= 844 && (box?.y ?? -1) >= 0;
+    };
+    // At the top of the page, with the editor far below, the dock is still on screen.
+    await page.evaluate(() => {
+      window.scrollTo(0, 0);
+    });
+    expect(await inView(/^Run/)).toBe(true);
+    expect(await inView("Edit query")).toBe(true);
+    expect(await inView("See result")).toBe(true);
+
+    // Result takes you to the table; Edit takes you straight back to typing, no scrolling hunt.
+    await page.getByRole("button", { name: "See result" }).tap();
+    await page.waitForTimeout(700);
+    await page.getByRole("button", { name: "Edit query" }).tap();
+    const root = page.locator('[data-world][class*="fightRoot"]');
+    await expect(root).toHaveAttribute("data-typing", "true");
+    await expect(page.locator(".cm-content")).toBeInViewport();
+    await page.keyboard.type(" -- again");
+    await expect(page.locator(".cm-content")).toContainText("-- again");
+
+    // Run brings the result up; Edit is again one tap away.
+    await page.getByRole("button", { name: /^Run/ }).tap();
+    await expect(root).not.toHaveAttribute("data-typing", "true");
+    expect(await inView("Edit query")).toBe(true);
+    await page.getByRole("button", { name: "Edit query" }).tap();
+    await expect(root).toHaveAttribute("data-typing", "true");
+    await expect(page.locator(".cm-content")).toBeInViewport();
+
+    // Done leaves the editor where the player is looking.
+    await page.getByRole("button", { name: "Done" }).tap();
+    await expect(page.locator(".cm-content")).toBeInViewport();
+  });
+
   test("SQL help opens as a bottom sheet with two topics and a More modal", async ({
     page,
   }) => {
@@ -253,6 +293,9 @@ test("on a desktop the editor tools keep their words and help is a pop-over", as
   await expect(page.getByRole("region", { name: "SQL help" })).toBeVisible();
   await expect(page.getByRole("dialog", { name: "SQL help" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "More", exact: true })).toHaveCount(0);
+  // The phone dock does not exist on a desktop.
+  await expect(page.getByRole("button", { name: "Edit query" })).toBeHidden();
+  await expect(page.getByRole("button", { name: "See result" })).toBeHidden();
 });
 
 test("on a desktop there is no menu button, only the row of options", async ({

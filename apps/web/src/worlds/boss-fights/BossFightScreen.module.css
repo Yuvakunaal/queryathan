@@ -512,3 +512,12 @@
     outline-offset: 2px;
   }
 }
+
+/* Phones only: the Edit / Result / Run dock stays at the bottom of the screen while the page scrolls. */
+@media (max-width: 720px) {
+  .runBarPane {
+    position: sticky;
+    bottom: 0;
+    z-index: 25;
+  }
+}

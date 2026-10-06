@@ -7,6 +7,10 @@ export interface RunBarProps {
   /** True while text is highlighted in the editor: the button then runs only that. */
   hasSelection?: boolean;
   buttonRef?: RefObject<HTMLButtonElement | null>;
+  /** Phones only: jump back into the editor (and open the keyboard). */
+  onEdit?: (() => void) | undefined;
+  /** Phones only: jump to the result. */
+  onResult?: (() => void) | undefined;
 }
 
 const isMac =
@@ -18,9 +22,58 @@ export default function RunBar({
   onRun,
   buttonRef,
   hasSelection = false,
+  onEdit,
+  onResult,
 }: RunBarProps) {
   return (
     <div className={styles.runBar}>
+      {onEdit ? (
+        <button
+          type="button"
+          className={styles.dockButton}
+          aria-label="Edit query"
+          onClick={onEdit}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+          </svg>
+          <span>Edit</span>
+        </button>
+      ) : null}
+      {onResult ? (
+        <button
+          type="button"
+          className={styles.dockButton}
+          aria-label="See result"
+          onClick={onResult}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M3 10h18M9 4v16" />
+          </svg>
+          <span>Result</span>
+        </button>
+      ) : null}
       <button
         type="button"
         ref={buttonRef}
