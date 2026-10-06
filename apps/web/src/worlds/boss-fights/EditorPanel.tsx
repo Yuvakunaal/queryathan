@@ -6,6 +6,7 @@ import { SQL_REFERENCE } from "../../lib/sqlReference";
 import { PANDAS_REFERENCE } from "../../lib/pandasReference";
 import { tipAttributes } from "../../lib/columnTip";
 import type { ColumnTip } from "../../lib/mysqlType";
+import { sqlIdentifier } from "./explainError";
 import styles from "./EditorPanel.module.css";
 
 const ICON_PROPS = {
@@ -86,7 +87,8 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
 
   function insertColumn(table: string, column: string, isMain: boolean): void {
     if (language === "sql") {
-      handle?.current?.insert(isMain ? column : `${table}.${column}`);
+      const name = sqlIdentifier(column);
+      handle?.current?.insert(isMain ? name : `${sqlIdentifier(table)}.${name}`);
     } else {
       handle?.current?.insert(`${table}['${column}']`);
     }
@@ -164,7 +166,9 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
               type="button"
               className={styles.tableChip}
               onClick={() => {
-                handle?.current?.insert(table);
+                handle?.current?.insert(
+                  language === "sql" ? sqlIdentifier(table) : table,
+                );
               }}
             >
               {table}

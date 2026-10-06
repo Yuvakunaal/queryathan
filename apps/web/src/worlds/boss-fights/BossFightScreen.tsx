@@ -1350,6 +1350,7 @@ export default function BossFightScreen({
                   output={runOutput}
                   language={engine === "sql" ? "sql" : "python"}
                   textScale={TEXT_SCALES[a11y.textScaleIndex] ?? 1}
+                  columns={Object.values(editorSchema).flat()}
                   onShowData={() => {
                     setActiveTab("data");
                   }}

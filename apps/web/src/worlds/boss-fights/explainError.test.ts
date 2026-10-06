@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { explainError } from "./explainError";
+import { explainError, sqlIdentifier } from "./explainError";
 
 describe("explainError", () => {
   it("uses the last Error line of a Python traceback as the headline", () => {
@@ -71,6 +71,23 @@ describe("explainError", () => {
     ).toContain("same number of columns");
     expect(explainError("sql", 'near "WITH": syntax error').explanation).toContain(
       "start the statement",
+    );
+  });
+
+  it("quotes only the names SQL cannot read bare", () => {
+    expect(sqlIdentifier("Name")).toBe("Name");
+    expect(sqlIdentifier("Attendance%")).toBe('"Attendance%"');
+    expect(sqlIdentifier("first name")).toBe('"first name"');
+    expect(sqlIdentifier('a"b')).toBe('"a""b"');
+  });
+
+  it("points at the real column when a symbol name was typed bare", () => {
+    const cols = ["Name", "Attendance%", "Email"];
+    expect(explainError("sql", "no such column: Attendance", cols).explanation).toContain(
+      '"Attendance%"',
+    );
+    expect(explainError("sql", 'near ")": syntax error', cols).explanation).toContain(
+      '"Attendance%"',
     );
   });
 });

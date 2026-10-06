@@ -124,3 +124,30 @@ for (const engine of ["sql", "python"] as EngineName[]) {
     });
   });
 }
+
+test("a column with a symbol in its name is quoted by its chip and explained when typed bare", async ({
+  page,
+}) => {
+  await seed(page);
+  await page.goto("/");
+  await page.getByRole("button", { name: /Sandbox/ }).click();
+  await page.setInputFiles('input[type="file"]', {
+    name: "attendance.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from("Name,Attendance%,Email\nKunaal,70,a@x.com\nVakul,65,b@x.com\n"),
+  });
+  await page.getByRole("button", { name: "Open in the editor" }).click();
+  await page.getByText("SQL", { exact: true }).click();
+  await page.locator(".cm-content").waitFor({ timeout: 120_000 });
+
+  await setCode(page, "select sum(Attendance%) from data;");
+  await run(page);
+  await expect(page.locator("#pane-result")).toContainText('"Attendance%"');
+
+  await setCode(page, "");
+  await page.getByRole("button", { name: "Attendance%", exact: true }).click();
+  await expect(page.locator(".cm-content")).toContainText('"Attendance%"');
+  await setCode(page, 'select sum("Attendance%") as total from data;');
+  await run(page);
+  await expect(page.locator("#pane-result")).toContainText("135");
+});

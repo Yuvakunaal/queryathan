@@ -18,6 +18,8 @@ export interface OutputViewProps {
   language: "python" | "sql";
   textScale: number;
   onShowData: () => void;
+  /** Column names of the loaded tables, so error advice can name the right one. */
+  columns?: string[] | undefined;
   /** Set when the last query only showed rows but the answer has to be a table named result. */
   onUseAsAnswer?: (() => void) | undefined;
 }
@@ -75,6 +77,7 @@ export default function OutputView({
   language,
   textScale,
   onShowData,
+  columns = [],
   onUseAsAnswer,
 }: OutputViewProps) {
   const converted = useMemo(
@@ -96,7 +99,7 @@ export default function OutputView({
   }
 
   if (output.kind === "error") {
-    const { headline, explanation } = explainError(language, output.message);
+    const { headline, explanation } = explainError(language, output.message, columns);
     return (
       <div className={styles.error} role="alert">
         <h2 className={styles.errorTitle}>Your code hit an error</h2>

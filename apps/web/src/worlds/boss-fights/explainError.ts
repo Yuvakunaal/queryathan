@@ -12,9 +12,44 @@ export interface ErrorExplanation {
  * last "SomethingError: ..." line of a traceback, or SQLite's one line) so the
  * learner sees the part that matters without scrolling a pandas traceback.
  */
+const SIMPLE_IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+/** A column or table name written so SQL reads it whole: plain names stay bare, anything else (spaces, %, -, a leading digit) gets double quotes. */
+export function sqlIdentifier(name: string): string {
+  return SIMPLE_IDENTIFIER.test(name) ? name : `"${name.replace(/"/g, '""')}"`;
+}
+
+const alnum = (text: string): string => text.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+/** Extra advice for SQL name problems, using the real column names of the table. */
+function sqlNameHint(message: string, columns: string[]): string | null {
+  const odd = columns.filter((c) => !SIMPLE_IDENTIFIER.test(c));
+  const missing = /no such column:\s*(.+)/i.exec(message)?.[1]?.trim();
+  if (missing) {
+    const bare = alnum(missing.replace(/^[\w]+\./, ""));
+    const match = columns.find((c) => alnum(c) === bare || alnum(c).startsWith(bare));
+    if (match && bare !== "") {
+      return match === missing
+        ? `The name must be in double quotes: ${sqlIdentifier(match)}.`
+        : `Did you mean ${sqlIdentifier(match)}? ${
+            SIMPLE_IDENTIFIER.test(match)
+              ? ""
+              : "Names with symbols or spaces must be in double quotes. "
+          }Clicking its chip inserts it correctly.`.trim();
+    }
+    return null;
+  }
+  if (/syntax error/i.test(message) && odd.length > 0) {
+    const list = odd.slice(0, 3).map(sqlIdentifier).join(", ");
+    return `This table has column names with symbols or spaces. Wrap them in double quotes, like ${list}, or click the column chip to insert them correctly.`;
+  }
+  return null;
+}
+
 export function explainError(
   language: "python" | "sql",
   message: string,
+  columns: string[] = [],
 ): ErrorExplanation {
   if (message.startsWith(TIMEOUT_PREFIX)) {
     return {
@@ -120,10 +155,9 @@ export function explainError(
     ],
   ];
   const match = known.find(([pattern]) => pattern.test(first));
-  return {
-    headline: first,
-    explanation:
-      match?.[1] ??
-      "SQLite stopped because of the problem named above. Fix the statement on the left and run it again.",
-  };
+  const base =
+    match?.[1] ??
+    "SQLite stopped because of the problem named above. Fix the statement on the left and run it again.";
+  const hint = sqlNameHint(first, columns);
+  return { headline: first, explanation: hint ? `${base} ${hint}` : base };
 }
