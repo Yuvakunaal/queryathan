@@ -36,6 +36,7 @@ Most people learn data work from tidy tutorials, then meet a real table and free
 - 🔀 **Every case works in both languages.** The same problem, solved with pandas or with SQL. The tests prove each case is winnable in both, and that the starter code does not already win.
 - 🎯 **Judged by the result.** A case is won by clean cells or an exact answer table, never by matching your code, so any correct approach wins.
 - 🔒 **No backend, no account, no tracking.** Progress stays in your browser and exports as a file. After one visit it works offline.
+- 📱 **Phone-first, too.** Below 720 px every option lives in a right-hand menu drawer, typing lifts the editor above the keyboard, a pinned dock keeps Run, Edit and Result one tap away, and the intro says "tap anywhere" because there is no Enter key. Desktop and tablet keep the full layout.
 - ♿ **Accessible.** Dark, light and high-contrast themes, adjustable text size, full keyboard use, reduced-motion support, and WCAG audits in CI.
 - 🚀 **Cinematic, and optional.** A rocket flight between worlds and a knife-cut win scene, each switched on or off in the **ANIM** menu.
 - 🧰 **Open content.** A case is one JSON file and a CC0 dataset. Adding one needs no engine knowledge.
@@ -46,6 +47,7 @@ Most people learn data work from tidy tutorials, then meet a real table and free
 - [Quick start](#-quick-start)
 - [The nine worlds](#-the-nine-worlds)
 - [Screenshots](#-screenshots)
+- [On a phone](#-on-a-phone)
 - [Why it is different](#-why-it-is-different)
 - [How it works](#-how-it-works)
 - [Quality](#-quality)
@@ -118,6 +120,14 @@ There is also a **Sandbox**: load your own CSV (up to four tables, joined in a r
   <img src="./docs/images/fight-light.png" alt="The same fight in the light theme" width="49%">
 </p>
 
+## 📱 On a phone
+
+<p align="center">
+  <img src="./docs/images/phone.png" alt="Queryathan on a phone: the pinned Edit, Result and Run dock; typing above the keyboard with a Done button; SQL help as a bottom sheet; the right-hand menu drawer" width="880">
+</p>
+
+Each of these is phone-only (720 px and below): the **dock** that keeps Run, Edit and Result at the bottom of the screen, the **typing view** that lifts the editor above the keyboard, the **help bottom sheet** with its topics, and the **menu drawer** that gathers text size, theme, contrast, sound and animation settings.
+
 ## ⚔ Why it is different
 
 |                        | Typical tutorials       | Queryathan                                                              |
@@ -152,7 +162,7 @@ There is also a **Sandbox**: load your own CSV (up to four tables, joined in a r
 ## ✅ Quality
 
 - Strict TypeScript, ESLint, Prettier, a pre-commit hook, CodeQL and Dependabot.
-- 298 unit tests (Vitest) and 300+ end-to-end tests (Playwright) on a production build served with the real headers: every case in both engines, near-miss wrong answers, every complete SQL hint, offline use, layout at phone widths, axe-core accessibility scans in both themes, and WCAG AA contrast on every colour token.
+- 307 unit tests (Vitest) and 326 end-to-end tests (Playwright) on a production build served with the real headers: every case in both engines, near-miss wrong answers, every complete SQL hint, offline use, layout and touch flows at phone widths, axe-core accessibility scans in both themes, and WCAG AA contrast on every colour token.
 - Lighthouse budgets in CI (performance, accessibility, best practices, script size).
 
 ## 🗂 Project structure
