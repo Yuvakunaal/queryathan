@@ -16,9 +16,11 @@ playwright-report/
 test-results/
 .lighthouseci/
 
-# local tooling state (code-graph reports, AI assistant sessions)
+# local tooling state (code-graph reports, AI assistant sessions and installed skills)
 graphify-out/
 .claude/
+.agents/
+skills-lock.json
 
 # throwaway test scripts (never committed)
 *.tmp.e2e.ts

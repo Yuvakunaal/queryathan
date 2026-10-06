@@ -10,3 +10,5 @@ pnpm-lock.yaml
 test-results
 playwright-report
 .lighthouseci
+.agents
+skills-lock.json

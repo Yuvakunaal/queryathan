@@ -195,6 +195,11 @@ export default function BootSequence({
         {waiting ? (
           <span className={styles.pending} role="status">
             loading
+            <span className={styles.dots} aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
           </span>
         ) : null}
         <span ref={line2bRef} className={styles.ok} />

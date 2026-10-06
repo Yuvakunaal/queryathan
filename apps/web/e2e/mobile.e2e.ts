@@ -111,6 +111,26 @@ test.describe("phone", () => {
     await expect(page.getByRole("button", { name: "Open menu" })).toBeInViewport();
   });
 
+  test("the loading marker is one tidy line with three dots, not broken up", async ({
+    page,
+  }) => {
+    test.setTimeout(150_000);
+    await openCase(page, "boss-fights", "w1-01-nul-sentinel", "python", {
+      skipBoot: true,
+    });
+    const marker = page.getByRole("status").filter({ hasText: "loading" });
+    await expect(marker).toBeVisible({ timeout: 30_000 });
+    const box = await marker.boundingBox();
+    // One line of text, not a stack of wrapped fragments.
+    expect(box?.height ?? 999).toBeLessThan(26);
+    const dots = marker.locator("i");
+    await expect(dots).toHaveCount(3);
+    for (const index of [0, 1, 2]) {
+      const dot = await dots.nth(index).boundingBox();
+      expect(Math.abs((dot?.y ?? 0) - (box?.y ?? 0))).toBeLessThan(20);
+    }
+  });
+
   test("the boot prompt says to touch the screen, and a tap anywhere starts the fight", async ({
     page,
   }) => {
