@@ -182,7 +182,7 @@ packages/engine-adapters/ typed worker protocol and RPC client
 content/cases/            the cases, one folder per world
 content/rosters/          the fight order of each world
 scripts/                  dataset and case generators, content validation, Pyodide fetch
-docs/                     architecture, authoring guide, deployment, decision records, roadmap
+docs/                     architecture, authoring guide, deployment, decision records
 ```
 
 </details>
@@ -246,7 +246,7 @@ That is the point. See [Contributing](#-contributing).
 
 ## 📚 Documentation
 
-[Architecture](./docs/ARCHITECTURE.md) · [Authoring guide](./docs/content-authoring-guide.md) · [Deploying](./docs/DEPLOYING.md) · [Decision records](./docs/adr/) · [Roadmap](./docs/ROADMAP.md) · [Changelog](./CHANGELOG.md) · [Support](./SUPPORT.md) · [Security](./SECURITY.md) · [Original product plan](./queryathan-master-plan.md)
+[Architecture](./docs/ARCHITECTURE.md) · [Authoring guide](./docs/content-authoring-guide.md) · [Deploying](./docs/DEPLOYING.md) · [Decision records](./docs/adr/) · [Changelog](./CHANGELOG.md) · [Support](./SUPPORT.md) · [Security](./SECURITY.md) · [Original product plan](./queryathan-master-plan.md)
 
 The logo (a porthole, a dorsal fin and the waterline) and its sources are in [`docs/brand/`](./docs/brand/). Brand colours: orange `#ffb02e` to `#ff6a00` on near-black `#0a0a0b`.
 
