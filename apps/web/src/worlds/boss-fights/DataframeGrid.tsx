@@ -55,6 +55,8 @@ const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
     const virtualizer = useVirtualizer({
       count: grid.rows.length,
       getScrollElement: () => scrollRef.current,
+      // Rows are a fixed height, so they are never measured: measuring while the pane is
+      // hidden (display: none) reads 0 and squashes every row to nothing.
       estimateSize: () => rowHeightPx,
       overscan: OVERSCAN,
     });
@@ -194,7 +196,6 @@ const DataframeGrid = forwardRef<DataframeGridHandle, DataframeGridProps>(
                   transform: `translateY(${String(item.start)}px)`,
                 }}
                 data-index={item.index}
-                ref={virtualizer.measureElement}
               >
                 <div className={styles.indexCell} role="gridcell" aria-hidden="true">
                   {item.index}

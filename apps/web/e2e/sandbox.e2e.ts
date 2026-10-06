@@ -150,4 +150,13 @@ test("a column with a symbol in its name is quoted by its chip and explained whe
   await setCode(page, 'select sum("Attendance%") as total from data;');
   await run(page);
   await expect(page.locator("#pane-result")).toContainText("135");
+  // A result row keeps its full height, also after the result tab was hidden and shown again.
+  const rowHeight = () =>
+    page
+      .locator('#pane-result [role="row"][data-index="0"]')
+      .evaluate((e) => e.getBoundingClientRect().height);
+  expect(await rowHeight()).toBeGreaterThan(20);
+  await page.getByRole("tab", { name: /Data \(original\)/ }).click();
+  await page.getByRole("tab", { name: "Output" }).click();
+  expect(await rowHeight()).toBeGreaterThan(20);
 });
