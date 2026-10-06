@@ -20,6 +20,9 @@ test-results/
 graphify-out/
 .claude/
 
+# throwaway test scripts (never committed)
+*.tmp.e2e.ts
+
 # logs and caches
 *.log
 .cache/
