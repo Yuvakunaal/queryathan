@@ -435,3 +435,80 @@
   outline: 2px solid var(--w1-focus);
   outline-offset: 2px;
 }
+
+/* ---------- Phones only: typing lifts the editor above the keyboard ---------- */
+.typingBar {
+  display: none;
+}
+@media (max-width: 720px) {
+  .fightRoot[data-typing="true"] {
+    position: fixed;
+    left: 0;
+    top: var(--vv-top, 0px);
+    z-index: 30;
+    width: 100%;
+    height: var(--vv-h, 100dvh);
+    overflow: hidden;
+  }
+  .fightRoot[data-typing="true"] .narrowNotice,
+  .fightRoot[data-typing="true"] .briefingPane,
+  .fightRoot[data-typing="true"] .battlefield {
+    display: none;
+  }
+  .fightRoot[data-typing="true"] .stage {
+    min-height: 0;
+    height: 100%;
+  }
+  .fightRoot[data-typing="true"] .editorPane {
+    order: 2;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+  .fightRoot[data-typing="true"] .runBarPane {
+    order: 3;
+    flex: 0 0 auto;
+  }
+  .typingBar {
+    order: 1;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--w1-bg-panel);
+    border-bottom: 1px solid var(--w1-rule);
+  }
+  .typingTask {
+    flex: 1;
+    min-width: 0;
+    font: 400 13px/1.45 var(--w1-font-text);
+    color: var(--w1-text-secondary);
+  }
+  .typingTask summary {
+    cursor: pointer;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    color: var(--w1-text-primary);
+    font-weight: 600;
+  }
+  .typingTask p {
+    margin: 4px 0 8px;
+    max-height: 30dvh;
+    overflow: auto;
+  }
+  .typingDone {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 0 16px;
+    background: var(--w1-green-500);
+    border: 1px solid var(--w1-green-500);
+    color: var(--w1-text-inverse);
+    font: 700 13px/1 var(--w1-font-display);
+    cursor: pointer;
+  }
+  .typingDone:focus-visible {
+    outline: 2px solid var(--w1-focus);
+    outline-offset: 2px;
+  }
+}

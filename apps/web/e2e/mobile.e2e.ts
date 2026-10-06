@@ -163,6 +163,45 @@ test.describe("phone editor tools", () => {
     }
   });
 
+  test("typing lifts the editor above the keyboard, and Done or Run brings the page back", async ({
+    page,
+  }) => {
+    test.setTimeout(150_000);
+    await intoFight(page);
+    const root = page.locator('[data-world][class*="fightRoot"]');
+    await expect(root).not.toHaveAttribute("data-typing", "true");
+    await page.locator(".cm-content").tap();
+    await expect(root).toHaveAttribute("data-typing", "true");
+    // Only what is needed to type is left: the task as a one-liner, the editor, its tools, Run.
+    await expect(page.getByRole("button", { name: "Done" })).toBeVisible();
+    await expect(page.getByText("Your task")).toBeHidden();
+    // Opening the task keeps typing mode (focus is still in the typing area).
+    await page.getByText(/see the task/).tap();
+    await expect(page.locator(`[class*="typingTask"] p`)).toBeVisible();
+    await expect(root).toHaveAttribute("data-typing", "true");
+    await page.locator(".cm-content").tap();
+    // The keyboard takes most of the screen: the editor and Run stay inside what is left.
+    await page.setViewportSize({ width: 390, height: 430 });
+    await page.keyboard.type(" -- hello");
+    const editor = await page.locator(".cm-content").boundingBox();
+    const run = await page.getByRole("button", { name: /^Run/ }).boundingBox();
+    expect((editor?.y ?? 0) + (editor?.height ?? 0)).toBeLessThanOrEqual(431);
+    expect((run?.y ?? 0) + (run?.height ?? 0)).toBeLessThanOrEqual(431);
+    expect(editor?.height ?? 0).toBeGreaterThan(60);
+    await expect(page.locator(".cm-content")).toContainText("-- hello");
+    // Done puts the keyboard away and the whole page back.
+    await page.getByRole("button", { name: "Done" }).click();
+    await expect(root).not.toHaveAttribute("data-typing", "true");
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.getByText("Your task")).toBeVisible();
+    // Run from the keyboard view also ends it, and the result is brought into view.
+    await page.locator(".cm-content").tap();
+    await expect(root).toHaveAttribute("data-typing", "true");
+    await page.getByRole("button", { name: /^Run/ }).tap();
+    await expect(root).not.toHaveAttribute("data-typing", "true");
+    await expect(page.getByRole("tab", { name: "Output" })).toBeVisible();
+  });
+
   test("SQL help opens as a bottom sheet with two topics and a More modal", async ({
     page,
   }) => {

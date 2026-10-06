@@ -28,6 +28,7 @@ import { stampFor } from "../../lib/forge";
 import type { Stamp } from "../../lib/forge";
 import ForgeBand from "./ForgeBand";
 import { classNames } from "../../lib/classNames";
+import { usePhone } from "../../lib/usePhone";
 import type { SandboxExtra } from "../../lib/sandbox";
 import { TEXT_SCALES } from "../../lib/a11y";
 import type { A11yState } from "../../lib/a11y";
@@ -266,6 +267,45 @@ export default function BossFightScreen({
   const [answerOffer, setAnswerOffer] = useState(false);
   const [collageMode, setCollageMode] = useState<CollageMode>(readCollageMode);
   const [narrowNoticeDismissed, setNarrowNoticeDismissed] = useState(false);
+  // On a phone, typing in the editor lifts it above the keyboard: the page is reduced to the
+  // editor, its tools and the Run button, sized to what the keyboard leaves visible.
+  const phone = usePhone();
+  const [editorFocused, setEditorFocused] = useState(false);
+  const typingMode = phone && editorFocused;
+  const editorPaneRef = useRef<HTMLDivElement>(null);
+  const typingBarRef = useRef<HTMLDivElement>(null);
+  /** Typing mode lasts while focus stays in the editor or its task bar; tapping anywhere else ends it. */
+  function leaveTypingIfFocusLeft(next: EventTarget | null): void {
+    const inside = (el: HTMLElement | null): boolean =>
+      next instanceof Node && el?.contains(next) === true;
+    if (!inside(editorPaneRef.current) && !inside(typingBarRef.current)) {
+      setEditorFocused(false);
+    }
+  }
+  useEffect(() => {
+    if (!typingMode) return;
+    const root = document.documentElement;
+    const viewport = window.visualViewport;
+    const apply = (): void => {
+      root.style.setProperty(
+        "--vv-h",
+        `${String(viewport?.height ?? window.innerHeight)}px`,
+      );
+      root.style.setProperty("--vv-top", `${String(viewport?.offsetTop ?? 0)}px`);
+    };
+    apply();
+    viewport?.addEventListener("resize", apply);
+    viewport?.addEventListener("scroll", apply);
+    const previousOverflow = root.style.overflow;
+    root.style.overflow = "hidden";
+    return () => {
+      viewport?.removeEventListener("resize", apply);
+      viewport?.removeEventListener("scroll", apply);
+      root.style.removeProperty("--vv-h");
+      root.style.removeProperty("--vv-top");
+      root.style.overflow = previousOverflow;
+    };
+  }, [typingMode]);
   const [liveMessage, setLiveMessage] = useState("");
   const [liveErrorMessage, setLiveErrorMessage] = useState("");
   const liveMessageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -572,6 +612,18 @@ export default function BossFightScreen({
     liveMessageTimeoutRef.current = setTimeout(() => {
       setLiveMessage(message);
     }, 400);
+  }
+
+  /** Run, and on a phone put the keyboard away and bring the result into view. */
+  async function runAndShow(): Promise<void> {
+    if (phone && document.activeElement instanceof HTMLElement)
+      document.activeElement.blur();
+    await handleRun();
+    if (phone) {
+      requestAnimationFrame(() => {
+        battlefieldRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   }
 
   async function handleRun(): Promise<void> {
@@ -884,7 +936,12 @@ export default function BossFightScreen({
   );
 
   return (
-    <div className={styles.fightRoot} data-world={world} ref={fightRootRef}>
+    <div
+      className={styles.fightRoot}
+      data-world={world}
+      data-typing={typingMode ? "true" : undefined}
+      ref={fightRootRef}
+    >
       {renderRail(statusRailRef)}
       <ColumnTypeTip />
       {narrowNoticeDismissed ? null : (
@@ -911,6 +968,30 @@ export default function BossFightScreen({
             : undefined
         }
       >
+        {typingMode ? (
+          <div
+            className={styles.typingBar}
+            ref={typingBarRef}
+            onBlur={(event) => {
+              leaveTypingIfFocusLeft(event.relatedTarget);
+            }}
+          >
+            <details className={styles.typingTask}>
+              <summary>{caseData.strings.title}: see the task</summary>
+              <p>{caseData.strings.task ?? ""}</p>
+            </details>
+            <button
+              type="button"
+              className={styles.typingDone}
+              onClick={() => {
+                if (document.activeElement instanceof HTMLElement)
+                  document.activeElement.blur();
+              }}
+            >
+              Done
+            </button>
+          </div>
+        ) : null}
         <div
           className={styles.commandRail}
           ref={commandRailRef}
@@ -982,7 +1063,20 @@ export default function BossFightScreen({
               savePanelSize("briefing", null);
             }}
           />
-          <div className={styles.editorPane}>
+          <div
+            className={styles.editorPane}
+            ref={editorPaneRef}
+            onFocus={(event) => {
+              // Only the text area itself starts typing mode: the layout must not jump under
+              // a finger that is tapping a tool button or a column chip.
+              if (event.target instanceof Element && event.target.closest(".cm-editor")) {
+                setEditorFocused(true);
+              }
+            }}
+            onBlur={(event) => {
+              leaveTypingIfFocusLeft(event.relatedTarget);
+            }}
+          >
             <EditorPanel
               ref={codeEditorRef}
               language={engine === "sql" ? "sql" : "python"}
@@ -996,7 +1090,7 @@ export default function BossFightScreen({
               dark={a11y.theme === "dark"}
               onSelectionChange={setHasSelection}
               onRun={() => {
-                void handleRun();
+                void runAndShow();
               }}
               onEscape={() => {
                 runButtonRef.current?.focus();
@@ -1008,7 +1102,7 @@ export default function BossFightScreen({
               hasSelection={hasSelection}
               isRunning={isRunning}
               onRun={() => {
-                void handleRun();
+                void runAndShow();
               }}
               buttonRef={runButtonRef}
             />

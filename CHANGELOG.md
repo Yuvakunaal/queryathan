@@ -5,6 +5,8 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## 1.0.0 (2026-10-05)
 
+- **Typing on a phone, like a chat app.** Tapping into the editor (below 720px) lifts it above the keyboard: the page reduces to a one-line task (tap to read it), a **Done** button, the editor with its tools and column chips, and **Run**, sized to the part of the screen the keyboard leaves visible (it follows the keyboard as it opens, closes or changes height). Tool buttons and chips do not trigger it, so a tap on them is never lost to a layout jump. **Done** or **Run** puts the keyboard away and brings the full page back, with the result scrolled into view. Tablet and desktop are unchanged.
+
 - **Phone editor, tidier.** Below 720px the editor's Help, Format, Reset and Clear buttons are small icon buttons (`?`, `{}`, undo, bin) that keep their names for screen readers. SQL and Python help open as a bottom sheet with a large search box; its topics show two to a line plus **More**, which opens a two-column topics modal. Tips uses the same topic chips. Desktop and tablet are unchanged (words on the buttons, help as a pop-over).
 
 - **Made for phones.** Below 720px the row of small option buttons (text size, theme, CRT, sound, animation, Tips, contrast) is one menu button that opens a drawer sliding in from the right, with large touch rows, switches, a volume slider and the Tips link; it is on every screen, closes with Escape or a tap outside, keeps focus inside while open, and passes the accessibility scan in both themes. The old pop-up menus no longer run off the screen. On a touch screen the intro says "[ TAP ] touch anywhere to engage" and a tap anywhere starts the fight (there is no Enter key on a phone); desktop keeps "[ ENTER ]" (and a click works there too).
