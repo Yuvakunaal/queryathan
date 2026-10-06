@@ -53,7 +53,6 @@ Most people learn data work from tidy tutorials, then meet a real table and free
 - [Quality](#-quality)
 - [Project structure](#-project-structure)
 - [Contributing](#-contributing)
-- [Roadmap](#-roadmap)
 - [FAQ](#-faq)
 - [Documentation, security, license](#-documentation)
 
@@ -193,17 +192,6 @@ docs/                     architecture, authoring guide, deployment, decision re
 **A new case is a JSON file plus a dataset.** No engine knowledge needed. Start with [`CONTRIBUTING.md`](./CONTRIBUTING.md), the [authoring guide](./docs/content-authoring-guide.md) and the [call for cases](./docs/call-for-cases.md). Looking for something small? See the [good first issues](./docs/good-first-issues.md). Bigger changes (a new world, a schema change) start with a short [RFC](./docs/rfc-template.md) in Discussions. Please read the [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 [![Contributors](https://contrib.rocks/image?repo=Yuvakunaal/queryathan)](https://github.com/Yuvakunaal/queryathan/graphs/contributors)
-
-## 🗺 Roadmap
-
-- [x] Nine worlds, 45 cases, both engines, sandbox, offline, themes, accessibility audits
-- [x] Rocket flights and cinematic wins (optional)
-- [ ] More cases in every world ([wanted list](./docs/call-for-cases.md))
-- [ ] Firefox and WebKit in the end-to-end matrix
-- [ ] Interface and briefings in more human languages
-- [ ] Teacher mode: print-friendly case sheets and answer keys (still no accounts)
-
-Out of scope on purpose: accounts, streaks, leaderboards, cloud sync and tracking. See [`docs/ROADMAP.md`](./docs/ROADMAP.md).
 
 ## ❓ FAQ
 
