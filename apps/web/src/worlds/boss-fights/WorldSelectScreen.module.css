@@ -288,15 +288,6 @@
   outline: 2px solid var(--w1-focus);
   outline-offset: 3px;
 }
-.aboutLink .newBadge {
-  margin-left: 8px;
-}
-.newBadge {
-  padding: 3px 8px;
-  background: var(--w1-amber-500);
-  color: var(--w1-text-inverse);
-  font: 700 11px/1 var(--w1-font-display);
-}
 
 .footer {
   display: flex;

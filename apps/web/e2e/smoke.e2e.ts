@@ -34,9 +34,9 @@ test("only the first boss in a world is open at the start", async ({ page }) => 
 
 test.describe("What is this?", () => {
   test("opens, traps focus, closes with Escape and returns focus", async ({ page }) => {
-    await seed(page, { aboutUnseen: true });
+    await seed(page);
     await page.goto("/");
-    await expect(page.getByText("Start here")).toBeVisible();
+    await expect(page.getByText("Start here")).toHaveCount(0);
     const opener = page.getByRole("button", { name: /What is this\?/ });
     await opener.click();
     const dialog = page.getByRole("dialog", { name: /What is Queryathan/ });
@@ -56,8 +56,6 @@ test.describe("What is this?", () => {
     await page.keyboard.press("Escape");
     await expect(dialog).toHaveCount(0);
     await expect(opener).toBeFocused();
-    await page.reload();
-    await expect(page.getByText("Start here")).toHaveCount(0);
   });
 
   test("Start with Ember Reach goes to that world", async ({ page }) => {

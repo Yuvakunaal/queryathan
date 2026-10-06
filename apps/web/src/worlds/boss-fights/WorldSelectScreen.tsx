@@ -90,24 +90,6 @@ function WorldCard({
 }
 
 const REPO_URL = "https://github.com/Yuvakunaal/queryathan";
-const ABOUT_KEY = "dcq.aboutSeen";
-
-function readAboutSeen(): boolean {
-  try {
-    return window.localStorage.getItem(ABOUT_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function writeAboutSeen(): void {
-  try {
-    window.localStorage.setItem(ABOUT_KEY, "1");
-  } catch {
-    // Not remembered; the hint badge just shows again next time.
-  }
-}
-
 export default function WorldSelectScreen({
   saveData,
   a11y,
@@ -117,7 +99,6 @@ export default function WorldSelectScreen({
   onOpenSandbox,
 }: WorldSelectScreenProps) {
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [aboutSeen, setAboutSeen] = useState(readAboutSeen);
   const aboutLinkRef = useRef<HTMLButtonElement>(null);
   const wasOpenRef = useRef(false);
 
@@ -129,10 +110,6 @@ export default function WorldSelectScreen({
 
   function openAbout(): void {
     setAboutOpen(true);
-    if (!aboutSeen) {
-      setAboutSeen(true);
-      writeAboutSeen();
-    }
   }
   return (
     <div className={styles.screen} data-world="hub">
@@ -150,7 +127,6 @@ export default function WorldSelectScreen({
               onClick={openAbout}
             >
               What is this?
-              {aboutSeen ? null : <span className={styles.newBadge}>Start here</span>}
             </button>
             <A11yControls a11y={a11y} onChange={onA11yChange} />
           </div>
