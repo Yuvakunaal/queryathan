@@ -7,7 +7,7 @@ import { test as base, expect } from "@playwright/test";
  */
 export const test = base.extend<{ guard: undefined }>({
   guard: [
-    async ({ page }, use) => {
+    async ({ page }, use, testInfo) => {
       const problems: string[] = [];
       page.on("pageerror", (error) => {
         problems.push(`pageerror: ${error.message}`);
@@ -19,6 +19,13 @@ export const test = base.extend<{ guard: undefined }>({
         }
       });
       await use(undefined);
+      // A test that breaks something on purpose (an aborted download) says which page error is expected.
+      const allowed = testInfo.annotations
+        .filter((a) => a.type === "allow-pageerror")
+        .map((a) => a.description ?? "");
+      for (let i = problems.length - 1; i >= 0; i--) {
+        if (allowed.some((text) => problems[i]?.includes(text))) problems.splice(i, 1);
+      }
       expect(problems, "no uncaught errors or CSP violations").toEqual([]);
     },
     { auto: true },

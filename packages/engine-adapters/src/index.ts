@@ -8,6 +8,8 @@ export type {
   RunCodeRequest,
   CancelRequest,
   EngineReadyResponse,
+  EngineProgressResponse,
+  EngineStage,
   EngineErrorResponse,
   RunResultResponse,
   RunErrorResponse,

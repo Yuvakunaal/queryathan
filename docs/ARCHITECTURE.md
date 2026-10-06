@@ -208,6 +208,25 @@ Every animation has a `prefers-reduced-motion` branch that keeps the
 feedback (color, glyph, count changes) and removes only the motion — never a
 silent drop of the signal.
 
+## Performance
+
+Loading is split by when the player needs each piece. `pnpm check-bundle` holds the numbers; the
+end-to-end tests in `apps/web/e2e/performance.e2e.ts` and `loading.e2e.ts` hold the behaviour.
+
+- **Home page:** one script (the app shell, React, the save schema). It must not carry the fight screen,
+  the editor, the Tips dialog or an engine.
+- **World map:** fetches the fight screen, the editor and the Tips dialog for the next click (a case).
+- **Fight screen:** the screen itself is small. CodeMirror is its own chunk (`CodeEditor`), requested beside
+  the fight screen and again when the editor panel loads, so it is ready while the player chooses an
+  engine and watches the intro. The editor box keeps its place while it finishes (`Suspense`, no fallback).
+- **Engines:** nothing starts until the player points at or chooses one. Python reports its steps
+  (`engine-progress`) so the intro can say what it is doing; a worker that cannot load fails at once, and the
+  start-up error has a **Try again** that replaces the worker.
+- **CSV import:** `engines/csv-import.worker.ts` does all the reading and tidying of an upload, with the same
+  functions and messages as `lib/sandbox.ts` (it only calls them). `CsvImportClient` checks `File.size`
+  before reading, transfers the bytes, and falls back to the main thread if a worker cannot start. The
+  column hints and tooltips are worked out there once, so the fight screen never parses the CSV again.
+
 ## Testing
 
 - **Unit tests** (`pnpm test`, Vitest): game logic, diffing, CSV intake, win

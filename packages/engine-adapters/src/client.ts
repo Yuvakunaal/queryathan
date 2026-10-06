@@ -1,5 +1,5 @@
 import { EngineRpcClient } from "./rpc";
-import type { RunResultResponse } from "./protocol";
+import type { EngineStage, RunResultResponse } from "./protocol";
 import type { InitCaseOptions } from "./rpc";
 
 /**
@@ -22,12 +22,22 @@ export abstract class WorkerEngineClient {
   spawn(): void {
     if (this.worker) return;
     this.worker = this.createWorker();
-    this.rpc = new EngineRpcClient(this.worker);
+    const rpc = new EngineRpcClient(this.worker);
+    this.rpc = rpc;
+    // A worker whose script cannot be loaded never says anything; the browser reports it here.
+    this.worker.addEventListener("error", (event) => {
+      rpc.fail(event.message || "The engine could not be loaded.");
+    });
   }
 
   ready(): Promise<void> {
     if (!this.rpc) throw new Error("spawn() must be called before ready()");
     return this.rpc.ready();
+  }
+
+  /** Start-up steps as the engine reaches them (Python only; SQL starts in one step). Returns the unsubscribe function. */
+  onProgress(listener: (stage: EngineStage) => void): () => void {
+    return this.rpc?.onProgress(listener) ?? (() => undefined);
   }
 
   initCase(

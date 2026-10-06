@@ -1,5 +1,4 @@
-import { forwardRef } from "react";
-import CodeEditor from "./CodeEditor";
+import { forwardRef, lazy, Suspense } from "react";
 import type { CodeEditorHandle } from "./CodeEditor";
 import HelpToolbox from "./HelpToolbox";
 import { SQL_REFERENCE } from "../../lib/sqlReference";
@@ -8,6 +7,14 @@ import { tipAttributes } from "../../lib/columnTip";
 import type { ColumnTip } from "../../lib/mysqlType";
 import { sqlIdentifier } from "./explainError";
 import styles from "./EditorPanel.module.css";
+
+// CodeMirror is about half of the fight screen's code, and nothing before the editor needs it
+// (the engine choice, the loading card and the boot sequence all come first). It is its own
+// chunk, and the download starts the moment this module loads, so it arrives while the player
+// is still choosing an engine. The editor box keeps its place while it finishes.
+const loadCodeEditor = () => import("./CodeEditor");
+const CodeEditor = lazy(loadCodeEditor);
+void loadCodeEditor();
 
 const ICON_PROPS = {
   viewBox: "0 0 24 24",
@@ -190,17 +197,19 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
         ))}
       </div>
       <div className={styles.editor}>
-        <CodeEditor
-          ref={ref}
-          initialValue={initialCode ?? starterCode}
-          onChange={onCodeChange}
-          language={language}
-          schema={schema}
-          dark={dark}
-          onRun={onRun}
-          onSelectionChange={onSelectionChange}
-          onEscape={onEscape}
-        />
+        <Suspense fallback={null}>
+          <CodeEditor
+            ref={ref}
+            initialValue={initialCode ?? starterCode}
+            onChange={onCodeChange}
+            language={language}
+            schema={schema}
+            dark={dark}
+            onRun={onRun}
+            onSelectionChange={onSelectionChange}
+            onEscape={onEscape}
+          />
+        </Suspense>
       </div>
     </div>
   );

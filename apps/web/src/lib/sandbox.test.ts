@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { ResultGrid } from "@dcq/engine-adapters";
+import { parseCsv } from "../engines/csv";
 import {
   buildSandboxCase,
   gridToCsv,
+  oversizeFileMessage,
   prepareSandboxCsv,
+  prepareSandboxCsvWithHints,
   SANDBOX_LIMITS,
   starterIdeas,
 } from "./sandbox";
@@ -105,5 +108,62 @@ describe("starterIdeas", () => {
     expect(sql.some((i) => i.code.includes('"city"'))).toBe(true);
     const py = starterIdeas("python", ["id", "city"]);
     expect(py.some((i) => i.code.includes("df.isna().sum()"))).toBe(true);
+  });
+});
+
+describe("prepareSandboxCsvWithHints", () => {
+  const inputs = [
+    "a,b\n1,2\n3,4\n",
+    "\uFEFFname;city;city;score\nAva;Austin;TX;10\n Liam ;Leeds;UK;\nZoe;Lyon;FR;7\n",
+    "x\ty\n1\tfoo bar baz\n2\t\n",
+    "a,b,c\n1,2\n3,4,5,6\n",
+    ",b\n1,2\n",
+    'q,r\n"hello, world",1\n"say ""hi""",2\n',
+  ];
+
+  it("gives the same answer as the plain function, plus hints", () => {
+    for (const text of inputs) {
+      const plain = prepareSandboxCsv(text);
+      const hinted = prepareSandboxCsvWithHints(text);
+      expect(hinted.ok).toBe(plain.ok);
+      if (!plain.ok || !hinted.ok) continue;
+      const { hints, ...rest } = hinted.data;
+      expect(rest).toEqual(plain.data);
+      expect(hints).toBeDefined();
+    }
+  });
+
+  it("works out the same hints the fight screen used to get by parsing the CSV again", () => {
+    for (const text of inputs) {
+      const data = ok(text);
+      const hinted = prepareSandboxCsvWithHints(text);
+      if (!hinted.ok) throw new Error("expected ok");
+      const viaParse = buildSandboxCase("x.csv", data).columnHints;
+      expect(hinted.data.hints).toEqual(viaParse);
+      expect(buildSandboxCase("x.csv", hinted.data).columnHints).toEqual(viaParse);
+    }
+    expect(parseCsv("a\n1\n").rows).toHaveLength(1);
+  });
+
+  it("passes failures through with the same message", () => {
+    expect(prepareSandboxCsvWithHints("   \n")).toEqual(prepareSandboxCsv("   \n"));
+  });
+
+  it("reports the exact size of an over-limit file, with or without multi-byte text", () => {
+    const big = "a\n" + "é".repeat(SANDBOX_LIMITS.maxBytes);
+    const result = prepareSandboxCsvWithHints(big);
+    expect(result).toEqual(prepareSandboxCsv(big));
+    expect(result.ok ? "" : result.message).toMatch(
+      /MB\. The sandbox handles files up to 5 MB/,
+    );
+  });
+});
+
+describe("oversizeFileMessage", () => {
+  it("only refuses unread files above twice the limit, with the same wording as before", () => {
+    expect(oversizeFileMessage(SANDBOX_LIMITS.maxBytes * 2)).toBeNull();
+    expect(oversizeFileMessage(SANDBOX_LIMITS.maxBytes * 2 + 1)).toMatch(
+      /^That file is 10\.0 MB\. The sandbox handles files up to 5 MB\.$/,
+    );
   });
 });

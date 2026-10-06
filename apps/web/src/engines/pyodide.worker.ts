@@ -2,6 +2,8 @@ import { loadPyodide, type PyodideInterface } from "pyodide";
 import { MAX_OUTPUT_ROWS, pythonGenerateSource } from "@dcq/engine-adapters";
 import type {
   EngineErrorResponse,
+  EngineProgressResponse,
+  EngineStage,
   EngineReadyResponse,
   OutputTable,
   ResultGrid,
@@ -145,17 +147,25 @@ def __dcq_serialize_df(dataframe):
 
 let stdoutBuffer: string[] = [];
 
+/** Tells the screen which start-up step is running, so a slow first load can say what it is doing. */
+function reportStage(stage: EngineStage): void {
+  postMessage({ type: "engine-progress", stage } satisfies EngineProgressResponse);
+}
+
 async function initPyodide(): Promise<PyodideInterface> {
+  reportStage("runtime");
   const pyodide = await loadPyodide({
     indexURL: "/pyodide/",
     // .toString() on a PyProxy returns repr(o) instead of str(o) — matches
     // what a real REPL/notebook cell echoes for a bare expression.
     pyproxyToStringRepr: true,
   });
+  reportStage("packages");
   await pyodide.loadPackage(RUNTIME_WHEELS);
   await pyodide.runPythonAsync(SERIALIZE_HELPER_PY);
   // Importing pandas takes over a second the first time, so do it during startup
   // (while a warmed-up engine is idle) rather than when the table is first loaded.
+  reportStage("pandas");
   await pyodide.runPythonAsync("import numpy, pandas");
   pyodide.setStdout({
     batched: (line: string) => {

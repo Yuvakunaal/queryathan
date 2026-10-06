@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { RpcRunError, RpcTimeoutError } from "@dcq/engine-adapters";
 import type {
+  EngineStage,
   InitCaseOptions,
   ResultGrid,
   WorkerEngineClient,
@@ -32,7 +33,6 @@ import { usePhone } from "../../lib/usePhone";
 import type { SandboxExtra } from "../../lib/sandbox";
 import { TEXT_SCALES } from "../../lib/a11y";
 import type { A11yState } from "../../lib/a11y";
-import { parseCsv } from "../../engines/csv";
 import { caseTechniques, misnamedAnswerTable } from "./caseFormat";
 import { bootReadout } from "./bootReadout";
 import { formatCellValue } from "./formatCellValue";
@@ -171,6 +171,14 @@ function answerNoteFor(caseData: Case, engine: "sql" | "python"): AnswerNote | u
 }
 
 /** Python answer cases: df becomes the answer, so the table you started with is kept apart, as it was loaded. */
+/** What Python is doing right now, in the player's words; null before it reports anything. */
+function stageNote(stage: EngineStage | null): string | null {
+  if (stage === "runtime") return "Now: starting the Python runtime.";
+  if (stage === "packages") return "Now: unpacking the data libraries.";
+  if (stage === "pandas") return "Now: loading pandas.";
+  return null;
+}
+
 function keepsOriginal(caseData: Case, engine: string | null, sandbox: boolean): boolean {
   return (
     engine === "python" &&
@@ -230,6 +238,11 @@ export default function BossFightScreen({
     "loading" | "engine-select" | "spawning" | "boot" | "fight"
   >("loading");
   const [engine, setEngine] = useState<EngineChoice | null>(null);
+  // Bumped by "Try again": the case fetch and the engine start each run again.
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [bootAttempt, setBootAttempt] = useState(0);
+  // Which step of its start-up Python is on, shown beside the "loads once" note.
+  const [engineStage, setEngineStage] = useState<EngineStage | null>(null);
   const [grid, setGrid] = useState<ResultGrid | null>(null);
   // Set only when the player has made a `result` table: `grid` is then that answer and this is their data table, left alone.
   const [tableGrid, setTableGrid] = useState<ResultGrid | null>(null);
@@ -442,7 +455,7 @@ export default function BossFightScreen({
     return () => {
       cancelled = true;
     };
-  }, [casePath, sandbox]);
+  }, [casePath, sandbox, loadAttempt]);
 
   /** What the engine needs to load this case's table (also used when it is restarted). */
   function initOptionsFor(activeCase: Case): InitCaseOptions {
@@ -455,6 +468,25 @@ export default function BossFightScreen({
       ...(sandbox ? { datasetText: sandbox.csvText } : {}),
       ...(activeCase.generated ? { generated: activeCase.generated } : {}),
     };
+  }
+
+  /**
+   * "Try again" on the start-up error screen. The failed worker is thrown away (a half-started
+   * Python cannot be reused) and a fresh one is started on the same case; if the case itself
+   * never loaded, that fetch is repeated instead.
+   */
+  function retryStart(): void {
+    setLoadError(null);
+    if (!caseData) {
+      setLoadAttempt((n) => n + 1);
+      return;
+    }
+    for (const kind of ["python", "sql"] as const) {
+      poolRef.current[kind]?.terminate();
+      poolRef.current[kind] = undefined;
+    }
+    setEngineStage(null);
+    setBootAttempt((n) => n + 1);
   }
 
   /**
@@ -503,38 +535,66 @@ export default function BossFightScreen({
     const client = ensureClient(engine);
     clientRef.current = client;
     setPhase("spawning");
+    setEngineStage(null);
+
+    async function loadExtraTables(): Promise<{
+      columns: Record<string, string[]>;
+      tips: Record<string, Record<string, ColumnTip>>;
+    }> {
+      // Fetched side by side, but put back in the case's order: the editor lists tables in it.
+      const loaded = await Promise.all(
+        (activeCase.extraTables ?? []).map(async (table) => {
+          const own = sandbox?.extras.find((e) => e.name === table.name);
+          // An uploaded table was already read (and its tooltips worked out) in the import worker.
+          if (own?.tips)
+            return { name: table.name, columns: own.columns, tips: own.tips };
+          const text = own ? own.csvText : await (await fetch(table.path)).text();
+          const tableGrid = csvToGrid(text);
+          return {
+            name: table.name,
+            columns: tableGrid.columns,
+            tips: columnTipsFor(tableGrid),
+          };
+        }),
+      );
+      const columns: Record<string, string[]> = {};
+      const tips: Record<string, Record<string, ColumnTip>> = {};
+      for (const table of loaded) {
+        columns[table.name] = table.columns;
+        tips[table.name] = table.tips;
+      }
+      return { columns, tips };
+    }
 
     async function boot(): Promise<void> {
+      const stopProgress = client.onProgress((stage) => {
+        if (!isCancelled()) setEngineStage(stage);
+      });
       try {
         client.spawn();
+        // Nothing below needs the engine, so these load while it starts (Python takes seconds).
+        const extrasLoading = loadExtraTables();
+        const originalLoading = keepsOriginal(activeCase, engine, sandbox !== undefined)
+          ? fetch(activeCase.datasetPath)
+              .then((response) => response.text())
+              .then(csvToGrid)
+          : Promise.resolve(null);
+        // A failure that happens while the engine is still starting is reported by ready().
+        extrasLoading.catch(() => undefined);
+        originalLoading.catch(() => undefined);
         await client.ready();
         if (isCancelled()) return;
-        const result = await client.initCase(
-          activeCase.datasetPath,
-          initOptionsFor(activeCase),
-        );
+        const [result, loadedExtraTables, original] = await Promise.all([
+          client.initCase(activeCase.datasetPath, initOptionsFor(activeCase)),
+          extrasLoading,
+          originalLoading,
+        ]);
         if (isCancelled()) return;
 
         initialColumnsRef.current = result.resultGrid.columns;
-        const loadedExtras: Record<string, string[]> = {};
-        const loadedTips: Record<string, Record<string, ColumnTip>> = {};
-        for (const table of activeCase.extraTables ?? []) {
-          const own = sandbox?.extras.find((e) => e.name === table.name);
-          const text = own ? own.csvText : await (await fetch(table.path)).text();
-          loadedExtras[table.name] = parseCsv(text).columns;
-          loadedTips[table.name] = columnTipsFor(csvToGrid(text));
-        }
-        if (isCancelled()) return;
-        setExtraColumns(loadedExtras);
-        setExtraTips(loadedTips);
-        if (keepsOriginal(activeCase, engine, sandbox !== undefined)) {
-          originalGridRef.current = csvToGrid(
-            await (await fetch(activeCase.datasetPath)).text(),
-          );
-        } else {
-          originalGridRef.current = null;
-        }
-        if (isCancelled()) return;
+        setExtraColumns(loadedExtraTables.columns);
+        setExtraTips(loadedExtraTables.tips);
+        originalGridRef.current = original;
         setGrid(result.resultGrid);
         setTableGrid(tableOf(result));
         initialAfflictionRef.current = totalDebt(
@@ -546,6 +606,8 @@ export default function BossFightScreen({
       } catch (err) {
         if (!isCancelled())
           setLoadError(err instanceof Error ? err.message : String(err));
+      } finally {
+        stopProgress();
       }
     }
 
@@ -558,7 +620,7 @@ export default function BossFightScreen({
     };
     // initOptionsFor only reads `sandbox`, which is listed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [engine, caseData, sandbox]);
+  }, [engine, caseData, sandbox, bootAttempt]);
 
   // Post-run reconciliation: populate diff spans + fire the flash/recoil once
   // the grid has re-rendered with new values (DOM already shows new values;
@@ -851,7 +913,10 @@ export default function BossFightScreen({
         <span className={classNames(styles.loadingLine, styles.loadingError)}>
           engine failed to start — {loadError}
         </span>
-        <span className={styles.loadingLine}>reload the page to try again</span>
+        <button type="button" className={styles.retryButton} onClick={retryStart}>
+          Try again
+        </button>
+        <span className={styles.loadingLine}>If it keeps failing, reload the page.</span>
       </div>,
     );
   }
@@ -897,7 +962,9 @@ export default function BossFightScreen({
         slowHint={
           engine === "sql"
             ? undefined
-            : "Python and pandas load once, which takes a few seconds the first time."
+            : `Python and pandas load once, which takes a few seconds the first time.${
+                stageNote(engineStage) ? ` ${stageNote(engineStage) ?? ""}` : ""
+              }`
         }
         onEngage={() => {
           setPhase("fight");
@@ -913,7 +980,9 @@ export default function BossFightScreen({
         text={
           engine === "sql"
             ? "SQLite runs inside your browser. It is small, so this takes a moment."
-            : "Python and pandas run inside your browser, so they have to load first. That takes a few seconds the first time and is quicker after that."
+            : `Python and pandas run inside your browser, so they have to load first. That takes a few seconds the first time and is quicker after that.${
+                stageNote(engineStage) ? ` ${stageNote(engineStage) ?? ""}` : ""
+              }`
         }
       />,
     );

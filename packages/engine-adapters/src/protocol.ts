@@ -86,6 +86,14 @@ export interface EngineErrorResponse {
   message: string;
 }
 
+/** Where an engine is in its start-up, so the screen can say what it is waiting for (Python takes several steps). */
+export type EngineStage = "runtime" | "packages" | "pandas";
+
+export interface EngineProgressResponse {
+  type: "engine-progress";
+  stage: EngineStage;
+}
+
 export interface RunResultResponse {
   type: "run-result";
   requestId: string;
@@ -114,4 +122,8 @@ export interface RunErrorResponse {
 }
 
 export type WorkerResponse =
-  EngineReadyResponse | EngineErrorResponse | RunResultResponse | RunErrorResponse;
+  | EngineReadyResponse
+  | EngineProgressResponse
+  | EngineErrorResponse
+  | RunResultResponse
+  | RunErrorResponse;

@@ -1,13 +1,13 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { DragEvent } from "react";
 import {
-  prepareSandboxCsv,
   sanitizeTableName,
   SANDBOX_LIMITS,
   SANDBOX_MAX_TABLES,
   uniqueTableName,
 } from "../../lib/sandbox";
-import type { PreparedSandbox, SandboxExtra } from "../../lib/sandbox";
+import type { PreparedSandbox, SandboxExtra, SandboxResult } from "../../lib/sandbox";
+import { CsvImportClient } from "../../engines/csv-import-client";
 import type { A11yState } from "../../lib/a11y";
 import { classNames } from "../../lib/classNames";
 import A11yControls from "./A11yControls";
@@ -44,8 +44,21 @@ export default function SandboxSetupScreen({
   const inputRef = useRef<HTMLInputElement>(null);
   const extraInputRef = useRef<HTMLInputElement>(null);
 
-  function accept(fileName: string, text: string): void {
-    const result = prepareSandboxCsv(text);
+  // Reading and tidying a CSV happens in a worker, so a big file never freezes this screen.
+  const importerRef = useRef<CsvImportClient | null>(null);
+  function importer(): CsvImportClient {
+    importerRef.current ??= new CsvImportClient();
+    return importerRef.current;
+  }
+  useEffect(
+    () => () => {
+      importerRef.current?.dispose();
+      importerRef.current = null;
+    },
+    [],
+  );
+
+  function showResult(fileName: string, result: SandboxResult): void {
     if (!result.ok) {
       setLoaded(null);
       setError(result.message);
@@ -55,19 +68,13 @@ export default function SandboxSetupScreen({
     setLoaded({ fileName, prepared: result.data });
   }
 
-  function readFile(file: File): void {
-    if (file.size > SANDBOX_LIMITS.maxBytes * 2) {
-      setLoaded(null);
-      setError(
-        `That file is ${(file.size / 1_000_000).toFixed(1)} MB. The sandbox handles files up to ${String(SANDBOX_LIMITS.maxBytes / 1_000_000)} MB.`,
-      );
-      return;
-    }
+  /** A file or text becomes the main table. */
+  function accept(fileName: string, source: File | string): void {
     setBusy(true);
-    file
-      .text()
-      .then((text) => {
-        accept(file.name, text);
+    importer()
+      .prepare(source)
+      .then(({ result }) => {
+        showResult(fileName, result);
       })
       .catch(() => {
         setError(
@@ -79,37 +86,39 @@ export default function SandboxSetupScreen({
       });
   }
 
-  function addExtra(fileName: string, text: string): void {
-    const result = prepareSandboxCsv(text);
-    if (!result.ok) {
-      setExtraError(`${fileName}: ${result.message}`);
-      return;
-    }
-    setExtraError(null);
-    setExtras((current) =>
-      current.length + 1 >= SANDBOX_MAX_TABLES
-        ? current
-        : [
-            ...current,
-            {
-              name: uniqueTableName(
-                fileName,
-                current.map((e) => e.name),
-              ),
-              fileName,
-              csvText: result.data.csvText,
-              columns: result.data.columns,
-              rowCount: result.data.rowCount,
-            },
-          ],
-    );
+  function readFile(file: File): void {
+    accept(file.name, file);
   }
 
   function readExtraFile(file: File): void {
-    file
-      .text()
-      .then((text) => {
-        addExtra(file.name, text);
+    importer()
+      .prepare(file, { withTips: true })
+      .then(({ result, tips }) => {
+        if (!result.ok) {
+          setExtraError(`${file.name}: ${result.message}`);
+          return;
+        }
+        setExtraError(null);
+        const { data } = result;
+        setExtras((current) =>
+          current.length + 1 >= SANDBOX_MAX_TABLES
+            ? current
+            : [
+                ...current,
+                {
+                  name: uniqueTableName(
+                    file.name,
+                    current.map((e) => e.name),
+                  ),
+                  fileName: file.name,
+                  csvText: data.csvText,
+                  columns: data.columns,
+                  rowCount: data.rowCount,
+                  ...(data.hints ? { hints: data.hints } : {}),
+                  ...(tips ? { tips } : {}),
+                },
+              ],
+        );
       })
       .catch(() => {
         setExtraError("That file could not be read. Try saving it as CSV.");

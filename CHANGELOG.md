@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## 1.0.0 (2026-10-05)
 
+- **Sandbox: columns with symbols or spaces.** A column such as `Attendance%` has to be written in double quotes in SQL. The column chips now insert the quoted name when one is needed, and when a query names a column wrongly, the error says which real column was meant (and that it needs quotes). A result table whose pane was hidden when it was drawn can no longer collapse its row to a sliver: result rows have a fixed height and are not measured.
+
+- **Home page.** The "Start here" badge beside "What is this?" is gone.
+
+- **Faster loading, nothing changed on screen.** The home page's script is 103 kB gzipped (was 117 kB): the Tips dialog (and the SQL and pandas reference it carries) loads only when a screen that has its button opens. The fight screen's own code is 47 kB gzipped (was 210 kB) because CodeMirror is now a separate chunk that starts downloading the moment the world map opens, so it is ready long before the editor appears; the fight, the editor and the Tips are fetched while you read the roster. Reading and tidying an uploaded CSV (delimiter, header, limits, column hints, tooltips for joined tables) happens in a worker, so a 50,000-row file never blocks the page; a file's size is checked before any of it is read, for the main file and for joined tables, and nothing about the rules or messages changed. The fight no longer parses a sandbox CSV again, and its extra tables and answer table load while the engine starts instead of after it.
+
+- **Python start-up you can see and retry.** While Python loads, the intro and the loading card say which step it is on ("starting the Python runtime", "unpacking the data libraries", "loading pandas"). A start-up that fails now shows a **Try again** button that throws the broken worker away and starts a fresh one, and a worker that cannot even be loaded fails at once instead of after 45 seconds. Python still starts only when you point at or choose it.
+
+- **Performance guards.** `pnpm check-bundle` (run in CI) fails if the home page, the fight screen, the editor or a worker grows past its gzip budget, or if the editor, the SQL formatter or an engine loader lands on the home page; new end-to-end tests cover lazy loading, the import worker, Python retry and progress, fight entry, editor and engine readiness, and a 50,000-row import.
+
 - **Boot loading on phones.** The "loading" marker of the engine intro used to break apart on a narrow screen (its animated dots ended up stacked on separate lines). On phones it now sits on its own line with three dots that fade in turn, and the boot text has more room. Desktop and tablet are unchanged.
 
 - **A dock on phones.** Below 720px the Run bar stays pinned to the bottom of the screen, with **Edit** and **Result** beside a large **Run**. Wherever the page is scrolled, Run, "jump to the table" and "back to typing" are one tap away, so you never scroll to find the editor again; **Edit** goes straight back to typing (keyboard view), and **Done** leaves the editor where you were looking. Tablet and desktop are unchanged.
@@ -19,7 +29,7 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 - **Cleaner victory panel.** The "Copy my solution" button is gone from the win summary in every world; it now offers just "Back to roster" and "Keep exploring".
 
-- **A living welcome.** The green "What is this?" button under the title is replaced by a greeting that types itself in orange: "Welcome <Master>", then Savior, Slayer, Query Knight, NULL Hunter, Leviathan Slayer and about forty more, looping forever. It never stops (its position comes from the clock on every frame, so a busy moment cannot leave it stuck or behind), screen readers get one fixed sentence, and people who ask for reduced motion get a still greeting. "What is this?" remains in the top bar (with the "Start here" badge until it is first opened).
+- **A living welcome.** The green "What is this?" button under the title is replaced by a greeting that types itself in orange: "Welcome <Master>", then Savior, Slayer, Query Knight, NULL Hunter, Leviathan Slayer and about forty more, looping forever. It never stops (its position comes from the clock on every frame, so a busy moment cannot leave it stuck or behind), screen readers get one fixed sentence, and people who ask for reduced motion get a still greeting. "What is this?" remains in the top bar.
 
 - **Ready to deploy.** Share links get an absolute address from `SITE_URL` or Vercel's production domain (canonical, `og:url`, `og:image`, Twitter card with image size and description), hashed assets are cached for a year and the service worker is never cached, there is a `robots.txt` and a no-JavaScript message, and [`docs/DEPLOYING.md`](./docs/DEPLOYING.md) has the steps and a pre-launch checklist.
 

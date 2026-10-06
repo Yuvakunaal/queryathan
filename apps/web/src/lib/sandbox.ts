@@ -1,6 +1,7 @@
 import type { Case } from "@dcq/content-schema";
 import type { ResultGrid } from "@dcq/engine-adapters";
 import { parseCsv } from "../engines/csv";
+import type { ColumnTip } from "./mysqlType";
 
 /**
  * Sandbox mode: the player's own CSV. It is parsed here only to validate it,
@@ -20,6 +21,8 @@ export interface PreparedSandbox {
   rowCount: number;
   /** Plain-language notes about anything changed on the way in. */
   notes: string[];
+  /** Column widths and number-ness, worked out while the file was read, so the fight screen never parses the CSV again. */
+  hints?: NonNullable<Case["columnHints"]>;
 }
 
 /** The most tables a sandbox can hold: the main one and up to three more, for practising joins. */
@@ -33,6 +36,10 @@ export interface SandboxExtra {
   csvText: string;
   columns: string[];
   rowCount: number;
+  /** As for PreparedSandbox: worked out once, while the file was read. */
+  hints?: NonNullable<Case["columnHints"]>;
+  /** The tooltip (column type) for each column, worked out while the file was read. */
+  tips?: Record<string, ColumnTip>;
 }
 
 const RESERVED_TABLE_NAMES = new Set(["data", "df", "result", "pd"]);
@@ -60,6 +67,17 @@ export function uniqueTableName(wanted: string, taken: string[]): string {
   return name;
 }
 
+/**
+ * The message for a file that is too big to even read, or null when its size is fine. Checked
+ * from File.size before a single byte is read; a file between the limit and twice the limit is
+ * still read (off the main thread) so its exact size can be reported.
+ */
+export function oversizeFileMessage(size: number): string | null {
+  return size > SANDBOX_LIMITS.maxBytes * 2
+    ? `That file is ${(size / 1_000_000).toFixed(1)} MB. The sandbox handles files up to ${String(SANDBOX_LIMITS.maxBytes / 1_000_000)} MB.`
+    : null;
+}
+
 export type SandboxResult =
   { ok: true; data: PreparedSandbox } | { ok: false; message: string };
 
@@ -85,20 +103,47 @@ function sniffDelimiter(text: string): string {
   return counts[0] && counts[0][1] > 0 ? counts[0][0] : ",";
 }
 
+/** How many bytes the text takes as UTF-8, without making a copy when the answer is obvious (a UTF-16 unit is 1 to 3 bytes). */
+function exceedsByteLimit(text: string): { over: boolean; byteLength: number } {
+  if (text.length * 3 <= SANDBOX_LIMITS.maxBytes) return { over: false, byteLength: 0 };
+  const byteLength = new TextEncoder().encode(text).length;
+  return { over: byteLength > SANDBOX_LIMITS.maxBytes, byteLength };
+}
+
+interface Prepared {
+  result: SandboxResult;
+  /** The cleaned rows behind result.data, for the caller that wants column hints without parsing again. */
+  rows: string[][];
+}
+
 export function prepareSandboxCsv(rawText: string): SandboxResult {
+  return prepareRows(rawText).result;
+}
+
+/** Like prepareSandboxCsv, and also works out the grid's column hints from the rows it already has. */
+export function prepareSandboxCsvWithHints(rawText: string): SandboxResult {
+  const { result, rows } = prepareRows(rawText);
+  if (!result.ok) return result;
+  return {
+    ok: true,
+    data: { ...result.data, hints: columnHints(result.data.columns, rows) },
+  };
+}
+
+function prepareRows(rawText: string): Prepared {
+  const failed = (message: string): Prepared => ({
+    result: { ok: false, message },
+    rows: [],
+  });
   const text = rawText.replace(/^\uFEFF/, "");
   if (text.trim() === "") {
-    return {
-      ok: false,
-      message: "That file is empty. Choose a CSV with a header row and some data.",
-    };
+    return failed("That file is empty. Choose a CSV with a header row and some data.");
   }
-  const byteLength = new TextEncoder().encode(text).length;
-  if (byteLength > SANDBOX_LIMITS.maxBytes) {
-    return {
-      ok: false,
-      message: `That file is ${(byteLength / 1_000_000).toFixed(1)} MB. The sandbox handles files up to ${String(SANDBOX_LIMITS.maxBytes / 1_000_000)} MB so it stays fast in your browser. Try a smaller sample of the data.`,
-    };
+  const size = exceedsByteLimit(text);
+  if (size.over) {
+    return failed(
+      `That file is ${(size.byteLength / 1_000_000).toFixed(1)} MB. The sandbox handles files up to ${String(SANDBOX_LIMITS.maxBytes / 1_000_000)} MB so it stays fast in your browser. Try a smaller sample of the data.`,
+    );
   }
 
   const notes: string[] = [];
@@ -110,26 +155,22 @@ export function prepareSandboxCsv(rawText: string): SandboxResult {
   }
   const { columns: rawColumns, rows } = parseCsv(text, delimiter);
   if (rawColumns.length === 0 || (rawColumns.length === 1 && rawColumns[0] === "")) {
-    return {
-      ok: false,
-      message:
-        "No header row found. The first line of the file must list the column names.",
-    };
+    return failed(
+      "No header row found. The first line of the file must list the column names.",
+    );
   }
   if (rows.length === 0) {
-    return { ok: false, message: "The file has a header but no data rows." };
+    return failed("The file has a header but no data rows.");
   }
   if (rawColumns.length > SANDBOX_LIMITS.maxColumns) {
-    return {
-      ok: false,
-      message: `That file has ${String(rawColumns.length)} columns. The sandbox handles up to ${String(SANDBOX_LIMITS.maxColumns)}.`,
-    };
+    return failed(
+      `That file has ${String(rawColumns.length)} columns. The sandbox handles up to ${String(SANDBOX_LIMITS.maxColumns)}.`,
+    );
   }
   if (rows.length > SANDBOX_LIMITS.maxRows) {
-    return {
-      ok: false,
-      message: `That file has ${rows.length.toLocaleString()} rows. The sandbox handles up to ${SANDBOX_LIMITS.maxRows.toLocaleString()} so it stays fast. Try a smaller sample of the data.`,
-    };
+    return failed(
+      `That file has ${rows.length.toLocaleString()} rows. The sandbox handles up to ${SANDBOX_LIMITS.maxRows.toLocaleString()} so it stays fast. Try a smaller sample of the data.`,
+    );
   }
 
   // Every column needs a unique, non-empty name: SQLite refuses duplicates,
@@ -172,7 +213,10 @@ export function prepareSandboxCsv(rawText: string): SandboxResult {
       ? text
       : toCsv(columns, cleanRows);
 
-  return { ok: true, data: { csvText, columns, rowCount: cleanRows.length, notes } };
+  return {
+    result: { ok: true, data: { csvText, columns, rowCount: cleanRows.length, notes } },
+    rows: cleanRows,
+  };
 }
 
 /** Fits column widths to the data so the grid is readable from the first run. */
@@ -195,16 +239,22 @@ function columnHints(
   return hints;
 }
 
+/** Uses the hints worked out when each file was read; only a table that arrives without them is parsed here. */
 function allColumnHints(
-  columns: string[],
-  rows: string[][],
+  prepared: PreparedSandbox,
   extras: SandboxExtra[],
 ): NonNullable<Case["columnHints"]> {
   const hints: NonNullable<Case["columnHints"]> = {};
   for (const extra of extras) {
-    Object.assign(hints, columnHints(extra.columns, parseCsv(extra.csvText).rows));
+    Object.assign(
+      hints,
+      extra.hints ?? columnHints(extra.columns, parseCsv(extra.csvText).rows),
+    );
   }
-  return Object.assign(hints, columnHints(columns, rows));
+  return Object.assign(
+    hints,
+    prepared.hints ?? columnHints(prepared.columns, parseCsv(prepared.csvText).rows),
+  );
 }
 
 /** Wraps a prepared upload in the Case shape the fight screen consumes. There is no win condition; the screen knows not to use it. */
@@ -213,7 +263,6 @@ export function buildSandboxCase(
   prepared: PreparedSandbox,
   extras: SandboxExtra[] = [],
 ): Case {
-  const { rows } = parseCsv(prepared.csvText);
   const first = prepared.columns[0] ?? "x";
   return {
     id: "sandbox",
@@ -238,7 +287,7 @@ export function buildSandboxCase(
       python: "# df is your data. Try one of the ideas on the left.\ndf.head()",
       sql: "-- data is your table. Try one of the ideas on the left.\nSELECT * FROM data LIMIT 20;",
     },
-    columnHints: allColumnHints(prepared.columns, rows, extras),
+    columnHints: allColumnHints(prepared, extras),
     // Never evaluated: the screen skips win checks in sandbox mode.
     winCondition: { all: [{ predicate: "has_columns", columns: [first] }] },
   };

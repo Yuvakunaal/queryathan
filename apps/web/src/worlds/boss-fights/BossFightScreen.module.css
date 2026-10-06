@@ -186,6 +186,28 @@
   color: var(--w1-diff-del);
 }
 
+/* The start-up error's "Try again": the same outlined button the output panel uses. */
+.retryButton {
+  align-self: flex-start;
+  margin: 12px 0;
+  height: 32px;
+  padding: 0 16px;
+  background: transparent;
+  border: 1px solid var(--w1-rule-strong);
+  color: var(--w1-text-primary);
+  font: 600 13px/1 var(--w1-font-display);
+  cursor: pointer;
+}
+.retryButton:hover,
+.retryButton:focus-visible {
+  border-color: var(--w1-amber-500);
+  color: var(--w1-amber-500);
+}
+.retryButton:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}
+
 .srOnly {
   position: absolute;
   width: 1px;

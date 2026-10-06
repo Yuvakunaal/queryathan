@@ -23,7 +23,6 @@ import type { Route } from "./lib/route";
 import { worldMeta as metaFor } from "./lib/world-meta";
 import { TipsProvider } from "./TipsContext";
 import type { Inserter } from "./TipsContext";
-import TipsDialog from "./worlds/boss-fights/TipsDialog";
 import { applyA11yToDocument, loadA11yState, persistA11yState } from "./lib/a11y";
 import type { A11yState } from "./lib/a11y";
 import { configureSound, playTravel, preloadKeys, preloadSlice } from "./lib/sound";
@@ -34,7 +33,14 @@ import type { ReactElement } from "react";
 // fight. WorldMapScreen still eagerly pulls the shared font/theme imports
 // via the worlds/boss-fights barrel, so nothing here needs to re-trigger
 // those.
-const BossFightScreen = lazy(() => import("./worlds/boss-fights/BossFightScreen"));
+//
+// The editor (CodeMirror) is a chunk of its own: it is requested here, beside the fight
+// screen, so both arrive together instead of one after the other.
+const loadFight = () => {
+  void import("./worlds/boss-fights/CodeEditor");
+  return import("./worlds/boss-fights/BossFightScreen");
+};
+const BossFightScreen = lazy(loadFight);
 // The rocket flight (and the animation library it needs) is only fetched when a
 // flight is about to play, so the home page stays small. Hovering a world card warms it up.
 const loadTravel = () => import("./worlds/boss-fights/TravelSequence");
@@ -42,6 +48,11 @@ const TravelSequence = lazy(loadTravel);
 function warmTravel(): void {
   void loadTravel();
 }
+// The Tips dialog (and the SQL and pandas reference it carries) is only drawn when the book
+// button is pressed. Every screen that has that button warms it up as it opens, so it is ready
+// before the press, and the home page does not pay for it.
+const loadTips = () => import("./worlds/boss-fights/TipsDialog");
+const TipsDialog = lazy(loadTips);
 
 type Screen =
   | { name: "hub" }
@@ -163,6 +174,13 @@ function AppScreens() {
     if (a11y.sound) preloadSlice();
     persistA11yState(a11y);
   }, [a11y]);
+
+  useEffect(() => {
+    if (screen.name !== "hub") void loadTips();
+    // On the world map the next click is a case, so the fight code is fetched while the
+    // player reads the roster, and a fight opens straight away.
+    if (screen.name === "roster") void loadFight();
+  }, [screen.name]);
 
   // Moving between screens is recorded in the browser's history, so Back and Forward work.
   function go(next: Screen): void {
@@ -385,12 +403,14 @@ export default function App() {
       <AppScreens />
       {tipsWorld !== null ? (
         <div data-world={tipsWorld} style={{ display: "contents" }}>
-          <TipsDialog
-            inserter={inserterRef.current}
-            onClose={() => {
-              setTipsWorld(null);
-            }}
-          />
+          <Suspense fallback={null}>
+            <TipsDialog
+              inserter={inserterRef.current}
+              onClose={() => {
+                setTipsWorld(null);
+              }}
+            />
+          </Suspense>
         </div>
       ) : null}
     </TipsProvider>

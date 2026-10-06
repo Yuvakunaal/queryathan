@@ -1,5 +1,6 @@
 import type { GeneratedDataset } from "./generate";
 import type {
+  EngineStage,
   ExtraTable,
   RunResultResponse,
   WorkerRequest,
@@ -82,6 +83,8 @@ export class EngineRpcClient {
   private readyWaiters: ReadyWaiter[] = [];
   private isReady = false;
   private engineError: RpcEngineError | null = null;
+  private stage: EngineStage | null = null;
+  private progressListeners = new Set<(stage: EngineStage) => void>();
   private listener: (event: MessageEvent<WorkerResponse>) => void;
 
   constructor(transport: RpcTransport) {
@@ -109,6 +112,19 @@ export class EngineRpcClient {
       }, timeoutMs);
       this.readyWaiters.push({ resolve, reject, timeoutHandle });
     });
+  }
+
+  /**
+   * Calls back with each start-up step the engine reports (and once at once with the latest one
+   * already reached, so a listener that arrives late still knows where things are). Returns the
+   * function that stops listening.
+   */
+  onProgress(listener: (stage: EngineStage) => void): () => void {
+    this.progressListeners.add(listener);
+    if (this.stage && !this.isReady) listener(this.stage);
+    return () => {
+      this.progressListeners.delete(listener);
+    };
   }
 
   initCase(
@@ -150,12 +166,28 @@ export class EngineRpcClient {
     this.transport.postMessage({ type: "cancel", requestId });
   }
 
+  /**
+   * The engine cannot start (its worker could not even be loaded: offline, blocked, a bad
+   * deploy). Same effect as the worker's own `engine-error`, without waiting for ready()'s
+   * time limit to run out.
+   */
+  fail(message: string): void {
+    if (this.isReady || this.engineError) return;
+    this.engineError = new RpcEngineError(message);
+    for (const waiter of this.readyWaiters) {
+      clearTimeout(waiter.timeoutHandle);
+      waiter.reject(this.engineError);
+    }
+    this.readyWaiters = [];
+  }
+
   dispose(): void {
     this.transport.removeEventListener("message", this.listener);
     for (const pending of this.pending.values()) {
       clearTimeout(pending.timeoutHandle);
     }
     this.pending.clear();
+    this.progressListeners.clear();
     for (const waiter of this.readyWaiters) {
       clearTimeout(waiter.timeoutHandle);
     }
@@ -199,13 +231,14 @@ export class EngineRpcClient {
       return;
     }
 
+    if (response.type === "engine-progress") {
+      this.stage = response.stage;
+      for (const listener of this.progressListeners) listener(response.stage);
+      return;
+    }
+
     if (response.type === "engine-error") {
-      this.engineError = new RpcEngineError(response.message);
-      for (const waiter of this.readyWaiters) {
-        clearTimeout(waiter.timeoutHandle);
-        waiter.reject(this.engineError);
-      }
-      this.readyWaiters = [];
+      this.fail(response.message);
       return;
     }
 

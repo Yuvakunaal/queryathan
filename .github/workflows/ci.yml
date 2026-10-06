@@ -43,6 +43,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Bundle budgets
+        run: pnpm check-bundle
+
   e2e:
     name: End-to-end (real engines, production build, real headers)
     runs-on: ubuntu-latest

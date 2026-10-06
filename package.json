@@ -37,6 +37,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "pnpm -r test",
+    "check-bundle": "node scripts/check-bundle-budget.mjs",
     "validate-content": "tsx scripts/validate-content.mjs",
     "fetch-pyodide": "node scripts/fetch-pyodide.mjs",
     "postinstall": "node scripts/fetch-pyodide.mjs",

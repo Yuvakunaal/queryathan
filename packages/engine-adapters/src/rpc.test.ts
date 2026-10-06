@@ -186,4 +186,42 @@ describe("EngineRpcClient", () => {
       output: null,
     });
   });
+
+  it("passes start-up progress to listeners, replays the latest to a late one, and stops after ready", () => {
+    const transport = new FakeTransport();
+    const client = new EngineRpcClient(transport);
+    const early: string[] = [];
+    const stop = client.onProgress((stage) => early.push(stage));
+    transport.emit({ type: "engine-progress", stage: "runtime" });
+    transport.emit({ type: "engine-progress", stage: "pandas" });
+    expect(early).toEqual(["runtime", "pandas"]);
+
+    const late: string[] = [];
+    client.onProgress((stage) => late.push(stage));
+    expect(late).toEqual(["pandas"]);
+
+    stop();
+    transport.emit({ type: "engine-progress", stage: "packages" });
+    expect(early).toEqual(["runtime", "pandas"]);
+    expect(late).toEqual(["pandas", "packages"]);
+
+    transport.emit({ type: "ready" });
+    const afterReady: string[] = [];
+    client.onProgress((stage) => afterReady.push(stage));
+    expect(afterReady).toEqual([]);
+  });
+
+  it("fail() rejects ready() at once, and does nothing once the engine is ready", async () => {
+    const failing = new EngineRpcClient(new FakeTransport());
+    const waiting = failing.ready();
+    failing.fail("could not load");
+    await expect(waiting).rejects.toThrow("could not load");
+    await expect(failing.ready()).rejects.toThrow("could not load");
+
+    const transport = new FakeTransport();
+    const healthy = new EngineRpcClient(transport);
+    transport.emit({ type: "ready" });
+    healthy.fail("late error");
+    await expect(healthy.ready()).resolves.toBeUndefined();
+  });
 });

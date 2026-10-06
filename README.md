@@ -161,7 +161,7 @@ Each of these is phone-only (720 px and below): the **dock** that keeps Run, Edi
 ## ✅ Quality
 
 - Strict TypeScript, ESLint, Prettier, a pre-commit hook, CodeQL and Dependabot.
-- 307 unit tests (Vitest) and 326 end-to-end tests (Playwright) on a production build served with the real headers: every case in both engines, near-miss wrong answers, every complete SQL hint, offline use, layout and touch flows at phone widths, axe-core accessibility scans in both themes, and WCAG AA contrast on every colour token.
+- 320 unit tests (Vitest) and 344 end-to-end tests (Playwright) on a production build served with the real headers: every case in both engines, near-miss wrong answers, every complete SQL hint, offline use, layout and touch flows at phone widths, axe-core accessibility scans in both themes, and WCAG AA contrast on every colour token.
 - Lighthouse budgets in CI (performance, accessibility, best practices, script size).
 
 ## 🗂 Project structure

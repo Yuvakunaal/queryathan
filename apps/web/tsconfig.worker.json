@@ -11,7 +11,11 @@
     "src/engines/csv.ts",
     "src/engines/sql-dtypes.ts",
     "src/engines/sqlRewrite.ts",
-    "src/engines/sqlFunctions.ts"
+    "src/engines/sqlFunctions.ts",
+    "src/engines/csv-import.protocol.ts",
+    "src/lib/sandbox.ts",
+    "src/lib/csvGrid.ts",
+    "src/lib/mysqlType.ts"
   ],
   "references": [
     { "path": "../../packages/content-schema" },
