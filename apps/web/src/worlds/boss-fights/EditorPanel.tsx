@@ -8,6 +8,43 @@ import { tipAttributes } from "../../lib/columnTip";
 import type { ColumnTip } from "../../lib/mysqlType";
 import styles from "./EditorPanel.module.css";
 
+const ICON_PROPS = {
+  viewBox: "0 0 24 24",
+  width: 18,
+  height: 18,
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  "aria-hidden": true,
+  focusable: false,
+};
+
+/** Phone-only icons for the editor's tool buttons; on larger screens the words are shown. */
+function FormatIcon() {
+  return (
+    <svg {...ICON_PROPS}>
+      <path d="M8 4c-2 0-3 1-3 3v2c0 1.5-.8 2.5-2 3 1.2.5 2 1.5 2 3v2c0 2 1 3 3 3M16 4c2 0 3 1 3 3v2c0 1.5.8 2.5 2 3-1.2.5-2 1.5-2 3v2c0 2-1 3-3 3" />
+    </svg>
+  );
+}
+function ResetIcon() {
+  return (
+    <svg {...ICON_PROPS}>
+      <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+      <path d="M3 3v5h5" />
+    </svg>
+  );
+}
+function ClearIcon() {
+  return (
+    <svg {...ICON_PROPS}>
+      <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
+    </svg>
+  );
+}
+
 export interface EditorPanelProps {
   language: "python" | "sql";
   starterCode: string;
@@ -84,7 +121,10 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
             }}
             title="Tidy the SQL (the selection, or everything). Shift+Alt+F"
           >
-            Format
+            <span className={styles.icon}>
+              <FormatIcon />
+            </span>
+            <span className={styles.label}>Format</span>
           </button>
         ) : null}
         <button
@@ -95,7 +135,10 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
           }}
           title="Put the starting code back. You can undo this with Ctrl+Z."
         >
-          Reset
+          <span className={styles.icon}>
+            <ResetIcon />
+          </span>
+          <span className={styles.label}>Reset</span>
         </button>
         <button
           type="button"
@@ -105,7 +148,10 @@ const EditorPanel = forwardRef<CodeEditorHandle, EditorPanelProps>(function Edit
           }}
           title="Empty the editor. You can undo this with Ctrl+Z."
         >
-          Clear
+          <span className={styles.icon}>
+            <ClearIcon />
+          </span>
+          <span className={styles.label}>Clear</span>
         </button>
       </div>
       <div

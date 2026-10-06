@@ -132,3 +132,41 @@
     flex-basis: 0;
   }
 }
+
+/* Phones only: the tool buttons become small icon buttons (their names stay for screen readers). */
+.icon {
+  display: none;
+}
+@media (max-width: 720px) {
+  .toolbar {
+    gap: 4px 8px;
+    padding: 6px 10px;
+    min-height: 48px;
+  }
+  .title {
+    font-size: 14px;
+  }
+  .icon {
+    display: inline-flex;
+  }
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .toolButton {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-color: var(--w1-rule-strong);
+    color: var(--w1-text-primary);
+  }
+}

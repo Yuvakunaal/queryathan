@@ -1,4 +1,6 @@
-import { forwardRef, useMemo, useState } from "react";
+import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import { classNames } from "../../lib/classNames";
+import { usePhone } from "../../lib/usePhone";
 import type { SqlRef as RefItem, SqlRefGroup as RefGroup } from "../../lib/sqlReference";
 import styles from "./HelpToolbox.module.css";
 
@@ -36,6 +38,17 @@ const HelpBody = forwardRef<HTMLInputElement, HelpBodyProps>(function HelpBody(
   }, [needle, groups]);
   const group = groups.find((g) => g.id === groupId) ?? groups[0];
   const shown = results ?? group?.items ?? [];
+  const phone = usePhone();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+  // On a phone only two topics fit on a line: the chosen one and the first other one, then "More".
+  const visibleGroups = phone
+    ? groups
+        .filter((g) => g.id === groupId)
+        .concat(groups.filter((g) => g.id !== groupId))
+        .slice(0, 2)
+        .sort((a, b) => groups.indexOf(a) - groups.indexOf(b))
+    : groups;
 
   return (
     <>
@@ -51,8 +64,12 @@ const HelpBody = forwardRef<HTMLInputElement, HelpBodyProps>(function HelpBody(
         }}
       />
       {results ? null : (
-        <div className={styles.tabs} role="group" aria-label="Topics">
-          {groups.map((g) => (
+        <div
+          className={classNames(styles.tabs, phone && styles.tabsPhone)}
+          role="group"
+          aria-label="Topics"
+        >
+          {visibleGroups.map((g) => (
             <button
               key={g.id}
               type="button"
@@ -65,8 +82,36 @@ const HelpBody = forwardRef<HTMLInputElement, HelpBodyProps>(function HelpBody(
               {g.title}
             </button>
           ))}
+          {phone && groups.length > visibleGroups.length ? (
+            <button
+              ref={moreButtonRef}
+              type="button"
+              className={classNames(styles.tab, styles.more)}
+              aria-haspopup="dialog"
+              onClick={() => {
+                setMoreOpen(true);
+              }}
+            >
+              More
+            </button>
+          ) : null}
         </div>
       )}
+      {phone && moreOpen ? (
+        <TopicsModal
+          groups={groups}
+          activeId={group?.id ?? ""}
+          onPick={(id) => {
+            setGroupId(id);
+            setMoreOpen(false);
+            moreButtonRef.current?.focus();
+          }}
+          onClose={() => {
+            setMoreOpen(false);
+            moreButtonRef.current?.focus();
+          }}
+        />
+      ) : null}
       <ul className={styles.list}>
         {shown.map((item) => {
           const content = (
@@ -107,3 +152,66 @@ const HelpBody = forwardRef<HTMLInputElement, HelpBodyProps>(function HelpBody(
 });
 
 export default HelpBody;
+
+/** On a phone: every topic in a tidy two-column modal, opened by the "More" button. */
+function TopicsModal({
+  groups,
+  activeId,
+  onPick,
+  onClose,
+}: {
+  groups: RefGroup[];
+  activeId: string;
+  onPick: (id: string) => void;
+  onClose: () => void;
+}) {
+  const firstRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    firstRef.current?.focus();
+  }, []);
+  return (
+    <div
+      className={styles.modalBackdrop}
+      data-topics-modal
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.stopPropagation();
+          onClose();
+        }
+      }}
+    >
+      <div
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        aria-label="All topics"
+      >
+        <div className={styles.modalHeader}>
+          <h3 className={styles.modalTitle}>Topics</h3>
+          <button type="button" className={styles.modalClose} onClick={onClose}>
+            Close
+          </button>
+        </div>
+        <div className={styles.modalGrid}>
+          {groups.map((g, index) => (
+            <button
+              key={g.id}
+              ref={index === 0 ? firstRef : undefined}
+              type="button"
+              className={styles.modalTopic}
+              aria-pressed={g.id === activeId}
+              onClick={() => {
+                onPick(g.id);
+              }}
+            >
+              {g.title}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

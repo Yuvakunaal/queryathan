@@ -5,6 +5,8 @@ follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## 1.0.0 (2026-10-05)
 
+- **Phone editor, tidier.** Below 720px the editor's Help, Format, Reset and Clear buttons are small icon buttons (`?`, `{}`, undo, bin) that keep their names for screen readers. SQL and Python help open as a bottom sheet with a large search box; its topics show two to a line plus **More**, which opens a two-column topics modal. Tips uses the same topic chips. Desktop and tablet are unchanged (words on the buttons, help as a pop-over).
+
 - **Made for phones.** Below 720px the row of small option buttons (text size, theme, CRT, sound, animation, Tips, contrast) is one menu button that opens a drawer sliding in from the right, with large touch rows, switches, a volume slider and the Tips link; it is on every screen, closes with Escape or a tap outside, keeps focus inside while open, and passes the accessibility scan in both themes. The old pop-up menus no longer run off the screen. On a touch screen the intro says "[ TAP ] touch anywhere to engage" and a tap anywhere starts the fight (there is no Enter key on a phone); desktop keeps "[ ENTER ]" (and a click works there too).
 
 - **Rank panel fixed.** Geminora could show "7 / 6 techniques" with a progress bar running outside its box, and Minos Deep's top rank could never be reached. The rank tables now match what each world really teaches (Geminora 8, Minos Deep 5), the total can never be smaller than what is on record, the bar is clamped inside its box, and a test reads the real case files so the tables cannot drift again.

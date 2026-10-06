@@ -125,3 +125,185 @@
 .item[data-plain="true"]:hover {
   border-color: transparent;
 }
+
+/* ---------- Phones only (720px and below) ---------- */
+.icon {
+  display: none;
+}
+.tabsPhone {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 6px;
+}
+.tabsPhone .tab {
+  min-height: 44px;
+  padding: 4px 8px;
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.tabsPhone .more {
+  padding: 0 14px;
+  color: var(--w1-amber-500);
+  border-color: var(--w1-amber-500);
+}
+.sheetBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgb(0 0 0 / 0.6);
+  animation: sheet-fade 160ms ease both;
+}
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 82dvh;
+  padding: 0 12px 14px;
+  background: var(--w1-bg-panel);
+  border-top: 1px solid var(--w1-rule-strong);
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -16px 40px rgb(0 0 0 / 0.5);
+  animation: sheet-up 240ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+.sheet .list {
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+.sheet .search {
+  height: 44px;
+  font-size: 16px; /* 16px stops iPhone zooming into the field */
+}
+.sheet .item {
+  padding: 12px;
+}
+.sheetHeader {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0 4px;
+  background: var(--w1-bg-panel);
+}
+.sheetTitle {
+  margin: 0;
+  font: 700 16px/1 var(--w1-font-display);
+  color: var(--w1-text-primary);
+}
+.sheetClose,
+.modalClose {
+  min-height: 40px;
+  padding: 0 14px;
+  background: transparent;
+  border: 1px solid var(--w1-rule-strong);
+  color: var(--w1-text-primary);
+  font: 600 13px/1 var(--w1-font-display);
+  cursor: pointer;
+}
+.sheetClose:focus-visible,
+.modalClose:focus-visible,
+.modalTopic:focus-visible {
+  outline: 2px solid var(--w1-focus);
+  outline-offset: 2px;
+}
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 0.7);
+}
+.modal {
+  width: min(360px, 100%);
+  max-height: 80dvh;
+  overflow: auto;
+  padding: 14px;
+  background: var(--w1-bg-panel);
+  border: 1px solid var(--w1-rule-strong);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 0.55);
+  color: var(--w1-text-primary);
+}
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.modalTitle {
+  margin: 0;
+  font: 700 16px/1 var(--w1-font-display);
+}
+.modalGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.modalTopic {
+  min-height: 52px;
+  padding: 8px 10px;
+  background: var(--w1-bg-panel-2);
+  border: 1px solid var(--w1-rule-strong);
+  color: var(--w1-text-primary);
+  font: 500 13px/1.25 var(--w1-font-text);
+  text-align: left;
+  cursor: pointer;
+}
+.modalTopic[aria-pressed="true"] {
+  background: var(--w1-green-500);
+  border-color: var(--w1-green-500);
+  color: var(--w1-text-inverse);
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes sheet-fade {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .sheetBackdrop {
+    animation: none;
+  }
+}
+@media (max-width: 720px) {
+  .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font: 700 18px/1 var(--w1-font-display);
+  }
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-color: var(--w1-rule-strong);
+    color: var(--w1-amber-500);
+  }
+}

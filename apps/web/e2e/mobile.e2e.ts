@@ -128,6 +128,94 @@ test.describe("phone", () => {
   });
 });
 
+test.describe("phone editor tools", () => {
+  test.use({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    isMobile: true,
+  });
+
+  async function intoFight(page: import("@playwright/test").Page): Promise<void> {
+    await openCase(page, "boss-fights", "w1-01-nul-sentinel", "sql", { skipBoot: true });
+    await expect(page.getByText(/touch anywhere to engage NUL_SENTINEL/)).toBeVisible({
+      timeout: 120_000,
+    });
+    await page.waitForTimeout(700);
+    await page.touchscreen.tap(200, 520);
+    await page.locator(".cm-content").waitFor({ timeout: 20_000 });
+  }
+
+  test("help, format, reset and clear are small icon buttons that keep their names", async ({
+    page,
+  }) => {
+    test.setTimeout(150_000);
+    await intoFight(page);
+    for (const name of ["SQL help", "Format", "Reset", "Clear"]) {
+      const button = page.getByRole("button", { name, exact: true });
+      await expect(button).toBeVisible();
+      const box = await button.boundingBox();
+      // Icon-sized, still a comfortable touch target, and no words drawn on it.
+      expect(box?.width ?? 0).toBeLessThan(48);
+      expect(box?.width ?? 0).toBeGreaterThanOrEqual(36);
+      // The words are kept for screen readers but not drawn.
+      const label = await button.locator("span").last().boundingBox();
+      expect(label?.width ?? 0).toBeLessThanOrEqual(2);
+    }
+  });
+
+  test("SQL help opens as a bottom sheet with two topics and a More modal", async ({
+    page,
+  }) => {
+    test.setTimeout(150_000);
+    await intoFight(page);
+    await page.getByRole("button", { name: "SQL help" }).click();
+    const sheet = page.getByRole("dialog", { name: "SQL help" });
+    await expect(sheet).toBeVisible();
+    // Against the bottom edge, full width.
+    await expect
+      .poll(async () => {
+        const box = await sheet.boundingBox();
+        return Math.round((box?.y ?? 0) + (box?.height ?? 0));
+      })
+      .toBe(844);
+    // Only two topics on the line, then More.
+    const topics = sheet.getByRole("group", { name: "Topics" });
+    await expect(topics.getByRole("button")).toHaveCount(3);
+    await topics.getByRole("button", { name: "More", exact: true }).click();
+    const modal = page.getByRole("dialog", { name: "All topics" });
+    await expect(modal).toBeVisible();
+    await expect(modal.getByRole("button", { name: /^(?!Close)/ }).first()).toBeVisible();
+    expect(await modal.getByRole("button").count()).toBeGreaterThan(7);
+    await modal.getByRole("button", { name: "Missing values" }).click();
+    await expect(modal).toBeHidden();
+    // The chosen topic is now showing (and stays visible among the two).
+    await expect(
+      topics.getByRole("button", { name: "Missing values", pressed: true }),
+    ).toBeVisible();
+    // Picking an entry puts it in the editor and closes the sheet.
+    await sheet
+      .getByRole("button", { name: /COALESCE/ })
+      .first()
+      .click();
+    await expect(sheet).toBeHidden();
+    await expect(page.locator(".cm-content")).toContainText("COALESCE");
+  });
+});
+
+test("on a desktop the editor tools keep their words and help is a pop-over", async ({
+  page,
+}) => {
+  test.setTimeout(150_000);
+  await openCase(page, "boss-fights", "w1-01-nul-sentinel", "sql");
+  for (const name of ["Format", "Reset", "Clear"]) {
+    await expect(page.getByRole("button", { name, exact: true })).toHaveText(name);
+  }
+  await page.getByRole("button", { name: "SQL help" }).click();
+  await expect(page.getByRole("region", { name: "SQL help" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "SQL help" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "More", exact: true })).toHaveCount(0);
+});
+
 test("on a desktop there is no menu button, only the row of options", async ({
   page,
 }) => {
