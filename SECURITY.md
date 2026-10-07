@@ -94,9 +94,10 @@ this on every pull request.
 - Zero accounts, zero PII collected by default.
 - User-uploaded datasets in sandbox mode never leave the browser — all
   processing happens client-side inside the worker.
-- No third-party analytics by default. If analytics are ever added, they
-  will be privacy-first, cookieless, and opt-in (e.g. Plausible/Umami), never
-  silent.
+- The hosted site counts anonymous page views with Vercel Web Analytics:
+  cookieless, it sees which page was loaded and never your code, files or
+  progress. A copy you host yourself has no analytics unless you add it
+  (the `<Analytics />` line in `apps/web/src/main.tsx`).
 
 ## Dataset/content licensing
 
