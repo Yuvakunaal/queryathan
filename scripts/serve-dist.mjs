@@ -41,6 +41,22 @@ if (!existsSync(join(distDir, "index.html"))) {
 
 createServer((req, res) => {
   const url = new URL(req.url ?? "/", `http://localhost:${String(port)}`);
+  // Vercel serves its Web Analytics script and page-view endpoint itself, so they are not in
+  // dist. Answer them the way Vercel does (an empty script, an accepted beacon) so the tests see
+  // the same page as production without a request for a missing file.
+  if (url.pathname === "/_vercel/insights/script.js") {
+    res.writeHead(200, {
+      ...globalHeaders,
+      "Content-Type": "application/javascript; charset=utf-8",
+    });
+    res.end("/* Vercel Web Analytics is provided by Vercel; not used locally. */\n");
+    return;
+  }
+  if (url.pathname.startsWith("/_vercel/insights/")) {
+    res.writeHead(204, globalHeaders);
+    res.end();
+    return;
+  }
   let relative = normalize(decodeURIComponent(url.pathname)).replace(/^([/\\])+/, "");
   if (relative === "" || relative.endsWith("/")) relative += "index.html";
   const filePath = join(distDir, relative);
